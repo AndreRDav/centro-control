@@ -4952,16 +4952,26 @@
         }
       }
 
-      function saveState() {
+      function saveState(skipDiskSync = false) {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-          syncDiskFile();
+          if (!skipDiskSync) {
+            syncDiskFile();
+          }
         } catch (_) {}
       }
 
       async function syncDiskFile() {
         if (!fileHandle) return;
         try {
+          // Verificar permiso primero si el navegador lo soporta; si no está concedido ('prompt' o 'denied'), no intentar createWritable()
+          if (fileHandle.queryPermission) {
+            const currentPerm = await fileHandle.queryPermission({ mode: 'readwrite' });
+            if (currentPerm !== 'granted') {
+              updateAutoSaveUI(false, true);
+              return;
+            }
+          }
           const writable = await fileHandle.createWritable();
           await writable.write(JSON.stringify(state, null, 2));
           await writable.close();
@@ -9270,7 +9280,7 @@
             }
           }
           renderApp();
-          saveState();
+          saveState(true);
         },
 
         toggleMobileKpis() {
@@ -12031,7 +12041,7 @@
             }
           }
           renderHeaderAndKPIs();
-          saveState();
+          saveState(true);
         },
         saveGoalsSettings(showAlert = true) {
           this.autoSaveGoalSetting();
