@@ -2656,7 +2656,7 @@
   <div id="floatingDock" class="fixed bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-4 z-40 flex flex-col items-center sm:items-end gap-2.5 pointer-events-auto select-none print:hidden">
 
     <!-- VENTANA FLOTANTE 1: POMODORO MINIMIZABLE -->
-    <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 shadow-2xl transition-all duration-200 border">
+    <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-80 md:w-88 max-w-sm shadow-2xl transition-all duration-200 border">
       <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2756,7 +2756,7 @@
     </div>
 
     <!-- VENTANA FLOTANTE 2: GASTO RÁPIDO MINIMIZABLE -->
-    <div id="dockExpenseWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 shadow-2xl transition-all duration-200 border">
+    <div id="dockExpenseWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-80 md:w-88 max-w-sm shadow-2xl transition-all duration-200 border">
       <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -2847,16 +2847,16 @@
   <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4 mobile-header-spacing">
 
     <!-- CABECERA PRINCIPAL (STICKY AUTO-HIDE) -->
-    <header id="mainAppHeader" class="main-app-header sticky top-2 z-40 editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 shadow-xl backdrop-blur-md">
+    <header id="mainAppHeader" class="main-app-header sticky top-2 z-40 editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3 shadow-xl backdrop-blur-md">
       <!-- Fila 1: Logo + Título + Navegación Semanas con Candado -->
-      <div class="flex items-center justify-between xl:justify-start gap-3 w-full xl:w-auto">
-        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+      <div class="flex items-center justify-between 2xl:justify-start gap-3 w-full 2xl:w-auto shrink-0">
+        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
           <div id="appHeaderLogo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300 shrink-0">
-            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+            <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon></svg>
           </div>
-          <div class="min-w-0">
-            <div class="flex items-center gap-2 flex-wrap">
-              <h1 class="text-sm sm:text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white whitespace-nowrap">CENTRO DE <span class="italic font-normal">Control</span></h1>
+          <div class="shrink-0">
+            <div class="flex items-center gap-2">
+              <h1 class="text-sm sm:text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white whitespace-nowrap select-none">CENTRO DE <span class="italic font-normal">Control</span></h1>
               
               <!-- Candado de Seguridad Solo Lectura / Edición (en desktop o móvil) -->
               <button onclick="app.toggleReadOnlyLock()" id="readOnlyLockBtn" class="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold border transition flex items-center gap-1" title="Bloquear edición accidental">
@@ -3537,56 +3537,58 @@
          ======================================================== -->
     <section id="tab3" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
       
-      <!-- CABECERA FINANCIERA: MODO PRESUPUESTO + HUCHA -->
+      <!-- FILA SUPERIOR: CONFIGURACIÓN DEL PRESUPUESTO + METAS DE AHORRO INDIVIDUALES (LADO A LADO) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <!-- Modo Presupuesto -->
-        <div class="lg:col-span-8 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs">
-          <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
-            <div class="flex items-center gap-2">
-              <div class="vector-seal bg-theme-main text-white shadow-xs">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+              <div class="flex items-center gap-2">
+                <div class="vector-seal bg-theme-main text-white shadow-xs">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                </div>
+                <div>
+                  <h2 class="text-base font-serif font-bold tracking-tight">Configuración del Presupuesto <span class="italic font-normal">Semanal</span></h2>
+                  <span class="text-slate-400 text-[11px]">Tope manual o cálculo automático</span>
+                </div>
               </div>
-              <div>
-                <h2 class="text-base sm:text-lg font-serif font-bold tracking-tight">Configuración del Presupuesto <span class="italic font-normal">Semanal</span></h2>
-                <span class="text-slate-400 text-[11px]">Alterna entre tope manual directo o cálculo automático desde tus ingresos</span>
+              <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border font-bold">
+                <button onclick="app.setFinanceMode('manual')" id="finModeManualBtn" class="px-2.5 py-1 rounded-lg">Modo Manual</button>
+                <button onclick="app.setFinanceMode('auto')" id="finModeAutoBtn" class="px-2.5 py-1 rounded-lg text-slate-400">Modo Automático</button>
               </div>
             </div>
-            <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border font-bold">
-              <button onclick="app.setFinanceMode('manual')" id="finModeManualBtn" class="px-2.5 py-1 rounded-lg">Modo Manual</button>
-              <button onclick="app.setFinanceMode('auto')" id="finModeAutoBtn" class="px-2.5 py-1 rounded-lg text-slate-400">Modo Automático</button>
+
+            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+              <div class="p-2 rounded-xl subpanel-bg border space-y-1">
+                <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Tope Semanal:</span>
+                <input id="tab3ManualBudgetInput" type="number" step="1" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+                <span class="text-[9px] text-stone-400 dark:text-slate-500 block truncate">Gasto máx semanal</span>
+              </div>
+              <div class="p-2 rounded-xl subpanel-bg border space-y-1">
+                <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Ingresos Mensuales:</span>
+                <input id="tab3MonthlyIncome" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+                <span class="text-[9px] text-stone-400 dark:text-slate-500 block truncate">Sueldo o beca</span>
+              </div>
+              <div class="p-2 rounded-xl subpanel-bg border space-y-1">
+                <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Meta de Ahorro:</span>
+                <input id="tab3MonthlySavings" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+                <span class="text-[9px] text-stone-400 dark:text-slate-500 block truncate">Destinado a hucha</span>
+              </div>
+              <div class="p-2 rounded-xl subpanel-bg border space-y-1">
+                <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Gasto Hormiga:</span>
+                <div class="flex items-center gap-1">
+                  <input id="tab3AntThreshold" type="number" step="0.5" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+                  <span class="text-[10px] text-stone-400 shrink-0">€</span>
+                </div>
+                <span class="text-[9px] text-stone-400 dark:text-slate-500 block truncate">Micro-pago</span>
+              </div>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Tope Semanal:</span>
-              <input id="tab3ManualBudgetInput" type="number" step="1" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
-              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Gasto máximo semanal</span>
-            </div>
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Ingresos Mensuales:</span>
-              <input id="tab3MonthlyIncome" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
-              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Sueldo, becas o asignación</span>
-            </div>
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Meta de Ahorro:</span>
-              <input id="tab3MonthlySavings" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
-              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Destinado a la hucha</span>
-            </div>
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Gasto Hormiga:</span>
-              <div class="flex items-center gap-1">
-                <input id="tab3AntThreshold" type="number" step="0.5" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
-                <span class="text-[10px] text-stone-400 shrink-0">€</span>
-              </div>
-              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Umbral de micro-pago</span>
-            </div>
-          </div>
-
-          <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t">
+          <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t mt-2">
             <button onclick="app.openManageCategoriesModal()" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center gap-1.5 shadow transition text-xs">
               <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-              <span>Gestionar Categorías</span>
+              <span>Categorías</span>
             </button>
             <button onclick="app.saveFinanceSettings()" class="px-4 py-1.5 rounded-xl bg-theme-main hover:opacity-90 border border-theme/60 font-bold text-white shadow-md active:translate-y-0.5 transition flex items-center gap-1.5 text-xs">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
@@ -3595,61 +3597,86 @@
           </div>
         </div>
 
-        <!-- Hucha Global -->
-        <div id="tab3PiggyCard" class="lg:col-span-4 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between text-xs relative overflow-hidden">
-          <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
-          <div class="relative z-10">
-            <div class="flex justify-between items-center border-b pb-2">
+        <!-- Metas de Ahorro Individuales (Lado a lado con Configuración del Presupuesto) -->
+        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
+          <div class="space-y-3">
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
               <div class="flex items-center gap-2">
                 <div class="vector-seal bg-theme-main text-white shadow-xs">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v12M8 10h8"></path></svg>
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 12l-4-4-4 4M12 8v8"></path></svg>
                 </div>
-                <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Hucha de Ahorro <span class="italic font-normal">Global</span></h3>
+                <div>
+                  <h2 class="text-base font-serif font-bold tracking-tight">Metas de Ahorro <span class="italic font-normal">Individuales</span></h2>
+                  <p class="text-xs text-stone-500 dark:text-slate-400">Objetivos específicos (viajes, compras, tecnología...).</p>
+                </div>
               </div>
-              <span class="text-[10px] text-slate-400 font-mono">Fondo Acumulado</span>
-            </div>
-            
-            <div class="py-2.5 text-center space-y-0.5">
-              <span class="text-xs text-slate-400 block font-semibold">Saldo Disponible:</span>
-              <div id="tab3PiggyBalanceDisplay" class="text-3xl font-extrabold text-theme-main font-mono">0.00 €</div>
-            </div>
-
-            <!-- Progreso Meta Mensual de Ahorro -->
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
-              <div class="flex justify-between items-center text-[11px]">
-                <span class="text-slate-400 font-semibold">Meta Mensual de Ahorro:</span>
-                <span id="tab3PiggyGoalPct" class="font-bold text-theme-main font-mono">0%</span>
-              </div>
-              <div class="h-2 w-full bg-slate-900 border border-slate-700/60 rounded-full overflow-hidden flex">
-                <div id="tab3PiggyProgressBar" class="bg-theme-main h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-              </div>
-              <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-                <span id="tab3PiggyMonthSavings">0.00 € acumulados</span>
-                <span id="tab3PiggyGoalTarget">Meta: 0.00 €</span>
-              </div>
+              <button type="button" onclick="app.openAddSavingsGoalModal()" class="px-3 py-1.5 rounded-xl bg-theme-main hover:opacity-95 text-white font-semibold text-xs flex items-center gap-1.5 shadow-md border border-theme active:translate-y-0.5 transition">
+                <span>+</span> Nueva Meta
+              </button>
             </div>
 
-            <!-- Mini Sparkline / Histórico de Balance Reciente -->
-            <div class="space-y-1 pt-2">
-              <div class="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
-                <span class="font-semibold">Evolución del Fondo:</span>
-                <span id="tab3PiggyHistoryCount" class="font-mono">0 movimientos</span>
-              </div>
-              <div id="tab3PiggySparkline" class="h-12 w-full rounded-xl subpanel-bg border flex items-center justify-center overflow-hidden p-1">
-                <span class="text-[10px] text-slate-500 italic">Sin transacciones registradas</span>
-              </div>
+            <!-- Grid de tarjetas de metas individuales -->
+            <div id="tab3SavingsGoalsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-0.5"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- HUCHA GLOBAL (ANCHURA COMPLETA COMPACTA O CON SUS CONTROLES) -->
+      <div id="tab3PiggyCard" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs relative overflow-hidden">
+        <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <div class="vector-seal bg-theme-main text-white shadow-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v12M8 10h8"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Hucha de Ahorro <span class="italic font-normal">Global</span></h3>
+              <span class="text-[10px] text-slate-400 font-mono">Fondo Acumulado de Reserva</span>
             </div>
           </div>
 
-          <div class="grid grid-cols-2 gap-2 pt-2 border-t border-slate-800/80">
-            <button onclick="app.openPiggyModal('deposit')" class="py-2.5 rounded-xl bg-theme-main hover:opacity-95 text-white font-bold shadow-md border border-theme active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+          <div class="flex items-baseline gap-2">
+            <span class="text-xs text-slate-400 font-semibold">Saldo Disponible:</span>
+            <div id="tab3PiggyBalanceDisplay" class="text-2xl sm:text-3xl font-extrabold text-theme-main font-mono">0.00 €</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="app.openPiggyModal('deposit')" class="px-4 py-2 rounded-xl bg-theme-main hover:opacity-95 text-white font-bold shadow-md border border-theme active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
               <span>Ingresar</span>
             </button>
-            <button onclick="app.openPiggyModal('withdraw')" class="py-2.5 rounded-xl bg-theme-accent hover:opacity-95 text-white font-bold shadow-md border border-theme-accent/60 active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+            <button onclick="app.openPiggyModal('withdraw')" class="px-4 py-2 rounded-xl bg-theme-accent hover:opacity-95 text-white font-bold shadow-md border border-theme-accent/60 active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
               <span>Retirar</span>
             </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <!-- Progreso Meta Mensual de Ahorro -->
+          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="text-slate-400 font-semibold">Meta Mensual de Ahorro:</span>
+              <span id="tab3PiggyGoalPct" class="font-bold text-theme-main font-mono">0%</span>
+            </div>
+            <div class="h-2 w-full bg-slate-900 border border-slate-700/60 rounded-full overflow-hidden flex">
+              <div id="tab3PiggyProgressBar" class="bg-theme-main h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span id="tab3PiggyMonthSavings">0.00 € acumulados</span>
+              <span id="tab3PiggyGoalTarget">Meta: 0.00 €</span>
+            </div>
+          </div>
+
+          <!-- Mini Sparkline / Histórico de Balance Reciente -->
+          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+            <div class="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
+              <span class="font-semibold">Evolución del Fondo:</span>
+              <span id="tab3PiggyHistoryCount" class="font-mono">0 movimientos</span>
+            </div>
+            <div id="tab3PiggySparkline" class="h-9 w-full rounded-lg subpanel-bg border flex items-center justify-center overflow-hidden p-1">
+              <span class="text-[10px] text-slate-500 italic">Sin transacciones registradas</span>
+            </div>
           </div>
         </div>
       </div>
@@ -3803,26 +3830,6 @@
             <div id="tab3AntRanking" class="space-y-1.5 max-h-56 overflow-y-auto pr-1"></div>
           </div>
         </div>
-      </div>
-
-      <!-- OBJETIVOS INDIVIDUALES DE AHORRO (HUCILLAS / HUCHAS POR META) -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4 text-xs">
-        <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><path d="M16 12l-4-4-4 4M12 8v8"></path></svg>
-            </div>
-            <div>
-              <h2 class="text-base font-serif font-bold tracking-tight">Metas de Ahorro <span class="italic font-normal">Individuales</span></h2>
-              <p class="text-xs text-stone-500 dark:text-slate-400">Define propósitos específicos de ahorro (viajes, compras, tecnología...) y asigna fondos de tu hucha.</p>
-            </div>
-          </div>
-          <button type="button" onclick="app.openAddSavingsGoalModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-main hover:opacity-95 text-white font-semibold text-xs flex items-center gap-1.5 shadow-md border border-theme active:translate-y-0.5 transition">
-            <span>+</span> Nueva Meta de Ahorro
-          </button>
-        </div>
-
-        <div id="tab3SavingsGoalsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3"></div>
       </div>
 
     </section>
@@ -4368,22 +4375,52 @@
           closeWeekBtn.style.color = (yiq >= 150) ? '#090d16' : '#ffffff';
         }
 
-        // 1. Logo dinámico en la cabecera de la aplicación (Plano: fondo un color y logo el otro de la paleta)
+        // 1. Logo dinámico en la cabecera de la aplicación (Plano: fondo un color y logo el otro de la paleta con máximo contraste)
         const headerLogo = document.getElementById('appHeaderLogo');
         if (headerLogo) {
-          headerLogo.style.background = colors.theme700;
+          const bgCol = colors.theme700;
+          headerLogo.style.background = bgCol;
           headerLogo.style.boxShadow = `0 3px 10px ${colors.themeBorder || 'rgba(0,0,0,0.2)'}`;
-          const svgEl = headerLogo.querySelector('svg');
-          if (svgEl) {
-            svgEl.style.color = '#ffffff';
-          }
+
+          // Calcular contraste relativo
+          const getLuminance = (hex) => {
+            const h = (hex || '#000000').replace('#', '');
+            const r = parseInt(h.substring(0, 2), 16) || 0;
+            const g = parseInt(h.substring(2, 4), 16) || 0;
+            const b = parseInt(h.substring(4, 6), 16) || 0;
+            return ((r * 299) + (g * 587) + (b * 114)) / 1000;
+          };
+          const bgLum = getLuminance(bgCol);
+          const accentLum = getLuminance(colors.accent);
+          const contrastDiff = Math.abs(bgLum - accentLum);
+
+          // Si el color de acento contrasta fuertemente con el fondo (diff >= 90), usar el acento de la paleta.
+          // De lo contrario, usar blanco puro para fondo oscuro o negro puro para fondo claro garantizando legibilidad total.
+          let iconColor = (contrastDiff >= 90) ? colors.accent : (bgLum < 128 ? '#ffffff' : '#0a0a0c');
+
+          headerLogo.innerHTML = `
+            <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 24 24" fill="${iconColor}">
+              <polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon>
+            </svg>
+          `;
         }
 
-        // 2. Favicon e icono de pestaña dinámicos según paleta activa (SVG Data URI en estilo plano)
+        // 2. Favicon e icono de pestaña dinámicos según paleta activa (SVG Data URI en estilo plano y alto contraste)
         try {
           const bgCol = colors.theme700;
-          const iconCol = colors.accent;
-          const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="${bgCol}"/><polygon points="35 6 16 34 31 34 27 58 48 26 33 26 35 6" fill="#ffffff"/></svg>`;
+          const getLum = (hex) => {
+            const h = (hex || '#000000').replace('#', '');
+            const r = parseInt(h.substring(0, 2), 16) || 0;
+            const g = parseInt(h.substring(2, 4), 16) || 0;
+            const b = parseInt(h.substring(4, 6), 16) || 0;
+            return ((r * 299) + (g * 587) + (b * 114)) / 1000;
+          };
+          const bgLum = getLum(bgCol);
+          const accentLum = getLum(colors.accent);
+          const contrastDiff = Math.abs(bgLum - accentLum);
+          const iconColor = (contrastDiff >= 90) ? colors.accent : (bgLum < 128 ? '#ffffff' : '#0a0a0c');
+
+          const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><rect width="64" height="64" rx="16" fill="${bgCol}"/><polygon points="35 6 16 34 31 34 27 58 48 26 33 26 35 6" fill="${iconColor}"/></svg>`;
           const iconUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgIcon)}`;
           
           let favEl = document.getElementById('favicon');
@@ -4751,14 +4788,17 @@
             fileHandle = handle;
             let perm = 'prompt';
             try {
-              perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+              if (fileHandle.queryPermission) {
+                perm = await fileHandle.queryPermission({ mode: 'readwrite' });
+              }
             } catch (_) {}
 
             if (perm === 'granted') {
               updateAutoSaveUI(true);
               syncDiskFile();
             } else {
-              updateAutoSaveUI(false, true); // Standby / Reanudar
+              // Permiso pendiente: no solicitar aquí para evitar el popup constante del navegador
+              updateAutoSaveUI(false, true); // Estado REANUDAR (solo cuando el usuario pulse el botón de Copias)
             }
           } else {
             updateAutoSaveUI(false);
@@ -13359,37 +13399,6 @@
         }
       }
 
-      // Reanudar permisos de autoguardado en disco con interacción del usuario
-      async function tryAutoResumeDrive() {
-        if (!fileHandle) {
-          try {
-            fileHandle = await getStoredFileHandleFromDB();
-          } catch (_) {}
-        }
-        if (fileHandle) {
-          try {
-            let perm = 'prompt';
-            try {
-              perm = await fileHandle.queryPermission({ mode: 'readwrite' });
-            } catch (_) {}
-
-            if (perm === 'granted') {
-              updateAutoSaveUI(true);
-              syncDiskFile();
-              document.removeEventListener('click', tryAutoResumeDrive);
-            } else if (perm === 'prompt') {
-              const res = await fileHandle.requestPermission({ mode: 'readwrite' });
-              if (res === 'granted') {
-                updateAutoSaveUI(true);
-                syncDiskFile();
-                document.removeEventListener('click', tryAutoResumeDrive);
-              }
-            } else {
-              document.removeEventListener('click', tryAutoResumeDrive);
-            }
-          } catch (_) {}
-        }
-      }
       // AUTO-HIDE DE CABECERA AL DESLIZAR HACIA ABAJO Y REAPARICIÓN AL DESLIZAR HACIA ARRIBA EN MÓVIL
       let lastScrollY = window.scrollY;
       let scrollAccumulator = 0;
