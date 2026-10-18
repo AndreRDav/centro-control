@@ -2985,16 +2985,16 @@
         </div>
 
         <!-- CONTENEDOR COLAPSABLE: MATRIZ SEMANAL COMPLETA (LUNES A DOMINGO) -->
-        <div id="weekTableContainer" class="hidden editorial-card panel-bg border rounded-2xl p-3 shadow-xl space-y-2 relative overflow-hidden">
+        <div id="weekTableContainer" class="hidden editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex items-center justify-between pb-1 border-b relative z-10">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
-            <button onclick="app.toggleWeekTable()" class="text-xs text-slate-400 hover:text-stone-900 dark:hover:text-white font-semibold flex items-center gap-1">
+            <button onclick="app.toggleWeekTable()" class="text-xs text-theme-main hover:opacity-80 font-bold flex items-center gap-1">
               <span>▲</span> Plegar matriz
             </button>
           </div>
-          <div class="overflow-x-auto -mx-1 px-1">
-            <table class="min-w-[660px] lg:min-w-0 w-full table-fixed border-collapse text-center relative z-10 text-[11px]">
+          <div class="overflow-x-auto md:overflow-x-visible -mx-1 px-1">
+            <table class="w-full table-fixed border-collapse text-center relative z-10 text-[10.5px]">
               <thead>
                 <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
               </thead>
@@ -3221,7 +3221,7 @@
     <!-- ========================================================
          PESTAÑA 2: METAS Y HORARIO
          ======================================================== -->
-    <section id="tab2" class="hidden space-y-4">
+    <section id="tab2" class="hidden space-y-4 max-w-5xl mx-auto">
       
       <!-- CONFIGURACIÓN DE METAS SEMANALES -->
       <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
@@ -3386,7 +3386,7 @@
     <!-- ========================================================
          PESTAÑA 3: FINANZAS PRO (PRESUPUESTO, HUCHA, GASTOS HORMIGA)
          ======================================================== -->
-    <section id="tab3" class="hidden space-y-4">
+    <section id="tab3" class="hidden space-y-4 max-w-5xl mx-auto">
       
       <!-- CABECERA FINANCIERA: MODO PRESUPUESTO + HUCHA -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
@@ -4283,7 +4283,8 @@
           frequentConcepts: ['Mercadona', 'Café', 'Comedor', 'Metro', 'Copistería']
         },
         ui: {
-          dailyViewMode: 'week', // 'week' | 'today'
+          dailyViewMode: 'today', // 'week' | 'today'
+          weekTableCollapsed: true,
           listTab: 'entregas',
           listSort: 'manual',
           labScope: 'week',
@@ -4604,8 +4605,8 @@
         s.pomo = Object.assign({}, DEFAULT_STATE.pomo, s.pomo);
         s.pomo.isRunning = false;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
-        if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'week';
-        if (s.ui.weekTableCollapsed === undefined) s.ui.weekTableCollapsed = false;
+        if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
+        if (s.ui.weekTableCollapsed === undefined) s.ui.weekTableCollapsed = true;
         if (!s.pomo.sound) s.pomo.sound = 'bowl';
         s.dictionary = Object.assign({}, DEFAULT_STATE.dictionary, s.dictionary);
 
@@ -6289,20 +6290,20 @@
 
         // Cabecera con Fechas Reales y Ancho Ampliado en HOY
         document.getElementById('dailyTableHeader').innerHTML = `
-          <th class="py-1.5 px-1 text-left w-20 text-stone-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
+          <th class="py-1 px-1 text-left w-16 text-stone-500 dark:text-slate-400 text-[9.5px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
           ${DAYS.map((d, i) => {
             const isToday = i === todayDayIndex;
             const isPast = i < todayDayIndex;
-            const thClass = isToday ? 'today-header font-bold min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+            const thClass = isToday ? 'today-header font-bold w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
             return `
-              <th class="py-1 px-0.5 text-center ${thClass}">
-                <div class="text-[10px] font-bold leading-tight">${d}</div>
-                <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
-                ${isToday ? `<span class="inline-block text-[8px] bg-theme-accent text-white font-black px-1.5 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
+              <th class="py-0.5 px-0.5 text-center ${thClass}">
+                <div class="text-[9.5px] font-bold leading-tight">${d}</div>
+                <div class="text-[8px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
+                ${isToday ? `<span class="inline-block text-[7.5px] bg-theme-accent text-white font-black px-1 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
               </th>
             `;
           }).join('')}
-          <th class="py-1.5 px-1 text-right w-[82px] text-stone-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider">Progreso</th>
+          <th class="py-1 px-1 text-right w-16 text-stone-500 dark:text-slate-400 text-[9.5px] uppercase font-bold tracking-wider">Progreso</th>
         `;
 
         const tbody = document.getElementById('dailyTableBody');
@@ -6313,7 +6314,7 @@
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           const s = day.gym.sessions;
 
           gymHtml += `
@@ -6347,7 +6348,7 @@
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           const s = day.run.sessions;
           const km1 = Number(day.run.s1?.km) || 0;
           const km2 = Number(day.run.s2?.km) || 0;
@@ -6392,7 +6393,7 @@
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           studyHtml += `
             <td class="py-1 px-0.5 ${colClass} align-top">
               <div class="space-y-0.5">
@@ -6417,7 +6418,7 @@
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           const classes = day.attendance || [];
           attHtml += `
             <td class="py-1 px-0.5 ${colClass} align-top">
@@ -6459,7 +6460,7 @@
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           const ev = evalNutritionStatus(day.nutritionKcal, w.goals.nutri?.kcal, w.goals.nutri?.phase, curNutriMargin);
           let badgeIcon = '<span class="w-2 h-2 rounded-xs border border-stone-400 dark:border-slate-500 inline-block"></span>';
           if (ev.status !== 'pending') {
@@ -6493,7 +6494,7 @@
         w.days.forEach((_, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col min-w-[56px] w-[15%]' : (isPast ? 'past-col min-w-[44px] w-[11%]' : 'min-w-[44px] w-[11%]');
+          const colClass = isToday ? 'today-col w-[13%]' : (isPast ? 'past-col w-[11%]' : 'w-[11%]');
           const daySpend = w.expenses.filter(e => Number(e.dayIndex) === dIdx).reduce((a, b) => a + Number(b.amount), 0);
           spendHtml += `<td class="py-1 px-0.5 ${colClass} align-middle font-mono font-bold text-[10px]">${daySpend > 0 ? `${daySpend.toFixed(1)}€` : '—'}</td>`;
         });
