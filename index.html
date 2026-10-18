@@ -2524,8 +2524,11 @@
   <div id="modalAddSavingsGoal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border border-theme rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex justify-between items-center border-b pb-2">
-        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2">
-          <span>🎯</span> Nueva Meta de Ahorro
+        <h3 class="font-bold text-sm sm:text-base flex items-center gap-2 text-stone-900 dark:text-white">
+          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          </div>
+          <span>Nueva Meta de Ahorro</span>
         </h3>
         <button onclick="app.closeModal('modalAddSavingsGoal')" class="text-stone-400 hover:text-stone-900 dark:hover:text-white font-bold text-sm">✕</button>
       </div>
@@ -2558,8 +2561,11 @@
   <div id="modalContributeSavingsGoal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border border-theme rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex justify-between items-center border-b pb-2">
-        <h3 id="contributeGoalModalTitle" class="font-bold text-sm sm:text-base flex items-center gap-2">
-          <span>💰</span> Aportar a Meta
+        <h3 id="contributeGoalModalTitle" class="font-bold text-sm sm:text-base flex items-center gap-2 text-stone-900 dark:text-white">
+          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+          </div>
+          <span>Aportar a Meta</span>
         </h3>
         <button onclick="app.closeModal('modalContributeSavingsGoal')" class="text-stone-400 hover:text-stone-900 dark:hover:text-white font-bold text-sm">✕</button>
       </div>
@@ -8511,7 +8517,9 @@
         if (goals.length === 0) {
           container.innerHTML = `
             <div class="col-span-full py-8 text-center border-2 border-dashed border-stone-200 dark:border-slate-800 rounded-2xl">
-              <span class="text-3xl block mb-2">🎯</span>
+              <div class="vector-seal bg-theme-main text-white w-10 h-10 mx-auto mb-2.5 shadow-sm">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+              </div>
               <p class="font-serif font-bold text-sm text-stone-800 dark:text-slate-200">No tienes metas de ahorro activas</p>
               <p class="text-xs text-stone-500 dark:text-slate-400 max-w-sm mx-auto mt-1 mb-4">Crea una meta para tu próximo viaje, compra tecnológica, fondo de emergencia o capricho personal.</p>
               <button type="button" onclick="app.openAddSavingsGoalModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-main text-white font-semibold text-xs shadow-md border border-theme inline-flex items-center gap-1.5 active:translate-y-0.5 transition">
@@ -8529,12 +8537,16 @@
           const isCompleted = target > 0 && saved >= target;
           const remaining = Math.max(0, target - saved);
 
+          const goalIconSvg = isCompleted
+            ? `<div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg></div>`
+            : `<div class="vector-seal bg-theme-main/15 text-theme-main border border-theme/30 w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg></div>`;
+
           return `
             <div class="p-3.5 rounded-2xl subpanel-bg border border-stone-200 dark:border-slate-800 flex flex-col justify-between gap-3 shadow-xs relative overflow-hidden transition hover:border-theme/60">
               <div class="flex items-start justify-between gap-2">
                 <div class="min-w-0">
-                  <div class="flex items-center gap-1.5">
-                    <span class="text-base">${isCompleted ? '🏆' : '🎯'}</span>
+                  <div class="flex items-center gap-2">
+                    ${goalIconSvg}
                     <h3 class="font-bold text-sm text-stone-900 dark:text-white truncate" title="${g.title}">${g.title}</h3>
                   </div>
                   <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono mt-0.5 block">
@@ -13021,7 +13033,7 @@
           });
 
           this.closeModal('modalAddSavingsGoal');
-          this.showToast(`¡Meta "${title}" creada con éxito! 🎯`, 'success');
+          this.showToast(`¡Meta "${title}" creada con éxito!`, 'success');
           renderTab3();
           saveState();
         },
