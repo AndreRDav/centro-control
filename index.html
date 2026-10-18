@@ -976,16 +976,29 @@
         </h3>
         <button onclick="app.closeModal('backupModal')" class="text-slate-400 hover:text-white">✕</button>
       </div>
-      <button onclick="app.setupFileAutoSave()" class="w-full text-left p-3 rounded-xl subpanel-bg border hover:border-theme-main flex items-center justify-between transition">
-        <div>
+      <!-- Autoguardado directo en PC / Carpeta de Drive -->
+      <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+        <div class="flex items-center justify-between">
           <div class="font-bold text-theme-main flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            <span>Autoguardado directo en PC / Drive</span>
+            <span>Autoguardado en Disco / Drive</span>
           </div>
-          <div class="text-[11px] text-stone-500 dark:text-slate-400">Guarda cada cambio en tu archivo local sincronizado</div>
+          <span id="autoSaveModalBadge" class="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-800 text-slate-400">OFF</span>
         </div>
-        <span id="autoSaveModalBadge" class="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-800 text-slate-400">OFF</span>
-      </button>
+        <p class="text-[11px] text-stone-500 dark:text-slate-400 leading-relaxed">
+          Sincroniza directamente con un archivo en tu carpeta de Google Drive local o disco.
+        </p>
+        <div class="grid grid-cols-2 gap-2 pt-1">
+          <button type="button" onclick="app.selectExistingAutoSaveFile()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center" title="Selecciona tu archivo previo de Drive para cargar datos y vincularlo en este dispositivo">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span>Vincular Existente</span>
+          </button>
+          <button type="button" onclick="app.setupFileAutoSave()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center" title="Crea un archivo nuevo para empezar a autoguardar">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+            <span>Crear Archivo</span>
+          </button>
+        </div>
+      </div>
       <!-- Sincronización en la Nube / Google Drive Web -->
       <div class="p-3 rounded-xl subpanel-bg border border-theme space-y-2">
         <div class="flex items-center justify-between">
@@ -13095,11 +13108,13 @@
 
         async setupFileAutoSave() {
           try {
-            if (!('showSaveFilePicker' in window)) return this.showToast('Navegador sin File System Access API. Se mantiene guardado en localStorage.', 'warning');
+            if (!('showSaveFilePicker' in window) && !('showOpenFilePicker' in window)) {
+              return this.showToast('Navegador sin File System Access API. Se mantiene guardado en localStorage.', 'warning');
+            }
             if (fileHandle) {
               const change = await this.showConfirm({
                 title: 'Autoguardado en disco / Drive',
-                message: 'El autoguardado ya está configurado en tu PC.\n\n¿Deseas seleccionar otro archivo en tu carpeta de Drive o desactivarlo?',
+                message: 'El autoguardado ya está configurado en tu PC.\n\n¿Deseas vincular otro archivo o desactivarlo?',
                 confirmText: 'Cambiar archivo',
                 cancelText: 'Desactivar',
                 isDanger: false
@@ -13112,17 +13127,84 @@
                 return;
               }
             }
-            fileHandle = await window.showSaveFilePicker({
-              suggestedName: 'centro_control_datos.json',
-              types: [{ description: 'Archivo de Datos JSON', accept: { 'application/json': ['.json'] } }]
+
+            // Preguntar si desea seleccionar un archivo existente o crear uno nuevo
+            const openExisting = await this.showConfirm({
+              title: 'Vincular con Archivo de Drive / Disco',
+              message: '¿Qué deseas hacer?\n\n• Seleccionar archivo existente: Carga y vincula un archivo previo de tu Drive (ideal para un nuevo dispositivo).\n• Crear nuevo archivo: Empieza un archivo nuevo y guarda el estado actual.',
+              confirmText: 'Seleccionar Existente',
+              cancelText: 'Crear Archivo Nuevo',
+              isDanger: false
             });
-            await storeFileHandleInDB(fileHandle);
-            await syncDiskFile();
-            updateAutoSaveUI(true);
-            this.showToast('¡Autoguardado continuo en PC / Drive activado y guardado!', 'success');
+
+            if (openExisting && ('showOpenFilePicker' in window)) {
+              const [handle] = await window.showOpenFilePicker({
+                types: [{ description: 'Archivo de Datos JSON', accept: { 'application/json': ['.json'] } }],
+                multiple: false
+              });
+              if (!handle) return;
+              fileHandle = handle;
+              await storeFileHandleInDB(fileHandle);
+
+              // Leer y restaurar los datos del archivo seleccionado
+              try {
+                const file = await fileHandle.getFile();
+                const text = await file.text();
+                if (text && text.trim()) {
+                  pushUndo('Cargar datos de archivo vinculado');
+                  state = sanitizeState(JSON.parse(text));
+                  renderApp();
+                  saveState(true);
+                }
+              } catch (_) {}
+
+              updateAutoSaveUI(true);
+              this.showToast('¡Archivo vinculado y datos cargados con éxito!', 'success');
+            } else {
+              fileHandle = await window.showSaveFilePicker({
+                suggestedName: 'centro_control_datos.json',
+                types: [{ description: 'Archivo de Datos JSON', accept: { 'application/json': ['.json'] } }]
+              });
+              await storeFileHandleInDB(fileHandle);
+              await syncDiskFile();
+              updateAutoSaveUI(true);
+              this.showToast('¡Autoguardado continuo en PC / Drive activado y guardado!', 'success');
+            }
           } catch (err) {
             if (err && err.name !== 'AbortError') {
               this.showToast('No se pudo activar el autoguardado en disco.', 'error');
+            }
+          }
+        },
+
+        async selectExistingAutoSaveFile() {
+          try {
+            if (!('showOpenFilePicker' in window)) {
+              return this.showToast('Tu navegador no soporta selector de archivos con autoguardado continuo.', 'warning');
+            }
+            const [handle] = await window.showOpenFilePicker({
+              types: [{ description: 'Archivo de Datos JSON', accept: { 'application/json': ['.json'] } }],
+              multiple: false
+            });
+            if (!handle) return;
+            fileHandle = handle;
+            await storeFileHandleInDB(fileHandle);
+
+            // Leer y cargar datos
+            const file = await fileHandle.getFile();
+            const text = await file.text();
+            if (text && text.trim()) {
+              pushUndo('Vincular archivo existente');
+              state = sanitizeState(JSON.parse(text));
+              renderApp();
+              saveState(true);
+            }
+
+            updateAutoSaveUI(true);
+            this.showToast('¡Archivo de Drive vinculado y cargado!', 'success');
+          } catch (err) {
+            if (err && err.name !== 'AbortError') {
+              this.showToast('No se pudo seleccionar el archivo.', 'error');
             }
           }
         },
