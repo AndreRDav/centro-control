@@ -917,34 +917,51 @@
   <div id="closeWeekModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
       <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="text-lg font-bold flex items-center gap-2"><span>✅</span> Cerrar Semana y Archivar</h3>
-        <button onclick="app.closeModal('closeWeekModal')" class="text-slate-400 hover:text-white">✕</button>
+        <h3 class="text-base sm:text-lg font-bold flex items-center gap-2.5 text-stone-900 dark:text-white">
+          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <span>Cerrar Semana y Archivar</span>
+        </h3>
+        <button onclick="app.closeModal('closeWeekModal')" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-stone-400 hover:text-stone-700 dark:hover:text-white transition">✕</button>
       </div>
-      <div id="closeWeekSummary" class="text-xs space-y-2 p-3 rounded-xl subpanel-bg border"></div>
-      <div id="closeWeekSliderBox" class="p-4 rounded-xl subpanel-bg border space-y-3">
+      <div id="closeWeekSummary" class="text-xs space-y-2 p-3.5 rounded-xl subpanel-bg border border-theme/30 divide-y divide-stone-200/60 dark:divide-slate-800/60"></div>
+      <div id="closeWeekSliderBox" class="p-4 rounded-xl subpanel-bg border border-theme/40 space-y-3.5">
         <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-blue-600 dark:text-blue-400 uppercase tracking-wider">⚖️ Reparto del Sobrante Semanal</span>
-          <span id="closeWeekSurplusBadge" class="font-mono font-extrabold text-emerald-500 dark:text-emerald-400 text-sm">0.00 €</span>
+          <span class="font-bold text-theme-main uppercase tracking-wider flex items-center gap-1.5">
+            <svg class="w-4 h-4 text-theme-main inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 9l9-6 9 6M6 12l-3 7h6l-3-7zm12 0l-3 7h6l-3-7z"/></svg>
+            Reparto del Sobrante Semanal
+          </span>
+          <span id="closeWeekSurplusBadge" class="font-mono font-extrabold text-theme-main text-sm">0.00 €</span>
         </div>
-        <div class="h-5 w-full rounded-full overflow-hidden flex bg-slate-900 border">
-          <div id="closeWeekBarPiggy" class="bg-accent-green text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150" style="width:50%">50%</div>
-          <div id="closeWeekBarCarry" class="bg-amber-600 text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150" style="width:50%">50%</div>
+        <div class="h-5 w-full rounded-full overflow-hidden flex bg-stone-200 dark:bg-slate-900 border border-theme/40 p-0.5">
+          <div id="closeWeekBarPiggy" class="bg-theme-main text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-l-full shadow-inner" style="width:50%">50%</div>
+          <div id="closeWeekBarCarry" class="bg-theme-accent text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-r-full shadow-inner" style="width:50%">50%</div>
         </div>
-        <input id="closeWeekSlider" type="range" min="0" max="100" value="50" oninput="app.updateSurplusSlider()" class="w-full accent-blue-600 cursor-pointer" />
+        <input id="closeWeekSlider" type="range" min="0" max="100" value="50" oninput="app.updateSurplusSlider()" class="w-full accent-theme cursor-pointer" />
         <div class="grid grid-cols-2 gap-3 text-xs pt-1">
-          <div class="p-2.5 rounded-xl bg-emerald-500/10 dark:bg-emerald-950/40 border border-emerald-500/30 dark:border-emerald-800/40 text-left">
-            <span class="text-emerald-700 dark:text-emerald-300 font-semibold">🐷 A la Hucha:</span>
-            <div id="closeWeekPiggyAmt" class="text-lg font-extrabold text-stone-900 dark:text-white font-mono">0.00 €</div>
+          <div class="p-3 rounded-xl subpanel-bg border-2 border-theme/40 text-left space-y-1 shadow-xs">
+            <div class="flex items-center gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
+              <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V9a7 7 0 0 0-14 0v2"></path><rect x="3" y="11" width="18" height="11" rx="2"></rect><circle cx="12" cy="16" r="2"></circle></svg>
+              <span>A la Hucha:</span>
+            </div>
+            <div id="closeWeekPiggyAmt" class="text-base sm:text-lg font-extrabold text-theme-main font-mono">0.00 €</div>
           </div>
-          <div class="p-2.5 rounded-xl bg-amber-500/10 dark:bg-amber-950/40 border border-amber-500/30 dark:border-amber-800/40 text-right">
-            <span class="text-amber-700 dark:text-amber-300 font-semibold">🚀 Extra Próx. Tope:</span>
-            <div id="closeWeekCarryAmt" class="text-lg font-extrabold text-stone-900 dark:text-white font-mono">+0.00 €</div>
+          <div class="p-3 rounded-xl subpanel-bg border-2 border-theme-accent/40 text-right space-y-1 shadow-xs">
+            <div class="flex items-center justify-end gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
+              <span>Extra Próx. Tope:</span>
+              <svg class="w-3.5 h-3.5 text-theme-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+            </div>
+            <div id="closeWeekCarryAmt" class="text-base sm:text-lg font-extrabold text-theme-accent font-mono">+0.00 €</div>
           </div>
         </div>
       </div>
-      <div class="flex justify-end gap-2 pt-2">
-        <button onclick="app.closeModal('closeWeekModal')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs">Cancelar</button>
-        <button onclick="app.confirmCloseWeek()" class="px-5 py-2 rounded-xl bg-accent-green hover:bg-accent-green text-white border border-emerald-500/50 text-xs font-bold shadow-md active:translate-y-0.5 transition">Confirmar y Avanzar</button>
+      <div class="flex justify-end gap-2.5 pt-2">
+        <button onclick="app.closeModal('closeWeekModal')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs border border-stone-300 dark:border-slate-700 hover:bg-stone-200 dark:hover:bg-slate-800 transition">Cancelar</button>
+        <button onclick="app.confirmCloseWeek()" class="px-5 py-2 rounded-xl bg-theme-main hover:opacity-90 text-white border border-theme text-xs font-bold shadow-md active:translate-y-0.5 transition flex items-center gap-1.5">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          <span>Confirmar y Avanzar</span>
+        </button>
       </div>
     </div>
   </div>
@@ -12820,11 +12837,11 @@
           const surplus = Math.max(0, m.budget - m.spent);
 
           document.getElementById('closeWeekSummary').innerHTML = `
-            <div class="flex justify-between"><span>Score Global:</span><strong>${m.score} / 100</strong></div>
-            <div class="flex justify-between"><span>Gimnasio:</span><strong>${m.gymReal} / ${w.goals.gymSessions} ses. (${Math.round(m.gymPct)}%)</strong></div>
-            <div class="flex justify-between"><span>Running:</span><strong>${m.runKmReal.toFixed(1)} / ${w.goals.runKm} km (${Math.round(m.runPct)}%)</strong></div>
-            <div class="flex justify-between"><span>Estudio:</span><strong>${m.studyReal.toFixed(1)} / ${m.studyGoal.toFixed(1)} h (${Math.round(m.studyPct)}%)</strong></div>
-            <div class="flex justify-between"><span>Presupuesto Restante:</span><strong class="text-emerald-400 font-mono">${surplus.toFixed(2)} €</strong></div>
+            <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Score Global:</span><strong class="text-stone-900 dark:text-white font-mono text-sm">${m.score} / 100</strong></div>
+            <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Gimnasio:</span><strong class="text-stone-900 dark:text-white font-mono">${m.gymReal} / ${w.goals.gymSessions} ses. (${Math.round(m.gymPct)}%)</strong></div>
+            <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Running:</span><strong class="text-stone-900 dark:text-white font-mono">${m.runKmReal.toFixed(1)} / ${w.goals.runKm} km (${Math.round(m.runPct)}%)</strong></div>
+            <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Estudio:</span><strong class="text-stone-900 dark:text-white font-mono">${m.studyReal.toFixed(1)} / ${m.studyGoal.toFixed(1)} h (${Math.round(m.studyPct)}%)</strong></div>
+            <div class="flex justify-between items-center py-1.5 text-stone-700 dark:text-slate-200"><span class="font-bold">Presupuesto Restante:</span><strong class="text-theme-main font-mono text-sm">${surplus.toFixed(2)} €</strong></div>
           `;
 
           document.getElementById('closeWeekSurplusBadge').textContent = `${surplus.toFixed(2)} €`;
