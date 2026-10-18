@@ -741,7 +741,7 @@
     }
   </style>
 </head>
-<body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-16 transition-colors duration-200">
+<body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-24 sm:pb-16 transition-colors duration-200">
   <!-- Capa de Textura Litográfica Fija (Tactile Noise) -->
   <div class="tactile-noise-layer"></div>
 
@@ -2551,10 +2551,10 @@
   <!-- ========================================================
        DOCK FLOTANTE INFERIOR DERECHO (GMAIL / macOS STYLE)
        ======================================================== -->
-  <div id="floatingDock" class="fixed bottom-4 right-4 z-40 flex flex-col items-end gap-2.5 pointer-events-auto select-none print:hidden">
+  <div id="floatingDock" class="fixed bottom-3 sm:bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-4 z-40 flex flex-col items-center sm:items-end gap-2.5 pointer-events-auto select-none print:hidden">
 
     <!-- VENTANA FLOTANTE 1: POMODORO MINIMIZABLE -->
-    <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-80 sm:w-88 shadow-2xl transition-all duration-200 border">
+    <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 shadow-2xl transition-all duration-200 border">
       <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
@@ -2654,7 +2654,7 @@
     </div>
 
     <!-- VENTANA FLOTANTE 2: GASTO RÁPIDO MINIMIZABLE -->
-    <div id="dockExpenseWindow" class="hidden dock-glass rounded-2xl p-4 w-80 sm:w-88 shadow-2xl transition-all duration-200 border">
+    <div id="dockExpenseWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 shadow-2xl transition-all duration-200 border">
       <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
         <div class="flex items-center gap-2">
           <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
@@ -2723,61 +2723,63 @@
   <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4">
 
     <!-- CABECERA PRINCIPAL -->
-    <header class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl">
-      <!-- Logo + Título + Navegación Semanas con Candado -->
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-[#1D4ED8] to-[#0ea5e9] flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
-          <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
-        </div>
-        <div>
-          <div class="flex flex-wrap items-center gap-2">
-            <h1 class="text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white">CENTRO DE <span class="italic font-normal">Control</span></h1>
-            
-            <!-- Selector de Semanas con Candado -->
-            <div class="flex items-center gap-1 subpanel-bg border px-1 py-0.5 rounded-lg">
-              <button onclick="app.navWeek(-1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana anterior">◀</button>
-              <span id="headerWeekBadge" class="px-2 py-0.5 text-[10px] font-bold rounded bg-stone-200/80 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-mono border border-stone-300/60 dark:border-slate-700">Semana #1</span>
-              <button onclick="app.navWeek(1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana siguiente">▶</button>
+    <header class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 shadow-xl">
+      <!-- Fila 1: Logo + Título + Navegación Semanas con Candado -->
+      <div class="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
+        <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
+          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#1D4ED8] to-[#0ea5e9] flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
+            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          </div>
+          <div class="min-w-0">
+            <div class="flex items-center gap-2 flex-wrap">
+              <h1 class="text-sm sm:text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white truncate">CENTRO DE <span class="italic font-normal">Control</span></h1>
+              
+              <!-- Candado de Seguridad Solo Lectura / Edición (en desktop o móvil) -->
+              <button onclick="app.toggleReadOnlyLock()" id="readOnlyLockBtn" class="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold border transition flex items-center gap-1" title="Bloquear edición accidental">
+                <span id="lockIcon" class="flex items-center justify-center"></span>
+                <span id="lockText" class="hidden sm:inline">Solo Lectura</span>
+              </button>
             </div>
+            
+            <div class="flex items-center gap-2 pt-0.5 text-[9.5px] sm:text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
+              <span id="headerDateRangeBadge" class="font-semibold text-stone-700 dark:text-slate-200 truncate">13 oct. – 19 oct. 2026</span>
+              <span id="headerNextDeadlineDivider" class="text-stone-400 dark:text-slate-500 hidden sm:inline">•</span>
+              <span id="headerNextDeadlineWidget" class="text-amber-500 dark:text-amber-400 font-medium hidden sm:inline truncate">⏳ Sin entregas próximas</span>
+            </div>
+          </div>
+        </div>
 
-            <!-- Candado de Seguridad Solo Lectura / Edición -->
-            <button onclick="app.toggleReadOnlyLock()" id="readOnlyLockBtn" class="px-2 py-0.5 rounded text-[10px] font-bold border transition flex items-center gap-1" title="Bloquear edición accidental">
-              <span id="lockIcon" class="flex items-center justify-center"></span>
-              <span id="lockText">Solo Lectura</span>
-            </button>
-          </div>
-          
-          <div class="flex items-center gap-2 pt-0.5 text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
-            <span id="headerDateRangeBadge" class="font-semibold text-stone-700 dark:text-slate-200">13 oct. – 19 oct. 2026</span>
-            <span id="headerNextDeadlineDivider" class="text-stone-400 dark:text-slate-500">•</span>
-            <span id="headerNextDeadlineWidget" class="text-amber-500 dark:text-amber-400 font-medium">⏳ Sin entregas próximas</span>
-          </div>
+        <!-- Selector de Semanas con Candado (Alineado a la derecha en móvil Fila 1) -->
+        <div class="flex items-center gap-1 subpanel-bg border px-1 py-0.5 rounded-lg shrink-0">
+          <button onclick="app.navWeek(-1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana anterior">◀</button>
+          <span id="headerWeekBadge" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-bold rounded bg-stone-200/80 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-mono border border-stone-300/60 dark:border-slate-700">Semana #1</span>
+          <button onclick="app.navWeek(1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana siguiente">▶</button>
         </div>
       </div>
 
-      <!-- Pestañas Principales (Atajos 1, 2, 3, 4) con Numeración Técnica -->
-      <nav class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold overflow-x-auto max-w-full">
-        <button onclick="app.switchTab(1)" id="tabNav1" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span>Panel Diario</button>
-        <button onclick="app.switchTab(2)" id="tabNav2" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span>Metas y Horario</button>
-        <button onclick="app.switchTab(3)" id="tabNav3" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span>Finanzas Pro</button>
-        <button onclick="app.switchTab(4)" id="tabNav4" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span>Estadísticas</button>
+      <!-- Fila 3 en Móvil / Centro en Escritorio: Pestañas Principales (Atajos 1, 2, 3, 4) -->
+      <nav class="grid grid-cols-2 sm:flex sm:items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold w-full md:w-auto order-3 md:order-2">
+        <button onclick="app.switchTab(1)" id="tabNav1" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span><span class="sm:hidden">Diario</span><span class="hidden sm:inline">Panel Diario</span></button>
+        <button onclick="app.switchTab(2)" id="tabNav2" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span><span class="sm:hidden">Metas</span><span class="hidden sm:inline">Metas y Horario</span></button>
+        <button onclick="app.switchTab(3)" id="tabNav3" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span><span class="sm:hidden">Finanzas</span><span class="hidden sm:inline">Finanzas Pro</span></button>
+        <button onclick="app.switchTab(4)" id="tabNav4" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span><span class="sm:hidden">Estadísticas</span><span class="hidden sm:inline">Estadísticas</span></button>
       </nav>
 
-      <!-- Botones de Acción + Modo Claro/Oscuro + Atajos -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
-        <button onclick="app.openShortcutsModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer" title="Ver todos los atajos de teclado [?]">
+      <!-- Fila 2 en Móvil / Derecha en Escritorio: Barra unificada de controles y herramientas -->
+      <div class="flex items-center justify-between sm:justify-end gap-1 sm:gap-1.5 w-full md:w-auto order-2 md:order-3">
+        <button onclick="app.openShortcutsModal()" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
           <span class="hidden md:inline">Atajos</span>
           <kbd class="px-1 py-0.2 rounded text-[10px] font-mono border border-stone-300 dark:border-slate-700 opacity-75">?</kbd>
         </button>
 
-        <button onclick="app.toggleTheme()" id="themeToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer" title="Cambiar tema claro/oscuro [D]">
+        <button onclick="app.toggleTheme()" id="themeToggleBtn" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
           <span id="themeToggleIcon" class="flex items-center justify-center"></span>
           <span id="themeToggleText" class="hidden sm:inline">Azul Espacial</span>
         </button>
 
         <!-- Selector de Paleta de Color de Acento Centralizado (Dúo Bicolor) -->
-        <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer" title="Cambiar paleta cromática bicolor">
+        <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar paleta cromática bicolor">
           <div class="flex items-center -space-x-1">
             <span id="palettePickerActiveDot" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
             <span id="palettePickerActiveDot2" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
@@ -2786,19 +2788,20 @@
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
         </button>
 
-        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="px-3 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center gap-1.5 cursor-pointer">
+        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="h-8 px-2 sm:px-3 rounded-xl bg-theme-accent hover:opacity-90 font-black text-[11px] sm:text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
-          <span>Cerrar Semana</span>
+          <span class="whitespace-nowrap">Cerrar Semana</span>
         </button>
-        <button onclick="app.openUserGuideModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
+
+        <button onclick="app.openUserGuideModal()" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <span class="hidden sm:inline">Guía</span>
         </button>
 
-        <button onclick="app.openBackupModal()" class="px-3 py-1.5 rounded-xl subpanel-bg border text-xs font-semibold flex items-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer" title="Copias de seguridad y estado de disco/Drive">
+        <button onclick="app.openBackupModal()" class="h-8 px-2 sm:px-3 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          <span>Copias</span>
-          <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition" title="Autoguardado en disco"></span>
+          <span class="hidden sm:inline">Copias</span>
+          <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0" title="Autoguardado en disco"></span>
         </button>
       </div>
     </header>
@@ -2836,105 +2839,105 @@
     <!-- ========================================================
          LOS 4 KPIS SUPERIORES (SIEMPRE VISIBLES - ARQUITECTURA 3 NIVELES)
          ======================================================== -->
-    <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+    <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
       <!-- KPI 1: 6 Baterías -->
-      <div id="kpiCard1" onclick="app.openKpi1BlocksModal()" class="editorial-card panel-bg border rounded-2xl p-3.5 flex flex-col justify-between shadow-lg relative min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver el desglose y diagnóstico de los 6 bloques de metas">
+      <div id="kpiCard1" onclick="app.openKpi1BlocksModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver el desglose y diagnóstico de los 6 bloques de metas">
         <!-- Tier 1: Fila Superior -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div class="vector-seal bg-theme-main text-white shadow-xs w-6 h-6 sm:w-7 sm:h-7 shrink-0">
+              <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
             </div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400">Bloques en Meta</span>
+            <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400 truncate">Bloques</span>
           </div>
-          <span class="catalog-idx">01</span>
+          <span class="catalog-idx text-[10px] sm:text-xs">01</span>
         </div>
         <!-- Tier 2: Fila Central Protagonista -->
-        <div class="flex items-center justify-between gap-2 py-1">
-          <span id="kpi1BlocksCount" class="text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0 / 6</span>
-          <span class="text-[10px] font-mono text-stone-500 dark:text-slate-400">Objetivo Semanal</span>
+        <div class="flex items-center justify-between gap-1 py-0.5 sm:py-1">
+          <span id="kpi1BlocksCount" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0 / 6</span>
+          <span class="text-[9px] sm:text-[10px] font-mono text-stone-500 dark:text-slate-400 hidden sm:inline">Objetivo</span>
         </div>
         <!-- Tier 3: Fila Inferior de Estado -->
-        <div id="kpi1Batteries" class="grid grid-cols-6 gap-1.5 pt-1 items-end h-9"></div>
+        <div id="kpi1Batteries" class="grid grid-cols-6 gap-1 pt-1 items-end h-7 sm:h-9"></div>
       </div>
 
       <!-- KPI 2: Anillo de Estudio + Compensación (Clic para ver por asignatura y ajustar) -->
-      <div id="kpiCard2" onclick="app.openSubjectStudyStatsModal()" class="editorial-card panel-bg border rounded-2xl p-3.5 flex flex-col justify-between shadow-lg relative min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver estadísticas y ajustar horas por asignatura">
+      <div id="kpiCard2" onclick="app.openSubjectStudyStatsModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver estadísticas y ajustar horas por asignatura">
         <!-- Tier 1: Fila Superior -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div class="vector-seal bg-theme-main text-white shadow-xs w-6 h-6 sm:w-7 sm:h-7 shrink-0">
+              <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
             </div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400">Estudio Semanal</span>
+            <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400 truncate">Estudio</span>
           </div>
-          <span class="catalog-idx">02</span>
+          <span class="catalog-idx text-[10px] sm:text-xs">02</span>
         </div>
         <!-- Tier 2: Fila Central Protagonista -->
-        <div class="flex items-center justify-between gap-2 py-0.5">
+        <div class="flex items-center justify-between gap-1 py-0.5">
           <div class="min-w-0">
-            <div id="kpi2Numbers" class="text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white whitespace-nowrap">0.0 / 15.0 h</div>
-            <div id="kpi2Compensate" class="text-[10px] text-theme-main font-medium">Al día con el plan</div>
+            <div id="kpi2Numbers" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white truncate">0.0 / 15.0 h</div>
+            <div id="kpi2Compensate" class="text-[9px] sm:text-[10px] text-theme-main font-medium truncate">Al día con el plan</div>
           </div>
-          <div id="kpi2RingBox" class="relative w-11 h-11 shrink-0 flex items-center justify-center"></div>
+          <div id="kpi2RingBox" class="relative w-8 h-8 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center"></div>
         </div>
         <!-- Tier 3: Fila Inferior de Estado -->
         <div class="pt-1 border-t border-stone-200/50 dark:border-slate-800/60 flex items-center justify-between gap-1">
-          <span class="text-[9px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Ritmo L-D:</span>
-          <div id="kpi2MiniBars" class="flex items-end gap-1 h-6 flex-1 justify-end"></div>
+          <span class="text-[8.5px] sm:text-[9px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider truncate">Ritmo L-D:</span>
+          <div id="kpi2MiniBars" class="flex items-end gap-0.5 sm:gap-1 h-5 sm:h-6 flex-1 justify-end"></div>
         </div>
       </div>
 
       <!-- KPI 3: Asistencia Barricolor -->
-      <div id="kpiCard3" onclick="app.openKpi3AttendanceModal()" class="editorial-card panel-bg border rounded-2xl p-3.5 flex flex-col justify-between shadow-lg relative min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para auditar la asistencia y el colchón de faltas por asignatura">
+      <div id="kpiCard3" onclick="app.openKpi3AttendanceModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para auditar la asistencia y el colchón de faltas por asignatura">
         <!-- Tier 1: Fila Superior -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path></svg>
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div class="vector-seal bg-theme-main text-white shadow-xs w-6 h-6 sm:w-7 sm:h-7 shrink-0">
+              <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11M8 14v4M12 14v4M16 14v4"></path></svg>
             </div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400">Asistencia Clases</span>
+            <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400 truncate">Asistencia</span>
           </div>
-          <span class="catalog-idx">03</span>
+          <span class="catalog-idx text-[10px] sm:text-xs">03</span>
         </div>
         <!-- Tier 2: Fila Central Protagonista -->
-        <div class="flex items-center justify-between gap-2 py-0.5">
-          <span id="kpi3Percent" class="text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0%</span>
-          <span class="text-[10px] font-mono text-stone-500 dark:text-slate-400">Mínimo 85%</span>
+        <div class="flex items-center justify-between gap-1 py-0.5">
+          <span id="kpi3Percent" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0%</span>
+          <span class="text-[9px] sm:text-[10px] font-mono text-stone-500 dark:text-slate-400">Min 85%</span>
         </div>
         <!-- Tier 3: Fila Inferior de Estado -->
         <div>
-          <div id="kpi3Bar" class="h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden flex border border-stone-300 dark:border-slate-800 my-1"></div>
-          <div id="kpi3Counts" class="flex justify-between text-[10px] text-stone-500 dark:text-slate-400 font-medium"></div>
+          <div id="kpi3Bar" class="h-1.5 sm:h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden flex border border-stone-300 dark:border-slate-800 my-0.5 sm:my-1"></div>
+          <div id="kpi3Counts" class="flex justify-between text-[9px] sm:text-[10px] text-stone-500 dark:text-slate-400 font-medium"></div>
         </div>
       </div>
 
       <!-- KPI 4: Tope Semanal, Termómetro y Pacing Diario -->
-      <div id="kpiCard4" onclick="app.openKpi4BudgetModal()" class="editorial-card panel-bg border rounded-2xl p-3.5 flex flex-col justify-between shadow-lg relative min-h-[140px] cursor-pointer hover:border-theme-accent transition group" title="Haz clic para ver el desglose financiero, categorías y ritmo de gasto">
+      <div id="kpiCard4" onclick="app.openKpi4BudgetModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-accent transition group" title="Haz clic para ver el desglose financiero, categorías y ritmo de gasto">
         <!-- Tier 1: Fila Superior -->
         <div class="flex items-center justify-between">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-accent text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+          <div class="flex items-center gap-1.5 sm:gap-2 min-w-0">
+            <div class="vector-seal bg-theme-accent text-white shadow-xs w-6 h-6 sm:w-7 sm:h-7 shrink-0">
+              <svg class="w-3 h-3 sm:w-3.5 sm:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
             </div>
-            <span class="text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400">Tope Semanal</span>
+            <span class="text-[10px] sm:text-[11px] font-bold uppercase tracking-wider text-stone-600 dark:text-slate-400 truncate">Tope Gasto</span>
           </div>
-          <span class="catalog-idx">04</span>
+          <span class="catalog-idx text-[10px] sm:text-xs">04</span>
         </div>
         <!-- Tier 2: Fila Central Protagonista -->
-        <div class="flex items-center justify-between gap-2 py-0.5">
-          <span id="kpi4Numbers" class="text-2xl font-black font-mono tracking-tight text-theme-accent whitespace-nowrap">0.00 / 60.00 €</span>
-          <span id="kpi4Available" class="text-[11px] font-mono font-bold text-theme-accent">Disp: 60.00 €</span>
+        <div class="flex items-center justify-between gap-1 py-0.5">
+          <span id="kpi4Numbers" class="text-base sm:text-2xl font-black font-mono tracking-tight text-theme-accent truncate">0 / 60€</span>
+          <span id="kpi4Available" class="text-[9.5px] sm:text-[11px] font-mono font-bold text-theme-accent truncate">60.00€</span>
         </div>
         <!-- Tier 3: Fila Inferior de Estado -->
         <div>
-          <div class="relative h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border border-stone-300 dark:border-slate-800 my-1">
+          <div class="relative h-1.5 sm:h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border border-stone-300 dark:border-slate-800 my-0.5 sm:my-1">
             <div class="absolute top-0 bottom-0 left-[80%] w-0.5 bg-amber-400/80 z-10" title="Aviso 80%"></div>
             <div id="kpi4Thermo" class="h-full bg-theme-accent transition-all duration-300" style="width:0%"></div>
           </div>
-          <div class="flex items-center justify-between text-[10px] font-mono">
-            <span id="kpi4PacingDaily" class="text-theme-accent font-bold bg-theme-accent-soft px-1.5 py-0.2 rounded border border-theme-accent">Ritmo: ~8.5€/d</span>
-            <span id="kpi4Projection" class="text-theme-main font-semibold">Proy: ~0€</span>
+          <div class="flex items-center justify-between text-[9px] sm:text-[10px] font-mono">
+            <span id="kpi4PacingDaily" class="text-theme-accent font-bold bg-theme-accent-soft px-1 sm:px-1.5 py-0.2 rounded border border-theme-accent truncate">~8.5€/d</span>
+            <span id="kpi4Projection" class="text-theme-main font-semibold truncate">Proy: ~0€</span>
           </div>
         </div>
       </div>
@@ -2976,12 +2979,14 @@
               <span>▲</span> Plegar matriz
             </button>
           </div>
-          <table class="w-full table-fixed border-collapse text-center relative z-10 text-[11px]">
-            <thead>
-              <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
-            </thead>
-            <tbody id="dailyTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
-          </table>
+          <div class="overflow-x-auto -mx-1 px-1">
+            <table class="min-w-[660px] lg:min-w-0 w-full table-fixed border-collapse text-center relative z-10 text-[11px]">
+              <thead>
+                <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
+              </thead>
+              <tbody id="dailyTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
+            </table>
+          </div>
         </div>
 
         <!-- LISTA EDITORIAL DE ÚLTIMOS GASTOS Y MOVIMIENTOS (PESTAÑA 1) -->
@@ -3135,21 +3140,19 @@
               <input id="newListItemInput" type="text" placeholder="Añadir nueva tarea / entrega..." onkeydown="if(event.key==='Enter')app.addNewListItem()" class="flex-1 input-bg border rounded-xl px-2.5 py-1.5 text-xs focus:border-theme outline-none" autocomplete="off" />
               <button onclick="app.addNewListItem()" class="px-3.5 py-1.5 bg-theme-main hover:opacity-95 text-white font-bold rounded-xl text-xs shadow-md border border-theme active:translate-y-0.5 transition">+</button>
             </div>
-            <div class="flex flex-wrap items-center justify-between gap-1.5 text-[10px]">
-              <div class="flex flex-wrap items-center gap-2">
-                <div id="newListItemDateBox" class="flex items-center gap-1">
-                  <span class="text-stone-500 dark:text-slate-400">Fecha:</span>
-                  <div class="relative flex items-center">
-                    <input id="newListItemDate" type="text" readonly placeholder="AAAA-MM-DD" onclick="app.openCustomDatePicker(this)" class="input-bg border rounded-lg px-1.5 py-0.5 text-[10px] cursor-pointer w-24 text-center font-mono focus:border-theme outline-none" />
-                    <button type="button" onclick="app.openCustomDatePicker(document.getElementById('newListItemDate'))" class="ml-1 px-1.5 py-0.5 rounded subpanel-bg border text-[10px] text-stone-700 dark:text-slate-300 hover:text-theme-main transition" title="Elegir en calendario interactivo">📅</button>
-                  </div>
-                </div>
-                <div id="newListItemTimeBox" class="flex items-center gap-1">
-                  <span class="text-stone-500 dark:text-slate-400">Hora:</span>
-                  <input id="newListItemTime" type="time" class="input-bg border rounded-lg px-1.5 py-0.5 text-[10px] font-mono focus:border-theme outline-none text-stone-800 dark:text-slate-200" title="Hora opcional (HH:MM)" />
+            <div class="grid grid-cols-2 sm:flex sm:flex-wrap sm:items-center sm:justify-between gap-2 text-[10px]">
+              <div id="newListItemDateBox" class="flex items-center gap-1 min-w-0">
+                <span class="text-stone-500 dark:text-slate-400 shrink-0">Fecha:</span>
+                <div class="relative flex items-center min-w-0 flex-1">
+                  <input id="newListItemDate" type="text" readonly placeholder="AAAA-MM-DD" onclick="app.openCustomDatePicker(this)" class="input-bg border rounded-lg px-1.5 py-0.5 text-[10px] cursor-pointer w-full sm:w-24 text-center font-mono focus:border-theme outline-none" />
+                  <button type="button" onclick="app.openCustomDatePicker(document.getElementById('newListItemDate'))" class="ml-1 px-1.5 py-0.5 rounded subpanel-bg border text-[10px] text-stone-700 dark:text-slate-300 hover:text-theme-main transition shrink-0" title="Elegir en calendario interactivo">📅</button>
                 </div>
               </div>
-              <div class="flex items-center gap-2">
+              <div id="newListItemTimeBox" class="flex items-center gap-1 min-w-0">
+                <span class="text-stone-500 dark:text-slate-400 shrink-0">Hora:</span>
+                <input id="newListItemTime" type="time" class="input-bg border rounded-lg px-1.5 py-0.5 text-[10px] font-mono focus:border-theme outline-none text-stone-800 dark:text-slate-200 w-full sm:w-auto" title="Hora opcional (HH:MM)" />
+              </div>
+              <div class="flex items-center gap-2 col-span-2 sm:col-span-1 justify-end pt-0.5 sm:pt-0">
                 <label class="flex items-center gap-1 cursor-pointer" title="Fijar nota destacada al inicio">
                   <input id="newListItemPinned" type="checkbox" class="accent-theme-main" />
                   <span class="text-stone-700 dark:text-slate-300">📌 Fijar</span>
@@ -3697,7 +3700,7 @@
             <span class="absolute top-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
             <span class="absolute bottom-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
             <span class="absolute bottom-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-            <div id="anatomySvgContainer" class="grid grid-cols-1 sm:grid-cols-2 gap-3 py-1 relative z-10"></div>
+            <div id="anatomySvgContainer" class="grid grid-cols-2 gap-2 sm:gap-3 py-1 relative z-10"></div>
           </div>
         </div>
 
@@ -5134,10 +5137,10 @@
           if (val >= 3) return 'var(--theme-accent)'; // 3+ sesiones: Acento de contraste
           if (val >= 2) return 'var(--theme-700)';    // 2 sesiones: Tono profundo dominante
           if (val >= 1) return 'var(--theme-500)';    // 1 sesión: Tono medio
-          return state.theme === 'dark' ? '#1E293B' : '#D6CFC2'; // Inactivo: Gris piedra neutro contrastado
+          return state.theme === 'dark' ? 'rgba(255, 255, 255, 0.12)' : '#D6CFC2'; // Inactivo: Contraste optimizado
         };
 
-        const strokeColor = state.theme === 'dark' ? '#0F172A' : '#6B6358';
+        const strokeColor = state.theme === 'dark' ? 'rgba(255, 255, 255, 0.28)' : '#6B6358';
         const bodyOutlineColor = state.theme === 'dark' ? '#334155' : '#A89E90';
         const bodyBackdropFill = state.theme === 'dark' ? 'rgba(30, 41, 59, 0.4)' : 'rgba(214, 204, 190, 0.45)';
         const headFill = state.theme === 'dark' ? '#334155' : '#B8ACA0';
@@ -5501,23 +5504,23 @@
             heroBanner.classList.remove('hidden');
             heroBanner.className = `editorial-card panel-bg border-l-4 border-l-theme-accent border rounded-2xl p-3.5 sm:p-4 shadow-xl text-xs transition-all ${heroBorderClass}`;
             heroBanner.innerHTML = `
-              <div class="flex flex-wrap items-center justify-between gap-3">
-                <div class="flex items-center gap-3.5 min-w-0 flex-1">
+              <div class="flex flex-col md:flex-row md:items-center justify-between gap-3">
+                <div class="w-full md:w-auto flex items-center gap-3 min-w-0 flex-1">
                   <div class="vector-seal bg-theme-accent text-white w-10 h-10 shadow-sm shrink-0 flex items-center justify-center">
                     ${current.categoryIcon}
                   </div>
-                  <div class="min-w-0 space-y-0.5 flex-1">
+                  <div class="w-full min-w-0 space-y-0.5 flex-1">
                     <div class="flex items-center gap-2 flex-wrap">
                       <span class="text-[10px] font-extrabold uppercase tracking-wider text-theme-accent font-mono">PRÓXIMO HITO</span>
                       <span class="px-2 py-0.2 rounded bg-stone-200/80 dark:bg-slate-800 text-stone-700 dark:text-slate-300 border border-theme font-bold text-[9px] uppercase tracking-wider">${current.categoryLabel}</span>
                       ${urgencyBadge}
                       ${paginationDots}
                     </div>
-                    <div class="font-serif font-bold text-base sm:text-lg tracking-tight truncate text-stone-900 dark:text-white" title="${current.title}">
+                    <div class="font-serif font-bold text-base sm:text-lg tracking-tight line-clamp-2 whitespace-normal break-words text-stone-900 dark:text-white" title="${current.title}">
                       ${current.title}
                     </div>
                     <div class="text-[11px] text-stone-500 dark:text-slate-400 flex items-center gap-2 flex-wrap font-sans">
-                      <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Límite: <strong class="text-theme-main font-bold font-mono">${formattedDate}${current.time ? ` (${current.time})` : ''}</strong></span>
+                      <span class="flex items-center gap-1.5"><svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Límite: <strong class="text-theme-main font-bold font-mono">${formattedDate}${current.time ? ` (${current.time})` : ''}</strong></span>
                       <span>•</span>
                       <span class="${diffDays <= 1 ? 'text-theme-accent font-bold' : 'text-stone-500 dark:text-slate-400'}">${relativeText}</span>
                       ${current.note ? `<span class="text-stone-500 dark:text-slate-400 italic truncate max-w-xs">• "${current.note}"</span>` : ''}
@@ -5525,20 +5528,22 @@
                   </div>
                 </div>
 
-                <div class="flex items-center gap-2 shrink-0 flex-wrap">
+                <div class="w-full md:w-auto flex flex-wrap items-center justify-between md:justify-end gap-1.5 pt-2 md:pt-0 border-t md:border-t-0 border-stone-200/60 dark:border-white/10 shrink-0">
                   ${navButtons}
-                  <button type="button" onclick="app.focusCalendarDate('${current.date}')" class="px-3 py-2 rounded-xl subpanel-bg hover:border-theme text-stone-800 dark:text-slate-200 border font-bold text-xs flex items-center gap-1.5 shadow-sm active:translate-y-0.5 transition" title="Ver en calendario interactivo">
-                    <svg class="w-3.5 h-3.5 text-stone-600 dark:text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                    <span>Ver en Calendario</span>
-                  </button>
-                  <button type="button" onclick="app.completeMilestoneDirect('${current.cat}', '${current.id}')" class="px-3 py-2 rounded-xl bg-theme-accent hover:opacity-95 text-white border border-theme-accent font-bold text-xs flex items-center gap-1.5 shadow-md active:translate-y-0.5 transition" title="Marcar como hecha">
-                    <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
-                    <span>Hecha</span>
-                  </button>
-                  <button type="button" onclick="app.jumpToMilestone('${current.cat}', '${current.id}')" class="px-3.5 py-2 rounded-xl bg-theme-main hover:opacity-95 text-white border border-theme font-bold text-xs flex items-center gap-1.5 shadow-md active:translate-y-0.5 transition" title="Ver en su lista">
-                    <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
-                    <span>Ver en Lista</span>
-                  </button>
+                  <div class="flex items-center gap-1.5 flex-wrap">
+                    <button type="button" onclick="app.focusCalendarDate('${current.date}')" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl subpanel-bg hover:border-theme text-stone-800 dark:text-slate-200 border font-bold text-[11px] sm:text-xs flex items-center gap-1 shadow-sm active:translate-y-0.5 transition" title="Ver en calendario interactivo">
+                      <svg class="w-3.5 h-3.5 text-stone-600 dark:text-slate-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                      <span>Calendario</span>
+                    </button>
+                    <button type="button" onclick="app.completeMilestoneDirect('${current.cat}', '${current.id}')" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-theme-accent hover:opacity-95 text-white border border-theme-accent font-bold text-[11px] sm:text-xs flex items-center gap-1 shadow-md active:translate-y-0.5 transition" title="Marcar como hecha">
+                      <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20 6L9 17l-5-5"/></svg>
+                      <span>Hecha</span>
+                    </button>
+                    <button type="button" onclick="app.jumpToMilestone('${current.cat}', '${current.id}')" class="px-2.5 sm:px-3 py-1.5 sm:py-2 rounded-xl bg-theme-main hover:opacity-95 text-white border border-theme font-bold text-[11px] sm:text-xs flex items-center gap-1 shadow-md active:translate-y-0.5 transition" title="Ver en su lista">
+                      <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
+                      <span>Ver Lista</span>
+                    </button>
+                  </div>
                 </div>
               </div>
             `;
@@ -6229,7 +6234,7 @@
 
         // Cabecera con Fechas Reales y Ancho Ampliado en HOY
         document.getElementById('dailyTableHeader').innerHTML = `
-          <th class="py-1.5 px-1 text-left w-20 text-stone-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider">Hábito</th>
+          <th class="py-1.5 px-1 text-left w-20 text-stone-500 dark:text-slate-400 text-[10px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
           ${DAYS.map((d, i) => {
             const isToday = i === todayDayIndex;
             const isPast = i < todayDayIndex;
@@ -6249,7 +6254,7 @@
         tbody.innerHTML = '';
 
         // 1. Gym
-        let gymHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
+        let gymHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -6283,7 +6288,7 @@
         `;
 
         // 2. Running
-        let runHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
+        let runHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -6328,7 +6333,7 @@
         `;
 
         // 3. Estudio
-        let studyHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
+        let studyHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -6353,7 +6358,7 @@
         `;
 
         // 4. Asistencia
-        let attHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
+        let attHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -6367,14 +6372,14 @@
                   let badge = '<span class="w-2 h-2 rounded-xs border border-stone-400 dark:border-slate-500 inline-block"></span>';
                   let btnBg = 'subpanel-bg border';
                   if (c.status === 'present') { 
-                    badge = '<svg class="w-2.5 h-2.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; 
-                    btnBg = 'bg-theme-soft border-theme text-theme-main font-bold'; 
+                     badge = '<svg class="w-2.5 h-2.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>'; 
+                     btnBg = 'bg-theme-soft border-theme text-theme-main font-bold'; 
                   } else if (c.status === 'absent') { 
-                    badge = '<svg class="w-2.5 h-2.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; 
-                    btnBg = 'bg-theme-accent-soft border-theme-accent text-theme-accent font-bold'; 
+                     badge = '<svg class="w-2.5 h-2.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>'; 
+                     btnBg = 'bg-theme-accent-soft border-theme-accent text-theme-accent font-bold'; 
                   } else if (c.status === 'holiday') { 
-                    badge = '<svg class="w-2.5 h-2.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'; 
-                    btnBg = 'bg-amber-500/10 border-amber-500/40 text-amber-500 font-bold'; 
+                     badge = '<svg class="w-2.5 h-2.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg>'; 
+                     btnBg = 'bg-amber-500/10 border-amber-500/40 text-amber-500 font-bold'; 
                   }
                   return `
                     <button onclick="app.cycleAttendance(${dIdx}, ${cIdx})" class="w-full text-left p-0.5 rounded border text-[8px] flex items-center justify-between gap-0.5 ${btnBg} truncate transition active:translate-y-0.5 hover:border-theme" title="${c.subject}">
@@ -6395,7 +6400,7 @@
 
         // 5. Nutrición
         const curNutriMargin = w.goals.nutri?.margin || 150;
-        let nutriHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
+        let nutriHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -6429,7 +6434,7 @@
         `;
 
         // 6. Gasto Día
-        let spendHtml = `<td class="py-1.5 px-1 text-left font-bold"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
+        let spendHtml = `<td class="py-1.5 px-1 text-left font-bold sticky left-0 z-20 panel-bg"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
         w.days.forEach((_, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
