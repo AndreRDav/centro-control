@@ -2962,10 +2962,10 @@
               <span class="px-2.5 py-1 rounded-lg bg-theme-accent text-white font-extrabold text-xs tracking-wider">HOY</span>
               <h2 id="todayFocusTitle" class="font-serif font-bold text-base sm:text-lg tracking-tight">Enfoque y Hábitos de <span class="italic font-normal text-theme-accent">Hoy</span></h2>
             </div>
-            <div class="flex items-center gap-2">
-              <span id="dailyScoreBadge" class="px-2.5 py-1 rounded-xl bg-theme-soft text-theme-main border border-theme text-xs font-bold font-mono">Score: 0 / 100</span>
-              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="hidden sm:flex px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-xs items-center gap-1.5 transition shadow-sm">
-                <span>📊</span> Ver Matriz Completa <span>▼</span>
+            <div class="flex items-center gap-1.5 sm:gap-2">
+              <span id="dailyScoreBadge" class="px-2 sm:px-2.5 py-1 rounded-xl bg-theme-soft text-theme-main border border-theme text-[11px] sm:text-xs font-bold font-mono">Score: 0 / 100</span>
+              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-[11px] sm:text-xs items-center gap-1 sm:gap-1.5 transition shadow-sm">
+                <span>📊</span> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span>▼</span>
               </button>
             </div>
           </div>
@@ -4606,7 +4606,10 @@
         s.pomo.isRunning = false;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
-        if (s.ui.weekTableCollapsed === undefined) s.ui.weekTableCollapsed = true;
+        if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
+          // En móviles (<768px) inicia plegada por comodidad y espacio
+          s.ui.weekTableCollapsed = true;
+        }
         if (!s.pomo.sound) s.pomo.sound = 'bowl';
         s.dictionary = Object.assign({}, DEFAULT_STATE.dictionary, s.dictionary);
 
@@ -5989,10 +5992,10 @@
         if (weekBox) {
           if (isCollapsed) {
             weekBox.classList.add('hidden');
-            if (toggleBtn) toggleBtn.innerHTML = `<span>📊</span> Ver Matriz Semanal Completa (L-D) <span>▼</span>`;
+            if (toggleBtn) toggleBtn.innerHTML = `<span>📊</span> <span class="hidden sm:inline">Ver Matriz Completa</span><span class="sm:hidden">Matriz</span> <span>▼</span>`;
           } else {
             weekBox.classList.remove('hidden');
-            if (toggleBtn) toggleBtn.innerHTML = `<span>▲</span> Plegar Matriz Semanal`;
+            if (toggleBtn) toggleBtn.innerHTML = `<span>▲</span> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span>`;
             renderFullWeekTable(todayIdx, m, streaks);
           }
         }
