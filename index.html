@@ -1787,13 +1787,15 @@
         </div>
       </div>
       <div class="space-y-2 pt-1 border-t border-slate-800">
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
           <input id="editListItemPinned" type="checkbox" class="accent-theme-main w-4 h-4 rounded" />
-          <span class="font-bold text-slate-300">📌 Fijar como importante (Aparece primero destacada)</span>
+          <svg class="w-3.5 h-3.5 text-amber-500 fill-current shrink-0" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+          <span class="font-bold">Fijar como importante (Aparece primero destacada)</span>
         </label>
-        <label class="flex items-center gap-2 cursor-pointer">
+        <label class="flex items-center gap-2 cursor-pointer text-slate-300">
           <input id="editListItemIsContainer" type="checkbox" class="accent-theme-main w-4 h-4 rounded" />
-          <span class="font-bold text-slate-300">📁 Paquete / Carpeta permanente (No desaparece al completar)</span>
+          <svg class="w-3.5 h-3.5 text-theme-main fill-none stroke-current stroke-2 shrink-0" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span class="font-bold">Paquete / Carpeta permanente (No desaparece al completar)</span>
         </label>
       </div>
       <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
@@ -2138,7 +2140,7 @@
           </label>
           <div id="bulkPinFieldBox" class="opacity-40 transition-opacity pl-6">
             <select id="bulkPinSelect" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs outline-none focus:border-blue-500">
-              <option value="pin">📌 Fijar todas al inicio</option>
+              <option value="pin">Fijar todas al inicio (destacadas)</option>
               <option value="unpin">Desfijar todas</option>
             </select>
           </div>
@@ -2711,7 +2713,7 @@
       <button onclick="app.toggleDockExpense()" id="dockExpensePill" class="dock-glass border px-3 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer" title="Registrar un gasto rápido">
         <svg class="w-3 h-3 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
         <span>+ Gasto</span>
-        <span class="text-[10px] opacity-60 font-mono">[N]</span>
+        <span class="text-[10px] opacity-60 font-mono hidden sm:inline">[N]</span>
       </button>
     </div>
 
@@ -2723,9 +2725,9 @@
   <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4">
 
     <!-- CABECERA PRINCIPAL -->
-    <header class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col md:flex-row md:items-center justify-between gap-2.5 sm:gap-3 shadow-xl">
+    <header class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col xl:flex-row xl:items-center justify-between gap-3 shadow-xl">
       <!-- Fila 1: Logo + Título + Navegación Semanas con Candado -->
-      <div class="flex items-center justify-between md:justify-start gap-3 w-full md:w-auto">
+      <div class="flex items-center justify-between xl:justify-start gap-3 w-full xl:w-auto">
         <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
           <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#1D4ED8] to-[#0ea5e9] flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
             <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
@@ -2749,7 +2751,7 @@
           </div>
         </div>
 
-        <!-- Selector de Semanas con Candado (Alineado a la derecha en móvil Fila 1) -->
+        <!-- Selector de Semanas con Candado -->
         <div class="flex items-center gap-1 subpanel-bg border px-1 py-0.5 rounded-lg shrink-0">
           <button onclick="app.navWeek(-1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana anterior">◀</button>
           <span id="headerWeekBadge" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-bold rounded bg-stone-200/80 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-mono border border-stone-300/60 dark:border-slate-700">Semana #1</span>
@@ -2757,25 +2759,25 @@
         </div>
       </div>
 
-      <!-- Fila 3 en Móvil / Centro en Escritorio: Pestañas Principales (Atajos 1, 2, 3, 4) -->
-      <nav class="grid grid-cols-2 sm:flex sm:items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold w-full md:w-auto order-3 md:order-2">
+      <!-- Centro: Pestañas Principales (Atajos 1, 2, 3, 4) -->
+      <nav class="grid grid-cols-2 sm:flex sm:items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold w-full xl:w-auto">
         <button onclick="app.switchTab(1)" id="tabNav1" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span><span class="sm:hidden">Diario</span><span class="hidden sm:inline">Panel Diario</span></button>
         <button onclick="app.switchTab(2)" id="tabNav2" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span><span class="sm:hidden">Metas</span><span class="hidden sm:inline">Metas y Horario</span></button>
         <button onclick="app.switchTab(3)" id="tabNav3" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span><span class="sm:hidden">Finanzas</span><span class="hidden sm:inline">Finanzas Pro</span></button>
         <button onclick="app.switchTab(4)" id="tabNav4" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span><span class="sm:hidden">Estadísticas</span><span class="hidden sm:inline">Estadísticas</span></button>
       </nav>
 
-      <!-- Fila 2 en Móvil / Derecha en Escritorio: Barra unificada de controles y herramientas -->
-      <div class="flex items-center justify-between sm:justify-end gap-1 sm:gap-1.5 w-full md:w-auto order-2 md:order-3">
+      <!-- Derecha: Barra unificada de controles y herramientas -->
+      <div class="flex flex-wrap items-center justify-between sm:justify-end gap-1 sm:gap-1.5 w-full xl:w-auto">
         <button onclick="app.openShortcutsModal()" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
-          <span class="hidden md:inline">Atajos</span>
+          <span class="hidden 2xl:inline">Atajos</span>
           <kbd class="px-1 py-0.2 rounded text-[10px] font-mono border border-stone-300 dark:border-slate-700 opacity-75">?</kbd>
         </button>
 
         <button onclick="app.toggleTheme()" id="themeToggleBtn" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
           <span id="themeToggleIcon" class="flex items-center justify-center"></span>
-          <span id="themeToggleText" class="hidden sm:inline">Azul Espacial</span>
+          <span id="themeToggleText" class="hidden 2xl:inline">Tema</span>
         </button>
 
         <!-- Selector de Paleta de Color de Acento Centralizado (Dúo Bicolor) -->
@@ -2784,23 +2786,23 @@
             <span id="palettePickerActiveDot" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
             <span id="palettePickerActiveDot2" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
           </div>
-          <span class="hidden xl:inline text-stone-700 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
+          <span class="hidden 2xl:inline text-stone-700 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
         </button>
 
-        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="h-8 px-2 sm:px-3 rounded-xl bg-theme-accent hover:opacity-90 font-black text-[11px] sm:text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
+        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="h-8 px-2 sm:px-2.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-[11px] sm:text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           <span class="whitespace-nowrap">Cerrar Semana</span>
         </button>
 
         <button onclick="app.openUserGuideModal()" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <span class="hidden sm:inline">Guía</span>
+          <span class="hidden md:inline">Guía</span>
         </button>
 
-        <button onclick="app.openBackupModal()" class="h-8 px-2 sm:px-3 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
+        <button onclick="app.openBackupModal()" class="h-8 px-2 sm:px-2.5 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          <span class="hidden sm:inline">Copias</span>
+          <span class="hidden md:inline">Copias</span>
           <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0" title="Autoguardado en disco"></span>
         </button>
       </div>
@@ -2962,11 +2964,23 @@
             </div>
             <div class="flex items-center gap-2">
               <span id="dailyScoreBadge" class="px-2.5 py-1 rounded-xl bg-theme-soft text-theme-main border border-theme text-xs font-bold font-mono">Score: 0 / 100</span>
-              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-xs flex items-center gap-1.5 transition shadow-sm">
-                <span>📊</span> Ver Matriz Semanal Completa (L-D) <span>▼</span>
+              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="hidden sm:flex px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-xs items-center gap-1.5 transition shadow-sm">
+                <span>📊</span> Ver Matriz Completa <span>▼</span>
               </button>
             </div>
           </div>
+
+          <!-- Selector Rápido de Días Lun-Dom en Móvil (sin tener que hacer scroll horizontal) -->
+          <div class="sm:hidden flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
+            <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">L</button>
+            <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">M</button>
+            <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">X</button>
+            <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">J</button>
+            <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">V</button>
+            <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">S</button>
+            <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">D</button>
+          </div>
+
           <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
         </div>
 
@@ -3005,7 +3019,7 @@
               <span id="quickSpendAvailable" class="px-2.5 py-1 rounded-xl bg-theme-soft border border-theme text-theme-main font-mono font-bold text-xs">Disp: 60.00 €</span>
               <button onclick="app.toggleDockExpense(true)" class="px-3 py-1.5 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-sm flex items-center gap-1 transition active:scale-95" title="Registrar gasto rápido (Tecla N)">
                 <span>+ Gasto</span>
-                <span class="text-[10px] opacity-75 font-mono">[N]</span>
+                <span class="text-[10px] opacity-75 font-mono hidden sm:inline">[N]</span>
               </button>
             </div>
           </div>
@@ -3153,13 +3167,15 @@
                 <input id="newListItemTime" type="time" class="input-bg border rounded-lg px-1.5 py-0.5 text-[10px] font-mono focus:border-theme outline-none text-stone-800 dark:text-slate-200 w-full sm:w-auto" title="Hora opcional (HH:MM)" />
               </div>
               <div class="flex items-center gap-2 col-span-2 sm:col-span-1 justify-end pt-0.5 sm:pt-0">
-                <label class="flex items-center gap-1 cursor-pointer" title="Fijar nota destacada al inicio">
+                <label class="flex items-center gap-1 cursor-pointer text-stone-700 dark:text-slate-300" title="Fijar nota destacada al inicio">
                   <input id="newListItemPinned" type="checkbox" class="accent-theme-main" />
-                  <span class="text-stone-700 dark:text-slate-300">📌 Fijar</span>
+                  <svg class="w-3 h-3 text-amber-500 fill-current" viewBox="0 0 24 24"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg>
+                  <span>Fijar</span>
                 </label>
-                <label class="flex items-center gap-1 cursor-pointer" title="Crear como paquete/carpeta fija de entregas">
+                <label class="flex items-center gap-1 cursor-pointer text-stone-700 dark:text-slate-300" title="Crear como paquete/carpeta fija de entregas">
                   <input id="newListItemIsContainer" type="checkbox" class="accent-theme-main" />
-                  <span class="text-stone-700 dark:text-slate-300">📁 Paquete</span>
+                  <svg class="w-3 h-3 text-theme-main fill-none stroke-current stroke-2" viewBox="0 0 24 24"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                  <span>Paquete</span>
                 </label>
               </div>
             </div>
@@ -3216,45 +3232,63 @@
           <h2 class="text-base sm:text-lg font-serif font-bold tracking-tight">Configuración de Metas <span class="italic font-normal">Semanales</span> <span class="text-xs font-normal text-slate-400 font-sans">(Snapshot Plantilla)</span></h2>
         </div>
         
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
-          <!-- Gym -->
-          <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 lg:col-span-1">
-            <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
-              <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div>
-              <span>Sesiones Gym:</span>
-            </span>
-            <input id="goalGymInput" type="number" min="1" max="14" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
-            <span class="text-[10px] text-slate-400">Meta recomendada: 4</span>
+        <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
+          <!-- Bloque Físico & Asistencia: 3 Metas Compactas (7 Cols) -->
+          <div class="md:col-span-7 grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            <!-- Gym -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 flex flex-col justify-between">
+              <div class="space-y-1">
+                <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
+                  <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div>
+                  <span>Sesiones Gym:</span>
+                </span>
+                <span class="text-[10px] text-slate-400 block">Objetivo semanal</span>
+              </div>
+              <div>
+                <input id="goalGymInput" type="number" min="1" max="14" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
+                <span class="text-[9.5px] text-stone-400 dark:text-slate-500 pt-0.5 block">Recomendado: 4</span>
+              </div>
+            </div>
+
+            <!-- Running -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 flex flex-col justify-between">
+              <div class="space-y-1">
+                <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
+                  <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div>
+                  <span>Km Running:</span>
+                </span>
+                <span class="text-[10px] text-slate-400 block">Distancia total</span>
+              </div>
+              <div>
+                <input id="goalRunKmInput" type="number" step="0.5" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
+                <span class="text-[9.5px] text-stone-400 dark:text-slate-500 pt-0.5 block">Recomendado: 15.0</span>
+              </div>
+            </div>
+
+            <!-- Académico -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 flex flex-col justify-between">
+              <div class="space-y-1">
+                <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
+                  <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div>
+                  <span>Asistencia:</span>
+                </span>
+                <span class="text-[10px] text-slate-400 block">Mínimo global (%)</span>
+              </div>
+              <div>
+                <input id="goalAttPercentInput" type="number" min="50" max="100" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
+                <span class="text-[9.5px] text-stone-400 dark:text-slate-500 pt-0.5 block">Mínimo: 85%</span>
+              </div>
+            </div>
           </div>
 
-          <!-- Running -->
-          <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 lg:col-span-1">
-            <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
-              <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div>
-              <span>Km Running:</span>
-            </span>
-            <input id="goalRunKmInput" type="number" step="0.5" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
-            <span class="text-[10px] text-slate-400">Meta recomendada: 15.0</span>
-          </div>
-
-          <!-- Académico -->
-          <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 lg:col-span-1">
-            <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
-              <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div>
-              <span>Asistencia (%):</span>
-            </span>
-            <input id="goalAttPercentInput" type="number" min="50" max="100" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-sm" />
-            <span class="text-[10px] text-slate-400">Mínimo continuo (85%)</span>
-          </div>
-
-          <!-- Nutrición y Calorías -->
-          <div class="p-3 rounded-xl subpanel-bg border space-y-2 sm:col-span-2 lg:col-span-2">
+          <!-- Nutrición y Calorías: 5 Cols -->
+          <div class="md:col-span-5 p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between">
             <div class="flex items-center justify-between">
               <span class="font-bold text-stone-800 dark:text-slate-300 flex items-center gap-1.5">
                 <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-xs"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div>
                 <span>Nutrición y Calorías:</span>
               </span>
-              <span class="text-[10px] text-stone-400 dark:text-slate-500">Plan de balance calórico</span>
+              <span class="text-[10px] text-stone-400 dark:text-slate-500">Balance diario</span>
             </div>
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
               <div class="space-y-0.5">
@@ -3344,7 +3378,7 @@
           </button>
         </div>
 
-        <div id="subjectRulesCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs"></div>
+        <div id="subjectRulesCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 text-xs"></div>
       </div>
 
     </section>
@@ -3374,40 +3408,41 @@
             </div>
           </div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <div class="p-3 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-slate-400 font-semibold">Tope Semanal Manual:</span>
-              <input id="tab3ManualBudgetInput" type="number" step="1" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-base" />
-              <span class="text-[10px] text-slate-400">Gasto máximo permitido semanal</span>
+          <div class="grid grid-cols-1 sm:grid-cols-4 gap-2.5">
+            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Tope Semanal:</span>
+              <input id="tab3ManualBudgetInput" type="number" step="1" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Gasto máximo semanal</span>
             </div>
-            <div class="p-3 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-slate-400 font-semibold">Ingresos Mensuales:</span>
-              <input id="tab3MonthlyIncome" type="number" step="10" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-base" />
-              <span class="text-[10px] text-slate-400">Sueldo, becas o asignación</span>
+            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Ingresos Mensuales:</span>
+              <input id="tab3MonthlyIncome" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Sueldo, becas o asignación</span>
             </div>
-            <div class="p-3 rounded-xl subpanel-bg border space-y-1">
-              <span class="text-slate-400 font-semibold">Meta de Ahorro Mensual:</span>
-              <input id="tab3MonthlySavings" type="number" step="10" class="w-full input-bg border rounded-lg px-2.5 py-1.5 font-bold font-mono text-base" />
-              <span class="text-[10px] text-slate-400">Destinado a la hucha</span>
+            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Meta de Ahorro:</span>
+              <input id="tab3MonthlySavings" type="number" step="10" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Destinado a la hucha</span>
+            </div>
+            <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <span class="text-stone-500 dark:text-slate-400 font-semibold block text-[10.5px]">Gasto Hormiga:</span>
+              <div class="flex items-center gap-1">
+                <input id="tab3AntThreshold" type="number" step="0.5" class="w-full input-bg border rounded-lg px-2 py-1 font-bold font-mono text-sm" />
+                <span class="text-[10px] text-stone-400 shrink-0">€</span>
+              </div>
+              <span class="text-[9.5px] text-stone-400 dark:text-slate-500 block truncate">Umbral de micro-pago</span>
             </div>
           </div>
 
-          <div class="flex flex-wrap items-center justify-between gap-2 pt-2 border-t">
-            <div class="flex items-center gap-2">
-              <span class="text-slate-400">Umbral Gasto Hormiga:</span>
-              <input id="tab3AntThreshold" type="number" step="0.5" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-bold font-mono" />
-              <span class="text-slate-400">€ o menos</span>
-            </div>
-            <div class="flex items-center gap-2">
-              <button onclick="app.openManageCategoriesModal()" class="px-3 py-2 rounded-xl subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center gap-1.5 shadow transition">
-                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
-                <span>Gestionar Categorías</span>
-              </button>
-              <button onclick="app.saveFinanceSettings()" class="px-4 py-2 rounded-xl bg-theme-main hover:opacity-90 border border-theme/60 font-bold text-white shadow-md active:translate-y-0.5 transition flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                <span>Guardar Parámetros</span>
-              </button>
-            </div>
+          <div class="flex flex-wrap items-center justify-end gap-2 pt-2 border-t">
+            <button onclick="app.openManageCategoriesModal()" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center gap-1.5 shadow transition text-xs">
+              <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/></svg>
+              <span>Gestionar Categorías</span>
+            </button>
+            <button onclick="app.saveFinanceSettings()" class="px-4 py-1.5 rounded-xl bg-theme-main hover:opacity-90 border border-theme/60 font-bold text-white shadow-md active:translate-y-0.5 transition flex items-center gap-1.5 text-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+              <span>Guardar Parámetros</span>
+            </button>
           </div>
         </div>
 
@@ -4383,8 +4418,11 @@
       let piggyModalCurrentType = 'deposit'; // 'deposit' | 'withdraw'
       let piggyModalCalculatedValue = 0;
       let customConfirmResolve = null;
-      let customPromptResolve = null;
       let draggedItemData = null; // { cat, id }
+      let touchDragTimer = null;
+      let touchStartPos = { x: 0, y: 0 };
+      let isTouchDragging = false;
+      let currentTouchTargetEl = null;
       let datePickerState = {
         activeInput: null,
         year: new Date().getFullYear(),
@@ -5405,20 +5443,20 @@
             `).join('');
 
             overdueBanner.innerHTML = `
-              <div class="flex flex-wrap items-center justify-between gap-2.5">
-                <div class="flex items-center gap-2.5 min-w-0 flex-1">
-                  <div class="w-7 h-7 rounded-lg bg-theme-accent text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm animate-pulse">
+              <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5">
+                <div class="flex items-start sm:items-center gap-2.5 min-w-0 flex-1">
+                  <div class="w-7 h-7 rounded-lg bg-theme-accent text-white flex items-center justify-center font-bold text-xs shrink-0 shadow-sm animate-pulse mt-0.5 sm:mt-0">
                     <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
                   </div>
                   <div class="min-w-0 flex-1">
-                    <div class="flex items-center gap-2 flex-wrap">
-                      <span class="font-bold text-theme-accent font-mono uppercase text-[10px] tracking-wider">ENTREGA${oCount > 1 ? 'S' : ''} ATRASADA${oCount > 1 ? 'S' : ''} (${oCount}):</span>
+                    <div class="flex items-center gap-1.5 flex-wrap">
+                      <span class="font-bold text-theme-accent font-mono uppercase text-[10px] tracking-wider shrink-0">ENTREGA${oCount > 1 ? 'S' : ''} ATRASADA${oCount > 1 ? 'S' : ''} (${oCount}):</span>
                       ${oItemsList}
-                      ${oCount > 3 ? `<span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">+${oCount - 3} más</span>` : ''}
+                      ${oCount > 3 ? `<span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono shrink-0">+${oCount - 3} más</span>` : ''}
                     </div>
                   </div>
                 </div>
-                <button type="button" onclick="app.openOverdueMilestonesModal()" class="px-2.5 py-1 rounded-lg bg-theme-accent hover:opacity-90 text-white font-bold text-[11px] border border-theme-accent transition shrink-0 flex items-center gap-1.5 shadow-sm active:translate-y-0.5">
+                <button type="button" onclick="app.openOverdueMilestonesModal()" class="w-full sm:w-auto px-2.5 py-1 rounded-lg bg-theme-accent hover:opacity-90 text-white font-bold text-[11px] border border-theme-accent transition shrink-0 flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5">
                   <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
                   <span>Revisar Atrasadas</span>
                 </button>
@@ -5942,7 +5980,8 @@
         // Render Enfoque de Hoy como protagonista permanente
         if (todayBox) {
           todayBox.classList.remove('hidden');
-          renderTodayFocusCard(todayIdx);
+          const activeFocusDay = (state.ui.selectedFocusDay !== undefined && state.ui.selectedFocusDay !== null) ? state.ui.selectedFocusDay : todayIdx;
+          renderTodayFocusCard(activeFocusDay);
         }
 
         // Matriz Semanal Completa Colapsable
@@ -5963,9 +6002,25 @@
         const day = w.days[dIdx];
         const dateRange = getWeekDateRange(w.weekNum);
         const todayDateStr = dateRange.daysDates ? dateRange.daysDates[dIdx] : '';
+        const realTodayIdx = (new Date().getDay() + 6) % 7;
+        const isActuallyToday = dIdx === realTodayIdx;
         const titleEl = document.getElementById('todayFocusTitle');
         if (titleEl) {
           titleEl.innerHTML = `Enfoque de <em class="italic font-normal text-theme-accent">${DAY_FULL[dIdx]} ${todayDateStr}</em>`;
+        }
+
+        // Actualizar estado activo de las pastillas Lun-Dom en móvil
+        for (let i = 0; i < 7; i++) {
+          const btn = document.getElementById(`mobileDayBtn_${i}`);
+          if (btn) {
+            if (i === dIdx) {
+              btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition bg-theme-main text-white shadow-xs';
+            } else if (i === realTodayIdx) {
+              btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition text-theme-accent border border-theme-accent/40 bg-theme-accent-soft';
+            } else {
+              btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200';
+            }
+          }
         }
 
         // Entregas pendientes de hoy o atrasadas
@@ -6869,7 +6924,7 @@
 
               return `
                 <div class="pl-3 sm:pl-4 border-l-2 border-theme space-y-1">
-                  <div id="list-item-${sub.id}" data-item-id="${sub.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${sub.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${sub.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${sub.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${sub.id}', event); }" class="p-1.5 rounded-xl panel-bg border border-stone-200/60 dark:border-slate-800/80 hover:border-theme flex items-center justify-between gap-2 text-[11px] transition shadow-xs draggable-card cursor-pointer ${selectClass}">
+                  <div id="list-item-${sub.id}" data-item-id="${sub.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${sub.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${sub.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${sub.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${sub.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${sub.id}', event); }" class="p-1.5 rounded-xl panel-bg border border-stone-200/60 dark:border-slate-800/80 hover:border-theme flex items-center justify-between gap-2 text-[11px] transition shadow-xs draggable-card cursor-pointer ${selectClass}">
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
                       <label class="cursor-pointer flex items-center pr-0.5 shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
                         <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="app.handleItemCheckboxToggle('${sub.id}', event)" class="rounded accent-theme-main w-3 h-3 cursor-pointer">
@@ -7005,7 +7060,7 @@
               const isCollapsed = !!item.collapsed;
 
               return `
-                <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs shadow-sm draggable-card cursor-pointer ${selectClass}">
+                <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs shadow-sm draggable-card cursor-pointer ${selectClass}">
                   <!-- Cabecera de la Carpeta Permanente (Título Máxima Prioridad + •••) -->
                   <div class="flex items-center justify-between gap-2 border-b border-stone-200/70 dark:border-slate-800/80 pb-1.5">
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
@@ -7022,7 +7077,7 @@
                       </span>
                       <div class="flex-1 min-w-0 flex items-center gap-1.5 cursor-pointer" onclick="app.toggleCollapseListNode('${cat}', '${item.id}')">
                         <span class="font-extrabold text-stone-900 dark:text-white text-[13px] break-words">${escapeHtml(item.title)}</span>
-                        ${isPinned ? `<span class="text-[10px] text-amber-500 font-bold shrink-0">📌</span>` : ''}
+                        ${isPinned ? `<span class="inline-flex items-center text-amber-500 shrink-0" title="Nota fijada"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg></span>` : ''}
                         ${(item.date || item.time) ? getUrgencyBadge(item.date, item.time, allDone) : ''}
                       </div>
                     </div>
@@ -7065,7 +7120,7 @@
             const allDone = hasChildren && stats.total > 0 && stats.done === stats.total;
 
             return `
-              <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs transition shadow-sm draggable-card cursor-pointer ${selectClass}">
+              <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs transition shadow-sm draggable-card cursor-pointer ${selectClass}">
                 <div class="flex items-start justify-between gap-2">
                   <div class="flex items-start gap-1.5 flex-1 min-w-0">
                     <label class="cursor-pointer flex items-center pr-0.5 pt-0.5 shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
@@ -7082,7 +7137,7 @@
                     <div class="flex-1 min-w-0">
                       <div class="flex flex-wrap items-center gap-1.5">
                         <span class="font-bold text-stone-900 dark:text-white break-words">${escapeHtml(item.title)}</span>
-                        ${isPinned ? `<span class="text-[10px] text-amber-500 font-bold">📌</span>` : ''}
+                        ${isPinned ? `<span class="inline-flex items-center text-amber-500 shrink-0" title="Nota fijada"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg></span>` : ''}
                         ${(item.date || item.time) ? getUrgencyBadge(item.date, item.time, item.done || item.status === 'done') : ''}
                         ${hasChildren ? `
                           <button type="button" onclick="app.toggleCollapseListNode('${cat}', '${item.id}')" class="text-[9px] px-1.5 py-0.2 rounded-full font-mono ${allDone ? 'bg-theme-accent text-white' : (isCollapsed ? 'bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/40' : 'bg-theme-soft text-theme-main border border-theme')} font-bold hover:scale-105 transition" title="${isCollapsed ? 'Plegado. Clic para desplegar' : 'Desplegado. Clic para plegar'}">
@@ -10956,6 +11011,11 @@
           }
         },
 
+        selectFocusDay(dIdx) {
+          state.ui.selectedFocusDay = dIdx;
+          renderDailyHabits();
+        },
+
         // DRAG AND DROP PARA REUBICAR NOTAS ENTRE SÍ O EN RAÍZ
         handleListDragStart(event, cat, id) {
           draggedItemData = { cat, id };
@@ -11002,6 +11062,95 @@
           app.executeMoveItem(targetId);
           const rootDropZone = document.getElementById('listRootDropZone');
           if (rootDropZone) rootDropZone.classList.add('hidden');
+        },
+
+        // TOUCH DRAG & DROP PARA MÓVIL (MANTENER PULSADO Y ARRASTRAR)
+        handleListTouchStart(event, cat, id) {
+          if (event.target.tagName === 'BUTTON' || event.target.tagName === 'INPUT' || event.target.closest('button') || event.target.closest('input')) {
+            return;
+          }
+          if (touchDragTimer) clearTimeout(touchDragTimer);
+          const touch = event.touches[0];
+          touchStartPos = { x: touch.clientX, y: touch.clientY };
+          isTouchDragging = false;
+          currentTouchTargetEl = null;
+
+          touchDragTimer = setTimeout(() => {
+            isTouchDragging = true;
+            draggedItemData = { cat, id };
+            const draggedCard = document.getElementById(`list-item-${id}`);
+            if (draggedCard) {
+              draggedCard.classList.add('ring-2', 'ring-theme-main', 'scale-[1.02]', 'shadow-2xl', 'opacity-80', 'transition-transform');
+            }
+            if (navigator.vibrate) {
+              navigator.vibrate(40);
+            }
+            const rootDropZone = document.getElementById('listRootDropZone');
+            if (rootDropZone) rootDropZone.classList.remove('hidden');
+          }, 350);
+        },
+
+        handleListTouchMove(event) {
+          if (!touchDragTimer && !isTouchDragging) return;
+          const touch = event.touches[0];
+          const dist = Math.hypot(touch.clientX - touchStartPos.x, touch.clientY - touchStartPos.y);
+
+          // Si el usuario desliza antes de cumplir los 350ms, es scroll de pantalla habitual
+          if (!isTouchDragging && dist > 10) {
+            clearTimeout(touchDragTimer);
+            touchDragTimer = null;
+            return;
+          }
+
+          if (isTouchDragging) {
+            event.preventDefault(); // Evitar scroll mientras se arrastra la nota
+            const elementUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+            const targetCard = elementUnderFinger ? elementUnderFinger.closest('[data-item-id]') : null;
+
+            document.querySelectorAll('.drag-target-hover').forEach(el => el.classList.remove('drag-target-hover'));
+            if (targetCard && targetCard.id !== `list-item-${draggedItemData?.id}`) {
+              targetCard.classList.add('drag-target-hover');
+              currentTouchTargetEl = targetCard;
+            } else {
+              currentTouchTargetEl = null;
+            }
+          }
+        },
+
+        handleListTouchEnd(event) {
+          if (touchDragTimer) {
+            clearTimeout(touchDragTimer);
+            touchDragTimer = null;
+          }
+          if (!isTouchDragging) return;
+          isTouchDragging = false;
+
+          const draggedId = draggedItemData ? draggedItemData.id : null;
+          const draggedCat = draggedItemData ? draggedItemData.cat : null;
+          const draggedCard = draggedId ? document.getElementById(`list-item-${draggedId}`) : null;
+          if (draggedCard) {
+            draggedCard.classList.remove('ring-2', 'ring-theme-main', 'scale-[1.02]', 'shadow-2xl', 'opacity-80', 'transition-transform');
+          }
+
+          document.querySelectorAll('.drag-target-hover').forEach(el => el.classList.remove('drag-target-hover'));
+          const rootDropZone = document.getElementById('listRootDropZone');
+          if (rootDropZone) rootDropZone.classList.add('hidden');
+
+          if (currentTouchTargetEl && draggedItemData) {
+            const targetId = currentTouchTargetEl.getAttribute('data-item-id');
+            if (targetId && targetId !== draggedId) {
+              const sourceFound = findNodeAndParentInTree(state.lists[draggedCat] || [], draggedId);
+              if (sourceFound && isDescendantOf(sourceFound.node, targetId)) {
+                draggedItemData = null;
+                currentTouchTargetEl = null;
+                return this.showToast('No puedes soltar una nota dentro de sus propias subnotas.', 'warning');
+              }
+              activeMoveContext = { cat: draggedCat, id: draggedId };
+              this.executeMoveItem(targetId);
+            }
+          }
+          draggedItemData = null;
+          currentTouchTargetEl = null;
         },
 
         handleRootDragOver(event) {
