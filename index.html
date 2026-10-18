@@ -116,6 +116,7 @@
     .text-theme-medium { color: var(--theme-500) !important; }
     .border-theme { border-color: var(--theme-border) !important; }
     .border-theme-main { border-color: var(--theme-700) !important; }
+    .ring-theme-main { --tw-ring-color: var(--theme-700) !important; }
 
     .bg-theme-accent { background-color: var(--theme-accent) !important; color: #ffffff !important; }
     .bg-theme-accent * { color: inherit; }
@@ -123,6 +124,7 @@
     .text-theme-accent { color: var(--theme-accent) !important; }
     .border-theme-accent { border-color: var(--theme-accent) !important; }
     .bg-theme-accent-soft { background-color: var(--theme-accent-soft) !important; color: var(--theme-accent) !important; }
+    .ring-theme-accent { --tw-ring-color: var(--theme-accent) !important; }
 
     .bg-accent-green { background-color: var(--theme-700) !important; color: #ffffff !important; }
     .hover\:bg-accent-green:hover { background-color: var(--theme-500) !important; }
@@ -2770,8 +2772,8 @@
       <!-- Fila 1: Logo + Título + Navegación Semanas con Candado -->
       <div class="flex items-center justify-between xl:justify-start gap-3 w-full xl:w-auto">
         <div class="flex items-center gap-2.5 sm:gap-3 min-w-0">
-          <div class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-gradient-to-br from-[#1D4ED8] to-[#0ea5e9] flex items-center justify-center text-white shadow-md shadow-blue-500/20 shrink-0">
-            <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+          <div id="appHeaderLogo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300 shrink-0">
+            <svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
           </div>
           <div class="min-w-0">
             <div class="flex items-center gap-2 flex-wrap">
@@ -4253,6 +4255,36 @@
           const b = parseInt(hex.substring(4, 6), 16) || 0;
           const yiq = ((r * 299) + (g * 587) + (b * 114)) / 1000;
           closeWeekBtn.style.color = (yiq >= 150) ? '#090d16' : '#ffffff';
+        }
+
+        // 1. Logo dinámico en la cabecera de la aplicación
+        const headerLogo = document.getElementById('appHeaderLogo');
+        if (headerLogo) {
+          headerLogo.style.background = `linear-gradient(135deg, ${colors.theme700} 0%, ${colors.accent} 100%)`;
+          headerLogo.style.boxShadow = `0 4px 14px ${colors.themeBorder || 'rgba(0,0,0,0.25)'}`;
+        }
+
+        // 2. Favicon e icono de pestaña dinámicos según paleta activa (SVG Data URI)
+        try {
+          const c1 = colors.theme700;
+          const c2 = colors.accent;
+          const svgIcon = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64"><defs><linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="${c1}"/><stop offset="100%" stop-color="${c2}"/></linearGradient></defs><rect width="64" height="64" rx="16" fill="url(#g)"/><polygon points="35 6 16 34 31 34 27 58 48 26 33 26 35 6" fill="#ffffff"/></svg>`;
+          const iconUri = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svgIcon)}`;
+          
+          let favEl = document.getElementById('favicon');
+          if (!favEl) {
+            favEl = document.createElement('link');
+            favEl.id = 'favicon';
+            favEl.rel = 'icon';
+            document.head.appendChild(favEl);
+          }
+          favEl.type = 'image/svg+xml';
+          favEl.href = iconUri;
+
+          const appleTouch = document.querySelector('link[rel="apple-touch-icon"]');
+          if (appleTouch) appleTouch.href = iconUri;
+        } catch (e) {
+          console.warn('No se pudo actualizar el favicon dinámico:', e);
         }
       }
 
@@ -5749,10 +5781,12 @@
           const pendingCount = notesOnDate.filter(n => !n.done).length;
 
           let cellClass = 'relative p-1 rounded-xl cursor-pointer transition select-none flex flex-col items-center justify-between min-h-[38px] ';
+          let cellStyle = '';
           if (isSelected) {
             cellClass += 'bg-theme-main text-white font-bold shadow-md ring-2 ring-theme-main/50';
           } else if (isToday) {
-            cellClass += 'ring-2 ring-theme-main bg-theme-soft/80 font-black text-theme-main shadow-xs';
+            cellClass += 'ring-2 ring-theme-main bg-theme-soft/90 font-black text-theme-main shadow-xs border border-theme-main';
+            cellStyle = 'outline: 2px solid var(--theme-700); outline-offset: -1px;';
           } else if (hasNotes) {
             cellClass += isPast 
               ? 'opacity-65 subpanel-bg hover:opacity-100 text-stone-700 dark:text-slate-300 font-semibold border border-theme/40' 
@@ -5778,21 +5812,35 @@
               dotBadge = `<span class="text-[8px] font-mono font-extrabold px-1 rounded-full leading-tight ${badgeBg} mt-0.5">${pendingOnDate > 0 ? pendingOnDate : '✓'}</span>`;
             } else {
               const chips = notesOnDate.map(n => {
+                // Definir color temático por categoría
+                let catBorder = 'border-theme-main';
+                let catBg = 'bg-theme-main';
+                if (n.cat === 'compras') {
+                  catBorder = 'border-amber-500';
+                  catBg = 'bg-amber-500';
+                } else if (n.cat === 'objetivos') {
+                  catBorder = 'border-theme-main';
+                  catBg = 'bg-theme-main';
+                } else if (n.cat === 'entregas') {
+                  catBorder = 'border-rose-500';
+                  catBg = 'bg-rose-500';
+                } else if (n.cat === 'notas') {
+                  catBorder = 'border-indigo-400 dark:border-indigo-300';
+                  catBg = 'bg-indigo-500 dark:bg-indigo-400';
+                }
+
                 if (isSelected) {
                   return n.done 
-                    ? `<span class="w-1.5 h-1.5 rounded-full border border-white/80 bg-transparent shrink-0 opacity-70"></span>`
-                    : `<span class="w-1.5 h-1.5 rounded-full bg-white shrink-0 shadow-xs"></span>`;
+                    ? `<span class="w-1.5 h-1.5 rounded-full border border-white/80 bg-transparent shrink-0 opacity-80" title="Completada (${n.cat})"></span>`
+                    : `<span class="w-1.5 h-1.5 rounded-full bg-white shrink-0 shadow-xs" title="Pendiente (${n.cat})"></span>`;
                 }
+
                 if (n.done) {
-                  // Círculo hueco / transparente con borde para tareas cumplidas
-                  return `<span class="w-1.5 h-1.5 rounded-full border-[1.5px] border-stone-400 dark:border-slate-400 bg-transparent shrink-0 opacity-70" title="Completada"></span>`;
+                  // Tarea CUMPLIDA: Mantiene el color propio de su categoría como borde con fondo transparente (hueco)
+                  return `<span class="w-1.5 h-1.5 rounded-full border-[1.8px] ${catBorder} bg-transparent shrink-0 opacity-85" title="Completada (${n.cat})"></span>`;
                 } else {
-                  // Círculo sólido para tareas pendientes
-                  let solidColor = 'bg-theme-accent';
-                  if (n.cat === 'compras') solidColor = 'bg-amber-500';
-                  else if (n.cat === 'objetivos') solidColor = 'bg-theme-main';
-                  else if (n.cat === 'entregas') solidColor = 'bg-rose-500';
-                  return `<span class="w-1.5 h-1.5 rounded-full ${solidColor} shrink-0 ring-1 ring-white/50 dark:ring-black/50" title="Pendiente"></span>`;
+                  // Tarea PENDIENTE: Círculo sólido relleno con el color de su categoría
+                  return `<span class="w-1.5 h-1.5 rounded-full ${catBg} shrink-0 ring-1 ring-white/60 dark:ring-black/60 shadow-xs" title="Pendiente (${n.cat})"></span>`;
                 }
               }).join('');
               dotBadge = `<div class="flex items-center gap-0.5 justify-center mt-0.5">${chips}</div>`;
@@ -5800,7 +5848,7 @@
           }
 
           html += `
-            <div onclick="app.selectCalendarDate('${dateStr}')" class="${cellClass}" title="${d} ${monthNames[mo]}${isToday ? ' (HOY)' : ''}${hasNotes ? ` • ${pendingCount} pendientes, ${notesOnDate.length - pendingCount} hechas` : ''}">
+            <div onclick="app.selectCalendarDate('${dateStr}')" class="${cellClass}" style="${cellStyle}" title="${d} ${monthNames[mo]}${isToday ? ' (HOY)' : ''}${hasNotes ? ` • ${pendingCount} pendientes, ${notesOnDate.length - pendingCount} hechas` : ''}">
               <span class="text-[11px] leading-tight ${isToday ? 'font-black underline decoration-2 decoration-theme-main underline-offset-2' : ''}">${d}</span>
               ${dotBadge}
             </div>
