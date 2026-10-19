@@ -239,6 +239,16 @@
       color: var(--theme-accent) !important;
     }
 
+    /* Líneas de hilo para subnotas con degradado y alternancia de dos tonos */
+    .subnote-thread-odd {
+      border-left: 2.5px solid var(--theme-700) !important;
+      border-image: linear-gradient(to bottom, var(--theme-700), var(--theme-500)) 1 100% !important;
+    }
+    .subnote-thread-even {
+      border-left: 2.5px solid var(--theme-accent) !important;
+      border-image: linear-gradient(to bottom, var(--theme-accent), #f59e0b) 1 100% !important;
+    }
+
     ::selection {
       background-color: var(--theme-700) !important;
       color: #ffffff !important;
@@ -7388,11 +7398,9 @@
       function renderSubnotesTree(children, cat, depth = 1) {
         if (!Array.isArray(children) || children.length === 0) return '';
 
-        // Líneas de hilo con alternancia de tonos y estilo de guía visual según la profundidad
+        // Líneas de hilo con degradado y alternancia de dos tonos según la profundidad
         const isOdd = depth % 2 === 1;
-        const threadBorderClass = isOdd
-          ? 'border-l-2 border-theme-main/60 dark:border-theme-main/80'
-          : 'border-l-2 border-theme-accent/60 dark:border-theme-accent/80';
+        const threadBorderClass = isOdd ? 'subnote-thread-odd' : 'subnote-thread-even';
 
         return `
           <div class="space-y-1.5 ${depth === 1 ? 'pt-1.5' : 'pt-1'}">
