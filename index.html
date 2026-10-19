@@ -15,6 +15,7 @@
   <meta name="theme-color" content="#090d16" />
 
   <link id="favicon" rel="icon" href="icon-192.png" />
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
     tailwind.config = {
@@ -1032,7 +1033,7 @@
         <button onclick="app.closeModal('backupModal')" class="text-slate-400 hover:text-white">✕</button>
       </div>
       <!-- Autoguardado directo en PC / Carpeta de Drive -->
-      <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+      <div id="fileAutoSaveCard" class="p-3 rounded-xl subpanel-bg border space-y-2">
         <div class="flex items-center justify-between">
           <div class="font-bold text-theme-main flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
@@ -1040,10 +1041,10 @@
           </div>
           <span id="autoSaveModalBadge" class="px-2 py-0.5 rounded font-mono text-[10px] font-bold bg-slate-800 text-slate-400">OFF</span>
         </div>
-        <p class="text-[11px] text-stone-500 dark:text-slate-400 leading-relaxed">
-          Sincroniza directamente con un archivo en tu carpeta de Google Drive local o disco.
+        <p id="autoSaveModalDesc" class="text-[11px] text-stone-500 dark:text-slate-400 leading-relaxed">
+          Sincroniza directamente con un archivo en tu carpeta de Google Drive local o disco de tu PC.
         </p>
-        <div class="grid grid-cols-2 gap-2 pt-1">
+        <div id="autoSaveSupportedButtons" class="grid grid-cols-2 gap-2 pt-1">
           <button type="button" onclick="app.selectExistingAutoSaveFile()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center" title="Selecciona tu archivo previo de Drive para cargar datos y vincularlo en este dispositivo">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
             <span>Vincular Existente</span>
@@ -1052,6 +1053,14 @@
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
             <span>Crear Archivo</span>
           </button>
+        </div>
+        <div id="autoSaveUnsupportedNotice" class="hidden p-2 rounded-lg bg-amber-500/10 border border-amber-500/30 text-[11px] text-amber-700 dark:text-amber-300 space-y-1">
+          <div class="font-bold flex items-center gap-1">
+            <span>ℹ️</span> <span>Exclusivo para PC / Mac</span>
+          </div>
+          <p class="leading-tight text-[10.5px]">
+            iOS y iPadOS no permiten a las webs escribir directamente en el disco en segundo plano. En tu iPad todos tus datos se <strong>autoguardan automáticamente en localStorage</strong>. Para sincronizar con tu PC, usa <strong>"Portapapeles"</strong> abajo (1 Clic) o <strong>"Descargar / Cargar .json"</strong>.
+          </p>
         </div>
       </div>
       <!-- Sincronización en la Nube / Google Drive Web -->
@@ -1063,15 +1072,16 @@
           </div>
           <span id="driveSyncStatusBadge" class="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400">DISPONIBLE</span>
         </div>
-        <p class="text-[11px] text-stone-500 dark:text-slate-400 leading-relaxed">
-          Para que tu <strong>iPhone, iPad y PC</strong> sincronicen sus datos sin reenviar archivos. Tus datos se guardan en un archivo <code class="font-mono text-theme-main font-bold">centro_control_data.json</code> en tu propio Google Drive.
-        </p>
+        <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
+          <span>Sincronización automática entre tu <strong>iPad, iPhone y PC</strong>.</span>
+          <span id="driveSyncUserEmail" class="hidden font-mono font-bold text-theme-main text-[10px] truncate max-w-[150px]"></span>
+        </div>
         <div class="grid grid-cols-2 gap-2 pt-1">
-          <button type="button" onclick="app.connectGoogleDrive()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition">
+          <button type="button" onclick="app.connectGoogleDrive()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-            <span>Conectar Drive</span>
+            <span id="driveConnectBtnText">Conectar Drive</span>
           </button>
-          <button type="button" onclick="app.syncGoogleDriveNow()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition">
+          <button type="button" onclick="app.syncGoogleDriveNow()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
             <span>Sincronizar Ya</span>
           </button>
@@ -4855,21 +4865,246 @@
         }
       }
 
-      async function clearStoredFileHandleFromDB() {
-        try {
-          const db = await openHandlesDB();
-          return new Promise((resolve) => {
-            const tx = db.transaction(IDB_STORE, 'readwrite');
-            tx.objectStore(IDB_STORE).delete('drive_file_handle');
-            tx.oncomplete = () => resolve();
-            tx.onerror = () => resolve();
+      // ========================================================
+      // GOOGLE DRIVE CLOUD REST API SYNC ENGINE (PC, IPAD, IPHONE)
+      // ========================================================
+      const GOOGLE_CLIENT_ID = '476175954573-hnkthgi1rogipd4q2999oid916virp25.apps.googleusercontent.com';
+      const GOOGLE_DRIVE_FILENAME = 'centro_control_data.json';
+      const GOOGLE_DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
+
+      let gdriveAccessToken = localStorage.getItem('gdrive_access_token') || null;
+      let gdriveTokenExpiry = parseInt(localStorage.getItem('gdrive_token_expiry'), 10) || 0;
+      let gdriveUserEmail = localStorage.getItem('gdrive_user_email') || null;
+      let gdriveFileId = localStorage.getItem('gdrive_file_id') || null;
+      let tokenClient = null;
+      let isGdriveSyncing = false;
+      let gdriveDebounceTimer = null;
+
+      function isGdriveConnected() {
+        return !!(gdriveAccessToken && Date.now() < gdriveTokenExpiry);
+      }
+
+      function updateGdriveUI(statusText, badgeClass = null) {
+        const badge = document.getElementById('driveSyncStatusBadge');
+        const emailSpan = document.getElementById('driveSyncUserEmail');
+        const connectBtnTxt = document.getElementById('driveConnectBtnText');
+        
+        if (gdriveUserEmail) {
+          if (emailSpan) {
+            emailSpan.textContent = gdriveUserEmail;
+            emailSpan.classList.remove('hidden');
+          }
+          if (connectBtnTxt) connectBtnTxt.textContent = 'Cambiar Cuenta';
+        } else {
+          if (emailSpan) emailSpan.classList.add('hidden');
+          if (connectBtnTxt) connectBtnTxt.textContent = 'Conectar Drive';
+        }
+
+        if (badge) {
+          if (statusText) badge.textContent = statusText;
+          if (badgeClass) {
+            badge.className = `px-2 py-0.5 rounded font-mono text-[9px] font-bold ${badgeClass}`;
+          } else if (isGdriveConnected()) {
+            badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-700';
+            badge.textContent = 'CONECTADO';
+          } else if (gdriveUserEmail) {
+            badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-700';
+            badge.textContent = 'RENOVAR SESIÓN';
+          } else {
+            badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400';
+            badge.textContent = 'DISPONIBLE';
+          }
+        }
+      }
+
+      function initGsiClient() {
+        if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) return;
+        if (!tokenClient) {
+          tokenClient = google.accounts.oauth2.initTokenClient({
+            client_id: GOOGLE_CLIENT_ID,
+            scope: GOOGLE_DRIVE_SCOPE,
+            prompt: '',
+            callback: async (resp) => {
+              if (resp.error) {
+                console.warn('Error en autenticación Google:', resp);
+                updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
+                return;
+              }
+              gdriveAccessToken = resp.access_token;
+              gdriveTokenExpiry = Date.now() + (parseInt(resp.expires_in, 10) - 120) * 1000;
+              localStorage.setItem('gdrive_access_token', gdriveAccessToken);
+              localStorage.setItem('gdrive_token_expiry', gdriveTokenExpiry);
+
+              // Obtener email del usuario para confirmación visual
+              try {
+                const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
+                  headers: { Authorization: `Bearer ${gdriveAccessToken}` }
+                });
+                if (userRes.ok) {
+                  const uData = await userRes.json();
+                  gdriveUserEmail = uData.email || 'Conectado';
+                  localStorage.setItem('gdrive_user_email', gdriveUserEmail);
+                }
+              } catch (_) {}
+
+              updateGdriveUI();
+              app.showToast('¡Conectado a Google Drive! Sincronizando datos...', 'success');
+              await syncGdriveCloud(true); // Pull y Push inicial
+            }
           });
-        } catch (_) {}
+        }
+      }
+
+      async function ensureGdriveToken() {
+        if (isGdriveConnected()) return gdriveAccessToken;
+        return new Promise((resolve) => {
+          if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+            return resolve(null);
+          }
+          initGsiClient();
+          if (!tokenClient) return resolve(null);
+          const origCallback = tokenClient.callback;
+          tokenClient.callback = (resp) => {
+            if (origCallback) origCallback(resp);
+            resolve(resp.access_token || null);
+          };
+          tokenClient.requestAccessToken({ prompt: '' });
+        });
+      }
+
+      async function findGdriveFileId(token) {
+        if (gdriveFileId) return gdriveFileId;
+        const q = encodeURIComponent(`name = '${GOOGLE_DRIVE_FILENAME}' and trashed = false`);
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id, name, modifiedTime)`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (!res.ok) return null;
+        const data = await res.json();
+        if (data.files && data.files.length > 0) {
+          gdriveFileId = data.files[0].id;
+          localStorage.setItem('gdrive_file_id', gdriveFileId);
+          return gdriveFileId;
+        }
+        return null;
+      }
+
+      async function syncGdriveCloud(allowPull = false) {
+        if (isGdriveSyncing) return;
+        const token = await ensureGdriveToken();
+        if (!token) {
+          updateGdriveUI();
+          return;
+        }
+
+        isGdriveSyncing = true;
+        updateGdriveUI('SINCRONIZANDO...', 'bg-blue-950 text-blue-300 border border-blue-700 animate-pulse');
+
+        try {
+          let fileId = await findGdriveFileId(token);
+
+          // Si es un inicio de sesión o refresh explícito, descargar la copia de Drive primero si existe
+          if (allowPull && fileId) {
+            try {
+              const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                headers: { Authorization: `Bearer ${token}` }
+              });
+              if (dlRes.ok) {
+                const cloudJson = await dlRes.json();
+                if (cloudJson && cloudJson.weeks) {
+                  // Cargar estado de la nube
+                  state = sanitizeState(cloudJson);
+                  renderApp();
+                  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                  updateGdriveUI();
+                  isGdriveSyncing = false;
+                  return;
+                }
+              }
+            } catch (_) {}
+          }
+
+          // Subir el estado actual a Google Drive
+          const content = JSON.stringify(state, null, 2);
+          if (fileId) {
+            // Actualizar archivo existente
+            const updateRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
+              method: 'PATCH',
+              headers: {
+                Authorization: `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: content
+            });
+            if (!updateRes.ok && updateRes.status === 404) {
+              fileId = null;
+              gdriveFileId = null;
+              localStorage.removeItem('gdrive_file_id');
+            }
+          }
+
+          if (!fileId) {
+            // Crear archivo nuevo en la raíz del Google Drive del usuario
+            const metadata = {
+              name: GOOGLE_DRIVE_FILENAME,
+              mimeType: 'application/json'
+            };
+            const form = new FormData();
+            form.append('metadata', new Blob([JSON.stringify(metadata)], { type: 'application/json' }));
+            form.append('file', new Blob([content], { type: 'application/json' }));
+
+            const createRes = await fetch('https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart', {
+              method: 'POST',
+              headers: { Authorization: `Bearer ${token}` },
+              body: form
+            });
+            if (createRes.ok) {
+              const cData = await createRes.json();
+              gdriveFileId = cData.id;
+              localStorage.setItem('gdrive_file_id', gdriveFileId);
+            }
+          }
+
+          updateGdriveUI();
+        } catch (err) {
+          console.warn('Error sincronizando con Google Drive:', err);
+          updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
+        } finally {
+          isGdriveSyncing = false;
+        }
+      }
+
+      function scheduleGdriveAutoSync() {
+        if (!gdriveUserEmail) return;
+        if (gdriveDebounceTimer) clearTimeout(gdriveDebounceTimer);
+        gdriveDebounceTimer = setTimeout(() => {
+          syncGdriveCloud(false);
+        }, 1200);
       }
 
       function updateAutoSaveUI(isActive, isPending = false) {
         const dot = document.getElementById('autoSaveIndicatorDot');
         const badge = document.getElementById('autoSaveModalBadge');
+        const hasFSA = ('showSaveFilePicker' in window) || ('showOpenFilePicker' in window);
+
+        const btnsBox = document.getElementById('autoSaveSupportedButtons');
+        const noticeBox = document.getElementById('autoSaveUnsupportedNotice');
+        if (btnsBox && noticeBox) {
+          btnsBox.classList.toggle('hidden', !hasFSA);
+          noticeBox.classList.toggle('hidden', hasFSA);
+        }
+
+        if (!hasFSA) {
+          if (dot) {
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500/70 transition shrink-0';
+            dot.title = 'Datos autoguardados en el iPad (localStorage)';
+          }
+          if (badge) {
+            badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-theme-soft text-theme-main border border-theme';
+            badge.textContent = 'LOCAL STORAGE (IPAD)';
+          }
+          return;
+        }
+
         if (isActive) {
           if (dot) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse cursor-pointer hover:scale-125 transition';
@@ -5077,6 +5312,7 @@
           if (!skipDiskSync) {
             syncDiskFile();
           }
+          scheduleGdriveAutoSync();
         } catch (_) {}
       }
 
@@ -13195,7 +13431,10 @@
         setLabScope(scope) { state.ui.labScope = scope; renderTab4(); saveState(); },
         setEvolMetric(metric) { state.ui.evolMetric = metric; renderTab4(); saveState(); },
 
-        openBackupModal() { document.getElementById('backupModal').classList.remove('hidden'); },
+        openBackupModal() {
+          updateGdriveUI();
+          document.getElementById('backupModal').classList.remove('hidden');
+        },
         openUserGuideModal() {
           const el = document.getElementById('userGuideModal');
           if (el) el.classList.remove('hidden');
@@ -13217,28 +13456,43 @@
           });
         },
         async connectGoogleDrive() {
-          const confirmed = await this.showConfirm({
-            title: 'Sincronizar con Google Drive',
-            message: 'Para sincronizar entre tu iPhone, iPad y PC de forma automática:\n\n• Si estás en PC: Puedes seleccionar directamente tu archivo dentro de la carpeta local de Google Drive con "Autoguardado directo".\n• Si estás en iPhone/iPad: Puedes exportar e importar tu respaldo directamente a la app Archivos / Google Drive, o usar el Portapapeles (1 Clic).\n\n¿Deseas activar el selector de archivo sincronizado ahora?',
-            confirmText: 'Seleccionar Archivo',
-            cancelText: 'Ver Guía Completa',
-            isDanger: false
-          });
-          if (confirmed) {
-            this.setupFileAutoSave();
+          if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+            return this.showToast('Cargando servicios de Google... Revisa tu conexión a internet.', 'warning');
+          }
+          initGsiClient();
+          if (tokenClient) {
+            tokenClient.requestAccessToken({ prompt: gdriveUserEmail ? 'select_account' : 'consent' });
           } else {
-            this.closeModal('backupModal');
-            this.openUserGuideModal();
-            this.switchGuideTab('drive');
+            this.showToast('No se pudo inicializar la autenticación de Google.', 'error');
           }
         },
         async syncGoogleDriveNow() {
-          if (fileHandle) {
-            await syncDiskFile();
-            this.showToast('Sincronización en disco/Drive completada con éxito.', 'success');
-          } else {
-            this.showToast('Autoguardado en local activo. Si deseas sincronizar con Drive, pulsa "Conectar Drive".', 'info');
+          if (!gdriveUserEmail) {
+            const connect = await this.showConfirm({
+              title: 'Conectar con Google Drive',
+              message: 'Para sincronizar tu iPad y tu PC automáticamente, necesitas vincular tu cuenta de Google una vez.\n\n¿Deseas iniciar sesión con Google ahora?',
+              confirmText: 'Iniciar Sesión',
+              cancelText: 'Cancelar',
+              isDanger: false
+            });
+            if (connect) this.connectGoogleDrive();
+            return;
           }
+          this.showToast('Sincronizando con Google Drive...', 'info');
+          await syncGdriveCloud(true);
+          this.showToast('¡Datos sincronizados con Google Drive!', 'success');
+        },
+        disconnectGoogleDrive() {
+          gdriveAccessToken = null;
+          gdriveTokenExpiry = 0;
+          gdriveUserEmail = null;
+          gdriveFileId = null;
+          localStorage.removeItem('gdrive_access_token');
+          localStorage.removeItem('gdrive_token_expiry');
+          localStorage.removeItem('gdrive_user_email');
+          localStorage.removeItem('gdrive_file_id');
+          updateGdriveUI();
+          this.showToast('Sesión de Google Drive cerrada.', 'info');
         },
         applyPwaUpdate() {
           if ('serviceWorker' in navigator) {
@@ -13461,6 +13715,11 @@
         },
 
         async resumeAutoSavePermission() {
+          const hasFSA = ('showSaveFilePicker' in window) || ('showOpenFilePicker' in window);
+          if (!hasFSA) {
+            this.openBackupModal();
+            return;
+          }
           if (!fileHandle) {
             const stored = await getStoredFileHandleFromDB();
             if (stored) fileHandle = stored;
@@ -13763,6 +14022,10 @@
         app.switchTab(state.activeTab || 1);
         renderApp();
         initAutoSaveDrive();
+        updateGdriveUI();
+        if (gdriveUserEmail) {
+          syncGdriveCloud(true);
+        }
         registerServiceWorker();
         checkWeekRollover();
       }
@@ -13771,6 +14034,9 @@
         if (document.visibilityState === 'visible') {
           checkWeekRollover();
           renderHeaderAndKPIs();
+          if (gdriveUserEmail) {
+            syncGdriveCloud(true);
+          }
         }
       });
 
