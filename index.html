@@ -1206,58 +1206,73 @@
         <div id="guideSection_drive" class="hidden space-y-3">
           <div class="p-3 rounded-xl subpanel-bg border space-y-2">
             <h4 class="font-bold text-sm text-theme-main">
-              Sincronización Mutua (PC ↔ Móvil ↔ Tablet)
+              Sincronización en la Nube (iPad ↔ iPhone ↔ PC)
             </h4>
             <p class="text-stone-600 dark:text-slate-300 leading-relaxed text-[11.5px]">
-              Para que los datos que registres en un dispositivo se reflejen en los demás sin transferir archivos manualmente:
+              La aplicación se sincroniza automáticamente entre todos tus dispositivos mediante la <strong>API oficial de Google Drive</strong>, sin necesidad de transferir archivos ni configurar carpetas:
             </p>
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+            <div class="space-y-2 text-[11px]">
               <div class="p-2.5 rounded-lg border subpanel-bg space-y-1">
-                <span class="font-bold text-theme-main">Opción A: Google Drive en la Nube</span>
+                <span class="font-bold text-theme-main">Paso 1: Conectar Google Drive</span>
                 <p class="text-stone-500 dark:text-slate-400 leading-relaxed">
-                  En el botón <strong>Copias</strong>, pulsa <strong>"Conectar Drive"</strong>. Se vinculará el archivo <code class="font-mono text-theme-main font-bold">centro_control_data.json</code> en tu Drive personal para sincronizarse automáticamente.
+                  Pulsa el botón <strong>Copias</strong> en la cabecera y haz clic en <strong class="text-theme-main">"Conectar Drive"</strong>. Inicia sesión con tu cuenta de Google y concede el permiso para guardar sus propios datos.
                 </p>
               </div>
               <div class="p-2.5 rounded-lg border subpanel-bg space-y-1">
-                <span class="font-bold text-theme-accent">Opción B: Carpeta sincronizada de Drive</span>
+                <span class="font-bold text-theme-accent">Paso 2: Conectar en tus otros dispositivos</span>
                 <p class="text-stone-500 dark:text-slate-400 leading-relaxed">
-                  Si tienes Google Drive instalado en tu ordenador (unidad virtual o carpeta local), activa el autoguardado seleccionando el archivo directamente dentro de esa carpeta.
+                  Abre la app en tu iPad, iPhone u otro PC y pulsa igualmente <strong>"Conectar Drive"</strong> con la misma cuenta. ¡Listo! Se descargará automáticamente tu información más reciente.
+                </p>
+              </div>
+              <div class="p-2.5 rounded-lg border subpanel-bg space-y-1">
+                <span class="font-bold text-emerald-600 dark:text-emerald-400">¿Cuándo se sincroniza?</span>
+                <p class="text-stone-500 dark:text-slate-400 leading-relaxed">
+                  • <strong>Al guardar:</strong> Cualquier cambio que hagas (completar un hábito, editar notas, registrar gastos) se sube a tu Drive en segundo plano tras 1 segundo.<br/>
+                  • <strong>Al entrar o volver a la app:</strong> Al abrir o desbloquear tu iPad/móvil, la app comprueba si hay cambios nuevos en Drive y se actualiza al instante.
                 </p>
               </div>
             </div>
           </div>
           <div class="p-2.5 rounded-lg bg-theme-soft border border-theme text-[11px] text-theme-main">
-            <strong>Privacidad para tus amigos:</strong> Cada persona que use la app conectará su propia cuenta o guardará sus datos en su propio dispositivo. Los datos son 100% privados y nunca se comparten entre usuarios.
+            <strong>Privacidad garantizada:</strong> Cada usuario conecta su propia cuenta de Google personal. Tus datos se guardan exclusivamente en tu propio Google Drive y nadie más tiene acceso a ellos.
           </div>
         </div>
 
         <!-- Pestaña 3: Autoguardado & Copias -->
         <div id="guideSection_autosave" class="hidden space-y-3">
           <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-            <h4 class="font-bold text-sm text-theme-main">Indicador de Estado del Autoguardado</h4>
+            <h4 class="font-bold text-sm text-theme-main">Indicador de Estado en la Cabecera</h4>
             <p class="text-stone-600 dark:text-slate-300 text-[11.5px] leading-relaxed">
-              En la cabecera, junto al botón <strong>Copias</strong>, se sitúa el punto indicador de estado:
+              En la barra superior, junto al botón <strong>Copias</strong>, verás un punto circular que te indica el estado de tu sincronización en todo momento:
             </p>
             <ul class="space-y-2 text-[11px] pl-1 text-stone-600 dark:text-slate-300">
               <li class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 shrink-0 mt-0.5"></span>
-                <span><strong>Activo:</strong> Autoguardado continuo en archivo local o Drive. Cada cambio se graba inmediatamente al instante.</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0 mt-0.5"></span>
+                <span><strong>Verde (Pulsando):</strong> Sincronización en la nube activa con Google Drive. Tus datos están completamente seguros y actualizados entre tus dispositivos.</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0 mt-0.5"></span>
-                <span><strong>En espera de permiso:</strong> El navegador requiere confirmación del usuario para volver a escribir en el archivo. Haz clic sobre el punto para reanudarlo.</span>
+                <span><strong>Ámbar:</strong> Sesión de Google expirada. Haz clic sobre el botón para renovar sesión con un toque.</span>
               </li>
               <li class="flex items-start gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0 mt-0.5"></span>
-                <span><strong>Memoria local:</strong> Los datos se guardan de forma interna en el almacenamiento seguro de tu navegador.</span>
+                <span><strong>Gris:</strong> Modo local offline (guardado en tu dispositivo). Haz clic en Copias si deseas activar Google Drive.</span>
               </li>
             </ul>
           </div>
-          <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
-            <h4 class="font-bold text-xs text-stone-800 dark:text-slate-200">Portapapeles Rápido (1 Clic)</h4>
-            <p class="text-[11px] text-stone-500 dark:text-slate-400 leading-relaxed">
-              En <strong>Copias $\to$ Copiar Datos</strong>, puedes copiar toda tu información al portapapeles y pegarla en tu otro dispositivo (mediante AirDrop, mensaje o notas) para transferirla al instante de manera offline.
-            </p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 text-[11px]">
+            <div class="p-2.5 rounded-lg subpanel-bg border space-y-1">
+              <span class="font-bold text-emerald-600 dark:text-emerald-400">Descargar / Cargar .json</span>
+              <p class="text-stone-500 dark:text-slate-400 leading-relaxed">
+                Puedes descargar un archivo de copia de seguridad físico a tu ordenador o dispositivo cuando quieras, o restaurar un respaldo anterior.
+              </p>
+            </div>
+            <div class="p-2.5 rounded-lg subpanel-bg border space-y-1">
+              <span class="font-bold text-theme-main">Portapapeles Rápido</span>
+              <p class="text-stone-500 dark:text-slate-400 leading-relaxed">
+                Permite copiar todos tus datos en 1 solo clic y pegarlos en otro dispositivo sin necesidad de conexión a internet.
+              </p>
+            </div>
           </div>
         </div>
 
