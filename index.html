@@ -914,53 +914,98 @@
   <div id="zenScreenFlash" class="fixed inset-0 pointer-events-none z-[100] hidden border-8 border-theme-accent ring-8 ring-theme-accent/50 shadow-[inset_0_0_80px_rgba(239,68,68,0.4)]"></div>
 
   <!-- MODAL CIERRE DE SEMANA -->
-  <div id="closeWeekModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="panel-bg border rounded-2xl max-w-lg w-full p-6 space-y-4 shadow-2xl">
-      <div class="flex justify-between items-center border-b pb-3">
-        <h3 class="text-base sm:text-lg font-bold flex items-center gap-2.5 text-stone-900 dark:text-white">
-          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+  <div id="closeWeekModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="panel-bg border rounded-2xl max-w-4xl w-full p-4 sm:p-6 space-y-3.5 shadow-2xl max-h-[92vh] flex flex-col">
+      <!-- Cabecera del modal -->
+      <div class="flex justify-between items-center border-b pb-3 shrink-0">
+        <div class="flex items-center gap-2.5">
+          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
           </div>
-          <span>Cerrar Semana y Archivar</span>
-        </h3>
-        <button onclick="app.closeModal('closeWeekModal')" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-stone-400 hover:text-stone-700 dark:hover:text-white transition">✕</button>
-      </div>
-      <div id="closeWeekSummary" class="text-xs space-y-2 p-3.5 rounded-xl subpanel-bg border border-theme/30 divide-y divide-stone-200/60 dark:divide-slate-800/60"></div>
-      <div id="closeWeekSliderBox" class="p-4 rounded-xl subpanel-bg border border-theme/40 space-y-3.5">
-        <div class="flex justify-between items-center text-xs">
-          <span class="font-bold text-theme-main uppercase tracking-wider flex items-center gap-1.5">
-            <svg class="w-4 h-4 text-theme-main inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 9l9-6 9 6M6 12l-3 7h6l-3-7zm12 0l-3 7h6l-3-7z"/></svg>
-            Reparto del Sobrante Semanal
-          </span>
-          <span id="closeWeekSurplusBadge" class="font-mono font-extrabold text-theme-main text-sm">0.00 €</span>
-        </div>
-        <div class="h-5 w-full rounded-full overflow-hidden flex bg-stone-200 dark:bg-slate-900 border border-theme/40 p-0.5">
-          <div id="closeWeekBarPiggy" class="bg-theme-main text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-l-full shadow-inner" style="width:50%">50%</div>
-          <div id="closeWeekBarCarry" class="bg-theme-accent text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-r-full shadow-inner" style="width:50%">50%</div>
-        </div>
-        <input id="closeWeekSlider" type="range" min="0" max="100" value="50" oninput="app.updateSurplusSlider()" class="w-full accent-theme cursor-pointer" />
-        <div class="grid grid-cols-2 gap-3 text-xs pt-1">
-          <div class="p-3 rounded-xl subpanel-bg border-2 border-theme/40 text-left space-y-1 shadow-xs">
-            <div class="flex items-center gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
-              <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V9a7 7 0 0 0-14 0v2"></path><rect x="3" y="11" width="18" height="11" rx="2"></rect><circle cx="12" cy="16" r="2"></circle></svg>
-              <span>A la Hucha:</span>
-            </div>
-            <div id="closeWeekPiggyAmt" class="text-base sm:text-lg font-extrabold text-theme-main font-mono">0.00 €</div>
-          </div>
-          <div class="p-3 rounded-xl subpanel-bg border-2 border-theme-accent/40 text-right space-y-1 shadow-xs">
-            <div class="flex items-center justify-end gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
-              <span>Extra Próx. Tope:</span>
-              <svg class="w-3.5 h-3.5 text-theme-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
-            </div>
-            <div id="closeWeekCarryAmt" class="text-base sm:text-lg font-extrabold text-theme-accent font-mono">+0.00 €</div>
+          <div>
+            <h3 class="text-base sm:text-lg font-bold text-stone-900 dark:text-white flex items-center gap-2">
+              <span id="closeWeekModalTitle">Cerrar Semana y Archivar</span>
+            </h3>
+            <p id="closeWeekModalSubtitle" class="text-[11px] text-stone-500 dark:text-slate-400 font-mono"></p>
           </div>
         </div>
+        <button onclick="app.closeModal('closeWeekModal')" class="w-7 h-7 flex items-center justify-center rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-stone-400 hover:text-stone-700 dark:hover:text-white transition" title="Posponer o cancelar">✕</button>
       </div>
-      <div class="flex justify-end gap-2.5 pt-2">
-        <button onclick="app.closeModal('closeWeekModal')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs border border-stone-300 dark:border-slate-700 hover:bg-stone-200 dark:hover:bg-slate-800 transition">Cancelar</button>
+
+      <!-- Selector de Pestañas del Modal -->
+      <div class="flex items-center gap-2 border-b border-stone-200/80 dark:border-slate-800/80 pb-1 shrink-0">
+        <button id="closeWeekTabBtnSummary" onclick="app.switchCloseWeekTab('summary')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 bg-theme-main text-white shadow-xs">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="9" x2="15" y2="9"/><line x1="9" y1="13" x2="15" y2="13"/><line x1="9" y1="17" x2="13" y2="17"/></svg>
+          <span>Resumen y Reparto</span>
+        </button>
+        <button id="closeWeekTabBtnMatrix" onclick="app.switchCloseWeekTab('matrix')" class="px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M3 15h18M9 3v18M15 3v18"/></svg>
+          <span>Matriz Semanal Interactiva</span>
+        </button>
+      </div>
+
+      <!-- Contenido scrolleable -->
+      <div class="overflow-y-auto no-scrollbar flex-1 space-y-3.5 pr-0.5">
+        <!-- Pestaña 1: Resumen y Slider Reparto -->
+        <div id="closeWeekTabSummary" class="space-y-3.5">
+          <div id="closeWeekSummary" class="text-xs space-y-2 p-3.5 rounded-xl subpanel-bg border border-theme/30 divide-y divide-stone-200/60 dark:divide-slate-800/60"></div>
+          <div id="closeWeekSliderBox" class="p-4 rounded-xl subpanel-bg border border-theme/40 space-y-3.5">
+            <div class="flex justify-between items-center text-xs">
+              <span class="font-bold text-theme-main uppercase tracking-wider flex items-center gap-1.5">
+                <svg class="w-4 h-4 text-theme-main inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v18M3 9l9-6 9 6M6 12l-3 7h6l-3-7zm12 0l-3 7h6l-3-7z"/></svg>
+                Reparto del Sobrante Semanal
+              </span>
+              <span id="closeWeekSurplusBadge" class="font-mono font-extrabold text-theme-main text-sm">0.00 €</span>
+            </div>
+            <div class="h-5 w-full rounded-full overflow-hidden flex bg-stone-200 dark:bg-slate-900 border border-theme/40 p-0.5">
+              <div id="closeWeekBarPiggy" class="bg-theme-main text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-l-full shadow-inner" style="width:50%">50%</div>
+              <div id="closeWeekBarCarry" class="bg-theme-accent text-white font-extrabold text-[10px] flex items-center justify-center transition-all duration-150 rounded-r-full shadow-inner" style="width:50%">50%</div>
+            </div>
+            <input id="closeWeekSlider" type="range" min="0" max="100" value="50" oninput="app.updateSurplusSlider()" class="w-full accent-theme cursor-pointer" />
+            <div class="grid grid-cols-2 gap-3 text-xs pt-1">
+              <div class="p-3 rounded-xl subpanel-bg border-2 border-theme/40 text-left space-y-1 shadow-xs">
+                <div class="flex items-center gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
+                  <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 11V9a7 7 0 0 0-14 0v2"></path><rect x="3" y="11" width="18" height="11" rx="2"></rect><circle cx="12" cy="16" r="2"></circle></svg>
+                  <span>A la Hucha:</span>
+                </div>
+                <div id="closeWeekPiggyAmt" class="text-base sm:text-lg font-extrabold text-theme-main font-mono">0.00 €</div>
+              </div>
+              <div class="p-3 rounded-xl subpanel-bg border-2 border-theme-accent/40 text-right space-y-1 shadow-xs">
+                <div class="flex items-center justify-end gap-1.5 text-stone-600 dark:text-slate-300 font-semibold">
+                  <span>Extra Próx. Tope:</span>
+                  <svg class="w-3.5 h-3.5 text-theme-accent shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                </div>
+                <div id="closeWeekCarryAmt" class="text-base sm:text-lg font-extrabold text-theme-accent font-mono">+0.00 €</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pestaña 2: Matriz Semanal Completa Editable -->
+        <div id="closeWeekTabMatrix" class="hidden space-y-2">
+          <div class="p-2.5 rounded-xl bg-theme-soft border border-theme text-xs flex items-center justify-between text-stone-700 dark:text-slate-200">
+            <span class="flex items-center gap-1.5">
+              <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+              <span>Puedes ajustar cualquier día antes de cerrar. Los totales y el reparto del sobrante se actualizarán automáticamente.</span>
+            </span>
+          </div>
+          <div class="w-full overflow-x-auto no-scrollbar -mx-1 px-1">
+            <table class="w-full table-fixed border-collapse text-center text-[9.5px]">
+              <thead>
+                <tr id="modalCloseWeekTableHeader" class="text-xs font-extrabold uppercase border-b border-stone-200 dark:border-slate-800"></tr>
+              </thead>
+              <tbody id="modalCloseWeekTableBody" class="divide-y divide-stone-200/80 dark:divide-slate-800/80 text-xs"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pie del modal -->
+      <div class="flex justify-between items-center pt-2 border-t shrink-0">
+        <button onclick="app.closeModal('closeWeekModal')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs border border-stone-300 dark:border-slate-700 hover:bg-stone-200 dark:hover:bg-slate-800 transition">Posponer / Revisar</button>
         <button onclick="app.confirmCloseWeek()" class="px-5 py-2 rounded-xl bg-theme-main hover:opacity-90 text-white border border-theme text-xs font-bold shadow-md active:translate-y-0.5 transition flex items-center gap-1.5">
           <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
-          <span>Confirmar y Avanzar</span>
+          <span>Confirmar y Comenzar Nueva Semana</span>
         </button>
       </div>
     </div>
@@ -1522,13 +1567,13 @@
         <button onclick="app.closeModal('modalSmartDuplicate')" class="text-stone-400 hover:text-stone-700 dark:hover:text-white text-base font-bold p-1">✕</button>
       </div>
 
-      <!-- Resumen del elemento origen -->
-      <div class="p-2.5 rounded-xl subpanel-bg border border-emerald-500/30 space-y-1">
-        <span class="text-[10px] text-stone-500 dark:text-slate-400 block font-medium">Elemento a duplicar:</span>
+      <!-- Resumen del elemento origen y edición de nombre -->
+      <div class="p-2.5 rounded-xl subpanel-bg border border-theme/40 space-y-1.5">
         <div class="flex items-center justify-between gap-2">
-          <span id="smartDupSourceTitle" class="text-xs font-bold text-stone-900 dark:text-white truncate">Semana 1</span>
+          <label for="smartDupSourceTitle" class="text-[10px] text-stone-500 dark:text-slate-400 block font-semibold">Nombre de la nueva copia:</label>
           <span id="smartDupDateBadge" class="text-[10px] font-mono px-2 py-0.5 rounded-full bg-emerald-50 dark:bg-emerald-950/60 text-emerald-800 dark:text-emerald-300 font-bold border border-emerald-500/30 shrink-0">Con fechas</span>
         </div>
+        <input id="smartDupSourceTitle" type="text" oninput="app.updateSmartDuplicatePreview()" placeholder="Nombre de la copia..." class="w-full input-bg border rounded-lg px-2.5 py-1.5 text-xs font-bold text-stone-900 dark:text-white focus:border-theme outline-none" />
       </div>
 
       <!-- Configuración de Repeticiones y Desplazamiento -->
@@ -2998,6 +3043,23 @@
         <span><strong>Modo Edición Histórica:</strong> Estás editando una semana pasada. Los cambios recalcularán las rachas en cascada.</span>
       </span>
       <button onclick="app.returnToActiveWeek()" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Volver a la Semana Actual</button>
+    </div>
+
+    <!-- Banner Permanente de Semana Vencida Pendiente de Cerrar -->
+    <div id="pendingWeekCloseBanner" class="hidden panel-bg border-2 border-theme-accent p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-lg">
+      <div class="flex items-center gap-2.5">
+        <div class="vector-seal bg-theme-accent text-white w-6 h-6 shadow-xs shrink-0">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        </div>
+        <div>
+          <span class="font-black text-stone-900 dark:text-white block sm:inline" id="pendingWeekCloseBannerText">Semana anterior pendiente de cierre.</span>
+          <span class="text-[11px] text-stone-500 dark:text-slate-400 sm:ml-1">Cierra la semana para activar los días de esta nueva semana sin solapamientos.</span>
+        </div>
+      </div>
+      <button onclick="app.openCloseWeekModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-white text-xs shadow-sm border border-theme-accent active:translate-y-0.5 transition flex items-center gap-1.5 shrink-0">
+        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+        <span>Cerrar Semana Ahora</span>
+      </button>
     </div>
 
     <!-- BLOQUE SUPERIOR DE BANNERS Y KPIS (PLEGABLE EN MÓVIL PARA VER DIRECTAMENTE EL CONTENIDO) -->
@@ -5047,10 +5109,13 @@
         // Ajustar al lunes de la semana 1
         const dayOffset = (base.getDay() + 6) % 7;
         const firstMonday = new Date(base.getTime() - dayOffset * 86400000);
+        firstMonday.setHours(0, 0, 0, 0);
         
         // Sumar semanas
         const targetMonday = new Date(firstMonday.getTime() + (weekNum - 1) * 7 * 86400000);
+        targetMonday.setHours(0, 0, 0, 0);
         const targetSunday = new Date(targetMonday.getTime() + 6 * 86400000);
+        targetSunday.setHours(23, 59, 59, 999);
 
         const formatShort = (d) => `${d.getDate()} ${d.toLocaleString('es-ES', { month: 'short' })}`;
         return {
@@ -5059,6 +5124,13 @@
           label: `${formatShort(targetMonday)} – ${formatShort(targetSunday)} ${targetSunday.getFullYear()}`,
           daysDates: Array.from({ length: 7 }, (_, i) => new Date(targetMonday.getTime() + i * 86400000).getDate())
         };
+      }
+
+      function isWeekOverdue(weekNum = state.currentWeek) {
+        const range = getWeekDateRange(weekNum);
+        if (!range || !range.end) return false;
+        const now = new Date();
+        return now.getTime() > range.end.getTime();
       }
 
       // MOTOR DE CÁLCULO DE MÉTRICAS
@@ -5432,8 +5504,10 @@
         weeksToScan.forEach(w => {
           if (!w) return;
           w.days.forEach((d, dIdx) => {
-            const addGymType = (t, customText, sessionLabel) => {
-              if (!t) return;
+            const addGymType = (sessionObj, sessionLabel) => {
+              if (!sessionObj) return;
+              const t = sessionObj.type || '';
+              const customText = (sessionObj.custom || '').trim();
               const type = t.toLowerCase();
               const logEntry = (mId, amt, name) => {
                 hits[mId] += amt;
@@ -5446,15 +5520,18 @@
               else if (type.includes('torso')) { logEntry('chest', 1, 'Torso'); logEntry('lats', 1, 'Torso'); logEntry('delts', 1, 'Torso'); logEntry('biceps', 0.5, 'Torso'); logEntry('triceps', 0.5, 'Torso'); }
               else if (type.includes('fullbody')) { Object.keys(hits).forEach(k => logEntry(k, 1, 'Fullbody')); }
               else if (type.includes('core') || type.includes('movilidad')) { logEntry('abs', 1, 'Core'); logEntry('obliques', 1, 'Core'); logEntry('lower_back', 0.5, 'Core'); }
-              else if (type.includes('otro') && customText) {
-                const key = customText.trim().toLowerCase();
-                const assigned = state.customWorkoutMuscles[key] || [];
-                assigned.forEach(mId => { if (hits[mId] !== undefined) logEntry(mId, 1, customText); });
+              else if (type.includes('personalizado') || type.includes('otro') || (sessionObj.muscles && sessionObj.muscles.length > 0) || customText) {
+                const assigned = (Array.isArray(sessionObj.muscles) && sessionObj.muscles.length > 0)
+                  ? sessionObj.muscles
+                  : ((customText && state.customWorkoutMuscles[customText.toLowerCase()])
+                    || (state.customWorkoutMuscles[type] || []));
+                const workoutName = customText || 'Personalizado';
+                assigned.forEach(mId => { if (hits[mId] !== undefined) logEntry(mId, 1, workoutName); });
               }
             };
 
-            if (d.gym.sessions >= 1) addGymType(d.gym.s1.type, d.gym.s1.custom, '1ª Sesión');
-            if (d.gym.sessions >= 2) addGymType(d.gym.s2.type, d.gym.s2.custom, '2ª Sesión');
+            if (d.gym.sessions >= 1) addGymType(d.gym.s1, '1ª Sesión');
+            if (d.gym.sessions >= 2) addGymType(d.gym.s2, '2ª Sesión');
 
             if (d.run.sessions > 0) {
               hits.calves += 0.8; logs.calves.push(`${DAY_FULL[dIdx]}: Running (${d.run.km || 0}k) ➔ +0.8`);
@@ -6186,6 +6263,21 @@
           document.getElementById('tab1').classList.remove('readonly-locked');
         }
 
+        // Banner Permanente de Cierre de Semana Vencida
+        const pendingCloseBanner = document.getElementById('pendingWeekCloseBanner');
+        const overdue = isWeekOverdue(state.currentWeek);
+        if (pendingCloseBanner) {
+          if (overdue && (!state.weeks[state.currentWeek] || !state.weeks[state.currentWeek].isClosed)) {
+            pendingCloseBanner.classList.remove('hidden');
+            const pendingText = document.getElementById('pendingWeekCloseBannerText');
+            if (pendingText) {
+              pendingText.textContent = `La Semana #${state.currentWeek} (${dateRange.label}) ya ha finalizado.`;
+            }
+          } else {
+            pendingCloseBanner.classList.add('hidden');
+          }
+        }
+
         // Widget de Próximo Hito Académico y Personal (Alta Visibilidad en Hero Banner y Cabecera)
         renderMilestoneWidget();
 
@@ -6306,6 +6398,29 @@
         if (document.getElementById('modalKpi3Attendance') && !document.getElementById('modalKpi3Attendance').classList.contains('hidden')) renderKpi3AttendanceModal();
         if (document.getElementById('modalKpi4Budget') && !document.getElementById('modalKpi4Budget').classList.contains('hidden')) renderKpi4BudgetModal();
         if (document.getElementById('modalSubjectStudyStats') && !document.getElementById('modalSubjectStudyStats').classList.contains('hidden')) renderSubjectStudyStatsModal();
+        const closeWkModal = document.getElementById('closeWeekModal');
+        if (closeWkModal && !closeWkModal.classList.contains('hidden')) {
+          const curWk = state.weeks[state.currentWeek] || w;
+          const curMetrics = calculateWeekMetrics(curWk);
+          const surplusVal = Math.max(0, curMetrics.budget - curMetrics.spent);
+          const summaryEl = document.getElementById('closeWeekSummary');
+          if (summaryEl) {
+            summaryEl.innerHTML = `
+              <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Score Global:</span><strong class="text-stone-900 dark:text-white font-mono text-sm">${curMetrics.score} / 100</strong></div>
+              <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Gimnasio:</span><strong class="text-stone-900 dark:text-white font-mono">${curMetrics.gymReal} / ${curWk.goals.gymSessions} ses. (${Math.round(curMetrics.gymPct)}%)</strong></div>
+              <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Running:</span><strong class="text-stone-900 dark:text-white font-mono">${curMetrics.runKmReal.toFixed(1)} / ${curWk.goals.runKm} km (${Math.round(curMetrics.runPct)}%)</strong></div>
+              <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Estudio:</span><strong class="text-stone-900 dark:text-white font-mono">${curMetrics.studyReal.toFixed(1)} / ${curMetrics.studyGoal.toFixed(1)} h (${Math.round(curMetrics.studyPct)}%)</strong></div>
+              <div class="flex justify-between items-center py-1.5 text-stone-700 dark:text-slate-200"><span class="font-bold">Presupuesto Restante:</span><strong class="text-theme-main font-mono text-sm">${surplusVal.toFixed(2)} €</strong></div>
+            `;
+          }
+          const surplusBadge = document.getElementById('closeWeekSurplusBadge');
+          if (surplusBadge) surplusBadge.textContent = `${surplusVal.toFixed(2)} €`;
+          app.updateSurplusSlider();
+          const tabMatrix = document.getElementById('closeWeekTabMatrix');
+          if (tabMatrix && !tabMatrix.classList.contains('hidden')) {
+            app.renderCloseWeekMatrix();
+          }
+        }
       }
 
       function renderDailyHabits() {
@@ -6337,7 +6452,8 @@
           } else {
             weekBox.classList.remove('hidden');
             if (toggleBtn) toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
-            renderFullWeekTable(todayIdx, m, streaks);
+            const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
+            renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
           }
         }
       }
@@ -6348,10 +6464,11 @@
         const dateRange = getWeekDateRange(w.weekNum);
         const todayDateStr = dateRange.daysDates ? dateRange.daysDates[dIdx] : '';
         const realTodayIdx = (new Date().getDay() + 6) % 7;
-        const isActuallyToday = dIdx === realTodayIdx;
+        const overdue = isWeekOverdue(w.weekNum) && !w.isClosed;
+        const isActuallyToday = !overdue && (dIdx === realTodayIdx);
         const titleEl = document.getElementById('todayFocusTitle');
         if (titleEl) {
-          titleEl.innerHTML = `Enfoque de <em class="italic font-normal text-theme-accent">${DAY_FULL[dIdx]} ${todayDateStr}</em>`;
+          titleEl.innerHTML = `Enfoque de <em class="italic font-normal text-theme-accent">${DAY_FULL[dIdx]} ${todayDateStr}</em>${overdue ? ' <span class="text-[10px] text-theme-accent font-bold font-mono">(Semana Vencida)</span>' : ''}`;
         }
 
         // Actualizar estado activo de las pastillas Lun-Dom en móvil
@@ -6360,7 +6477,7 @@
           if (btn) {
             if (i === dIdx) {
               btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition bg-theme-main text-white shadow-xs';
-            } else if (i === realTodayIdx) {
+            } else if (!overdue && i === realTodayIdx) {
               btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition text-theme-accent border border-theme-accent/40 bg-theme-accent-soft';
             } else {
               btn.className = 'flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition text-stone-500 dark:text-slate-400 hover:text-stone-800 dark:hover:text-slate-200';
@@ -6619,7 +6736,7 @@
         `;
       }
 
-      function renderFullWeekTable(todayDayIndex, m, streaks) {
+      function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
         const w = getActiveWeek();
         const dateRange = getWeekDateRange(w.weekNum);
 
@@ -6632,25 +6749,28 @@
           return t;
         };
 
-        // Cabecera con Fechas Reales y Ancho Ampliado en HOY (Total exacto 100%)
-        document.getElementById('dailyTableHeader').innerHTML = `
-          <th class="py-1 px-0.5 text-left w-[13%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
-          ${DAYS.map((d, i) => {
-            const isToday = i === todayDayIndex;
-            const isPast = i < todayDayIndex;
-            const thClass = isToday ? 'today-header font-bold w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
-            return `
-              <th class="py-0.5 px-0.2 text-center ${thClass}">
-                <div class="text-[9px] font-bold leading-tight">${d}</div>
-                <div class="text-[7.5px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
-                ${isToday ? `<span class="inline-block text-[7px] bg-theme-accent text-white font-black px-0.5 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
-              </th>
-            `;
-          }).join('')}
-          <th class="py-1 px-0.5 text-center w-[13.5%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">Progreso</th>
-        `;
+        const theHeader = document.getElementById(headerId);
+        if (theHeader) {
+          theHeader.innerHTML = `
+            <th class="py-1 px-0.5 text-left w-[13%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
+            ${DAYS.map((d, i) => {
+              const isToday = i === todayDayIndex;
+              const isPast = i < todayDayIndex;
+              const thClass = isToday ? 'today-header font-bold w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+              return `
+                <th class="py-0.5 px-0.2 text-center ${thClass}">
+                  <div class="text-[9px] font-bold leading-tight">${d}</div>
+                  <div class="text-[7.5px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
+                  ${isToday ? `<span class="inline-block text-[7px] bg-theme-accent text-white font-black px-0.5 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
+                </th>
+              `;
+            }).join('')}
+            <th class="py-1 px-0.5 text-center w-[13.5%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">Progreso</th>
+          `;
+        }
 
-        const tbody = document.getElementById('dailyTableBody');
+        const tbody = document.getElementById(tbodyId);
+        if (!tbody) return;
         tbody.innerHTML = '';
 
         // 1. Gym
@@ -6671,7 +6791,7 @@
                   <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-[8.5px] outline-none truncate" title="${day.gym.s1?.type || ''}">
                     ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${getShortTypeName(t)}</option>`).join('')}
                   </select>
-                  ${(day.gym.s1?.type === 'Personalizado...' || (day.gym.s1?.type && day.gym.s1.type.startsWith('Personalizado')) || day.gym.s1?.custom) ? `
+                  ${(day.gym.s1?.type === 'Personalizado...' || (day.gym.s1?.type && day.gym.s1.type.toLowerCase().startsWith('personalizado')) || (day.gym.s1?.type && day.gym.s1.type.toLowerCase().includes('otro'))) ? `
                     <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="w-full py-0.5 px-1 rounded bg-theme-soft text-theme-main border border-theme text-[8px] font-bold truncate block" title="Configurar entreno personalizado">${day.gym.s1.custom || 'Configurar'}</button>
                   ` : ''}
                 ` : ''}
@@ -6679,7 +6799,7 @@
                   <select onchange="app.handleGymTypeSelection(${dIdx}, 2, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-[8.5px] text-amber-500 dark:text-amber-300 outline-none truncate" title="${day.gym.s2?.type || ''}">
                     ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s2?.type || '') === t ? 'selected' : ''}>2ª: ${getShortTypeName(t)}</option>`).join('')}
                   </select>
-                  ${(day.gym.s2?.type === 'Personalizado...' || (day.gym.s2?.type && day.gym.s2.type.startsWith('Personalizado')) || day.gym.s2?.custom) ? `
+                  ${(day.gym.s2?.type === 'Personalizado...' || (day.gym.s2?.type && day.gym.s2.type.toLowerCase().startsWith('personalizado')) || (day.gym.s2?.type && day.gym.s2.type.toLowerCase().includes('otro'))) ? `
                     <button onclick="app.openCustomMuscleModal(${dIdx}, 2, 'gym')" class="w-full py-0.5 px-1 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[8px] font-bold truncate block" title="Configurar entreno personalizado">${day.gym.s2.custom || 'Configurar'}</button>
                   ` : ''}
                 ` : ''}
@@ -6716,7 +6836,7 @@
                     <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-[8.5px] outline-none truncate" title="${day.run.s1?.type || ''}">
                       ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${getShortTypeName(t)}</option>`).join('')}
                     </select>
-                    ${(day.run.s1?.type === 'Personalizado...' || (day.run.s1?.type && day.run.s1.type.startsWith('Personalizado')) || day.run.s1?.custom) ? `
+                    ${(day.run.s1?.type === 'Personalizado...' || (day.run.s1?.type && day.run.s1.type.toLowerCase().startsWith('personalizado')) || (day.run.s1?.type && day.run.s1.type.toLowerCase().includes('otro'))) ? `
                       <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="w-full py-0.5 px-1 rounded bg-theme-soft text-theme-main border border-theme text-[8px] font-bold truncate block" title="Configurar running personalizado">${day.run.s1.custom || 'Configurar'}</button>
                     ` : ''}
                   </div>
@@ -6728,7 +6848,7 @@
                     <select onchange="app.setRunType(${dIdx}, 2, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-[8.5px] text-amber-600 dark:text-amber-300 outline-none truncate" title="${day.run.s2?.type || ''}">
                       ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s2?.type || '') === t ? 'selected' : ''}>2ª: ${getShortTypeName(t)}</option>`).join('')}
                     </select>
-                    ${(day.run.s2?.type === 'Personalizado...' || (day.run.s2?.type && day.run.s2.type.startsWith('Personalizado')) || day.run.s2?.custom) ? `
+                    ${(day.run.s2?.type === 'Personalizado...' || (day.run.s2?.type && day.run.s2.type.toLowerCase().startsWith('personalizado')) || (day.run.s2?.type && day.run.s2.type.toLowerCase().includes('otro'))) ? `
                       <button onclick="app.openCustomRunModal(${dIdx}, 2)" class="w-full py-0.5 px-1 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[8px] font-bold truncate block" title="Configurar running personalizado">${day.run.s2.custom || 'Configurar'}</button>
                     ` : ''}
                     <div class="text-[8.5px] font-mono font-bold text-blue-600 dark:text-blue-300 text-center">∑ ${dayKmTotal.toFixed(1)}k</div>
@@ -7268,6 +7388,12 @@
       function renderSubnotesTree(children, cat, depth = 1) {
         if (!Array.isArray(children) || children.length === 0) return '';
 
+        // Líneas de hilo con alternancia de tonos y estilo de guía visual según la profundidad
+        const isOdd = depth % 2 === 1;
+        const threadBorderClass = isOdd
+          ? 'border-l-2 border-theme-main/60 dark:border-theme-main/80'
+          : 'border-l-2 border-theme-accent/60 dark:border-theme-accent/80';
+
         return `
           <div class="space-y-1.5 ${depth === 1 ? 'pt-1.5' : 'pt-1'}">
             ${children.map(sub => {
@@ -7280,7 +7406,7 @@
               const allDone = subStats && subStats.total > 0 && subStats.done === subStats.total;
 
               return `
-                <div class="pl-3 sm:pl-4 border-l-2 border-theme space-y-1">
+                <div class="pl-3 sm:pl-4 ${threadBorderClass} space-y-1 transition-colors">
                   <div id="list-item-${sub.id}" data-item-id="${sub.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${sub.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${sub.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${sub.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${sub.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${sub.id}', event); }" class="p-1.5 rounded-xl panel-bg border border-stone-200/60 dark:border-slate-800/80 hover:border-theme flex items-center justify-between gap-2 text-[11px] transition shadow-xs draggable-card cursor-pointer ${selectClass}">
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
                       <label class="cursor-pointer flex items-center pr-0.5 shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
@@ -9518,11 +9644,18 @@
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Cambiar rutina de gimnasio');
           const gymObj = getActiveWeek().days[dayIdx].gym;
-          gymObj[`s${sIdx}`].type = val;
+          const session = gymObj[`s${sIdx}`];
+          session.type = val;
 
           if (val === 'Personalizado...' || val === '✏️ Otro...' || val.startsWith('Personalizado')) {
             app.openCustomMuscleModal(dayIdx, sIdx, 'gym');
           } else {
+            session.custom = '';
+            session.muscles = [];
+            if (session.cardio) {
+              session.cardio.enabled = false;
+              session.cardio.km = 0;
+            }
             renderDailyHabits();
             saveState();
           }
@@ -9582,10 +9715,13 @@
         setRunType(dayIdx, sIdx, val) {
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Cambiar tipo de running');
-          getActiveWeek().days[dayIdx].run[`s${sIdx}`].type = val;
+          const session = getActiveWeek().days[dayIdx].run[`s${sIdx}`];
+          session.type = val;
           if (val === 'Personalizado...' || val === '✏️ Otro...' || val.startsWith('Personalizado')) {
             app.openCustomRunModal(dayIdx, sIdx);
           } else {
+            session.custom = '';
+            session.customSystem = '';
             renderDailyHabits();
             renderHeaderAndKPIs();
             saveState();
@@ -9628,7 +9764,9 @@
           const curCustom = session.custom || '';
           document.getElementById('customWorkoutName').value = curCustom;
 
-          const assigned = curCustom ? (state.customWorkoutMuscles[curCustom.toLowerCase()] || []) : [];
+          const assigned = (Array.isArray(session.muscles) && session.muscles.length > 0)
+            ? session.muscles
+            : (curCustom ? (state.customWorkoutMuscles[curCustom.toLowerCase()] || []) : []);
           document.getElementById('muscleCheckboxesGrid').innerHTML = ALL_MUSCLE_GROUPS.map(m => `
             <label class="flex items-center gap-1.5 p-1.5 rounded subpanel-bg border cursor-pointer">
               <input type="checkbox" value="${m.id}" ${assigned.includes(m.id) ? 'checked' : ''} class="accent-theme-main muscle-chk" />
@@ -9664,6 +9802,7 @@
             const { dayIdx, sessionIdx, type } = activeCustomModalContext;
             const session = getActiveWeek().days[dayIdx][type][`s${sessionIdx}`];
             session.custom = name;
+            session.muscles = checked;
             session.cardio = {
               enabled: hasCardio,
               type: cardioType,
@@ -9673,6 +9812,12 @@
 
           app.closeModal('customMuscleModal');
           renderApp();
+          if (document.getElementById('anatomySvgContainer')) {
+            document.getElementById('anatomySvgContainer').innerHTML = renderSvgAnatomy();
+          }
+          if (state.ui.selectedMuscle) {
+            app.inspectMuscle(state.ui.selectedMuscle);
+          }
           saveState();
         },
 
@@ -11096,7 +11241,9 @@
           const enableShiftCheck = document.getElementById('smartDupEnableShift');
           const intervalSelect = document.getElementById('smartDupIntervalDays');
 
-          if (titleEl) titleEl.textContent = found.node.title;
+          if (titleEl) {
+            titleEl.value = found.node.title;
+          }
           const hasDates = nodeHasDates(found.node);
           if (badgeEl) {
             badgeEl.textContent = hasDates ? 'Con fechas' : 'Sin fechas';
@@ -11109,6 +11256,7 @@
 
           this.updateSmartDuplicatePreview();
           document.getElementById('modalSmartDuplicate')?.classList.remove('hidden');
+          setTimeout(() => titleEl && titleEl.focus(), 60);
         },
 
         handleSmartDupIntervalChange() {
@@ -11131,6 +11279,9 @@
           if (isNaN(count) || count < 1) count = 1;
           if (count > 20) count = 20;
 
+          const baseTitleInput = (document.getElementById('smartDupSourceTitle')?.value || '').trim();
+          const baseTitle = baseTitleInput || found.node.title;
+
           const enableShift = !!document.getElementById('smartDupEnableShift')?.checked;
           const intervalVal = document.getElementById('smartDupIntervalDays')?.value || '7';
           let stepDays = 7;
@@ -11151,7 +11302,12 @@
           if (previewList) {
             let html = '';
             for (let i = 1; i <= count; i++) {
-              const copyTitle = generateNumberedCopyTitle(found.node.title, i);
+              let copyTitle;
+              if (count === 1 && baseTitleInput && baseTitleInput !== found.node.title) {
+                copyTitle = baseTitleInput;
+              } else {
+                copyTitle = generateNumberedCopyTitle(baseTitle, i);
+              }
               const daysShift = enableShift ? (i * stepDays) : 0;
               let dateNote = '';
               if (enableShift && found.node.date) {
@@ -11203,6 +11359,9 @@
           if (isNaN(count) || count < 1) count = 1;
           if (count > 20) count = 20;
 
+          const baseTitleInput = (document.getElementById('smartDupSourceTitle')?.value || '').trim();
+          const baseTitle = baseTitleInput || found.node.title;
+
           const enableShift = !!document.getElementById('smartDupEnableShift')?.checked;
           const intervalVal = document.getElementById('smartDupIntervalDays')?.value || '7';
           let stepDays = 7;
@@ -11217,7 +11376,11 @@
 
           for (let i = 1; i <= count; i++) {
             const cloned = deepCloneNodeWithNewIds(found.node);
-            cloned.title = generateNumberedCopyTitle(found.node.title, i);
+            if (count === 1 && baseTitleInput && baseTitleInput !== found.node.title) {
+              cloned.title = baseTitleInput;
+            } else {
+              cloned.title = generateNumberedCopyTitle(baseTitle, i);
+            }
             if (enableShift) {
               shiftNodeDates(cloned, i * stepDays, adjustWeekend);
             }
@@ -12885,10 +13048,47 @@
         },
 
         // Cierre de Semana
+        switchCloseWeekTab(tabKey) {
+          const tabSummary = document.getElementById('closeWeekTabSummary');
+          const tabMatrix = document.getElementById('closeWeekTabMatrix');
+          const btnSummary = document.getElementById('closeWeekTabBtnSummary');
+          const btnMatrix = document.getElementById('closeWeekTabBtnMatrix');
+
+          if (tabKey === 'matrix') {
+            if (tabSummary) tabSummary.classList.add('hidden');
+            if (tabMatrix) tabMatrix.classList.remove('hidden');
+            if (btnSummary) btnSummary.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme';
+            if (btnMatrix) btnMatrix.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 bg-theme-main text-white shadow-xs';
+            app.renderCloseWeekMatrix();
+          } else {
+            if (tabSummary) tabSummary.classList.remove('hidden');
+            if (tabMatrix) tabMatrix.classList.add('hidden');
+            if (btnSummary) btnSummary.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 bg-theme-main text-white shadow-xs';
+            if (btnMatrix) btnMatrix.className = 'px-3.5 py-1.5 rounded-xl font-bold text-xs transition flex items-center gap-1.5 subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme';
+          }
+        },
+
+        renderCloseWeekMatrix() {
+          const targetWkNum = state.currentWeek;
+          const w = state.weeks[targetWkNum] || getActiveWeek();
+          const m = calculateWeekMetrics(w);
+          const streaks = calculateStreaks(w.weekNum);
+          renderFullWeekTable(-1, m, streaks, 'modalCloseWeekTableHeader', 'modalCloseWeekTableBody');
+        },
+
         openCloseWeekModal() {
+          // Aseguramos trabajar sobre la semana actual a cerrar
+          state.viewingWeek = state.currentWeek;
           const w = getActiveWeek();
           const m = calculateWeekMetrics(w);
           const surplus = Math.max(0, m.budget - m.spent);
+          const dateRange = getWeekDateRange(w.weekNum);
+
+          const titleEl = document.getElementById('closeWeekModalTitle');
+          if (titleEl) titleEl.textContent = `Cerrar Semana #${w.weekNum} y Archivar`;
+
+          const subEl = document.getElementById('closeWeekModalSubtitle');
+          if (subEl) subEl.textContent = `Período: ${dateRange.label}`;
 
           document.getElementById('closeWeekSummary').innerHTML = `
             <div class="flex justify-between items-center py-1 text-stone-600 dark:text-slate-300"><span class="font-medium">Score Global:</span><strong class="text-stone-900 dark:text-white font-mono text-sm">${m.score} / 100</strong></div>
@@ -12900,6 +13100,7 @@
 
           document.getElementById('closeWeekSurplusBadge').textContent = `${surplus.toFixed(2)} €`;
           app.updateSurplusSlider();
+          app.switchCloseWeekTab('summary');
           document.getElementById('closeWeekModal').classList.remove('hidden');
         },
 
@@ -12907,28 +13108,41 @@
           const w = getActiveWeek();
           const m = calculateWeekMetrics(w);
           const surplus = Math.max(0, m.budget - m.spent);
-          const sliderVal = parseInt(document.getElementById('closeWeekSlider').value, 10);
+          const sliderEl = document.getElementById('closeWeekSlider');
+          const sliderVal = sliderEl ? parseInt(sliderEl.value, 10) : 50;
 
           const piggyPct = sliderVal;
           const carryPct = 100 - sliderVal;
 
-          document.getElementById('closeWeekBarPiggy').style.width = `${piggyPct}%`;
-          document.getElementById('closeWeekBarPiggy').textContent = `${piggyPct}%`;
-          document.getElementById('closeWeekBarCarry').style.width = `${carryPct}%`;
-          document.getElementById('closeWeekBarCarry').textContent = `${carryPct}%`;
+          const piggyBar = document.getElementById('closeWeekBarPiggy');
+          if (piggyBar) {
+            piggyBar.style.width = `${piggyPct}%`;
+            piggyBar.textContent = `${piggyPct}%`;
+          }
+          const carryBar = document.getElementById('closeWeekBarCarry');
+          if (carryBar) {
+            carryBar.style.width = `${carryPct}%`;
+            carryBar.textContent = `${carryPct}%`;
+          }
 
           const piggyAmt = parseFloat(((surplus * piggyPct) / 100).toFixed(2));
           const carryAmt = parseFloat((surplus - piggyAmt).toFixed(2));
 
-          document.getElementById('closeWeekPiggyAmt').textContent = `${piggyAmt.toFixed(2)} €`;
-          document.getElementById('closeWeekCarryAmt').textContent = `+${carryAmt.toFixed(2)} €`;
+          const piggyAmtEl = document.getElementById('closeWeekPiggyAmt');
+          if (piggyAmtEl) piggyAmtEl.textContent = `${piggyAmt.toFixed(2)} €`;
+
+          const carryAmtEl = document.getElementById('closeWeekCarryAmt');
+          if (carryAmtEl) carryAmtEl.textContent = `+${carryAmt.toFixed(2)} €`;
         },
 
         confirmCloseWeek() {
+          // Cerrar siempre la semana activa oficial (state.currentWeek)
+          state.viewingWeek = state.currentWeek;
           const curWk = getActiveWeek();
           const m = calculateWeekMetrics(curWk);
           const surplus = Math.max(0, m.budget - m.spent);
-          const sliderVal = parseInt(document.getElementById('closeWeekSlider').value, 10);
+          const sliderEl = document.getElementById('closeWeekSlider');
+          const sliderVal = sliderEl ? parseInt(sliderEl.value, 10) : 50;
 
           pushUndo('Cerrar semana');
           const piggyAmt = parseFloat(((surplus * sliderVal) / 100).toFixed(2));
@@ -13520,6 +13734,21 @@
 
       // INICIALIZADOR ROBUSTO
       Object.assign(window, { app });
+
+      function checkWeekRollover() {
+        const curWk = state.weeks[state.currentWeek];
+        const overdue = isWeekOverdue(state.currentWeek);
+        if (overdue && (!curWk || !curWk.isClosed)) {
+          // Si la semana activa ya venció, abrir el modal de cerrar semana
+          setTimeout(() => {
+            const closeModalEl = document.getElementById('closeWeekModal');
+            if (closeModalEl && closeModalEl.classList.contains('hidden')) {
+              app.openCloseWeekModal();
+            }
+          }, 450);
+        }
+      }
+
       function boot() {
         loadState();
         applyAccentPalette(state.themePalette || 'emerald');
@@ -13527,7 +13756,15 @@
         renderApp();
         initAutoSaveDrive();
         registerServiceWorker();
+        checkWeekRollover();
       }
+
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          checkWeekRollover();
+          renderHeaderAndKPIs();
+        }
+      });
 
       function registerServiceWorker() {
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
