@@ -1247,16 +1247,16 @@
             </p>
             <ul class="space-y-2 text-[11px] pl-1 text-stone-600 dark:text-slate-300">
               <li class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse shrink-0 mt-0.5"></span>
-                <span><strong>Verde (Pulsando):</strong> Sincronización en la nube activa con Google Drive. Tus datos están completamente seguros y actualizados entre tus dispositivos.</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-theme-main animate-pulse shrink-0 mt-0.5"></span>
+                <span><strong>Color del tema (Pulsando):</strong> Sincronización en la nube activa con Google Drive. Tus datos están completamente seguros y sincronizados en tiempo real.</span>
               </li>
               <li class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-amber-500 shrink-0 mt-0.5"></span>
-                <span><strong>Ámbar:</strong> Sesión de Google expirada. Haz clic sobre el botón para renovar sesión con un toque.</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-theme-accent shrink-0 mt-0.5"></span>
+                <span><strong>Color de acento:</strong> Sesión de Google expirada. Haz clic sobre el botón para renovar sesión con un toque.</span>
               </li>
               <li class="flex items-start gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-500 shrink-0 mt-0.5"></span>
-                <span><strong>Gris:</strong> Modo local offline (guardado en tu dispositivo). Haz clic en Copias si deseas activar Google Drive.</span>
+                <span class="w-2.5 h-2.5 rounded-full bg-stone-400 dark:bg-slate-600 shrink-0 mt-0.5"></span>
+                <span><strong>Gris / Apagado:</strong> Modo local offline (guardado en tu dispositivo). Haz clic en Copias si deseas activar Google Drive.</span>
               </li>
             </ul>
           </div>
@@ -4927,16 +4927,16 @@
         const dot = document.getElementById('autoSaveIndicatorDot');
         if (dot) {
           if (isGdriveConnected()) {
-            dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse cursor-pointer hover:scale-125 transition shrink-0';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-main animate-pulse cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = `Sincronizado con Google Drive (${gdriveUserEmail || 'Activo'})`;
           } else if (gdriveUserEmail) {
-            dot.className = 'w-2.5 h-2.5 rounded-full bg-amber-500 cursor-pointer hover:scale-125 transition shrink-0';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-accent cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = 'Sesión de Google Drive expirada (clic para renovar)';
           } else if (fileHandle) {
-            dot.className = 'w-2.5 h-2.5 rounded-full bg-emerald-500/80 cursor-pointer hover:scale-125 transition shrink-0';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-main/80 cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = 'Autoguardado en archivo local activo';
           } else {
-            dot.className = 'w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0';
+            dot.className = 'w-2.5 h-2.5 rounded-full bg-stone-400 dark:bg-slate-600 cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = 'Sin sincronización activa (clic para conectar Drive)';
           }
         }
