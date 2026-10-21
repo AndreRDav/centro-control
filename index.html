@@ -4980,20 +4980,27 @@
         }
       }
 
-      async function ensureGdriveToken() {
+      async function ensureGdriveToken(interactive = false) {
         if (isGdriveConnected()) return gdriveAccessToken;
+        if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
+          return null;
+        }
+        initGsiClient();
+        if (!tokenClient) return null;
+
+        // Si no es interactivo (guardado automático en background), no abrimos popup para no molestar ni ser bloqueados
+        if (!interactive) {
+          updateGdriveUI();
+          return null;
+        }
+
         return new Promise((resolve) => {
-          if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
-            return resolve(null);
-          }
-          initGsiClient();
-          if (!tokenClient) return resolve(null);
           const origCallback = tokenClient.callback;
           tokenClient.callback = (resp) => {
             if (origCallback) origCallback(resp);
             resolve(resp.access_token || null);
           };
-          tokenClient.requestAccessToken({ prompt: '' });
+          tokenClient.requestAccessToken({ prompt: gdriveUserEmail ? '' : 'select_account' });
         });
       }
 
@@ -5015,7 +5022,7 @@
 
       async function syncGdriveCloud(allowPull = false) {
         if (isGdriveSyncing) return;
-        const token = await ensureGdriveToken();
+        const token = await ensureGdriveToken(allowPull);
         if (!token) {
           updateGdriveUI();
           return;
@@ -5027,8 +5034,8 @@
         try {
           let fileId = await findGdriveFileId(token);
 
-          // Si es un inicio de sesión o refresh explícito, descargar la copia de Drive primero si existe
-          if (allowPull && fileId) {
+          // Sincronización inteligente bidireccional basada en updatedAt
+          if (fileId) {
             try {
               const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -5036,19 +5043,24 @@
               if (dlRes.ok) {
                 const cloudJson = await dlRes.json();
                 if (cloudJson && cloudJson.weeks) {
-                  // Cargar estado de la nube
-                  state = sanitizeState(cloudJson);
-                  renderApp();
-                  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                  updateGdriveUI();
-                  isGdriveSyncing = false;
-                  return;
+                  const cloudTimestamp = Number(cloudJson.updatedAt) || 0;
+                  const localTimestamp = Number(state.updatedAt) || 0;
+
+                  // Si la nube es más reciente o si forzamos pull y la nube no es más antigua:
+                  if (cloudTimestamp > localTimestamp || (allowPull && cloudTimestamp >= localTimestamp)) {
+                    state = sanitizeState(cloudJson);
+                    renderApp();
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+                    updateGdriveUI();
+                    isGdriveSyncing = false;
+                    return;
+                  }
                 }
               }
             } catch (_) {}
           }
 
-          // Subir el estado actual a Google Drive
+          // Subir el estado actual a Google Drive (nuestro estado local es más reciente)
           const content = JSON.stringify(state, null, 2);
           if (fileId) {
             // Actualizar archivo existente
@@ -5290,6 +5302,24 @@
 
             if (day.nutritionKcal === undefined) day.nutritionKcal = null;
           });
+
+          // Sanitización y consistencia de horas de estudio:
+          // Las horas acumuladas por asignatura nunca deben superar el total semanal de horas de estudio
+          if (!Array.isArray(wk.studyRealHours) || wk.studyRealHours.length !== 7) {
+            wk.studyRealHours = [0, 0, 0, 0, 0, 0, 0];
+          }
+          if (!wk.studyBySubject || typeof wk.studyBySubject !== 'object') {
+            wk.studyBySubject = {};
+          }
+          const totalRealHrs = wk.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
+          const totalSubHrs = Object.values(wk.studyBySubject).reduce((acc, h) => acc + (Number(h) || 0), 0);
+          if (totalSubHrs > totalRealHrs + 0.01) {
+            // Reconciliar sumando el exceso a los días de estudio (o al día actual) para que el total siempre sea >= suma de asignaturas
+            const diff = parseFloat((totalSubHrs - totalRealHrs).toFixed(1));
+            const todayIdx = (new Date().getDay() + 6) % 7;
+            const curVal = Number(wk.studyRealHours[todayIdx]) || 0;
+            wk.studyRealHours[todayIdx] = parseFloat((curVal + diff).toFixed(1));
+          }
         });
 
         return s;
@@ -5306,6 +5336,7 @@
 
       function saveState(skipDiskSync = false) {
         try {
+          state.updatedAt = Date.now();
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           if (!skipDiskSync) {
             syncDiskFile();
@@ -6972,7 +7003,7 @@
                     </div>
                     <div>
                       <span class="font-bold block text-xs">Estudio de Hoy</span>
-                      <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan diario: ${studyPlan.toFixed(1)}h</span>
+                      <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan hoy: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
                     </div>
                   </div>
                   <div class="flex items-center gap-2">
@@ -10164,7 +10195,25 @@
         setDailyStudyReal(dayIdx, val) {
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Modificar horas de estudio');
-          getActiveWeek().studyRealHours[dayIdx] = parseFloat(val) || 0;
+          const w = getActiveWeek();
+          w.studyRealHours[dayIdx] = Math.max(0, parseFloat(val) || 0);
+
+          // Invariante de coherencia: las horas por asignatura no pueden exceder el total semanal de horas de estudio
+          if (w.studyBySubject) {
+            const totalReal = w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
+            const totalSubs = Object.values(w.studyBySubject).reduce((acc, h) => acc + (Number(h) || 0), 0);
+            if (totalSubs > totalReal && totalReal > 0) {
+              const ratio = totalReal / totalSubs;
+              Object.keys(w.studyBySubject).forEach(k => {
+                w.studyBySubject[k] = parseFloat((Number(w.studyBySubject[k]) * ratio).toFixed(1));
+              });
+            } else if (totalReal === 0) {
+              Object.keys(w.studyBySubject).forEach(k => {
+                w.studyBySubject[k] = 0;
+              });
+            }
+          }
+
           renderApp();
           saveState();
         },
@@ -13749,8 +13798,12 @@
         async resumeAutoSavePermission() {
           const hasFSA = ('showSaveFilePicker' in window) || ('showOpenFilePicker' in window);
           if (!hasFSA) {
-            this.openBackupModal();
-            return;
+            // En iPad / móviles sin File System Access, el punto abre la sincronización con Google Drive
+            if (!gdriveUserEmail) {
+              return this.connectGoogleDrive();
+            } else {
+              return this.syncGoogleDriveNow();
+            }
           }
           if (!fileHandle) {
             const stored = await getStoredFileHandleFromDB();
