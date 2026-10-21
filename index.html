@@ -1037,23 +1037,36 @@
         <div class="flex items-center justify-between">
           <div class="font-bold text-theme-main flex items-center gap-1.5 text-xs">
             <svg class="w-4 h-4 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
-            <span>Sincronización Automática (Google Drive)</span>
+            <span>Sincronización en la Nube (Google Drive)</span>
           </div>
           <span id="driveSyncStatusBadge" class="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400">DISPONIBLE</span>
         </div>
         <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
-          <span>Sincroniza en tiempo real entre tu <strong>iPad, iPhone y PC</strong>.</span>
+          <span id="driveSyncDescText">Vincula tu cuenta de Google para guardar y sincronizar entre dispositivos.</span>
           <span id="driveSyncUserEmail" class="hidden font-mono font-bold text-theme-main text-[10px] truncate max-w-[150px]"></span>
         </div>
-        <div class="grid grid-cols-2 gap-2 pt-1">
-          <button type="button" onclick="app.connectGoogleDrive()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-            <span id="driveConnectBtnText">Conectar Drive</span>
-          </button>
-          <button type="button" onclick="app.syncGoogleDriveNow()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-bold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-            <span>Sincronizar Ya</span>
-          </button>
+        <div id="driveButtonsContainer" class="pt-1">
+          <!-- Si NO está conectado: un solo botón principal claro -->
+          <div id="driveLoggedOutActions" class="space-y-1.5">
+            <button type="button" onclick="app.connectGoogleDrive()" class="w-full p-2.5 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-2 transition text-center shadow-xs">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
+              <span id="driveConnectBtnText">Iniciar Sesión con Google</span>
+            </button>
+            <p class="text-[10px] text-stone-400 dark:text-slate-500 text-center">Inicia sesión una sola vez en cada dispositivo (PC, iPad, móvil) para compartir los datos.</p>
+          </div>
+          <!-- Si YA está conectado: acciones claras de sincronizar, renovar o cambiar cuenta -->
+          <div id="driveLoggedInActions" class="hidden space-y-1.5">
+            <div class="grid grid-cols-2 gap-2">
+              <button type="button" onclick="app.syncGoogleDriveNow()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center shadow-xs">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+                <span>Sincronizar Ahora</span>
+              </button>
+              <button type="button" onclick="app.connectGoogleDrive()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
+                <span id="driveAccountActionBtnText">Cambiar Cuenta</span>
+              </button>
+            </div>
+            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">✓ Autoguardado activo. Cada cambio se sube a tu Drive automáticamente.</p>
+          </div>
         </div>
       </div>
 
@@ -1801,8 +1814,8 @@
       </div>
       <div class="grid grid-cols-2 gap-2">
         <div class="space-y-1">
-          <label class="block text-slate-300 font-semibold">Importe (€):</label>
-          <input id="editExpenseAmount" type="number" step="0.01" class="w-full input-bg border rounded-xl px-3 py-2 text-sm font-bold font-mono focus:border-blue-500 outline-none" autocomplete="off" />
+          <label class="block text-slate-300 font-semibold">Importe (€ o cálculo):</label>
+          <input id="editExpenseAmount" type="text" inputmode="decimal" placeholder="0.00 o ej: 15.6-2.3" class="w-full input-bg border rounded-xl px-3 py-2 text-sm font-bold font-mono focus:border-blue-500 outline-none" autocomplete="off" />
         </div>
         <div class="space-y-1">
           <label class="block text-slate-300 font-semibold">Día de la semana:</label>
@@ -2886,8 +2899,8 @@
       <div class="space-y-2.5">
         <div class="grid grid-cols-2 gap-2">
           <div>
-            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Importe (€):</label>
-            <input id="dockExpenseAmount" type="number" step="0.01" min="0" placeholder="0.00" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold focus:border-theme outline-none" />
+            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Importe (€ o cálculo):</label>
+            <input id="dockExpenseAmount" type="text" inputmode="decimal" placeholder="0.00 o ej: 15.6-2.3" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold focus:border-theme outline-none" />
           </div>
           <div>
             <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Día:</label>
@@ -2897,7 +2910,7 @@
 
         <div>
           <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Concepto:</label>
-          <input id="dockExpenseConcept" type="text" placeholder="Ej: Café, Supermercado..." class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs focus:border-theme outline-none" />
+          <input id="dockExpenseConcept" type="text" placeholder="Ej: Café, Supermercado..." oninput="app.onDockConceptInput(this.value)" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs focus:border-theme outline-none" autocomplete="off" />
         </div>
 
         <div>
@@ -3254,15 +3267,15 @@
             </div>
           </div>
 
-          <!-- Selector Rápido de Días Lun-Dom en Móvil (sin tener que hacer scroll horizontal) -->
-          <div class="sm:hidden flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
-            <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">L</button>
-            <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">M</button>
-            <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">X</button>
-            <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">J</button>
-            <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">V</button>
-            <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">S</button>
-            <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] text-center transition">D</button>
+          <!-- Selector Rápido de Días Lun-Dom (Visible en PC y Móvil para cambiar de día fácilmente) -->
+          <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
+            <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">L</button>
+            <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">M</button>
+            <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">X</button>
+            <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">J</button>
+            <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">V</button>
+            <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">S</button>
+            <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">D</button>
           </div>
 
           <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
@@ -3878,8 +3891,8 @@
             <div id="tab3FrequentConceptChips" class="flex flex-wrap items-center gap-1.5 pb-1"></div>
 
             <div class="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
-              <input id="tab3InlineAmount" type="number" step="0.01" placeholder="Importe €" onkeydown="if(event.key==='Enter')app.submitTab3InlineExpense()" class="sm:col-span-3 input-bg border rounded-lg px-2.5 py-1.5 font-mono font-bold" autocomplete="off" />
-              <input id="tab3InlineConcept" type="text" placeholder="Concepto (ej. Mercadona)" onkeydown="if(event.key==='Enter')app.submitTab3InlineExpense()" class="sm:col-span-4 input-bg border rounded-lg px-2.5 py-1.5" autocomplete="off" />
+              <input id="tab3InlineAmount" type="text" inputmode="decimal" placeholder="Importe € (o ej: 15.6-2.3)" onkeydown="if(event.key==='Enter')app.submitTab3InlineExpense()" class="sm:col-span-3 input-bg border rounded-lg px-2.5 py-1.5 font-mono font-bold" autocomplete="off" />
+              <input id="tab3InlineConcept" type="text" placeholder="Concepto (ej. Mercadona)" oninput="app.onTab3ConceptInput(this.value)" onkeydown="if(event.key==='Enter')app.submitTab3InlineExpense()" class="sm:col-span-4 input-bg border rounded-lg px-2.5 py-1.5" autocomplete="off" />
               <div class="sm:col-span-3 flex items-center gap-1">
                 <select id="tab3InlineCategory" class="w-full input-bg border rounded-lg px-2 py-1.5"></select>
                 <button type="button" onclick="app.openManageCategoriesModal()" class="p-1.5 rounded-lg subpanel-bg border hover:border-cyan-400 text-slate-400 hover:text-cyan-300 transition shrink-0" title="Gestionar categorías de gastos">
@@ -4896,16 +4909,36 @@
         const badge = document.getElementById('driveSyncStatusBadge');
         const emailSpan = document.getElementById('driveSyncUserEmail');
         const connectBtnTxt = document.getElementById('driveConnectBtnText');
+        const loggedOutActions = document.getElementById('driveLoggedOutActions');
+        const loggedInActions = document.getElementById('driveLoggedInActions');
+        const descText = document.getElementById('driveSyncDescText');
+        const changeAccountTxt = document.getElementById('driveAccountActionBtnText');
         
-        if (gdriveUserEmail) {
+        const hasSession = !!gdriveUserEmail;
+        const isOnline = isGdriveConnected();
+
+        if (loggedOutActions && loggedInActions) {
+          loggedOutActions.classList.toggle('hidden', hasSession);
+          loggedInActions.classList.toggle('hidden', !hasSession);
+        }
+
+        if (hasSession) {
           if (emailSpan) {
             emailSpan.textContent = gdriveUserEmail;
             emailSpan.classList.remove('hidden');
           }
-          if (connectBtnTxt) connectBtnTxt.textContent = 'Cambiar Cuenta';
+          if (descText) {
+            descText.textContent = isOnline ? 'Sincronizado con Google Drive.' : 'Sesión pausada. Pulsa Sincronizar para reconectar.';
+          }
+          if (changeAccountTxt) {
+            changeAccountTxt.textContent = 'Cambiar Cuenta';
+          }
         } else {
           if (emailSpan) emailSpan.classList.add('hidden');
-          if (connectBtnTxt) connectBtnTxt.textContent = 'Conectar Drive';
+          if (descText) {
+            descText.textContent = 'Vincula tu cuenta de Google para guardar y sincronizar entre dispositivos.';
+          }
+          if (connectBtnTxt) connectBtnTxt.textContent = 'Iniciar Sesión con Google';
         }
 
         if (badge) {
@@ -5378,18 +5411,43 @@
         return parseFloat((netMonth / 4.333).toFixed(2));
       }
 
+      // Evaluador seguro de operaciones matemáticas para inputs de importe (ej: 15.6-2.3, 10+5*2)
+      function parseNumericExpression(raw) {
+        if (raw === undefined || raw === null) return NaN;
+        const clean = String(raw).replace(/,/g, '.').trim();
+        if (!clean) return NaN;
+        if (/^[0-9+\-*/.()\s]+$/.test(clean)) {
+          try {
+            const res = Function('"use strict"; return (' + clean + ')')();
+            if (typeof res === 'number' && !isNaN(res) && isFinite(res)) {
+              return parseFloat(res.toFixed(2));
+            }
+          } catch (_) {}
+        }
+        const direct = parseFloat(clean);
+        return isNaN(direct) ? NaN : parseFloat(direct.toFixed(2));
+      }
+
       // HELPERS DE FECHAS REALES
       function getWeekDateRange(weekNum) {
-        const base = new Date(state.startDate || new Date().toISOString().split('T')[0]);
+        let base;
+        let baseDateStr = state.startDate;
+        if (typeof baseDateStr === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(baseDateStr)) {
+          const [by, bm, bd] = baseDateStr.split('-').map(Number);
+          base = new Date(by, bm - 1, bd);
+        } else {
+          const n = new Date();
+          base = new Date(n.getFullYear(), n.getMonth(), n.getDate());
+        }
         // Ajustar al lunes de la semana 1
         const dayOffset = (base.getDay() + 6) % 7;
-        const firstMonday = new Date(base.getTime() - dayOffset * 86400000);
+        const firstMonday = new Date(base.getFullYear(), base.getMonth(), base.getDate() - dayOffset);
         firstMonday.setHours(0, 0, 0, 0);
         
         // Sumar semanas
-        const targetMonday = new Date(firstMonday.getTime() + (weekNum - 1) * 7 * 86400000);
+        const targetMonday = new Date(firstMonday.getFullYear(), firstMonday.getMonth(), firstMonday.getDate() + (weekNum - 1) * 7);
         targetMonday.setHours(0, 0, 0, 0);
-        const targetSunday = new Date(targetMonday.getTime() + 6 * 86400000);
+        const targetSunday = new Date(targetMonday.getFullYear(), targetMonday.getMonth(), targetMonday.getDate() + 6);
         targetSunday.setHours(23, 59, 59, 999);
 
         const formatShort = (d) => `${d.getDate()} ${d.toLocaleString('es-ES', { month: 'short' })}`;
@@ -5397,7 +5455,7 @@
           start: targetMonday,
           end: targetSunday,
           label: `${formatShort(targetMonday)} – ${formatShort(targetSunday)} ${targetSunday.getFullYear()}`,
-          daysDates: Array.from({ length: 7 }, (_, i) => new Date(targetMonday.getTime() + i * 86400000).getDate())
+          daysDates: Array.from({ length: 7 }, (_, i) => new Date(targetMonday.getFullYear(), targetMonday.getMonth(), targetMonday.getDate() + i).getDate())
         };
       }
 
@@ -6035,8 +6093,8 @@
         ];
 
         const milestones = [];
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
+        const now = new Date();
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
 
         listCategories.forEach(catInfo => {
           const items = state.lists[catInfo.key] || [];
@@ -6048,8 +6106,23 @@
               const isDone = parentDone || node.done === true || node.status === 'done' || node.status === 'completed';
               const currentTitle = prefix ? `${prefix}: ${node.title}` : node.title;
               if (!node.isContainer && !isDone && node.date) {
-                const deadlineDate = new Date(node.date + 'T00:00:00');
-                const diffDays = Math.round((deadlineDate - today) / 86400000);
+                const [y, m, d] = node.date.split('-').map(Number);
+                const deadlineDate = new Date(y, m - 1, d);
+                let diffDays = Math.round((deadlineDate - todayZero) / 86400000);
+
+                // Si la fecha es hoy pero la hora límite ya pasó, considerar atrasada (diffDays = -0.5)
+                let isPastTimeToday = false;
+                if (diffDays === 0 && node.time) {
+                  const [th, tm] = node.time.split(':').map(Number);
+                  if (!isNaN(th)) {
+                    const targetTime = new Date(y, m - 1, d, th, isNaN(tm) ? 0 : tm, 0, 0);
+                    if (now.getTime() > targetTime.getTime()) {
+                      diffDays = -0.5;
+                      isPastTimeToday = true;
+                    }
+                  }
+                }
+
                 milestones.push({
                   cat: catInfo.key,
                   id: node.id,
@@ -6060,6 +6133,7 @@
                   categoryLabel: catInfo.label,
                   categoryIcon: catInfo.icon,
                   diffDays: diffDays,
+                  isPastTimeToday: isPastTimeToday,
                   deadlineDate: deadlineDate
                 });
               }
@@ -6097,7 +6171,7 @@
             const oItemsList = overdueMilestones.slice(0, 3).map(o => `
               <span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-accent-soft border border-theme-accent text-theme-accent font-bold text-[10px] cursor-pointer hover:bg-theme-accent hover:text-white transition" onclick="app.jumpToMilestone('${o.cat}', '${o.id}')" title="Ver en lista">
                 <span class="truncate max-w-[150px] sm:max-w-[200px]">${escapeHtml(o.title)}</span>
-                <span class="font-mono text-theme-accent font-extrabold group-hover:text-white">(${Math.abs(o.diffDays)}d atraso)</span>
+                <span class="font-mono text-theme-accent font-extrabold group-hover:text-white">(${o.isPastTimeToday ? (o.time || 'hora pasada') : Math.abs(Math.round(o.diffDays)) + 'd atraso'})</span>
                 <button type="button" onclick="event.stopPropagation(); app.completeMilestoneDirect('${o.cat}', '${o.id}')" class="hover:text-white hover:bg-theme-accent px-1 rounded transition ml-0.5" title="Marcar como hecha">✓</button>
               </span>
             `).join('');
@@ -6795,15 +6869,22 @@
         }
 
         // Entregas pendientes de hoy o atrasadas
-        const todayIso = new Date().toISOString().split('T')[0];
+        const nowDeliveries = new Date();
+        const todayIso = `${nowDeliveries.getFullYear()}-${String(nowDeliveries.getMonth() + 1).padStart(2, '0')}-${String(nowDeliveries.getDate()).padStart(2, '0')}`;
+        const currentTimeStr = `${String(nowDeliveries.getHours()).padStart(2, '0')}:${String(nowDeliveries.getMinutes()).padStart(2, '0')}`;
         const urgentDeliveries = [];
         function scanUrgentDeliveries(nodes, parentDone = false) {
           if (!Array.isArray(nodes)) return;
           nodes.forEach(item => {
             if (!item) return;
             const isDone = parentDone || item.done === true || item.status === 'done' || item.status === 'completed';
-            if (!item.isContainer && !isDone && item.date && item.date <= todayIso) {
-              urgentDeliveries.push(item);
+            if (!item.isContainer && !isDone && item.date) {
+              const isPastDate = item.date < todayIso;
+              const isTodayOverdue = item.date === todayIso && item.time && item.time < currentTimeStr;
+              const isTodayPending = item.date === todayIso;
+              if (isPastDate || isTodayOverdue || isTodayPending) {
+                urgentDeliveries.push(item);
+              }
             }
             if (Array.isArray(item.children)) {
               scanUrgentDeliveries(item.children, isDone);
@@ -7349,7 +7430,30 @@
         renderDockExpenseUI();
       }
 
-      function renderDockExpenseUI() {
+      function getMatchingExpenseConcepts(query = '') {
+        const allConceptsMap = new Map();
+        (state.dictionary?.frequentConcepts || []).forEach(c => {
+          if (c && c.trim()) {
+            const trimmed = c.trim();
+            const key = trimmed.toLowerCase();
+            if (!allConceptsMap.has(key)) allConceptsMap.set(key, trimmed);
+          }
+        });
+        Object.values(state.weeks || {}).forEach(w => {
+          (w?.expenses || []).forEach(e => {
+            if (e.concept && e.concept.trim()) {
+              const trimmed = e.concept.trim();
+              const key = trimmed.toLowerCase();
+              if (!allConceptsMap.has(key)) allConceptsMap.set(key, trimmed);
+            }
+          });
+        });
+        const allConcepts = Array.from(allConceptsMap.values());
+        const q = (query || '').trim().toLowerCase();
+        return q ? allConcepts.filter(c => c.toLowerCase().includes(q)) : allConcepts.slice(0, 10);
+      }
+
+      function renderDockExpenseUI(filterQuery = '') {
         const catSelect = document.getElementById('dockExpenseCategory');
         if (catSelect) {
           catSelect.innerHTML = (state.financeSettings.customCategories || []).map(c => `<option value="${c.emoji} ${c.name}">${c.emoji} ${c.name}</option>`).join('');
@@ -7361,9 +7465,16 @@
         }
         const chipsBox = document.getElementById('dockExpenseChips');
         if (chipsBox) {
-          chipsBox.innerHTML = (state.dictionary.frequentConcepts || []).slice(0, 8).map(c => `
-            <button onclick="app.fillDockExpenseConcept('${c}')" class="px-2 py-0.5 rounded-md subpanel-bg border text-[11px] hover:border-cyan-500 font-medium transition active:scale-95">${c}</button>
-          `).join('');
+          const filtered = getMatchingExpenseConcepts(filterQuery);
+          const q = (filterQuery || '').trim();
+
+          if (filtered.length === 0) {
+            chipsBox.innerHTML = q ? `<span class="text-[10px] text-stone-400 dark:text-slate-500 italic py-0.5">Sin coincidencias previas (se creará "${escapeHtml(filterQuery)}")</span>` : '';
+          } else {
+            chipsBox.innerHTML = filtered.slice(0, 8).map(c => `
+              <button type="button" onclick="app.fillDockExpenseConcept('${escapeHtml(c)}')" class="px-2 py-0.5 rounded-md subpanel-bg border text-[11px] hover:border-theme-main font-medium transition active:scale-95 text-stone-700 dark:text-slate-300">${escapeHtml(c)}</button>
+            `).join('');
+          }
         }
       }
 
@@ -7488,12 +7599,27 @@
         if (!dateStr) {
           return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono font-bold text-[9px] bg-slate-800 text-slate-300 border border-slate-700"><svg class="w-2.5 h-2.5 text-stone-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>${escapeHtml(timeStr)}</span></span>`;
         }
-        const today = new Date();
-        today.setHours(0,0,0,0);
-        const target = new Date(dateStr + 'T00:00:00');
-        const diffDays = Math.round((target - today) / (1000 * 60 * 60 * 24));
-        if (diffDays < 0) {
-          return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono font-bold text-[9px] bg-theme-accent text-white shadow-xs"><span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span><span>Atrasada (${dateStr}${tSuffix})</span></span>`;
+        const now = new Date();
+        const todayZero = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+        const [y, m, d] = dateStr.split('-').map(Number);
+        const targetZero = new Date(y, m - 1, d);
+        const diffDays = Math.round((targetZero - todayZero) / 86400000);
+
+        // Si es hoy pero tiene hora límite y ya pasó la hora
+        let isPastTimeToday = false;
+        if (diffDays === 0 && timeStr) {
+          const [th, tm] = timeStr.split(':').map(Number);
+          if (!isNaN(th)) {
+            const targetTime = new Date(y, m - 1, d, th, isNaN(tm) ? 0 : tm, 0, 0);
+            if (now.getTime() > targetTime.getTime()) {
+              isPastTimeToday = true;
+            }
+          }
+        }
+
+        if (diffDays < 0 || isPastTimeToday) {
+          const label = isPastTimeToday ? `Atrasada hoy (${escapeHtml(timeStr)})` : `Atrasada (${dateStr}${tSuffix})`;
+          return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono font-bold text-[9px] bg-theme-accent text-white shadow-xs"><span class="w-1.5 h-1.5 rounded-full bg-white animate-ping"></span><span>${label}</span></span>`;
         } else if (diffDays === 0) {
           return `<span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded font-mono font-bold text-[9px] bg-theme-accent text-white animate-pulse"><span class="w-1.5 h-1.5 rounded-full bg-white"></span><span>¡Vence Hoy!${tSuffix}</span></span>`;
         } else if (diffDays === 1) {
@@ -8893,12 +9019,7 @@
         const inlineCat = document.getElementById('tab3InlineCategory');
         inlineCat.innerHTML = (state.financeSettings.customCategories || []).map(c => `<option value="${c.emoji} ${c.name}">${c.emoji} ${c.name}</option>`).join('');
 
-        const tab3Chips = document.getElementById('tab3FrequentConceptChips');
-        if (tab3Chips) {
-          tab3Chips.innerHTML = (state.dictionary.frequentConcepts || []).map(c => `
-            <button type="button" onclick="app.fillTab3Concept('${c}')" class="px-2 py-0.5 rounded-lg subpanel-bg border hover:border-cyan-400 text-[11px] font-medium text-cyan-300">${c}</button>
-          `).join('');
-        }
+        app.renderTab3ConceptChips(document.getElementById('tab3InlineConcept')?.value || '');
 
         // Gráfica de Distribución de Gastos Diarios por Categoría (Lunes a Domingo)
         renderDailyExpenseChart(w, totalSpend);
@@ -10372,7 +10493,10 @@
           };
 
           getActiveWeek().expenses.push(newExp);
-          if (!state.dictionary.frequentConcepts.includes(concept)) state.dictionary.frequentConcepts.push(concept);
+          if (!state.dictionary.frequentConcepts) state.dictionary.frequentConcepts = [];
+          if (!state.dictionary.frequentConcepts.some(x => x.toLowerCase() === concept.toLowerCase())) {
+            state.dictionary.frequentConcepts.push(concept);
+          }
 
           document.getElementById('quickAmount').value = '';
           document.getElementById('quickConcept').value = '';
@@ -10393,8 +10517,29 @@
         },
 
         fillTab3Concept(c) {
-          document.getElementById('tab3InlineConcept').value = c;
-          document.getElementById('tab3InlineAmount').focus();
+          const conceptInp = document.getElementById('tab3InlineConcept');
+          if (conceptInp) conceptInp.value = c;
+          app.renderTab3ConceptChips(c);
+          const amtInp = document.getElementById('tab3InlineAmount');
+          if (amtInp) amtInp.focus();
+        },
+
+        onTab3ConceptInput(val) {
+          app.renderTab3ConceptChips(val);
+        },
+
+        renderTab3ConceptChips(filterQuery = '') {
+          const tab3Chips = document.getElementById('tab3FrequentConceptChips');
+          if (!tab3Chips) return;
+          const filtered = getMatchingExpenseConcepts(filterQuery);
+          const q = (filterQuery || '').trim();
+          if (filtered.length === 0) {
+            tab3Chips.innerHTML = q ? `<span class="text-[10px] text-stone-400 dark:text-slate-500 italic py-0.5">Sin coincidencias previas (se creará "${escapeHtml(filterQuery)}")</span>` : '';
+          } else {
+            tab3Chips.innerHTML = filtered.slice(0, 10).map(c => `
+              <button type="button" onclick="app.fillTab3Concept('${escapeHtml(c)}')" class="px-2 py-0.5 rounded-lg subpanel-bg border hover:border-cyan-400 text-[11px] font-medium text-cyan-300 transition active:scale-95">${escapeHtml(c)}</button>
+            `).join('');
+          }
         },
 
         openEditExpenseModal(id) {
@@ -10421,7 +10566,7 @@
         saveEditedExpense() {
           const id = document.getElementById('editExpenseId').value;
           const concept = document.getElementById('editExpenseConcept').value.trim();
-          const amt = parseFloat(document.getElementById('editExpenseAmount').value);
+          const amt = parseNumericExpression(document.getElementById('editExpenseAmount')?.value);
           const cat = document.getElementById('editExpenseCategory').value;
           const dayIdx = parseInt(document.getElementById('editExpenseDay').value, 10);
 
@@ -10493,12 +10638,12 @@
           const catSelect = document.getElementById('dockExpenseCategory');
           const daySelect = document.getElementById('dockExpenseDay');
 
-          const amt = parseFloat(amtInp ? amtInp.value : 0);
+          const amt = parseNumericExpression(amtInp ? amtInp.value : '');
           const concept = conceptInp ? conceptInp.value.trim() : '';
           const cat = catSelect ? catSelect.value : 'Otros';
           const dayIdx = parseInt(daySelect ? daySelect.value : 0, 10);
 
-          if (isNaN(amt) || amt <= 0 || !concept) return this.showToast('Introduce un importe válido y concepto.', 'error');
+          if (isNaN(amt) || amt <= 0 || !concept) return this.showToast('Introduce un importe válido (o cálculo como 15.6-2.3) y concepto.', 'error');
 
           pushUndo('Añadir gasto');
           const newExp = {
@@ -10511,7 +10656,10 @@
           };
 
           getActiveWeek().expenses.push(newExp);
-          if (!state.dictionary.frequentConcepts.includes(concept)) state.dictionary.frequentConcepts.push(concept);
+          if (!state.dictionary.frequentConcepts) state.dictionary.frequentConcepts = [];
+          if (!state.dictionary.frequentConcepts.some(x => x.toLowerCase() === concept.toLowerCase())) {
+            state.dictionary.frequentConcepts.push(concept);
+          }
 
           if (amtInp) amtInp.value = '';
           if (conceptInp) conceptInp.value = '';
@@ -10521,10 +10669,15 @@
           saveState();
         },
 
+        onDockConceptInput(val) {
+          renderDockExpenseUI(val);
+        },
+
         fillDockExpenseConcept(c) {
           const conceptInp = document.getElementById('dockExpenseConcept');
           const amtInp = document.getElementById('dockExpenseAmount');
           if (conceptInp) conceptInp.value = c;
+          renderDockExpenseUI(c);
           if (amtInp) amtInp.focus();
         },
 
@@ -10881,7 +11034,7 @@
                         </div>
                       </div>
                       <div class="flex items-center gap-2 shrink-0">
-                        <span class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold bg-theme-accent-soft text-theme-accent border border-theme-accent/40">${Math.abs(it.diffDays)}d atraso</span>
+                        <span class="px-2 py-0.5 rounded-full font-mono text-[10px] font-bold bg-theme-accent-soft text-theme-accent border border-theme-accent/40">${it.isPastTimeToday ? (it.time || 'hora pasada') : Math.abs(Math.round(it.diffDays)) + 'd atraso'}</span>
                         <button type="button" onclick="event.stopPropagation(); app.completeMilestoneDirect('${it.cat}', '${it.id}'); app.openOverdueMilestonesModal();" class="px-2.5 py-1 rounded-md bg-stone-200 dark:bg-slate-800 hover:bg-theme-main hover:text-white text-stone-700 dark:text-slate-200 text-[10px] font-bold transition flex items-center gap-1" title="Marcar como completada">
                           <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>
                           <span>Hecha</span>
@@ -12942,12 +13095,23 @@
             return;
           }
 
-          listContainer.innerHTML = cats.map(c => {
+          listContainer.innerHTML = cats.map((c, idx) => {
             const formatted = `${c.emoji} ${c.name}`.trim();
             const count = (usageMap[formatted] || 0) + (usageMap[c.name] || 0);
+            const isFirst = idx === 0;
+            const isLast = idx === cats.length - 1;
             return `
-              <div class="p-2.5 rounded-xl subpanel-bg border border-slate-800/80 hover:border-slate-700 flex items-center justify-between text-xs transition shadow-xs">
-                <div class="flex items-center gap-2.5 truncate">
+              <div class="p-2.5 rounded-xl subpanel-bg border border-slate-800/80 hover:border-slate-700 flex items-center justify-between text-xs transition shadow-xs gap-2">
+                <div class="flex items-center gap-2 min-w-0 flex-1">
+                  <!-- Flechas para reordenar categorías -->
+                  <div class="flex flex-col gap-0.5 shrink-0">
+                    <button onclick="app.moveCategoryOrder('${c.id}', -1)" ${isFirst ? 'disabled class="opacity-20 cursor-not-allowed"' : 'class="hover:text-theme-main transition text-slate-400 active:scale-90"'} title="Mover arriba">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="18 15 12 9 6 15"/></svg>
+                    </button>
+                    <button onclick="app.moveCategoryOrder('${c.id}', 1)" ${isLast ? 'disabled class="opacity-20 cursor-not-allowed"' : 'class="hover:text-theme-main transition text-slate-400 active:scale-90"'} title="Mover abajo">
+                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
+                    </button>
+                  </div>
                   <span class="emoji-sticker w-8 h-8 text-sm shrink-0">${c.emoji || '📦'}</span>
                   <div class="truncate">
                     <span class="font-bold text-white text-xs block truncate">${c.name}</span>
@@ -12964,6 +13128,24 @@
               </div>
             `;
           }).join('');
+        },
+
+        moveCategoryOrder(catId, dir) {
+          app.ensureCategoryIds();
+          const cats = state.financeSettings.customCategories;
+          const idx = cats.findIndex(x => x.id === catId);
+          if (idx === -1) return;
+          const targetIdx = idx + dir;
+          if (targetIdx < 0 || targetIdx >= cats.length) return;
+
+          pushUndo('Reordenar categorías de gasto');
+          const [moved] = cats.splice(idx, 1);
+          cats.splice(targetIdx, 0, moved);
+
+          app.renderCategoriesManagerList();
+          renderQuickExpensesUI();
+          if (state.activeTab === 3) renderTab3();
+          saveState();
         },
 
         pickCategoryEmoji(emoji) {
@@ -13309,10 +13491,10 @@
           renderDailyExpenseChart();
         },
         submitTab3InlineExpense() {
-          const amt = parseFloat(document.getElementById('tab3InlineAmount').value);
+          const amt = parseNumericExpression(document.getElementById('tab3InlineAmount')?.value);
           const concept = document.getElementById('tab3InlineConcept').value.trim();
           const cat = document.getElementById('tab3InlineCategory').value;
-          if (isNaN(amt) || amt <= 0 || !concept) return this.showToast('Introduce importe y concepto.', 'error');
+          if (isNaN(amt) || amt <= 0 || !concept) return this.showToast('Introduce un importe válido (o cálculo) y concepto.', 'error');
 
           pushUndo('Añadir gasto');
           const todayIdx = (new Date().getDay() + 6) % 7;
@@ -13324,6 +13506,11 @@
             category: cat,
             timestamp: new Date().toISOString()
           });
+
+          if (!state.dictionary.frequentConcepts) state.dictionary.frequentConcepts = [];
+          if (!state.dictionary.frequentConcepts.some(x => x.toLowerCase() === concept.toLowerCase())) {
+            state.dictionary.frequentConcepts.push(concept);
+          }
 
           document.getElementById('tab3InlineAmount').value = '';
           document.getElementById('tab3InlineConcept').value = '';
