@@ -728,8 +728,13 @@
     .muscle-hover { stroke: #38bdf8 !important; stroke-width: 2 !important; filter: drop-shadow(0 0 5px #0ea5e9) !important; }
     .muscle-selected { stroke: #f59e0b !important; stroke-width: 2.5 !important; filter: drop-shadow(0 0 6px #f59e0b) !important; }
 
-    /* Modo Solo Lectura / Bloqueado */
-    .readonly-locked { pointer-events: none; opacity: 0.85; filter: grayscale(20%); }
+    /* Modo Solo Lectura / Histórico */
+    .readonly-locked { opacity: 0.95; }
+    .readonly-locked input:not([readonly]),
+    .readonly-locked select,
+    .readonly-locked button:not([data-allow-readonly]) {
+      cursor: default;
+    }
 
     /* Supresión del datepicker nativo del navegador */
     input[type="date"]::-webkit-calendar-picker-indicator {
@@ -7835,7 +7840,6 @@
             ${customCardsHtml}
           </div>
         `;
-        `;
       }
 
       function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
@@ -11015,10 +11019,19 @@
         },
 
         toggleReadOnlyLock() {
-          if (state.viewingWeek === state.currentWeek) return;
+          const isPastWeek = state.viewingWeek !== state.currentWeek;
+          if (!isPastWeek) {
+            this.showToast('Esta es la semana activa en curso (siempre editable).', 'info');
+            return;
+          }
           state.isReadOnlyLocked = !state.isReadOnlyLocked;
           renderApp();
           saveState();
+          if (state.isReadOnlyLocked) {
+            this.showToast('Semana protegida en modo solo lectura.', 'amber');
+          } else {
+            this.showToast('Modo edición histórica habilitado.', 'emerald');
+          }
         },
 
         // Gimnasio: botón variable (0 -> 1 -> 2 -> 0) y soporte +2 sesiones
