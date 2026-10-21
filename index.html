@@ -1904,6 +1904,69 @@
     </div>
   </div>
 
+  <!-- MODAL: GESTIÓN Y CREACIÓN DE HÁBITOS PERSONALIZADOS -->
+  <div id="modalManageHabits" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-2.5 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-main text-white shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+          </div>
+          <h3 id="habitModalTitle" class="font-bold text-sm sm:text-base">Nuevo Hábito Personalizado</h3>
+        </div>
+        <button onclick="app.closeModal('modalManageHabits')" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <!-- Formulario para crear / editar hábito -->
+      <form id="customHabitForm" onsubmit="event.preventDefault(); app.saveCustomHabit();" class="space-y-3 shrink-0 p-3.5 rounded-xl subpanel-bg border">
+        <input type="hidden" id="habitEditId" value="" />
+        
+        <div class="grid grid-cols-12 gap-2">
+          <div class="col-span-3 sm:col-span-2 space-y-1">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase">Icono:</label>
+            <input id="habitEmojiInput" type="text" value="⭐" maxlength="4" class="w-full text-center text-base py-1.5 input-bg border rounded-xl font-bold focus:border-theme outline-none" />
+          </div>
+          <div class="col-span-9 sm:col-span-10 space-y-1">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase">Nombre del Hábito:</label>
+            <input id="habitNameInput" type="text" placeholder="Ej: Instagram / Redes, Lectura, Creatina..." required class="w-full px-3 py-1.5 input-bg border rounded-xl font-bold text-xs focus:border-theme outline-none" autocomplete="off" />
+          </div>
+        </div>
+
+        <!-- Tipo de Lógica -->
+        <div class="space-y-1">
+          <label class="block text-[10px] font-bold text-slate-400 uppercase">Tipo de Evaluación y Meta:</label>
+          <select id="habitTypeSelect" onchange="app.onHabitTypeChange(this.value)" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-semibold text-xs focus:border-theme outline-none">
+            <option value="max_limit">Tipo A: Límite Máximo ("Menos es mejor" - Ej: Pantalla, Redes)</option>
+            <option value="min_accum">Tipo B: Meta Acumulativa ("Más es mejor" - Ej: Lectura, Agua)</option>
+            <option value="binary_check">Tipo C: Check Diario (Sí / No - Ej: Creatina, Meditar)</option>
+            <option value="target_range">Tipo D: Diana Óptima / Rango (Ej: Calorías, 8h Sueño ± Margen)</option>
+          </select>
+        </div>
+
+        <!-- Parámetros específicos según Tipo -->
+        <div id="habitParamsBox" class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-xs pt-1">
+          <!-- Renderizado dinámicamente según habitTypeSelect -->
+        </div>
+
+        <div class="flex items-center justify-between pt-2 border-t">
+          <button type="button" id="habitCancelEditBtn" onclick="app.resetHabitForm()" class="hidden px-3 py-1 rounded-lg text-slate-400 hover:text-white text-xs">Cancelar Edición</button>
+          <div class="flex-1"></div>
+          <button type="submit" id="habitSubmitBtn" class="px-4 py-1.5 rounded-xl bg-theme-main text-white font-bold shadow-md hover:opacity-90 active:scale-95 transition">Guardar Hábito</button>
+        </div>
+      </form>
+
+      <!-- Lista de hábitos personalizados existentes -->
+      <div class="space-y-1.5 flex-1 overflow-y-auto pr-1">
+        <span class="font-bold text-slate-300 text-[11px] block">Hábitos activos en la plantilla:</span>
+        <div id="customHabitsManagerList" class="space-y-1.5"></div>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t shrink-0">
+        <button onclick="app.closeModal('modalManageHabits')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs hover:bg-slate-800 transition">Listo</button>
+      </div>
+    </div>
+  </div>
+
   <!-- NUEVO MODAL: EDITAR ELEMENTO / PAQUETE DE LISTA -->
   <div id="modalEditListItem" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl text-xs">
@@ -2217,6 +2280,59 @@
           </button>
         </div>
         <button onclick="app.closeModal('modalKpi4Budget')" class="px-5 py-2 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-md border border-theme/60 active:translate-y-0.5 transition">Cerrar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: CONFLICTO DE SINCRONIZACIÓN CON GOOGLE DRIVE -->
+  <div id="modalSyncConflict" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
+    <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
+      <div class="flex justify-between items-center border-b pb-2.5">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-accent text-white shadow-xs">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Conflicto de Sincronización Detectado</h3>
+            <span class="text-[10px] text-stone-500 dark:text-slate-400">Hay cambios en la nube y en este dispositivo que no coinciden</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 p-3 rounded-xl subpanel-bg border text-xs">
+        <div class="space-y-1">
+          <span class="font-bold text-theme-main block">📱/💻 En este Dispositivo:</span>
+          <div id="conflictLocalTime" class="font-mono text-[11px] text-stone-700 dark:text-slate-200 font-semibold">-</div>
+          <span id="conflictLocalWeeks" class="text-[10px] text-stone-500 dark:text-slate-400 block">-</span>
+        </div>
+        <div class="space-y-1 border-l pl-3 border-stone-300 dark:border-slate-700">
+          <span class="font-bold text-theme-accent block">☁️ En Google Drive:</span>
+          <div id="conflictCloudTime" class="font-mono text-[11px] text-stone-700 dark:text-slate-200 font-semibold">-</div>
+          <span id="conflictCloudWeeks" class="text-[10px] text-stone-500 dark:text-slate-400 block">-</span>
+        </div>
+      </div>
+
+      <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+        Ambos dispositivos han realizado cambios independientes. Para evitar que una versión desfasada sobrescriba a la otra, elige qué acción deseas realizar:
+      </p>
+
+      <div class="space-y-2 pt-1">
+        <button type="button" onclick="app.resolveSyncConflict('upload')" class="w-full py-2.5 px-3 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs flex items-center justify-between shadow-sm transition">
+          <span>Conservar este dispositivo (Subir a Drive)</span>
+          <span class="text-[10px] opacity-80 font-mono">Local → Nube</span>
+        </button>
+        <button type="button" onclick="app.resolveSyncConflict('download')" class="w-full py-2.5 px-3 rounded-xl bg-theme-accent hover:opacity-90 text-white font-bold text-xs flex items-center justify-between shadow-sm transition">
+          <span>Cargar versión de Drive (Sobrescribir local)</span>
+          <span class="text-[10px] opacity-80 font-mono">Nube → Local</span>
+        </button>
+        <button type="button" onclick="app.resolveSyncConflict('merge')" class="w-full py-2.5 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs flex items-center justify-between transition">
+          <span>Fusionar Semanas (Conservar más reciente de cada una)</span>
+          <span class="text-[10px] opacity-80 font-mono">Fusión Inteligente</span>
+        </button>
+      </div>
+
+      <div class="flex justify-end pt-2 border-t">
+        <button type="button" onclick="app.closeModal('modalSyncConflict')" class="px-4 py-1.5 rounded-xl subpanel-bg text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white font-semibold text-xs">Pausar Sincronización</button>
       </div>
     </div>
   </div>
@@ -3524,11 +3640,33 @@
       
       <!-- CONFIGURACIÓN DE METAS SEMANALES -->
       <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
-        <div class="flex items-center gap-2">
-          <div class="vector-seal bg-theme-main text-white shadow-xs">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <div class="vector-seal bg-theme-main text-white shadow-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="6"></circle><circle cx="12" cy="12" r="2"></circle></svg>
+            </div>
+            <div>
+              <h2 class="text-base sm:text-lg font-serif font-bold tracking-tight">Configuración de Metas <span class="italic font-normal">Semanales</span> <span class="text-xs font-normal text-slate-400 font-sans">(Plantilla Modular)</span></h2>
+              <span class="text-[10px] text-stone-500 dark:text-slate-400">Activa o pausa bloques para modo vacaciones o crea tus propios hábitos</span>
+            </div>
           </div>
-          <h2 class="text-base sm:text-lg font-serif font-bold tracking-tight">Configuración de Metas <span class="italic font-normal">Semanales</span> <span class="text-xs font-normal text-slate-400 font-sans">(Snapshot Plantilla)</span></h2>
+          <button type="button" onclick="app.openManageHabitsModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-main text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-95 transition">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>+ Nuevo Hábito</span>
+          </button>
+        </div>
+
+        <!-- BARRA MODULAR DE ACTIVACIÓN / PAUSA (MODO VACACIONES O PERSONALIZACIÓN) -->
+        <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+          <div class="flex items-center justify-between">
+            <span class="font-bold text-[11px] text-stone-800 dark:text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <span>🏖️</span> Módulos Base Activos en la Plantilla:
+            </span>
+            <span class="text-[10px] text-stone-500 dark:text-slate-400">Pulsa para encender/apagar</span>
+          </div>
+          <div id="modularTogglesRow" class="flex flex-wrap gap-1.5 sm:gap-2">
+            <!-- Toggles generados dinámicamente -->
+          </div>
         </div>
         
         <div class="grid grid-cols-1 md:grid-cols-12 gap-3 text-xs">
@@ -4195,9 +4333,11 @@
       ];
 
       const ACCENT_PALETTES = {
+        // --- GRUPO 1: ALTO CONTRASTE ---
         blue_red: {
           id: 'blue_red',
           name: 'Azul Ultramar & Bermellón',
+          category: 'high_contrast',
           dot1: '#1D4ED8',
           dot2: '#D93829',
           light: {
@@ -4212,7 +4352,16 @@
             themeBorder: 'rgba(29, 78, 216, 0.22)',
             accent: '#D93829',
             accentHover: '#B91C1C',
-            accentSoft: 'rgba(217, 56, 41, 0.12)'
+            accentSoft: 'rgba(217, 56, 41, 0.12)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#D93829',
+            negativeBg: 'rgba(217, 56, 41, 0.12)',
+            negativeBorder: 'rgba(217, 56, 41, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
           },
           dark: {
             bg: '#070B14',
@@ -4226,12 +4375,22 @@
             themeBorder: 'rgba(59, 130, 246, 0.32)',
             accent: '#EF4444',
             accentHover: '#DC2626',
-            accentSoft: 'rgba(239, 68, 68, 0.20)'
+            accentSoft: 'rgba(239, 68, 68, 0.20)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.18)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#F59E0B',
+            warningBg: 'rgba(245, 158, 11, 0.18)',
+            warningBorder: 'rgba(245, 158, 11, 0.40)'
           }
         },
         blue_yellow: {
           id: 'blue_yellow',
           name: 'Azul Cobalto & Amarillo Sol',
+          category: 'high_contrast',
           dot1: '#1E40AF',
           dot2: '#EAB308',
           light: {
@@ -4246,7 +4405,16 @@
             themeBorder: 'rgba(30, 64, 175, 0.22)',
             accent: '#D97706',
             accentHover: '#B45309',
-            accentSoft: 'rgba(217, 119, 6, 0.14)'
+            accentSoft: 'rgba(217, 119, 6, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#DC2626',
+            negativeBg: 'rgba(220, 38, 38, 0.12)',
+            negativeBorder: 'rgba(220, 38, 38, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.14)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
           },
           dark: {
             bg: '#060E1A',
@@ -4260,12 +4428,22 @@
             themeBorder: 'rgba(59, 130, 246, 0.32)',
             accent: '#FACC15',
             accentHover: '#EAB308',
-            accentSoft: 'rgba(250, 204, 21, 0.20)'
+            accentSoft: 'rgba(250, 204, 21, 0.20)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.18)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#FACC15',
+            warningBg: 'rgba(250, 204, 21, 0.20)',
+            warningBorder: 'rgba(250, 204, 21, 0.40)'
           }
         },
         red_green: {
           id: 'red_green',
           name: 'Rojo Burdeos & Verde Bosque',
+          category: 'high_contrast',
           dot1: '#991B1B',
           dot2: '#059669',
           light: {
@@ -4280,7 +4458,17 @@
             themeBorder: 'rgba(153, 27, 27, 0.24)',
             accent: '#059669',
             accentHover: '#047857',
-            accentSoft: 'rgba(5, 150, 105, 0.14)'
+            accentSoft: 'rgba(5, 150, 105, 0.14)',
+            // Roles Semánticos Corregidos: el verde es positivo, el burdeos es negativo
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.14)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#991B1B',
+            negativeBg: 'rgba(153, 27, 27, 0.12)',
+            negativeBorder: 'rgba(153, 27, 27, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
           },
           dark: {
             bg: '#120606',
@@ -4294,80 +4482,22 @@
             themeBorder: 'rgba(239, 68, 68, 0.32)',
             accent: '#10B981',
             accentHover: '#059669',
-            accentSoft: 'rgba(16, 185, 129, 0.20)'
-          }
-        },
-        orange_yellow: {
-          id: 'orange_yellow',
-          name: 'Terracota & Amarillo Cálido',
-          dot1: '#C2410C',
-          dot2: '#D97706',
-          light: {
-            bg: '#FDFAF6',
-            panel: '#FFFFFF',
-            subpanel: '#F9F0E6',
-            input: '#FFFFFF',
-            theme900: '#431407',
-            theme700: '#C2410C',
-            theme500: '#F97316',
-            theme100: 'rgba(194, 65, 12, 0.10)',
-            themeBorder: 'rgba(194, 65, 12, 0.24)',
-            accent: '#D97706',
-            accentHover: '#B45309',
-            accentSoft: 'rgba(217, 119, 6, 0.14)'
-          },
-          dark: {
-            bg: '#140803',
-            panel: 'rgba(34, 18, 10, 0.92)',
-            subpanel: 'rgba(24, 12, 6, 0.88)',
-            input: '#1A0B04',
-            theme900: '#2E0E04',
-            theme700: '#EA580C',
-            theme500: '#FDBA74',
-            theme100: 'rgba(234, 88, 12, 0.18)',
-            themeBorder: 'rgba(249, 115, 22, 0.32)',
-            accent: '#FBBF24',
-            accentHover: '#F59E0B',
-            accentSoft: 'rgba(251, 191, 36, 0.22)'
-          }
-        },
-        green_red: {
-          id: 'green_red',
-          name: 'Verde Salvia & Terracota',
-          dot1: '#1B4332',
-          dot2: '#C84B31',
-          light: {
-            bg: '#F5F9F6',
-            panel: '#FFFFFF',
-            subpanel: '#ECF4EE',
-            input: '#FFFFFF',
-            theme900: '#0F291E',
-            theme700: '#1B4332',
-            theme500: '#2D6A4F',
-            theme100: 'rgba(27, 67, 50, 0.10)',
-            themeBorder: 'rgba(27, 67, 50, 0.24)',
-            accent: '#C84B31',
-            accentHover: '#B03A22',
-            accentSoft: 'rgba(200, 75, 49, 0.14)'
-          },
-          dark: {
-            bg: '#06110B',
-            panel: 'rgba(14, 32, 22, 0.92)',
-            subpanel: 'rgba(9, 22, 15, 0.88)',
-            input: '#091810',
-            theme900: '#0D271C',
-            theme700: '#1B4D36',
-            theme500: '#52B788',
-            theme100: 'rgba(45, 106, 79, 0.20)',
-            themeBorder: 'rgba(82, 183, 136, 0.35)',
-            accent: '#F87171',
-            accentHover: '#EF4444',
-            accentSoft: 'rgba(248, 113, 113, 0.22)'
+            accentSoft: 'rgba(16, 185, 129, 0.20)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.20)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.20)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#F59E0B',
+            warningBg: 'rgba(245, 158, 11, 0.18)',
+            warningBorder: 'rgba(245, 158, 11, 0.40)'
           }
         },
         navy_crimson: {
           id: 'navy_crimson',
           name: 'Azul Noche & Rojo Infierno',
+          category: 'high_contrast',
           dot1: '#1E293B',
           dot2: '#EF4444',
           light: {
@@ -4382,7 +4512,16 @@
             themeBorder: 'rgba(30, 41, 59, 0.24)',
             accent: '#DC2626',
             accentHover: '#B91C1C',
-            accentSoft: 'rgba(220, 38, 38, 0.14)'
+            accentSoft: 'rgba(220, 38, 38, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#DC2626',
+            negativeBg: 'rgba(220, 38, 38, 0.12)',
+            negativeBorder: 'rgba(220, 38, 38, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
           },
           dark: {
             bg: '#0A0D17',
@@ -4396,12 +4535,22 @@
             themeBorder: 'rgba(148, 163, 184, 0.35)',
             accent: '#EF4444',
             accentHover: '#DC2626',
-            accentSoft: 'rgba(239, 68, 68, 0.22)'
+            accentSoft: 'rgba(239, 68, 68, 0.22)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.20)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#F59E0B',
+            warningBg: 'rgba(245, 158, 11, 0.18)',
+            warningBorder: 'rgba(245, 158, 11, 0.40)'
           }
         },
         purple_amber: {
           id: 'purple_amber',
           name: 'Amatista & Mandarina',
+          category: 'high_contrast',
           dot1: '#6D28D9',
           dot2: '#EA580C',
           light: {
@@ -4416,7 +4565,16 @@
             themeBorder: 'rgba(109, 40, 217, 0.24)',
             accent: '#EA580C',
             accentHover: '#C2410C',
-            accentSoft: 'rgba(234, 88, 12, 0.14)'
+            accentSoft: 'rgba(234, 88, 12, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#DC2626',
+            negativeBg: 'rgba(220, 38, 38, 0.12)',
+            negativeBorder: 'rgba(220, 38, 38, 0.35)',
+            warning: '#EA580C',
+            warningBg: 'rgba(234, 88, 12, 0.14)',
+            warningBorder: 'rgba(234, 88, 12, 0.35)'
           },
           dark: {
             bg: '#0F071A',
@@ -4430,12 +4588,236 @@
             themeBorder: 'rgba(196, 181, 253, 0.35)',
             accent: '#FB923C',
             accentHover: '#F97316',
-            accentSoft: 'rgba(251, 146, 60, 0.22)'
+            accentSoft: 'rgba(251, 146, 60, 0.22)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.20)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#FB923C',
+            warningBg: 'rgba(251, 146, 60, 0.20)',
+            warningBorder: 'rgba(251, 146, 60, 0.40)'
+          }
+        },
+        emerald_plum: {
+          id: 'emerald_plum',
+          name: 'Esmeralda & Ciruela',
+          category: 'high_contrast',
+          dot1: '#047857',
+          dot2: '#9D174D',
+          light: {
+            bg: '#F3FAF6',
+            panel: '#FFFFFF',
+            subpanel: '#E8F6EE',
+            input: '#FFFFFF',
+            theme900: '#064E3B',
+            theme700: '#047857',
+            theme500: '#10B981',
+            theme100: 'rgba(4, 120, 87, 0.10)',
+            themeBorder: 'rgba(4, 120, 87, 0.24)',
+            accent: '#9D174D',
+            accentHover: '#831843',
+            accentSoft: 'rgba(157, 23, 77, 0.14)',
+            positive: '#047857',
+            positiveBg: 'rgba(4, 120, 87, 0.12)',
+            positiveBorder: 'rgba(4, 120, 87, 0.35)',
+            negative: '#9D174D',
+            negativeBg: 'rgba(157, 23, 77, 0.14)',
+            negativeBorder: 'rgba(157, 23, 77, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
+          },
+          dark: {
+            bg: '#05140D',
+            panel: 'rgba(10, 36, 24, 0.92)',
+            subpanel: 'rgba(6, 24, 16, 0.88)',
+            input: '#071A11',
+            theme900: '#064E3B',
+            theme700: '#10B981',
+            theme500: '#6EE7B7',
+            theme100: 'rgba(16, 185, 129, 0.18)',
+            themeBorder: 'rgba(16, 185, 129, 0.35)',
+            accent: '#F472B6',
+            accentHover: '#EC4899',
+            accentSoft: 'rgba(244, 114, 182, 0.22)',
+            positive: '#34D399',
+            positiveBg: 'rgba(52, 211, 153, 0.20)',
+            positiveBorder: 'rgba(52, 211, 153, 0.40)',
+            negative: '#F472B6',
+            negativeBg: 'rgba(244, 114, 182, 0.20)',
+            negativeBorder: 'rgba(244, 114, 182, 0.40)',
+            warning: '#FBBF24',
+            warningBg: 'rgba(251, 191, 36, 0.18)',
+            warningBorder: 'rgba(251, 191, 36, 0.40)'
+          }
+        },
+
+        // --- GRUPO 2: CONTRASTE SUAVE / EDITORIAL ---
+        green_red: {
+          id: 'green_red',
+          name: 'Verde Salvia & Terracota',
+          category: 'soft_contrast',
+          dot1: '#1B4332',
+          dot2: '#C84B31',
+          light: {
+            bg: '#F5F9F6',
+            panel: '#FFFFFF',
+            subpanel: '#ECF4EE',
+            input: '#FFFFFF',
+            theme900: '#0F291E',
+            theme700: '#1B4332',
+            theme500: '#2D6A4F',
+            theme100: 'rgba(27, 67, 50, 0.10)',
+            themeBorder: 'rgba(27, 67, 50, 0.24)',
+            accent: '#C84B31',
+            accentHover: '#B03A22',
+            accentSoft: 'rgba(200, 75, 49, 0.14)',
+            positive: '#2D6A4F',
+            positiveBg: 'rgba(45, 106, 79, 0.12)',
+            positiveBorder: 'rgba(45, 106, 79, 0.35)',
+            negative: '#C84B31',
+            negativeBg: 'rgba(200, 75, 49, 0.14)',
+            negativeBorder: 'rgba(200, 75, 49, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
+          },
+          dark: {
+            bg: '#06110B',
+            panel: 'rgba(14, 32, 22, 0.92)',
+            subpanel: 'rgba(9, 22, 15, 0.88)',
+            input: '#091810',
+            theme900: '#0D271C',
+            theme700: '#1B4D36',
+            theme500: '#52B788',
+            theme100: 'rgba(45, 106, 79, 0.20)',
+            themeBorder: 'rgba(82, 183, 136, 0.35)',
+            accent: '#F87171',
+            accentHover: '#EF4444',
+            accentSoft: 'rgba(248, 113, 113, 0.22)',
+            positive: '#52B788',
+            positiveBg: 'rgba(82, 183, 136, 0.20)',
+            positiveBorder: 'rgba(82, 183, 136, 0.40)',
+            negative: '#F87171',
+            negativeBg: 'rgba(248, 113, 113, 0.20)',
+            negativeBorder: 'rgba(248, 113, 113, 0.40)',
+            warning: '#FBBF24',
+            warningBg: 'rgba(251, 191, 36, 0.18)',
+            warningBorder: 'rgba(251, 191, 36, 0.40)'
+          }
+        },
+        orange_yellow: {
+          id: 'orange_yellow',
+          name: 'Terracota & Amarillo Cálido',
+          category: 'soft_contrast',
+          dot1: '#C2410C',
+          dot2: '#D97706',
+          light: {
+            bg: '#FDFAF6',
+            panel: '#FFFFFF',
+            subpanel: '#F9F0E6',
+            input: '#FFFFFF',
+            theme900: '#431407',
+            theme700: '#C2410C',
+            theme500: '#F97316',
+            theme100: 'rgba(194, 65, 12, 0.10)',
+            themeBorder: 'rgba(194, 65, 12, 0.24)',
+            accent: '#D97706',
+            accentHover: '#B45309',
+            accentSoft: 'rgba(217, 119, 6, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#C2410C',
+            negativeBg: 'rgba(194, 65, 12, 0.12)',
+            negativeBorder: 'rgba(194, 65, 12, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.14)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
+          },
+          dark: {
+            bg: '#140803',
+            panel: 'rgba(34, 18, 10, 0.92)',
+            subpanel: 'rgba(24, 12, 6, 0.88)',
+            input: '#1A0B04',
+            theme900: '#2E0E04',
+            theme700: '#EA580C',
+            theme500: '#FDBA74',
+            theme100: 'rgba(234, 88, 12, 0.18)',
+            themeBorder: 'rgba(249, 115, 22, 0.32)',
+            accent: '#FBBF24',
+            accentHover: '#F59E0B',
+            accentSoft: 'rgba(251, 191, 36, 0.22)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#F87171',
+            negativeBg: 'rgba(248, 113, 113, 0.20)',
+            negativeBorder: 'rgba(248, 113, 113, 0.40)',
+            warning: '#FBBF24',
+            warningBg: 'rgba(251, 191, 36, 0.20)',
+            warningBorder: 'rgba(251, 191, 36, 0.40)'
+          }
+        },
+        petrol_coral: {
+          id: 'petrol_coral',
+          name: 'Azul Petróleo & Coral Suave',
+          category: 'soft_contrast',
+          dot1: '#0E7490',
+          dot2: '#FB7185',
+          light: {
+            bg: '#F2F8F9',
+            panel: '#FFFFFF',
+            subpanel: '#E5F1F3',
+            input: '#FFFFFF',
+            theme900: '#155E75',
+            theme700: '#0E7490',
+            theme500: '#06B6D4',
+            theme100: 'rgba(14, 116, 144, 0.10)',
+            themeBorder: 'rgba(14, 116, 144, 0.24)',
+            accent: '#E11D48',
+            accentHover: '#BE123C',
+            accentSoft: 'rgba(225, 29, 72, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#E11D48',
+            negativeBg: 'rgba(225, 29, 72, 0.14)',
+            negativeBorder: 'rgba(225, 29, 72, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
+          },
+          dark: {
+            bg: '#041014',
+            panel: 'rgba(8, 28, 36, 0.92)',
+            subpanel: 'rgba(5, 20, 26, 0.88)',
+            input: '#07171E',
+            theme900: '#083344',
+            theme700: '#0891B2',
+            theme500: '#67E8F9',
+            theme100: 'rgba(8, 145, 178, 0.18)',
+            themeBorder: 'rgba(8, 145, 178, 0.35)',
+            accent: '#FB7185',
+            accentHover: '#F43F5E',
+            accentSoft: 'rgba(251, 113, 133, 0.22)',
+            positive: '#34D399',
+            positiveBg: 'rgba(52, 211, 153, 0.20)',
+            positiveBorder: 'rgba(52, 211, 153, 0.40)',
+            negative: '#FB7185',
+            negativeBg: 'rgba(251, 113, 133, 0.20)',
+            negativeBorder: 'rgba(251, 113, 133, 0.40)',
+            warning: '#FBBF24',
+            warningBg: 'rgba(251, 191, 36, 0.18)',
+            warningBorder: 'rgba(251, 191, 36, 0.40)'
           }
         },
         charcoal_blue: {
           id: 'charcoal_blue',
           name: 'Monocromo Grafito & Azul Eléctrico',
+          category: 'soft_contrast',
           dot1: '#27272A',
           dot2: '#2563EB',
           light: {
@@ -4450,7 +4832,16 @@
             themeBorder: 'rgba(39, 39, 42, 0.24)',
             accent: '#2563EB',
             accentHover: '#1D4ED8',
-            accentSoft: 'rgba(37, 99, 235, 0.14)'
+            accentSoft: 'rgba(37, 99, 235, 0.14)',
+            positive: '#059669',
+            positiveBg: 'rgba(5, 150, 105, 0.12)',
+            positiveBorder: 'rgba(5, 150, 105, 0.35)',
+            negative: '#DC2626',
+            negativeBg: 'rgba(220, 38, 38, 0.12)',
+            negativeBorder: 'rgba(220, 38, 38, 0.35)',
+            warning: '#D97706',
+            warningBg: 'rgba(217, 119, 6, 0.12)',
+            warningBorder: 'rgba(217, 119, 6, 0.35)'
           },
           dark: {
             bg: '#09090B',
@@ -4464,7 +4855,16 @@
             themeBorder: 'rgba(161, 161, 170, 0.35)',
             accent: '#3B82F6',
             accentHover: '#2563EB',
-            accentSoft: 'rgba(59, 130, 246, 0.22)'
+            accentSoft: 'rgba(59, 130, 246, 0.22)',
+            positive: '#10B981',
+            positiveBg: 'rgba(16, 185, 129, 0.18)',
+            positiveBorder: 'rgba(16, 185, 129, 0.40)',
+            negative: '#EF4444',
+            negativeBg: 'rgba(239, 68, 68, 0.20)',
+            negativeBorder: 'rgba(239, 68, 68, 0.40)',
+            warning: '#F59E0B',
+            warningBg: 'rgba(245, 158, 11, 0.18)',
+            warningBorder: 'rgba(245, 158, 11, 0.40)'
           }
         }
       };
@@ -4502,10 +4902,31 @@
         root.style.setProperty('--theme-accent-hover', colors.accentHover);
         root.style.setProperty('--theme-accent-soft', colors.accentSoft);
 
+        // Tokens Semánticos Universales (Éxito / Fallo / Advertencia)
+        const pos = colors.positive || colors.theme700;
+        const posBg = colors.positiveBg || colors.theme100;
+        const posBorder = colors.positiveBorder || colors.themeBorder;
+        const neg = colors.negative || colors.accent;
+        const negBg = colors.negativeBg || colors.accentSoft;
+        const negBorder = colors.negativeBorder || colors.accent;
+        const warn = colors.warning || '#D97706';
+        const warnBg = colors.warningBg || 'rgba(217, 119, 6, 0.14)';
+        const warnBorder = colors.warningBorder || 'rgba(217, 119, 6, 0.35)';
+
+        root.style.setProperty('--theme-positive', pos);
+        root.style.setProperty('--theme-positive-bg', posBg);
+        root.style.setProperty('--theme-positive-border', posBorder);
+        root.style.setProperty('--theme-negative', neg);
+        root.style.setProperty('--theme-negative-bg', negBg);
+        root.style.setProperty('--theme-negative-border', negBorder);
+        root.style.setProperty('--theme-warning', warn);
+        root.style.setProperty('--theme-warning-bg', warnBg);
+        root.style.setProperty('--theme-warning-border', warnBorder);
+
         // Retrocompatibilidad con selectores y botones existentes
-        root.style.setProperty('--color-accent-green', colors.theme700);
+        root.style.setProperty('--color-accent-green', pos);
         root.style.setProperty('--color-accent-green-hover', colors.theme500);
-        root.style.setProperty('--color-accent-green-bg', colors.theme100);
+        root.style.setProperty('--color-accent-green-bg', posBg);
 
         const dot1 = document.getElementById('palettePickerActiveDot');
         const dot2 = document.getElementById('palettePickerActiveDot2');
@@ -4602,6 +5023,15 @@
         piggyBank: { balance: 0.00, history: [] },
         savingsGoals: [],
         carryOverToCurrent: 0.00,
+        enabledModules: {
+          gym: true,
+          run: true,
+          study: true,
+          academic: true,
+          nutri: true,
+          budget: true
+        },
+        customHabits: [],
         goalsTemplate: {
           gymSessions: 4,
           runSessions: 3,
@@ -5053,7 +5483,9 @@
         return null;
       }
 
-      async function syncGdriveCloud(allowPull = false) {
+      let pendingCloudConflictJson = null;
+
+      async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
         if (isGdriveSyncing) return;
         const token = await ensureGdriveToken(allowPull);
         if (!token) {
@@ -5067,8 +5499,8 @@
         try {
           let fileId = await findGdriveFileId(token);
 
-          // Sincronización inteligente bidireccional basada en updatedAt
-          if (fileId) {
+          // Sincronización inteligente bidireccional basada en updatedAt y detección de conflicto
+          if (fileId && !forceUpload) {
             try {
               const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
                 headers: { Authorization: `Bearer ${token}` }
@@ -5078,10 +5510,32 @@
                 if (cloudJson && cloudJson.weeks) {
                   const cloudTimestamp = Number(cloudJson.updatedAt) || 0;
                   const localTimestamp = Number(state.updatedAt) || 0;
+                  const lastSynced = Number(localStorage.getItem('gdrive_last_synced_time') || 0);
 
-                  // Si la nube es más reciente o si forzamos pull y la nube no es más antigua:
-                  if (cloudTimestamp > localTimestamp || (allowPull && cloudTimestamp >= localTimestamp)) {
+                  // Detección de conflicto real: Ambos modificaron después de la última sincronización
+                  const cloudChangedSinceSync = cloudTimestamp > (lastSynced + 3000);
+                  const localChangedSinceSync = localTimestamp > (lastSynced + 3000);
+                  const differentDevice = cloudJson.deviceId && state.deviceId && (cloudJson.deviceId !== state.deviceId);
+
+                  if (!forceDownload && cloudChangedSinceSync && localChangedSinceSync && differentDevice && Math.abs(cloudTimestamp - localTimestamp) > 3000) {
+                    // Conflicto: Mostrar modal interactivo para que el usuario decida y evitar sobreescritura accidental
+                    pendingCloudConflictJson = cloudJson;
+                    isGdriveSyncing = false;
+                    updateGdriveUI('CONFLICTO', 'bg-amber-950 text-amber-300 border border-amber-700 animate-pulse');
+                    app.showSyncConflictModal(cloudJson);
+                    return;
+                  }
+
+                  // Si la nube es más reciente o si forzamos descarga:
+                  if (forceDownload || cloudTimestamp > localTimestamp || (allowPull && cloudTimestamp >= localTimestamp)) {
+                    // Guardar backup automático previo por seguridad
+                    try {
+                      localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
+                    } catch (_) {}
+
                     state = sanitizeState(cloudJson);
+                    state.lastSyncedCloudUpdatedAt = cloudTimestamp;
+                    localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
                     renderApp();
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     updateGdriveUI();
@@ -5090,10 +5544,16 @@
                   }
                 }
               }
-            } catch (_) {}
+            } catch (dlErr) {
+              console.warn('Error leyendo archivo en Drive:', dlErr);
+            }
           }
 
-          // Subir el estado actual a Google Drive (nuestro estado local es más reciente)
+          // Subir el estado actual a Google Drive (el estado local es más reciente o el usuario eligió subir)
+          state.updatedAt = Date.now();
+          if (!state.deviceId) {
+            state.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+          }
           const content = JSON.stringify(state, null, 2);
           if (fileId) {
             // Actualizar archivo existente
@@ -5134,6 +5594,7 @@
             }
           }
 
+          localStorage.setItem('gdrive_last_synced_time', String(state.updatedAt));
           updateGdriveUI();
         } catch (err) {
           console.warn('Error sincronizando con Google Drive:', err);
@@ -5221,6 +5682,7 @@
             attendance: (templateSchedule[d] || []).map(c => ({ subject: c.subject, type: c.type || 'T', status: 'pending' })),
             nutrition: 'pending'
           })),
+          customHabitsData: {},
           expenses: [],
           surplusDistribution: { piggy: 0, carryNext: 0 }
         };
@@ -5228,6 +5690,16 @@
 
       function sanitizeState(loaded) {
         const s = Object.assign({}, DEFAULT_STATE, loaded);
+        s.enabledModules = Object.assign({
+          gym: true,
+          run: true,
+          study: true,
+          academic: true,
+          nutri: true,
+          budget: true
+        }, s.enabledModules);
+        if (!Array.isArray(s.customHabits)) s.customHabits = [];
+        if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
         s.financeSettings = Object.assign({}, DEFAULT_STATE.financeSettings, s.financeSettings);
         if (!Array.isArray(s.financeSettings.customCategories) || s.financeSettings.customCategories.length === 0) {
@@ -5466,33 +5938,40 @@
         return now.getTime() > range.end.getTime();
       }
 
-      // MOTOR DE CÁLCULO DE MÉTRICAS
+      // MOTOR DE CÁLCULO DE MÉTRICAS (ADAPTABLE / MODULAR)
       function calculateWeekMetrics(w) {
-        if (!w) return { score: 0, gymPct: 0, runPct: 0, studyPct: 0, attPct: 0, nutriPct: 0, finPct: 0, spent: 0, budget: 60 };
+        if (!w) return { score: 0, gymPct: 0, runPct: 0, studyPct: 0, attPct: 0, nutriPct: 0, finPct: 0, spent: 0, budget: 60, customHabitsPct: {}, totalActiveBlocks: 6, blocksMetCount: 0 };
         const g = w.goals;
+        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
 
-        // Gym
+        // 1. Gym (Soporte para 1, 2 o +2 sesiones por día)
         const gymReal = w.days.reduce((acc, d) => acc + (d.gym.sessions || 0), 0);
         const gymGoal = Math.max(1, g.gymSessions || 4);
         const gymPct = (gymReal / gymGoal) * 100;
 
-        // Running: Si sesiones == 0, los km se tratan como 0
+        // 2. Running (Suma de s1, s2, s3... km)
         const runKmReal = w.days.reduce((acc, d) => {
           if (d.run.sessions <= 0) return acc;
-          const km1 = Number(d.run.s1?.km) || 0;
-          const km2 = d.run.sessions > 1 ? (Number(d.run.s2?.km) || 0) : 0;
-          const dayKm = (km1 + km2 > 0) ? (km1 + km2) : (Number(d.run.km) || 0);
+          let dayKm = 0;
+          if (d.run.sessions === 1) {
+            dayKm = Number(d.run.s1?.km) || Number(d.run.km) || 0;
+          } else {
+            for (let sIdx = 1; sIdx <= d.run.sessions; sIdx++) {
+              const sess = d.run[`s${sIdx}`];
+              dayKm += Number(sess?.km) || 0;
+            }
+          }
           return acc + dayKm;
         }, 0);
         const runKmGoal = Math.max(1, g.runKm || 15);
         const runPct = (runKmReal / runKmGoal) * 100;
 
-        // Estudio
+        // 3. Estudio
         const studyReal = w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
         const studyGoal = Math.max(1, (w.studyHoursPlan || []).reduce((a, b) => a + Number(b), 0) || 15);
         const studyPct = (studyReal / studyGoal) * 100;
 
-        // Asistencia
+        // 4. Asistencia
         let attPresent = 0, attTotal = 0;
         w.days.forEach(d => {
           (d.attendance || []).forEach(c => {
@@ -5504,7 +5983,7 @@
         });
         const attPct = attTotal > 0 ? (attPresent / attTotal) * 100 : 100;
 
-        // Nutrición
+        // 5. Nutrición
         let nutriPoints = 0;
         w.days.forEach(d => {
           if (d.nutritionScore !== undefined && d.nutritionScore !== null) {
@@ -5517,7 +5996,7 @@
         const nutriGoal = Math.max(1, g.nutri?.minDays || 6);
         const nutriPct = (nutriSuccess / nutriGoal) * 100;
 
-        // Finanzas
+        // 6. Finanzas
         const spent = (w.expenses || []).reduce((acc, e) => acc + (Number(e.amount) || 0), 0);
         const budget = Number(w.budgetLimit) || 60;
         let finPct = 100;
@@ -5529,23 +6008,103 @@
           }
         }
 
-        const score = Math.round((
-          Math.min(100, gymPct) +
-          Math.min(100, runPct) +
-          Math.min(100, studyPct) +
-          Math.min(100, attPct) +
-          Math.min(100, nutriPct) +
-          Math.min(100, finPct)
-        ) / 6);
+        // --- EVALUACIÓN DE HÁBITOS PERSONALIZADOS ACTIVOS ---
+        const activeHabits = (state?.customHabits || []).filter(h => h.active !== false);
+        const customHabitsPct = {};
+        const customHabitsStats = {};
+        const wHabitsData = w.customHabitsData || {};
+
+        activeHabits.forEach(h => {
+          const rawDays = wHabitsData[h.id] || [null, null, null, null, null, null, null];
+          if (h.type === 'max_limit') {
+            // Tipo A: Límite Máximo ("Menos es mejor"). Meta diaria y semanal
+            const sum = rawDays.reduce((acc, v) => acc + (v !== null && !isNaN(v) ? Number(v) : 0), 0);
+            const targetW = Number(h.targetWeekly) || (Number(h.targetDaily) * 7) || 7;
+            const daysUnderLimit = rawDays.filter(v => v !== null && Number(v) <= (Number(h.targetDaily) || 1)).length;
+            const pct = sum <= targetW ? 100 : Math.max(0, Math.round(100 - ((sum - targetW) / targetW) * 100));
+            customHabitsPct[h.id] = pct;
+            customHabitsStats[h.id] = { sum, target: targetW, isMet: sum <= targetW, daysUnderLimit, unit: h.unit || '' };
+          } else if (h.type === 'min_accum') {
+            // Tipo B: Meta Mínima Acumulativa ("Más es mejor")
+            const sum = rawDays.reduce((acc, v) => acc + (v !== null && !isNaN(v) ? Number(v) : 0), 0);
+            const targetW = Math.max(0.1, Number(h.targetWeekly) || 10);
+            const pct = (sum / targetW) * 100;
+            customHabitsPct[h.id] = pct;
+            customHabitsStats[h.id] = { sum, target: targetW, isMet: pct >= 100, unit: h.unit || '' };
+          } else if (h.type === 'binary_check') {
+            // Tipo C: Check Diario (Sí/No)
+            const count = rawDays.filter(v => v === true || v === 1 || v === 'true').length;
+            const targetDays = Math.max(1, Number(h.targetWeeklyDays) || 7);
+            const pct = (count / targetDays) * 100;
+            customHabitsPct[h.id] = pct;
+            customHabitsStats[h.id] = { count, targetDays, isMet: pct >= 100 };
+          } else if (h.type === 'target_range') {
+            // Tipo D: Diana Óptima (Rango: target ± margin)
+            const center = Number(h.targetCenter) || 0;
+            const margin = Number(h.targetMargin) || 0;
+            const minAllowed = center - margin;
+            const maxAllowed = center + margin;
+            const validDays = rawDays.filter(v => v !== null && !isNaN(v) && Number(v) >= minAllowed && Number(v) <= maxAllowed).length;
+            const targetDays = Math.max(1, Number(h.targetWeeklyDays) || 6);
+            const pct = (validDays / targetDays) * 100;
+            customHabitsPct[h.id] = pct;
+            customHabitsStats[h.id] = { validDays, targetDays, isMet: pct >= 100, center, margin, unit: h.unit || '' };
+          }
+        });
+
+        // Recálculo dinámico modular del Score (0-100) y de Bloques en Meta
+        const evaluatedScores = [];
+        let blocksMetCount = 0;
+
+        if (enabled.gym) {
+          evaluatedScores.push(Math.min(100, gymPct));
+          if (gymPct >= 100) blocksMetCount++;
+        }
+        if (enabled.run) {
+          evaluatedScores.push(Math.min(100, runPct));
+          if (runPct >= 100) blocksMetCount++;
+        }
+        if (enabled.study) {
+          evaluatedScores.push(Math.min(100, studyPct));
+          if (studyPct >= 100) blocksMetCount++;
+        }
+        if (enabled.academic) {
+          const reqAtt = w.goals.academic?.attMinPercent || 85;
+          evaluatedScores.push(Math.min(100, attPct));
+          if (attPct >= reqAtt) blocksMetCount++;
+        }
+        if (enabled.nutri) {
+          evaluatedScores.push(Math.min(100, nutriPct));
+          if (nutriPct >= 100) blocksMetCount++;
+        }
+        if (enabled.budget) {
+          evaluatedScores.push(Math.min(100, finPct));
+          if (finPct >= 100) blocksMetCount++;
+        }
+
+        activeHabits.forEach(h => {
+          const p = customHabitsPct[h.id] || 0;
+          evaluatedScores.push(Math.min(100, p));
+          if (p >= 100) blocksMetCount++;
+        });
+
+        const totalActiveBlocks = evaluatedScores.length;
+        const score = totalActiveBlocks > 0
+          ? Math.round(evaluatedScores.reduce((a, b) => a + b, 0) / totalActiveBlocks)
+          : 100;
 
         return {
           score,
+          totalActiveBlocks,
+          blocksMetCount,
           gymReal, gymGoal, gymPct,
           runKmReal, runKmGoal, runPct,
           studyReal, studyGoal, studyPct,
           attPresent, attTotal, attPct,
           nutriSuccess, nutriGoal, nutriPct,
-          spent, budget, finPct
+          spent, budget, finPct,
+          customHabitsPct,
+          customHabitsStats
         };
       }
 
@@ -6664,22 +7223,27 @@
         // Widget de Próximo Hito Académico y Personal (Alta Visibilidad en Hero Banner y Cabecera)
         renderMilestoneWidget();
 
-        // KPI 1
-        const blocksMet = [m.gymPct >= 100, m.runPct >= 100, m.studyPct >= 100, m.attPct >= (w.goals.academic?.attMinPercent || 85), m.nutriPct >= 100, m.finPct >= 100].filter(Boolean).length;
-        document.getElementById('kpi1BlocksCount').textContent = `${blocksMet} / 6`;
+        // KPI 1 Dinámico (Módulos Base Activos + Hábitos Personalizados)
+        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const activeHabits = (state?.customHabits || []).filter(h => h.active !== false);
+
+        document.getElementById('kpi1BlocksCount').textContent = `${m.blocksMetCount} / ${m.totalActiveBlocks}`;
         const kpi1Card = document.getElementById('kpiCard1');
-        if (blocksMet === 6) kpi1Card.classList.add('gold-glow');
+        if (m.totalActiveBlocks > 0 && m.blocksMetCount === m.totalActiveBlocks) kpi1Card.classList.add('gold-glow');
         else kpi1Card.classList.remove('gold-glow');
 
-        const batteryData = [
-          { name: 'Gym', pct: m.gymPct },
-          { name: 'Run', pct: m.runPct },
-          { name: 'Estudio', pct: m.studyPct },
-          { name: 'Clase', pct: m.attPct },
-          { name: 'Nutri', pct: m.nutriPct },
-          { name: 'Tope', pct: m.finPct }
-        ];
-        document.getElementById('kpi1Batteries').innerHTML = batteryData.map(b => {
+        const batteryData = [];
+        if (enabled.gym) batteryData.push({ name: 'Gym', pct: m.gymPct });
+        if (enabled.run) batteryData.push({ name: 'Run', pct: m.runPct });
+        if (enabled.study) batteryData.push({ name: 'Estudio', pct: m.studyPct });
+        if (enabled.academic) batteryData.push({ name: 'Clase', pct: m.attPct });
+        if (enabled.nutri) batteryData.push({ name: 'Nutri', pct: m.nutriPct });
+        if (enabled.budget) batteryData.push({ name: 'Tope', pct: m.finPct });
+        activeHabits.forEach(h => {
+          batteryData.push({ name: h.emoji || h.name.slice(0, 4), pct: m.customHabitsPct[h.id] || 0 });
+        });
+
+        document.getElementById('kpi1Batteries').innerHTML = batteryData.slice(0, 8).map(b => {
           const color = getScoreColor(b.pct);
           const height = Math.min(100, Math.max(10, b.pct));
           return `
@@ -6920,215 +7484,366 @@
         const studyPlan = Number(w.studyHoursPlan[dIdx] || 0);
         const studyPct = studyPlan > 0 ? Math.min(100, Math.round((studyDone / studyPlan) * 100)) : (studyDone > 0 ? 100 : 0);
         const nutriEval = evalNutritionStatus(day.nutritionKcal, w.goals.nutri?.kcal, w.goals.nutri?.phase);
+        const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+        const habitsData = w.customHabitsData || {};
+
+        let leftColHtml = '';
+        if (enabled.gym) {
+          leftColHtml += `
+            <!-- Gimnasio -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
+                  </div>
+                  <div>
+                    <span class="font-bold block text-xs">Sesión de Gimnasio</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.gymSessions} ses/sem</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="app.cycleGymSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
+                    ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : `${day.gym.sessions} Sesiones`)}
+                  </button>
+                  ${day.gym.sessions >= 2 ? `
+                    <button onclick="app.addExtraGymSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
+                  ` : ''}
+                </div>
+              </div>
+              ${day.gym.sessions >= 1 ? `
+                <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
+                  <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
+                    ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  </select>
+                  ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === '✏️ Otro...') ? `
+                    <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
+                  ` : ''}
+                </div>
+              ` : ''}
+              ${(() => {
+                if (day.gym.sessions < 2) return '';
+                let extraHtml = '';
+                for (let sIdx = 2; sIdx <= day.gym.sessions; sIdx++) {
+                  const sObj = day.gym[`s${sIdx}`] || {};
+                  extraHtml += `
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
+                      <select onchange="app.handleGymTypeSelection(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
+                        ${GYM_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
+                      </select>
+                      ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                        <button onclick="app.openCustomMuscleModal(${dIdx}, ${sIdx}, 'gym')" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}${sObj.cardio?.enabled ? ' (+Cardio)' : ''}</button>
+                      ` : ''}
+                    </div>
+                  `;
+                }
+                return extraHtml;
+              })()}
+            </div>
+          `;
+        }
+
+        if (enabled.run) {
+          leftColHtml += `
+            <!-- Running -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  </div>
+                  <div>
+                    <span class="font-bold block text-xs">Running / Cardio</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.runKm} km/sem</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1">
+                  <button onclick="app.cycleRunSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
+                    ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : `${day.run.sessions} Sesiones`)}
+                  </button>
+                  ${day.run.sessions >= 2 ? `
+                    <button onclick="app.addExtraRunSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
+                  ` : ''}
+                </div>
+              </div>
+              ${day.run.sessions >= 1 ? `
+                <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
+                  <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
+                  <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
+                    ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
+                  </select>
+                  ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === '✏️ Otro...') ? `
+                    <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
+                  ` : ''}
+                </div>
+              ` : ''}
+              ${(() => {
+                if (day.run.sessions < 2) return '';
+                let extraRun = '';
+                let totalDayKm = Number(day.run.s1?.km) || 0;
+                for (let sIdx = 2; sIdx <= day.run.sessions; sIdx++) {
+                  const sObj = day.run[`s${sIdx}`] || {};
+                  totalDayKm += Number(sObj.km) || 0;
+                  extraRun += `
+                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                      <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
+                      <input type="number" step="0.5" placeholder="Km ${sIdx}" value="${sObj.km !== undefined ? sObj.km : ''}" onchange="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km ${sIdx}ª sesión" autocomplete="off" />
+                      <select onchange="app.setRunType(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
+                        ${RUN_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
+                      </select>
+                      ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                        <button onclick="app.openCustomRunModal(${dIdx}, ${sIdx})" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}</button>
+                      ` : ''}
+                    </div>
+                  `;
+                }
+                extraRun += `<div class="text-[10px] font-mono font-bold text-theme-main pt-0.5">Total hoy: ${totalDayKm.toFixed(1)} km</div>`;
+                return extraRun;
+              })()}
+            </div>
+          `;
+        }
+
+        if (enabled.nutri) {
+          leftColHtml += `
+            <!-- Nutrición y Calorías -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg>
+                  </div>
+                  <div>
+                    <span class="font-bold block text-xs">Nutrición y Calorías</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400 capitalize">Fase <strong>${w.goals.nutri?.phase || 'volumen'}</strong> • Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
+                  </div>
+                </div>
+                <button onclick="app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center gap-1.5" title="Alternar estado manual">
+                  ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
+                </button>
+              </div>
+
+              <div class="flex flex-wrap items-center gap-2 pt-0.5">
+                <div class="relative flex items-center flex-1 min-w-[120px]">
+                  <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
+                  <span class="absolute right-2 text-[10px] text-slate-400 font-bold pointer-events-none">kcal</span>
+                </div>
+                <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass}">
+                  ${nutriEval.label}
+                </span>
+              </div>
+            </div>
+          `;
+        }
+
+        let rightColHtml = '';
+        if (enabled.academic) {
+          rightColHtml += `
+            <!-- Asistencia Clases Hoy -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg>
+                  </div>
+                  <span class="font-bold text-xs">Clases para Hoy</span>
+                </div>
+                <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${(day.attendance || []).length} asignaturas</span>
+              </div>
+              <div class="space-y-1.5">
+                ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center">— Sin clases programadas para hoy —</div>` : ''}
+                ${(day.attendance || []).map((c, cIdx) => {
+                  let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
+                  let btnBg = 'subpanel-bg border';
+                  if (c.status === 'present') { 
+                    badge = '<span class="flex items-center gap-1 text-theme-main font-bold text-[10px]"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Asistida</span>'; 
+                    btnBg = 'bg-theme-soft border-theme font-bold'; 
+                  } else if (c.status === 'absent') { 
+                    badge = '<span class="flex items-center gap-1 text-theme-accent font-bold text-[10px]"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Falta</span>'; 
+                    btnBg = 'bg-theme-accent-soft border-theme-accent font-bold'; 
+                  } else if (c.status === 'holiday') { 
+                    badge = '<span class="flex items-center gap-1 text-theme-main font-bold text-[10px] font-mono"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Festivo</span>'; 
+                    btnBg = 'bg-theme-soft border-theme font-bold'; 
+                  }
+                  return `
+                    <button onclick="app.cycleAttendance(${dIdx}, ${cIdx})" class="w-full p-2.5 rounded-xl ${btnBg} flex items-center justify-between text-xs transition active:translate-y-0.5 hover:border-theme">
+                      <span class="font-bold">${c.subject} <span class="text-[10px] opacity-75 font-mono">[${c.type || 'T'}]</span></span>
+                      <span>${badge}</span>
+                    </button>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
+
+        if (enabled.study) {
+          rightColHtml += `
+            <!-- Horas de Estudio de Hoy -->
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+              <div class="flex items-center justify-between">
+                <div class="flex items-center gap-2">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                  </div>
+                  <div>
+                    <span class="font-bold block text-xs">Estudio de Hoy</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan hoy: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-2">
+                  <span class="text-sm font-extrabold font-mono text-theme-main">${studyDone.toFixed(1)}h</span>
+                  <span class="text-[10px] font-mono font-bold text-stone-500 dark:text-slate-400">(${studyPct}%)</span>
+                </div>
+              </div>
+              <div class="h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
+                <div class="h-full bg-theme-main transition-all duration-300" style="width: ${studyPct}%"></div>
+              </div>
+              ${(() => {
+                const subs = Object.entries(w.studyBySubject || {}).filter(([k, v]) => Number(v) > 0);
+                if (subs.length === 0) return '';
+                return `
+                  <div class="pt-1.5 border-t border-stone-200 dark:border-slate-800">
+                    <div class="text-[9.5px] font-bold text-stone-500 dark:text-slate-400 mb-1 flex items-center justify-between">
+                      <span>Por asignatura (semana):</span>
+                      <span class="font-mono text-theme-main">${subs.reduce((acc, [, v]) => acc + Number(v), 0).toFixed(1)}h</span>
+                    </div>
+                    <div class="flex flex-wrap gap-1">
+                      ${subs.map(([subName, hrs]) => `
+                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+                          <span class="truncate max-w-[85px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
+                          <span class="font-mono font-bold text-theme-main">${Number(hrs).toFixed(1)}h</span>
+                        </span>
+                      `).join('')}
+                    </div>
+                  </div>
+                `;
+              })()}
+              <div class="flex items-center justify-between gap-1.5 pt-1 text-xs">
+                <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30 min</button>
+                <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1 hora</button>
+                <button onclick="app.toggleZen(true)" class="flex-1 py-1 rounded-lg bg-theme-accent hover:bg-theme-accent text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-theme-accent shadow-xs active:translate-y-0.5 transition"><span>▶</span> Pomodoro</button>
+              </div>
+            </div>
+          `;
+        }
+
+        // Renderizar Hábitos Personalizados en dos columnas
+        let customCardsHtml = '';
+        if (activeHabits.length > 0) {
+          customCardsHtml = `
+            <div class="col-span-1 md:col-span-2 pt-2 border-t border-stone-200 dark:border-slate-800">
+              <div class="flex items-center justify-between mb-2">
+                <span class="text-[11px] font-bold text-stone-600 dark:text-slate-400 uppercase tracking-wider">Hábitos Personalizados</span>
+                <button onclick="app.openManageHabitsModal()" class="text-[10px] text-theme-main font-bold hover:underline">+ Configurar</button>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                ${activeHabits.map(h => {
+                  const dayVal = (habitsData[h.id] || [])[dIdx];
+                  let bodyHtml = '';
+
+                  if (h.type === 'max_limit') {
+                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
+                    const maxDaily = Number(h.targetDaily) || 1;
+                    const isExceeded = curVal !== null && curVal > maxDaily;
+                    const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (isExceeded ? 'bg-theme-accent-soft text-theme-accent border-theme-accent' : 'bg-theme-soft text-theme-main border-theme');
+                    const badgeLabel = curVal === null ? 'Sin registrar' : (isExceeded ? `Excedido (+${(curVal - maxDaily).toFixed(1)})` : 'Bajo límite (OK)');
+
+                    bodyHtml = `
+                      <div class="flex items-center justify-between gap-2 pt-1">
+                        <div class="flex items-center gap-2 flex-1">
+                          <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                          <span class="text-[10px] font-semibold text-stone-500">${h.unit || 'h'} (máx ${maxDaily})</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                      </div>
+                    `;
+                  } else if (h.type === 'min_accum') {
+                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : 0;
+                    bodyHtml = `
+                      <div class="flex items-center justify-between gap-2 pt-1">
+                        <div class="flex items-center gap-2 flex-1">
+                          <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
+                          <span class="text-[10px] font-semibold text-stone-500">${h.unit || ''} hoy</span>
+                        </div>
+                        <div class="flex gap-1">
+                          <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 1)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+1</button>
+                          <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 5)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+5</button>
+                        </div>
+                      </div>
+                    `;
+                  } else if (h.type === 'binary_check') {
+                    const isChecked = dayVal === true || dayVal === 1 || dayVal === 'true';
+                    bodyHtml = `
+                      <div class="pt-1 flex items-center justify-between">
+                        <span class="text-[10px] text-stone-500">Completado hoy:</span>
+                        <button onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="px-3 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-500'}">
+                          ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>'}
+                        </button>
+                      </div>
+                    `;
+                  } else if (h.type === 'target_range') {
+                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
+                    const c = Number(h.targetCenter) || 0;
+                    const m = Number(h.targetMargin) || 0;
+                    const inRange = curVal !== null && curVal >= (c - m) && curVal <= (c + m);
+                    const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
+                    const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + m) ? 'Por encima' : 'Por debajo'));
+
+                    bodyHtml = `
+                      <div class="flex items-center justify-between gap-2 pt-1">
+                        <div class="flex items-center gap-2 flex-1">
+                          <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                          <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${m} ${h.unit || ''}</span>
+                        </div>
+                        <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                      </div>
+                    `;
+                  }
+
+                  return `
+                    <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
+                      <div class="flex items-center gap-2">
+                        <span class="text-base">${h.emoji || '⭐'}</span>
+                        <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
+                      </div>
+                      ${bodyHtml}
+                    </div>
+                  `;
+                }).join('')}
+              </div>
+            </div>
+          `;
+        }
 
         container.innerHTML = `
           ${urgentHtml}
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Columna Izquierda: Físico y Nutrición -->
+            <!-- Columna Izquierda -->
             <div class="space-y-3">
-              <!-- Gimnasio -->
-              <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
-                    </div>
-                    <div>
-                      <span class="font-bold block text-xs">Sesión de Gimnasio</span>
-                      <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.gymSessions} ses/sem</span>
-                    </div>
-                  </div>
-                  <button onclick="app.cycleGymSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
-                    ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : '2 Sesiones (Doble)')}
-                  </button>
-                </div>
-                ${day.gym.sessions >= 1 ? `
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
-                    <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
-                      ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
-                    </select>
-                    ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === '✏️ Otro...') ? `
-                      <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
-                    ` : ''}
-                  </div>
-                ` : ''}
-                ${day.gym.sessions >= 2 ? `
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span class="text-[10px] font-bold text-theme-accent">2ª:</span>
-                    <select onchange="app.handleGymTypeSelection(${dIdx}, 2, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
-                      ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s2?.type || '') === t ? 'selected' : ''}>2ª: ${t}</option>`).join('')}
-                    </select>
-                    ${(day.gym.s2?.type === 'Personalizado...' || day.gym.s2?.type === '✏️ Otro...') ? `
-                      <button onclick="app.openCustomMuscleModal(${dIdx}, 2, 'gym')" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${day.gym.s2.custom || 'Configurar'}${day.gym.s2.cardio?.enabled ? ' (+Cardio)' : ''}</button>
-                    ` : ''}
-                  </div>
-                ` : ''}
-              </div>
-
-              <!-- Running -->
-              <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                    </div>
-                    <div>
-                      <span class="font-bold block text-xs">Running / Cardio</span>
-                      <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.runKm} km/sem</span>
-                    </div>
-                  </div>
-                  <button onclick="app.cycleRunSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
-                    ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : '2 Sesiones (Doble)')}
-                  </button>
-                </div>
-                ${day.run.sessions >= 1 ? `
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
-                    <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
-                    <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
-                      ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
-                    </select>
-                    ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === '✏️ Otro...') ? `
-                      <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
-                    ` : ''}
-                  </div>
-                ` : ''}
-                ${day.run.sessions >= 2 ? `
-                  <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                    <span class="text-[10px] font-bold text-theme-accent">2ª:</span>
-                    <input type="number" step="0.5" placeholder="Km 2" value="${day.run.s2?.km !== undefined ? day.run.s2.km : ''}" onchange="app.setRunSessionKm(${dIdx}, 2, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km 2ª sesión" autocomplete="off" />
-                    <select onchange="app.setRunType(${dIdx}, 2, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
-                      ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s2?.type || '') === t ? 'selected' : ''}>2ª: ${t}</option>`).join('')}
-                    </select>
-                    ${(day.run.s2?.type === 'Personalizado...' || day.run.s2?.type === '✏️ Otro...') ? `
-                      <button onclick="app.openCustomRunModal(${dIdx}, 2)" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${day.run.s2.custom || 'Configurar'}</button>
-                    ` : ''}
-                  </div>
-                  <div class="text-[10px] font-mono font-bold text-theme-main">Total hoy: ${((Number(day.run.s1?.km)||0) + (Number(day.run.s2?.km)||0)).toFixed(1)} km</div>
-                ` : ''}
-              </div>
-
-              <!-- Nutrición y Calorías -->
-              <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg>
-                    </div>
-                    <div>
-                      <span class="font-bold block text-xs">Nutrición y Calorías</span>
-                      <span class="text-[10px] text-stone-500 dark:text-slate-400 capitalize">Fase <strong>${w.goals.nutri?.phase || 'volumen'}</strong> • Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
-                    </div>
-                  </div>
-                  <button onclick="app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center gap-1.5" title="Alternar estado manual">
-                    ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
-                  </button>
-                </div>
-
-                <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                  <div class="relative flex items-center flex-1 min-w-[120px]">
-                    <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
-                    <span class="absolute right-2 text-[10px] text-slate-400 font-bold pointer-events-none">kcal</span>
-                  </div>
-                  <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass}">
-                    ${nutriEval.label}
-                  </span>
-                </div>
-              </div>
+              ${leftColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Módulos físicos desactivados</div>'}
             </div>
 
-            <!-- Columna Derecha: Clases y Estudio -->
+            <!-- Columna Derecha -->
             <div class="space-y-3">
-              <!-- Asistencia Clases Hoy -->
-              <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg>
-                    </div>
-                    <span class="font-bold text-xs">Clases para Hoy</span>
-                  </div>
-                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${(day.attendance || []).length} asignaturas</span>
-                </div>
-                <div class="space-y-1.5">
-                  ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center">— Sin clases programadas para hoy —</div>` : ''}
-                  ${(day.attendance || []).map((c, cIdx) => {
-                    let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
-                    let btnBg = 'subpanel-bg border';
-                    if (c.status === 'present') { 
-                      badge = '<span class="flex items-center gap-1 text-theme-main font-bold text-[10px]"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> Asistida</span>'; 
-                      btnBg = 'bg-theme-soft border-theme font-bold'; 
-                    } else if (c.status === 'absent') { 
-                      badge = '<span class="flex items-center gap-1 text-theme-accent font-bold text-[10px]"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> Falta</span>'; 
-                      btnBg = 'bg-theme-accent-soft border-theme-accent font-bold'; 
-                    } else if (c.status === 'holiday') { 
-                      badge = '<span class="flex items-center gap-1 text-theme-main font-bold text-[10px] font-mono"><svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M6.34 17.66l-1.41 1.41M19.07 4.93l-1.41 1.41"/></svg> Festivo</span>'; 
-                      btnBg = 'bg-theme-soft border-theme font-bold'; 
-                    }
-                    return `
-                      <button onclick="app.cycleAttendance(${dIdx}, ${cIdx})" class="w-full p-2.5 rounded-xl ${btnBg} flex items-center justify-between text-xs transition active:translate-y-0.5 hover:border-theme">
-                        <span class="font-bold">${c.subject} <span class="text-[10px] opacity-75 font-mono">[${c.type || 'T'}]</span></span>
-                        <span>${badge}</span>
-                      </button>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-
-              <!-- Horas de Estudio de Hoy -->
-              <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <div class="flex items-center gap-2">
-                    <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
-                    </div>
-                    <div>
-                      <span class="font-bold block text-xs">Estudio de Hoy</span>
-                      <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan hoy: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
-                    </div>
-                  </div>
-                  <div class="flex items-center gap-2">
-                    <span class="text-sm font-extrabold font-mono text-theme-main">${studyDone.toFixed(1)}h</span>
-                    <span class="text-[10px] font-mono font-bold text-stone-500 dark:text-slate-400">(${studyPct}%)</span>
-                  </div>
-                </div>
-                <div class="h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
-                  <div class="h-full bg-theme-main transition-all duration-300" style="width: ${studyPct}%"></div>
-                </div>
-                ${(() => {
-                  const subs = Object.entries(w.studyBySubject || {}).filter(([k, v]) => Number(v) > 0);
-                  if (subs.length === 0) return '';
-                  return `
-                    <div class="pt-1.5 border-t border-stone-200 dark:border-slate-800">
-                      <div class="text-[9.5px] font-bold text-stone-500 dark:text-slate-400 mb-1 flex items-center justify-between">
-                        <span>Por asignatura (semana):</span>
-                        <span class="font-mono text-theme-main">${subs.reduce((acc, [, v]) => acc + Number(v), 0).toFixed(1)}h</span>
-                      </div>
-                      <div class="flex flex-wrap gap-1">
-                        ${subs.map(([subName, hrs]) => `
-                          <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
-                            <span class="truncate max-w-[85px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
-                            <span class="font-mono font-bold text-theme-main">${Number(hrs).toFixed(1)}h</span>
-                          </span>
-                        `).join('')}
-                      </div>
-                    </div>
-                  `;
-                })()}
-                <div class="flex items-center justify-between gap-1.5 pt-1 text-xs">
-                  <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30 min</button>
-                  <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1 hora</button>
-                  <button onclick="app.toggleZen(true)" class="flex-1 py-1 rounded-lg bg-theme-accent hover:bg-theme-accent text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-theme-accent shadow-xs active:translate-y-0.5 transition"><span>▶</span> Pomodoro</button>
-                </div>
-              </div>
+              ${rightColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Módulos académicos desactivados</div>'}
             </div>
+
+            ${customCardsHtml}
           </div>
+        `;
         `;
       }
 
       function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
         const w = getActiveWeek();
         const dateRange = getWeekDateRange(w.weekNum);
+        const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+        const habitsData = w.customHabitsData || {};
 
         const getShortTypeName = (t) => {
           if (!t) return '';
@@ -7174,9 +7889,14 @@
           gymHtml += `
             <td class="py-1 px-0.5 ${colClass} align-top">
               <div class="space-y-0.5">
-                <button onclick="app.cycleGymSessionCount(${dIdx})" class="w-full py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
-                  ${s === 0 ? '0' : (s === 1 ? '1ª' : '2ª (Doble)')}
-                </button>
+                <div class="flex items-center gap-0.5">
+                  <button onclick="app.cycleGymSessionCount(${dIdx})" class="flex-1 py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
+                    ${s === 0 ? '0' : (s === 1 ? '1ª' : `${s}ª`)}
+                  </button>
+                  ${s >= 2 ? `
+                    <button onclick="app.addExtraGymSession(${dIdx})" class="px-1 py-0.5 rounded text-[9px] font-bold subpanel-bg border border-theme-accent text-theme-accent hover:bg-theme-accent-soft" title="Añadir otra sesión">+</button>
+                  ` : ''}
+                </div>
                 ${s >= 1 ? `
                   <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-[8.5px] outline-none truncate" title="${day.gym.s1?.type || ''}">
                     ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${getShortTypeName(t)}</option>`).join('')}
@@ -7217,9 +7937,14 @@
           runHtml += `
             <td class="py-1 px-0.5 ${colClass} align-top">
               <div class="space-y-0.5">
-                <button onclick="app.cycleRunSessionCount(${dIdx})" class="w-full py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
-                  ${s === 0 ? '0' : (s === 1 ? '1ª' : '2ª (Doble)')}
-                </button>
+                <div class="flex items-center gap-0.5">
+                  <button onclick="app.cycleRunSessionCount(${dIdx})" class="flex-1 py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
+                    ${s === 0 ? '0' : (s === 1 ? '1ª' : `${s}ª`)}
+                  </button>
+                  ${s >= 2 ? `
+                    <button onclick="app.addExtraRunSession(${dIdx})" class="px-1 py-0.5 rounded text-[9px] font-bold subpanel-bg border border-theme-accent text-theme-accent hover:bg-theme-accent-soft" title="Añadir otra sesión">+</button>
+                  ` : ''}
+                </div>
                 ${s >= 1 ? `
                   <div class="space-y-0.5">
                     <input type="number" step="0.5" placeholder="Km" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center text-[9px] font-mono text-emerald-600 dark:text-emerald-400 font-bold" title="Km 1ª sesión" />
@@ -7370,7 +8095,96 @@
           </td>
         `;
 
-        tbody.innerHTML = `<tr>${gymHtml}</tr><tr>${runHtml}</tr><tr>${studyHtml}</tr><tr>${attHtml}</tr><tr>${nutriHtml}</tr><tr>${spendHtml}</tr>`;
+        let rowsHtml = '';
+        if (enabled.gym) rowsHtml += `<tr>${gymHtml}</tr>`;
+        if (enabled.run) rowsHtml += `<tr>${runHtml}</tr>`;
+        if (enabled.study) rowsHtml += `<tr>${studyHtml}</tr>`;
+        if (enabled.academic) rowsHtml += `<tr>${attHtml}</tr>`;
+        if (enabled.nutri) rowsHtml += `<tr>${nutriHtml}</tr>`;
+        if (enabled.budget) rowsHtml += `<tr>${spendHtml}</tr>`;
+
+        // Filas para Hábitos Personalizados en la Matriz Semanal
+        activeHabits.forEach(h => {
+          let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]">
+            <div class="flex items-center gap-1">
+              <span class="text-xs shrink-0">${h.emoji || '⭐'}</span>
+              <span class="text-[11px] truncate">${escapeHtml(h.name)}</span>
+            </div>
+            <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-4 truncate">
+              ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}
+            </div>
+          </td>`;
+
+          const rawDays = habitsData[h.id] || [null, null, null, null, null, null, null];
+          w.days.forEach((_, dIdx) => {
+            const isToday = dIdx === todayDayIndex;
+            const isPast = dIdx < todayDayIndex;
+            const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+            const val = rawDays[dIdx];
+
+            if (h.type === 'max_limit') {
+              const cur = val !== null && val !== undefined ? Number(val) : '';
+              const isOver = cur !== '' && Number(cur) > Number(h.targetDaily);
+              hRow += `
+                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                  <input type="number" step="0.1" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] ${isOver ? 'text-theme-accent border-theme-accent' : ''}" />
+                </td>
+              `;
+            } else if (h.type === 'min_accum') {
+              const cur = val !== null && val !== undefined ? Number(val) : '';
+              hRow += `
+                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                  <input type="number" step="0.5" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px]" />
+                </td>
+              `;
+            } else if (h.type === 'binary_check') {
+              const isChk = val === true || val === 1 || val === 'true';
+              hRow += `
+                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                  <button type="button" onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="w-6 h-6 mx-auto rounded border flex items-center justify-center transition ${isChk ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400'}">
+                    ${isChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                  </button>
+                </td>
+              `;
+            } else if (h.type === 'target_range') {
+              const cur = val !== null && val !== undefined ? Number(val) : '';
+              const inRange = cur !== '' && Math.abs(Number(cur) - Number(h.targetCenter)) <= Number(h.targetMargin);
+              hRow += `
+                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                  <input type="number" step="0.5" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] ${cur !== '' ? (inRange ? 'text-theme-main border-theme' : 'text-theme-accent border-theme-accent') : ''}" />
+                </td>
+              `;
+            }
+          });
+
+          // Celda de progreso semanal del hábito
+          const hPct = m.customHabitsPct ? (m.customHabitsPct[h.id] || 0) : 0;
+          let summaryLabel = `${Math.round(hPct)}%`;
+          if (h.type === 'max_limit') {
+            const sum = rawDays.reduce((acc, v) => acc + (v !== null && !isNaN(v) ? Number(v) : 0), 0);
+            summaryLabel = `${sum.toFixed(1)}/${h.targetWeekly}${h.unit || 'h'}`;
+          } else if (h.type === 'min_accum') {
+            const sum = rawDays.reduce((acc, v) => acc + (v !== null && !isNaN(v) ? Number(v) : 0), 0);
+            summaryLabel = `${sum.toFixed(1)}/${h.targetWeekly}${h.unit || ''}`;
+          } else if (h.type === 'binary_check') {
+            const cnt = rawDays.filter(v => v === true || v === 1 || v === 'true').length;
+            summaryLabel = `${cnt}/${h.targetWeeklyDays}d`;
+          } else if (h.type === 'target_range') {
+            const c = Number(h.targetCenter) || 0, mg = Number(h.targetMargin) || 0;
+            const cnt = rawDays.filter(v => v !== null && !isNaN(v) && Number(v) >= (c - mg) && Number(v) <= (c + mg)).length;
+            summaryLabel = `${cnt}/${h.targetWeeklyDays}d`;
+          }
+
+          hRow += `
+            <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+              ${renderProgressCell(hPct, summaryLabel, null)}
+            </td>
+          `;
+
+          rowsHtml += `<tr>${hRow}</tr>`;
+        });
+
+        tbody.innerHTML = rowsHtml || `<tr><td colspan="9" class="py-4 text-center text-xs text-stone-400 italic">No hay módulos ni hábitos activos. Activa alguno en Metas y Horario.</td></tr>`;
       }
 
       function renderQuickExpensesUI() {
@@ -8206,6 +9020,31 @@
       function renderTab2() {
         const w = getActiveWeek();
         const g = state.goalsTemplate;
+        const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+
+        // Renderizar toggles de módulos nativos
+        const togglesContainer = document.getElementById('modularTogglesRow');
+        if (togglesContainer) {
+          const modules = [
+            { key: 'gym', label: 'Gimnasio', icon: '🏋️' },
+            { key: 'run', label: 'Running / Cardio', icon: '🏃' },
+            { key: 'study', label: 'Estudio', icon: '📚' },
+            { key: 'academic', label: 'Asistencia Clases', icon: '🎓' },
+            { key: 'nutri', label: 'Nutrición / Kcal', icon: '🥗' },
+            { key: 'budget', label: 'Presupuesto Semanal', icon: '💶' }
+          ];
+
+          togglesContainer.innerHTML = modules.map(m => {
+            const isAct = enabled[m.key] !== false;
+            return `
+              <button type="button" onclick="app.toggleModule('${m.key}')" class="px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 ${isAct ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}">
+                <span>${m.icon}</span>
+                <span>${m.label}</span>
+                <span class="w-1.5 h-1.5 rounded-full ${isAct ? 'bg-white' : 'bg-stone-400 dark:bg-slate-600'}"></span>
+              </button>
+            `;
+          }).join('');
+        }
 
         document.getElementById('goalGymInput').value = g.gymSessions;
         document.getElementById('goalRunKmInput').value = g.runKm;
@@ -8532,8 +9371,12 @@
         const budgetLimit = Number(w.budgetLimit) || 60;
         const spent = m.spent;
 
-        const pillars = [
-          {
+        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const activeHabits = (state?.customHabits || []).filter(h => h.active !== false);
+
+        const allPillars = [];
+        if (enabled.gym) {
+          allPillars.push({
             id: 'gym',
             name: 'Gimnasio',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>',
@@ -8543,8 +9386,10 @@
             isMet: m.gymPct >= 100,
             actionLabel: 'Ver Registro',
             actionFn: "app.switchTab(1); app.closeModal('modalKpi1Blocks');"
-          },
-          {
+          });
+        }
+        if (enabled.run) {
+          allPillars.push({
             id: 'run',
             name: 'Carrera',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
@@ -8554,8 +9399,10 @@
             isMet: m.runPct >= 100,
             actionLabel: 'Ver Registro',
             actionFn: "app.switchTab(1); app.closeModal('modalKpi1Blocks');"
-          },
-          {
+          });
+        }
+        if (enabled.study) {
+          allPillars.push({
             id: 'study',
             name: 'Estudio',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 10v6M2 10l10-5 10 5-10 5z"/><path d="M6 12v5c3 3 9 3 12 0v-5"/></svg>',
@@ -8565,8 +9412,10 @@
             isMet: m.studyPct >= 100,
             actionLabel: 'Ver Asignaturas',
             actionFn: "app.closeModal('modalKpi1Blocks'); app.openSubjectStudyStatsModal();"
-          },
-          {
+          });
+        }
+        if (enabled.academic) {
+          allPillars.push({
             id: 'att',
             name: 'Asistencia Clases',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"/></svg>',
@@ -8576,8 +9425,10 @@
             isMet: m.attPct >= attTarget,
             actionLabel: 'Auditar Asistencia',
             actionFn: "app.closeModal('modalKpi1Blocks'); app.openKpi3AttendanceModal();"
-          },
-          {
+          });
+        }
+        if (enabled.nutri) {
+          allPillars.push({
             id: 'nutri',
             name: 'Nutrición / Dieta',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2a9 9 0 0 1 9 9v1H3v-1a9 9 0 0 1 9-9z"/><path d="M3 16h18a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4z"/></svg>',
@@ -8587,8 +9438,10 @@
             isMet: m.nutriPct >= 100,
             actionLabel: 'Ver Dieta',
             actionFn: "app.switchTab(1); app.closeModal('modalKpi1Blocks');"
-          },
-          {
+          });
+        }
+        if (enabled.budget) {
+          allPillars.push({
             id: 'fin',
             name: 'Tope Financiero',
             iconSvg: '<svg class="w-4 h-4 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg>',
@@ -8598,12 +9451,45 @@
             isMet: m.finPct >= 100,
             actionLabel: 'Ver Finanzas',
             actionFn: "app.closeModal('modalKpi1Blocks'); app.openKpi4BudgetModal();"
-          }
-        ];
+          });
+        }
 
+        activeHabits.forEach(h => {
+          const stats = m.customHabitsStats?.[h.id] || {};
+          const p = m.customHabitsPct?.[h.id] || 0;
+          let currentStr = '-';
+          let targetStr = '-';
+          if (h.type === 'max_limit') {
+            currentStr = `${stats.sum || 0} ${h.unit || ''}`;
+            targetStr = `Máx ${stats.target || h.targetWeekly || 7} ${h.unit || ''}`;
+          } else if (h.type === 'min_accum') {
+            currentStr = `${stats.sum || 0} ${h.unit || ''}`;
+            targetStr = `Min ${stats.target || h.targetWeekly || 10} ${h.unit || ''}`;
+          } else if (h.type === 'binary_check') {
+            currentStr = `${stats.count || 0} d`;
+            targetStr = `Min ${stats.targetDays || h.targetWeeklyDays || 7} d`;
+          } else if (h.type === 'target_range') {
+            currentStr = `${stats.validDays || 0} d`;
+            targetStr = `${h.targetCenter}±${h.targetMargin} (${stats.targetDays || 6}d)`;
+          }
+
+          allPillars.push({
+            id: h.id,
+            name: `${h.emoji || '⭐'} ${h.name}`,
+            iconSvg: `<span class="text-base">${h.emoji || '⭐'}</span>`,
+            current: currentStr,
+            target: targetStr,
+            pct: p,
+            isMet: stats.isMet !== undefined ? stats.isMet : (p >= 100),
+            actionLabel: 'Ver Hábito',
+            actionFn: "app.switchTab(1); app.closeModal('modalKpi1Blocks');"
+          });
+        });
+
+        const pillars = allPillars;
         const blocksMet = pillars.filter(p => p.isMet).length;
         const summaryEl = document.getElementById('modalKpi1BlocksSummary');
-        if (summaryEl) summaryEl.textContent = `${blocksMet} / 6`;
+        if (summaryEl) summaryEl.textContent = `${blocksMet} / ${pillars.length}`;
         const scoreEl = document.getElementById('modalKpi1ScoreSummary');
         if (scoreEl) scoreEl.textContent = `${m.score} / 100`;
         const streakEl = document.getElementById('modalKpi1StreakText') || document.getElementById('modalKpi1StreakSummary');
@@ -10058,23 +10944,35 @@
           const current = state?.themePalette || 'blue_red';
           const isDark = (typeof state !== 'undefined' && state?.theme) ? (state.theme === 'dark') : document.documentElement.classList.contains('dark');
 
-          grid.innerHTML = Object.values(ACCENT_PALETTES).map(pal => {
+          const highList = Object.values(ACCENT_PALETTES).filter(p => p.category === 'high_contrast');
+          const softList = Object.values(ACCENT_PALETTES).filter(p => p.category === 'soft_contrast');
+
+          const renderBtn = (pal) => {
             const isActive = pal.id === current;
             const dot1Color = isDark ? pal.dark.theme700 : pal.light.theme700;
             const dot2Color = isDark ? pal.dark.accent : pal.light.accent;
             return `
-              <button type="button" onclick="app.setAccentPalette('${pal.id}')" class="w-full flex items-center justify-between p-2 rounded-xl transition cursor-pointer ${isActive ? 'bg-stone-200 dark:bg-slate-800 border border-theme font-bold' : 'subpanel-hover text-stone-700 dark:text-slate-300'}">
-                <div class="flex items-center gap-2.5">
+              <button type="button" onclick="app.setAccentPalette('${pal.id}')" class="w-full flex items-center justify-between p-1.5 rounded-xl transition cursor-pointer ${isActive ? 'bg-stone-200 dark:bg-slate-800 border border-theme font-bold' : 'subpanel-hover text-stone-700 dark:text-slate-300'}">
+                <div class="flex items-center gap-2">
                   <div class="flex items-center -space-x-1 shrink-0">
-                    <span class="w-3.5 h-3.5 rounded-full shadow-xs border border-black/15 dark:border-white/15" style="background-color: ${dot1Color}" title="Base 85%"></span>
-                    <span class="w-3.5 h-3.5 rounded-full shadow-xs border border-black/15 dark:border-white/15" style="background-color: ${dot2Color}" title="Acento 15%"></span>
+                    <span class="w-3.5 h-3.5 rounded-full shadow-xs border border-black/15 dark:border-white/15" style="background-color: ${dot1Color}" title="Base"></span>
+                    <span class="w-3.5 h-3.5 rounded-full shadow-xs border border-black/15 dark:border-white/15" style="background-color: ${dot2Color}" title="Acento"></span>
                   </div>
                   <span class="text-xs truncate font-medium text-left">${pal.name}</span>
                 </div>
                 ${isActive ? '<span class="text-xs text-theme-main font-bold">✓</span>' : ''}
               </button>
             `;
-          }).join('');
+          };
+
+          grid.innerHTML = `
+            <div class="space-y-1">
+              <div class="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 px-1 pt-0.5">Alto Contraste</div>
+              ${highList.map(renderBtn).join('')}
+              <div class="text-[10px] font-bold uppercase tracking-wider text-stone-400 dark:text-slate-500 px-1 pt-2 border-t border-stone-200 dark:border-slate-800">Contraste Suave / Editorial</div>
+              ${softList.map(renderBtn).join('')}
+            </div>
+          `;
         },
 
         setAccentPalette(key) {
@@ -10123,14 +11021,36 @@
           saveState();
         },
 
-        // Gimnasio: botón variable (0 -> 1 -> 2 -> 0)
+        // Gimnasio: botón variable (0 -> 1 -> 2 -> 0) y soporte +2 sesiones
         cycleGymSessionCount(dayIdx) {
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Cambiar sesiones de gimnasio');
           playTickSound();
           const day = getActiveWeek().days[dayIdx];
           const cur = day.gym.sessions || 0;
-          day.gym.sessions = (cur + 1) % 3;
+          if (cur >= 2) {
+            day.gym.sessions = 0;
+          } else {
+            day.gym.sessions = cur + 1;
+            if (!day.gym[`s${day.gym.sessions}`]) {
+              day.gym[`s${day.gym.sessions}`] = { type: 'Pierna', custom: '' };
+            }
+          }
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+        },
+
+        addExtraGymSession(dayIdx) {
+          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          pushUndo('Añadir sesión extra de gimnasio');
+          playTickSound();
+          const day = getActiveWeek().days[dayIdx];
+          const next = (day.gym.sessions || 0) + 1;
+          day.gym.sessions = next;
+          if (!day.gym[`s${next}`]) {
+            day.gym[`s${next}`] = { type: 'Pierna', custom: '' };
+          }
           renderDailyHabits();
           renderHeaderAndKPIs();
           saveState();
@@ -10140,6 +11060,7 @@
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Cambiar rutina de gimnasio');
           const gymObj = getActiveWeek().days[dayIdx].gym;
+          if (!gymObj[`s${sIdx}`]) gymObj[`s${sIdx}`] = { type: val, custom: '' };
           const session = gymObj[`s${sIdx}`];
           session.type = val;
 
@@ -10157,18 +11078,38 @@
           }
         },
 
-        // Running: botón variable (0 -> 1 -> 2 -> 0) + reset de Km si se pasa a 0
+        // Running: botón variable (0 -> 1 -> 2 -> 0) + soporte +2 sesiones
         cycleRunSessionCount(dayIdx) {
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Cambiar sesiones de running');
           playTickSound();
           const runObj = getActiveWeek().days[dayIdx].run;
-          const next = (runObj.sessions + 1) % 3;
-          runObj.sessions = next;
-          if (next === 0) {
+          const cur = runObj.sessions || 0;
+          if (cur >= 2) {
+            runObj.sessions = 0;
             runObj.km = 0.0;
             if (runObj.s1) runObj.s1.km = 0.0;
             if (runObj.s2) runObj.s2.km = 0.0;
+          } else {
+            runObj.sessions = cur + 1;
+            if (!runObj[`s${runObj.sessions}`]) {
+              runObj[`s${runObj.sessions}`] = { type: 'Rodaje', km: 0.0, custom: '' };
+            }
+          }
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+        },
+
+        addExtraRunSession(dayIdx) {
+          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          pushUndo('Añadir sesión extra de running');
+          playTickSound();
+          const runObj = getActiveWeek().days[dayIdx].run;
+          const next = (runObj.sessions || 0) + 1;
+          runObj.sessions = next;
+          if (!runObj[`s${next}`]) {
+            runObj[`s${next}`] = { type: 'Rodaje', km: 0.0, custom: '' };
           }
           renderDailyHabits();
           renderHeaderAndKPIs();
@@ -10180,19 +11121,33 @@
           pushUndo('Modificar Km de running');
           const day = getActiveWeek().days[dayIdx];
           const kmVal = parseFloat(val) || 0;
-          if (sessionNum === 1) {
-            if (!day.run.s1) day.run.s1 = { type: 'Rodaje', km: 0, custom: '' };
-            day.run.s1.km = kmVal;
-          } else {
-            if (!day.run.s2) day.run.s2 = { type: 'Series', km: 0, custom: '' };
-            day.run.s2.km = kmVal;
+          if (!day.run[`s${sessionNum}`]) day.run[`s${sessionNum}`] = { type: 'Rodaje', km: 0, custom: '' };
+          day.run[`s${sessionNum}`].km = kmVal;
+
+          let totalKm = 0;
+          for (let i = 1; i <= day.run.sessions; i++) {
+            totalKm += Number(day.run[`s${i}`]?.km) || 0;
           }
-          const km1 = Number(day.run.s1?.km) || 0;
-          const km2 = day.run.sessions > 1 ? (Number(day.run.s2?.km) || 0) : 0;
-          day.run.km = parseFloat((km1 + km2).toFixed(2));
+          day.run.km = parseFloat(totalKm.toFixed(2));
           renderDailyHabits();
           renderHeaderAndKPIs();
           saveState();
+        },
+
+        setRunType(dayIdx, sessionNum, val) {
+          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          pushUndo('Modificar tipo de running');
+          const day = getActiveWeek().days[dayIdx];
+          if (!day.run[`s${sessionNum}`]) day.run[`s${sessionNum}`] = { type: val, km: 0, custom: '' };
+          day.run[`s${sessionNum}`].type = val;
+          if (val === 'Personalizado...' || val === '✏️ Otro...' || val.startsWith('Personalizado')) {
+            app.openCustomRunModal(dayIdx, sessionNum);
+          } else {
+            day.run[`s${sessionNum}`].custom = '';
+            day.run[`s${sessionNum}`].customSystem = '';
+            renderDailyHabits();
+            saveState();
+          }
         },
 
         setRunKm(dayIdx, val) {
@@ -14221,6 +15176,364 @@
           const undoToastEl = document.getElementById('undoToast');
           if (undoToastEl) undoToastEl.classList.add('hidden');
           this.showToast(`↩️ Deshecho: ${actionName}`, 'info');
+        },
+
+        // --- CONFLICTO DE GOOGLE DRIVE ---
+        showSyncConflictModal(cloudJson) {
+          const localTimeEl = document.getElementById('conflictLocalTime');
+          const localWeeksEl = document.getElementById('conflictLocalWeeks');
+          const cloudTimeEl = document.getElementById('conflictCloudTime');
+          const cloudWeeksEl = document.getElementById('conflictCloudWeeks');
+
+          const lDate = state.updatedAt ? new Date(state.updatedAt).toLocaleString() : 'Reciente';
+          const cDate = cloudJson.updatedAt ? new Date(cloudJson.updatedAt).toLocaleString() : 'Reciente';
+
+          if (localTimeEl) localTimeEl.textContent = lDate;
+          if (localWeeksEl) localWeeksEl.textContent = `${(state.weeks || []).length} semanas guardadas`;
+          if (cloudTimeEl) cloudTimeEl.textContent = cDate;
+          if (cloudWeeksEl) cloudWeeksEl.textContent = `${(cloudJson.weeks || []).length} semanas guardadas`;
+
+          this.openModal('modalSyncConflict');
+        },
+
+        async resolveSyncConflict(action) {
+          this.closeModal('modalSyncConflict');
+          if (action === 'upload') {
+            this.showToast('Subiendo cambios locales a Google Drive...', 'info');
+            await syncGdriveCloud(false, true, false);
+            this.showToast('Versión local subida a Drive.', 'success');
+          } else if (action === 'download') {
+            this.showToast('Descargando versión de Google Drive...', 'info');
+            await syncGdriveCloud(true, false, true);
+            this.showToast('Versión de Drive cargada correctamente.', 'success');
+          } else if (action === 'merge') {
+            if (!pendingCloudConflictJson) return;
+            pushUndo('Fusión inteligente de semanas');
+            try {
+              localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
+            } catch (_) {}
+
+            const cloudWeeks = pendingCloudConflictJson.weeks || [];
+            const localWeeks = state.weeks || [];
+            const mergedMap = new Map();
+
+            // Mapear semanas locales
+            localWeeks.forEach(w => mergedMap.set(w.weekNum, w));
+
+            // Comparar con semanas de la nube
+            cloudWeeks.forEach(cw => {
+              if (!mergedMap.has(cw.weekNum)) {
+                mergedMap.set(cw.weekNum, cw);
+              } else {
+                const lw = mergedMap.get(cw.weekNum);
+                const cTime = cw.closedAt ? new Date(cw.closedAt).getTime() : 0;
+                const lTime = lw.closedAt ? new Date(lw.closedAt).getTime() : 0;
+                if (cTime > lTime) {
+                  mergedMap.set(cw.weekNum, cw);
+                }
+              }
+            });
+
+            state.weeks = Array.from(mergedMap.values()).sort((a, b) => a.weekNum - b.weekNum);
+            pendingCloudConflictJson = null;
+            renderApp();
+            saveState();
+            await syncGdriveCloud(false, true, false);
+            this.showToast('Semanas fusionadas y sincronizadas con éxito.', 'success');
+          }
+        },
+
+        // --- GESTIÓN DE PLANTILLA MODULAR Y HÁBITOS PERSONALIZADOS ---
+        toggleModule(moduleKey) {
+          pushUndo('Alternar módulo nativo');
+          if (!state.enabledModules) {
+            state.enabledModules = { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+          }
+          state.enabledModules[moduleKey] = !state.enabledModules[moduleKey];
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+          this.showToast(`Módulo ${state.enabledModules[moduleKey] ? 'activado' : 'pausado'}.`, 'info');
+        },
+
+        openManageHabitsModal() {
+          this.resetHabitForm();
+          this.renderCustomHabitsList();
+          this.openModal('modalManageHabits');
+        },
+
+        resetHabitForm() {
+          const editIdEl = document.getElementById('habitEditId');
+          const titleEl = document.getElementById('habitModalTitle');
+          const submitBtn = document.getElementById('habitSubmitBtn');
+          const cancelBtn = document.getElementById('habitCancelEditBtn');
+          const nameInp = document.getElementById('habitNameInput');
+          const emojiInp = document.getElementById('habitEmojiInput');
+          const typeSel = document.getElementById('habitTypeSelect');
+
+          if (editIdEl) editIdEl.value = '';
+          if (titleEl) titleEl.textContent = 'Nuevo Hábito Personalizado';
+          if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
+          if (cancelBtn) cancelBtn.classList.add('hidden');
+          if (nameInp) nameInp.value = '';
+          if (emojiInp) emojiInp.value = '⭐';
+          if (typeSel) {
+            typeSel.value = 'max_limit';
+            this.onHabitTypeChange('max_limit');
+          }
+        },
+
+        onHabitTypeChange(type, currentValues = {}) {
+          const box = document.getElementById('habitParamsBox');
+          if (!box) return;
+
+          if (type === 'max_limit') {
+            box.innerHTML = `
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tope Diario Máximo:</label>
+                <input id="habitTargetDaily" type="number" step="0.1" value="${currentValues.targetDaily !== undefined ? currentValues.targetDaily : '1.0'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tope Semanal Máximo:</label>
+                <input id="habitTargetWeekly" type="number" step="0.5" value="${currentValues.targetWeekly !== undefined ? currentValues.targetWeekly : '7.0'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Unidad de Medida:</label>
+                <input id="habitUnit" type="text" value="${currentValues.unit !== undefined ? currentValues.unit : 'h'}" placeholder="ej: h, min, veces" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold focus:border-theme outline-none" />
+              </div>
+            `;
+          } else if (type === 'min_accum') {
+            box.innerHTML = `
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Meta Mínima Semanal:</label>
+                <input id="habitTargetWeekly" type="number" step="0.5" value="${currentValues.targetWeekly !== undefined ? currentValues.targetWeekly : '15'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Unidad de Medida:</label>
+                <input id="habitUnit" type="text" value="${currentValues.unit !== undefined ? currentValues.unit : 'págs'}" placeholder="ej: págs, min, L" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Meta Diaria Ref.:</label>
+                <input id="habitTargetDaily" type="number" step="0.5" value="${currentValues.targetDaily !== undefined ? currentValues.targetDaily : '20'}" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+            `;
+          } else if (type === 'binary_check') {
+            box.innerHTML = `
+              <div class="space-y-1 col-span-2">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Meta de Días Cumplidos por Semana:</label>
+                <input id="habitTargetWeeklyDays" type="number" min="1" max="7" step="1" value="${currentValues.targetWeeklyDays !== undefined ? currentValues.targetWeeklyDays : '7'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tipo:</label>
+                <div class="py-2 text-[11px] font-semibold text-stone-500 dark:text-slate-400">Check Sí / No</div>
+              </div>
+            `;
+          } else if (type === 'target_range') {
+            box.innerHTML = `
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Valor Diana Óptimo:</label>
+                <input id="habitTargetCenter" type="number" step="1" value="${currentValues.targetCenter !== undefined ? currentValues.targetCenter : '8'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Margen Aceptable (±):</label>
+                <input id="habitTargetMargin" type="number" step="0.5" value="${currentValues.targetMargin !== undefined ? currentValues.targetMargin : '0.5'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Días Meta Semanales:</label>
+                <input id="habitTargetWeeklyDays" type="number" min="1" max="7" step="1" value="${currentValues.targetWeeklyDays !== undefined ? currentValues.targetWeeklyDays : '6'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              </div>
+            `;
+          }
+        },
+
+        saveCustomHabit() {
+          const editId = document.getElementById('habitEditId')?.value || '';
+          const name = (document.getElementById('habitNameInput')?.value || '').trim();
+          const emoji = (document.getElementById('habitEmojiInput')?.value || '⭐').trim() || '⭐';
+          const type = document.getElementById('habitTypeSelect')?.value || 'max_limit';
+
+          if (!name) return this.showToast('Por favor escribe un nombre para el hábito.', 'error');
+
+          if (!Array.isArray(state.customHabits)) state.customHabits = [];
+
+          let habitData = {
+            id: editId || ('habit_' + Date.now()),
+            name,
+            emoji,
+            type,
+            active: true
+          };
+
+          if (type === 'max_limit') {
+            habitData.targetDaily = parseFloat(document.getElementById('habitTargetDaily')?.value || '1.0');
+            habitData.targetWeekly = parseFloat(document.getElementById('habitTargetWeekly')?.value || '7.0');
+            habitData.unit = (document.getElementById('habitUnit')?.value || 'h').trim();
+          } else if (type === 'min_accum') {
+            habitData.targetWeekly = parseFloat(document.getElementById('habitTargetWeekly')?.value || '10');
+            habitData.targetDaily = parseFloat(document.getElementById('habitTargetDaily')?.value || '1');
+            habitData.unit = (document.getElementById('habitUnit')?.value || 'u').trim();
+          } else if (type === 'binary_check') {
+            habitData.targetWeeklyDays = parseInt(document.getElementById('habitTargetWeeklyDays')?.value || '7', 10);
+          } else if (type === 'target_range') {
+            habitData.targetCenter = parseFloat(document.getElementById('habitTargetCenter')?.value || '8');
+            habitData.targetMargin = parseFloat(document.getElementById('habitTargetMargin')?.value || '0.5');
+            habitData.targetWeeklyDays = parseInt(document.getElementById('habitTargetWeeklyDays')?.value || '6', 10);
+            habitData.unit = (document.getElementById('habitUnit')?.value || '').trim();
+          }
+
+          pushUndo(editId ? 'Editar hábito personalizado' : 'Crear hábito personalizado');
+
+          if (editId) {
+            const idx = state.customHabits.findIndex(h => h.id === editId);
+            if (idx >= 0) {
+              habitData.active = state.customHabits[idx].active !== false;
+              state.customHabits[idx] = habitData;
+            }
+            this.showToast(`Hábito "${name}" actualizado.`, 'success');
+          } else {
+            state.customHabits.push(habitData);
+            this.showToast(`Hábito "${name}" añadido a la plantilla.`, 'success');
+          }
+
+          this.resetHabitForm();
+          this.renderCustomHabitsList();
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+        },
+
+        editCustomHabit(id) {
+          const habit = (state.customHabits || []).find(h => h.id === id);
+          if (!habit) return;
+
+          document.getElementById('habitEditId').value = habit.id;
+          document.getElementById('habitModalTitle').textContent = `Editar: ${habit.name}`;
+          document.getElementById('habitSubmitBtn').textContent = 'Guardar Cambios';
+          document.getElementById('habitCancelEditBtn').classList.remove('hidden');
+
+          document.getElementById('habitNameInput').value = habit.name;
+          document.getElementById('habitEmojiInput').value = habit.emoji || '⭐';
+          document.getElementById('habitTypeSelect').value = habit.type;
+
+          this.onHabitTypeChange(habit.type, habit);
+        },
+
+        toggleCustomHabit(id) {
+          pushUndo('Alternar hábito personalizado');
+          const habit = (state.customHabits || []).find(h => h.id === id);
+          if (habit) {
+            habit.active = habit.active === false ? true : false;
+            this.renderCustomHabitsList();
+            renderTab2();
+            renderDailyHabits();
+            renderHeaderAndKPIs();
+            saveState();
+            this.showToast(`Hábito "${habit.name}" ${habit.active ? 'activado' : 'pausado'}.`, 'info');
+          }
+        },
+
+        async deleteCustomHabit(id) {
+          const habit = (state.customHabits || []).find(h => h.id === id);
+          if (!habit) return;
+
+          const confirmed = await this.showConfirm({
+            title: 'Eliminar Hábito',
+            message: `¿Deseas eliminar definitivamente el hábito "${habit.name}"?\n(Los registros de semanas archivadas se conservarán en el historial).`,
+            confirmText: 'Eliminar Hábito',
+            cancelText: 'Cancelar',
+            isDanger: true
+          });
+          if (!confirmed) return;
+
+          pushUndo('Eliminar hábito personalizado');
+          state.customHabits = (state.customHabits || []).filter(h => h.id !== id);
+          this.resetHabitForm();
+          this.renderCustomHabitsList();
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+          this.showToast(`Hábito "${habit.name}" eliminado.`, 'info');
+        },
+
+        renderCustomHabitsList() {
+          const listEl = document.getElementById('customHabitsManagerList');
+          if (!listEl) return;
+          const habits = state.customHabits || [];
+          if (habits.length === 0) {
+            listEl.innerHTML = `<span class="text-[11px] text-stone-400 dark:text-slate-500 italic block py-2 text-center">— Sin hábitos personalizados creados aún —</span>`;
+            return;
+          }
+
+          listEl.innerHTML = habits.map(h => {
+            const isActive = h.active !== false;
+            let typeLabel = 'Tipo A: Límite Máximo';
+            let detail = `Tope: ${h.targetDaily || 1}${h.unit || 'h'}/día`;
+            if (h.type === 'min_accum') {
+              typeLabel = 'Tipo B: Meta Acumulativa';
+              detail = `Meta: ${h.targetWeekly || 10} ${h.unit || ''}/sem`;
+            } else if (h.type === 'binary_check') {
+              typeLabel = 'Tipo C: Check Diario';
+              detail = `Meta: ${h.targetWeeklyDays || 7} días/sem`;
+            } else if (h.type === 'target_range') {
+              typeLabel = 'Tipo D: Diana Óptima';
+              detail = `Diana: ${h.targetCenter || 0} ± ${h.targetMargin || 0} (${h.targetWeeklyDays || 6}d)`;
+            }
+
+            return `
+              <div class="flex items-center justify-between p-2 rounded-xl subpanel-bg border ${isActive ? 'border-stone-300 dark:border-slate-700' : 'opacity-60 border-dashed'}">
+                <div class="flex items-center gap-2 truncate min-w-0">
+                  <span class="text-base">${h.emoji || '⭐'}</span>
+                  <div class="truncate">
+                    <span class="font-bold block truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
+                    <span class="text-[9.5px] text-stone-500 dark:text-slate-400">${typeLabel} • ${detail}</span>
+                  </div>
+                </div>
+                <div class="flex items-center gap-1 shrink-0 ml-2">
+                  <button type="button" onclick="app.toggleCustomHabit('${h.id}')" class="px-2 py-1 rounded-lg text-[10px] font-bold ${isActive ? 'bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/30' : 'bg-stone-200 dark:bg-slate-800 text-stone-500'}">
+                    ${isActive ? 'Activo' : 'Pausado'}
+                  </button>
+                  <button type="button" onclick="app.editCustomHabit('${h.id}')" class="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-stone-500" title="Editar">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                  </button>
+                  <button type="button" onclick="app.deleteCustomHabit('${h.id}')" class="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-rose-500" title="Eliminar">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                  </button>
+                </div>
+              </div>
+            `;
+          }).join('');
+        },
+
+        // --- REGISTRO DE DATOS DE HÁBITOS PERSONALIZADOS EN EL DÍA ---
+        setHabitDayValue(dayIdx, habitId, val) {
+          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          const w = getActiveWeek();
+          if (!w.customHabitsData) w.customHabitsData = {};
+          if (!Array.isArray(w.customHabitsData[habitId])) {
+            w.customHabitsData[habitId] = [null, null, null, null, null, null, null];
+          }
+          w.customHabitsData[habitId][dayIdx] = val === '' ? null : (isNaN(val) ? val : parseFloat(val));
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+        },
+
+        toggleHabitDayCheck(dayIdx, habitId) {
+          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          playTickSound();
+          const w = getActiveWeek();
+          if (!w.customHabitsData) w.customHabitsData = {};
+          if (!Array.isArray(w.customHabitsData[habitId])) {
+            w.customHabitsData[habitId] = [null, null, null, null, null, null, null];
+          }
+          const cur = w.customHabitsData[habitId][dayIdx];
+          w.customHabitsData[habitId][dayIdx] = cur ? null : true;
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
         }
       };
 
