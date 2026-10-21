@@ -7430,13 +7430,70 @@
         renderDockExpenseUI();
       }
 
+      function findLearnedCategoryForConcept(concept) {
+        if (!concept || !concept.trim()) return null;
+        const norm = concept.trim().toLowerCase();
+        const counts = {};
+        Object.values(state.weeks || {}).forEach(w => {
+          (w?.expenses || []).forEach(e => {
+            const cNorm = (e.concept || '').trim().toLowerCase();
+            if (cNorm === norm && e.category) {
+              const cat = e.category.trim();
+              counts[cat] = (counts[cat] || 0) + 1;
+            }
+          });
+        });
+
+        // Si no hay coincidencia exacta, buscar si algún gasto previo contiene la palabra o viceversa
+        if (Object.keys(counts).length === 0) {
+          Object.values(state.weeks || {}).forEach(w => {
+            (w?.expenses || []).forEach(e => {
+              const cNorm = (e.concept || '').trim().toLowerCase();
+              if (cNorm && e.category && (cNorm.includes(norm) || norm.includes(cNorm))) {
+                const cat = e.category.trim();
+                counts[cat] = (counts[cat] || 0) + 1;
+              }
+            });
+          });
+        }
+
+        let bestCat = null;
+        let maxCount = 0;
+        for (const [cat, cnt] of Object.entries(counts)) {
+          if (cnt > maxCount) {
+            maxCount = cnt;
+            bestCat = cat;
+          }
+        }
+        return bestCat;
+      }
+
+      function applyLearnedCategoryToSelect(selectEl, learnedCat) {
+        if (!selectEl || !learnedCat) return false;
+        const learnedClean = learnedCat.replace(/^[^\s]+\s*/, '').trim().toLowerCase();
+        const learnedFull = learnedCat.trim().toLowerCase();
+
+        for (let i = 0; i < selectEl.options.length; i++) {
+          const opt = selectEl.options[i];
+          const optVal = opt.value.trim().toLowerCase();
+          const optText = opt.textContent.trim().toLowerCase();
+          const optClean = optVal.replace(/^[^\s]+\s*/, '').trim();
+
+          if (optVal === learnedFull || optText === learnedFull || optClean === learnedClean || optVal.includes(learnedClean) || learnedClean.includes(optClean)) {
+            selectEl.selectedIndex = i;
+            return true;
+          }
+        }
+        return false;
+      }
+
       function getMatchingExpenseConcepts(query = '') {
         const allConceptsMap = new Map();
         (state.dictionary?.frequentConcepts || []).forEach(c => {
           if (c && c.trim()) {
             const trimmed = c.trim();
             const key = trimmed.toLowerCase();
-            if (!allConceptsMap.has(key)) allConceptsMap.set(key, trimmed);
+            if (!allConceptsMap.has(key)) allConceptsMap.set(key, { concept: trimmed, category: null });
           }
         });
         Object.values(state.weeks || {}).forEach(w => {
@@ -7444,13 +7501,18 @@
             if (e.concept && e.concept.trim()) {
               const trimmed = e.concept.trim();
               const key = trimmed.toLowerCase();
-              if (!allConceptsMap.has(key)) allConceptsMap.set(key, trimmed);
+              const cat = e.category || null;
+              if (!allConceptsMap.has(key)) {
+                allConceptsMap.set(key, { concept: trimmed, category: cat });
+              } else if (cat && !allConceptsMap.get(key).category) {
+                allConceptsMap.get(key).category = cat;
+              }
             }
           });
         });
         const allConcepts = Array.from(allConceptsMap.values());
         const q = (query || '').trim().toLowerCase();
-        return q ? allConcepts.filter(c => c.toLowerCase().includes(q)) : allConcepts.slice(0, 10);
+        return q ? allConcepts.filter(item => item.concept.toLowerCase().includes(q)) : allConcepts.slice(0, 10);
       }
 
       function renderDockExpenseUI(filterQuery = '') {
@@ -7471,9 +7533,15 @@
           if (filtered.length === 0) {
             chipsBox.innerHTML = q ? `<span class="text-[10px] text-stone-400 dark:text-slate-500 italic py-0.5">Sin coincidencias previas (se creará "${escapeHtml(filterQuery)}")</span>` : '';
           } else {
-            chipsBox.innerHTML = filtered.slice(0, 8).map(c => `
-              <button type="button" onclick="app.fillDockExpenseConcept('${escapeHtml(c)}')" class="px-2 py-0.5 rounded-md subpanel-bg border text-[11px] hover:border-theme-main font-medium transition active:scale-95 text-stone-700 dark:text-slate-300">${escapeHtml(c)}</button>
-            `).join('');
+            chipsBox.innerHTML = filtered.slice(0, 8).map(item => {
+              const c = item.concept;
+              const catLabel = item.category ? `<span class="opacity-60 text-[9px] ml-1">(${escapeHtml(item.category.replace(/^[^\s]+\s*/, ''))})</span>` : '';
+              return `
+                <button type="button" onclick="app.fillDockExpenseConcept('${escapeHtml(c)}')" class="inline-flex items-center px-2 py-0.5 rounded-md subpanel-bg border text-[11px] hover:border-theme-main font-medium transition active:scale-95 text-stone-700 dark:text-slate-300">
+                  <span>${escapeHtml(c)}</span>${catLabel}
+                </button>
+              `;
+            }).join('');
           }
         }
       }
@@ -10520,12 +10588,22 @@
           const conceptInp = document.getElementById('tab3InlineConcept');
           if (conceptInp) conceptInp.value = c;
           app.renderTab3ConceptChips(c);
+          const learnedCat = findLearnedCategoryForConcept(c);
+          if (learnedCat) {
+            applyLearnedCategoryToSelect(document.getElementById('tab3InlineCategory'), learnedCat);
+          }
           const amtInp = document.getElementById('tab3InlineAmount');
           if (amtInp) amtInp.focus();
         },
 
         onTab3ConceptInput(val) {
           app.renderTab3ConceptChips(val);
+          if (val && val.trim().length >= 2) {
+            const learnedCat = findLearnedCategoryForConcept(val);
+            if (learnedCat) {
+              applyLearnedCategoryToSelect(document.getElementById('tab3InlineCategory'), learnedCat);
+            }
+          }
         },
 
         renderTab3ConceptChips(filterQuery = '') {
@@ -10536,9 +10614,15 @@
           if (filtered.length === 0) {
             tab3Chips.innerHTML = q ? `<span class="text-[10px] text-stone-400 dark:text-slate-500 italic py-0.5">Sin coincidencias previas (se creará "${escapeHtml(filterQuery)}")</span>` : '';
           } else {
-            tab3Chips.innerHTML = filtered.slice(0, 10).map(c => `
-              <button type="button" onclick="app.fillTab3Concept('${escapeHtml(c)}')" class="px-2 py-0.5 rounded-lg subpanel-bg border hover:border-cyan-400 text-[11px] font-medium text-cyan-300 transition active:scale-95">${escapeHtml(c)}</button>
-            `).join('');
+            tab3Chips.innerHTML = filtered.slice(0, 10).map(item => {
+              const c = item.concept;
+              const catLabel = item.category ? `<span class="opacity-60 text-[9px] ml-1">(${escapeHtml(item.category.replace(/^[^\s]+\s*/, ''))})</span>` : '';
+              return `
+                <button type="button" onclick="app.fillTab3Concept('${escapeHtml(c)}')" class="inline-flex items-center px-2 py-0.5 rounded-lg subpanel-bg border hover:border-cyan-400 text-[11px] font-medium text-cyan-300 transition active:scale-95">
+                  <span>${escapeHtml(c)}</span>${catLabel}
+                </button>
+              `;
+            }).join('');
           }
         },
 
@@ -10671,6 +10755,12 @@
 
         onDockConceptInput(val) {
           renderDockExpenseUI(val);
+          if (val && val.trim().length >= 2) {
+            const learnedCat = findLearnedCategoryForConcept(val);
+            if (learnedCat) {
+              applyLearnedCategoryToSelect(document.getElementById('dockExpenseCategory'), learnedCat);
+            }
+          }
         },
 
         fillDockExpenseConcept(c) {
@@ -10678,6 +10768,10 @@
           const amtInp = document.getElementById('dockExpenseAmount');
           if (conceptInp) conceptInp.value = c;
           renderDockExpenseUI(c);
+          const learnedCat = findLearnedCategoryForConcept(c);
+          if (learnedCat) {
+            applyLearnedCategoryToSelect(document.getElementById('dockExpenseCategory'), learnedCat);
+          }
           if (amtInp) amtInp.focus();
         },
 
