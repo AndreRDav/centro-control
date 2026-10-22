@@ -2340,55 +2340,79 @@
     </div>
   </div>
 
-  <!-- MODAL: CONFLICTO DE SINCRONIZACIÓN CON GOOGLE DRIVE -->
-  <div id="modalSyncConflict" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-    <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
-      <div class="flex justify-between items-center border-b pb-2.5">
+  <!-- MODAL: CONFLICTO DE SINCRONIZACIÓN CON GOOGLE DRIVE CON COMPARADOR VISUAL DE DIFERENCIAS -->
+  <div id="modalSyncConflict" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="panel-bg border border-theme rounded-2xl max-w-xl w-full p-4 sm:p-5 space-y-3.5 shadow-2xl text-xs max-h-[90vh] flex flex-col">
+      <!-- Cabecera -->
+      <div class="flex justify-between items-center border-b pb-2.5 shrink-0">
         <div class="flex items-center gap-2">
           <div class="vector-seal bg-theme-accent text-white shadow-xs">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
           </div>
           <div>
-            <h3 class="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Conflicto de Sincronización Detectado</h3>
-            <span class="text-[10px] text-stone-500 dark:text-slate-400">Hay cambios en la nube y en este dispositivo que no coinciden</span>
+            <h3 class="font-bold text-sm sm:text-base text-stone-900 dark:text-white">Diferencias de Sincronización Detectadas</h3>
+            <span class="text-[10px] text-stone-500 dark:text-slate-400">Compara los datos de este dispositivo con los de Google Drive antes de decidir</span>
           </div>
         </div>
+        <button type="button" onclick="app.closeModal('modalSyncConflict')" class="text-stone-400 hover:text-stone-700 dark:hover:text-white font-bold text-sm">✕</button>
       </div>
 
-      <div class="grid grid-cols-2 gap-3 p-3 rounded-xl subpanel-bg border text-xs">
-        <div class="space-y-1">
-          <span class="font-bold text-theme-main block">📱/💻 En este Dispositivo:</span>
+      <!-- Resumen Fechas / Dispositivos -->
+      <div class="grid grid-cols-2 gap-2.5 p-2.5 rounded-xl subpanel-bg border text-xs shrink-0">
+        <div class="space-y-0.5">
+          <span class="font-bold text-theme-main flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect width="14" height="20" x="5" y="2" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+            <span>En este Dispositivo (Local):</span>
+          </span>
           <div id="conflictLocalTime" class="font-mono text-[11px] text-stone-700 dark:text-slate-200 font-semibold">-</div>
           <span id="conflictLocalWeeks" class="text-[10px] text-stone-500 dark:text-slate-400 block">-</span>
         </div>
-        <div class="space-y-1 border-l pl-3 border-stone-300 dark:border-slate-700">
-          <span class="font-bold text-theme-accent block">☁️ En Google Drive:</span>
+        <div class="space-y-0.5 border-l pl-2.5 border-stone-300 dark:border-slate-700">
+          <span class="font-bold text-theme-accent flex items-center gap-1">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            <span>En Google Drive (Nube):</span>
+          </span>
           <div id="conflictCloudTime" class="font-mono text-[11px] text-stone-700 dark:text-slate-200 font-semibold">-</div>
           <span id="conflictCloudWeeks" class="text-[10px] text-stone-500 dark:text-slate-400 block">-</span>
         </div>
       </div>
 
-      <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
-        Ambos dispositivos han realizado cambios independientes. Para evitar que una versión desfasada sobrescriba a la otra, elige qué acción deseas realizar:
-      </p>
+      <!-- VISOR DE DIFERENCIAS DETALLADAS (COMPARADOR DÍA A DÍA Y MÉTRICAS) -->
+      <div class="space-y-1.5 flex-1 overflow-y-auto pr-1">
+        <div class="flex items-center justify-between">
+          <span class="font-bold text-[11px] uppercase tracking-wider text-stone-600 dark:text-slate-300 flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <span>Vista Previa de Diferencias Clave:</span>
+          </span>
+          <span id="conflictDiffCountBadge" class="text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-theme-accent-soft text-theme-accent border border-theme-accent/30">Calculando...</span>
+        </div>
 
-      <div class="space-y-2 pt-1">
-        <button type="button" onclick="app.resolveSyncConflict('upload')" class="w-full py-2.5 px-3 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs flex items-center justify-between shadow-sm transition">
-          <span>Conservar este dispositivo (Subir a Drive)</span>
-          <span class="text-[10px] opacity-80 font-mono">Local → Nube</span>
-        </button>
-        <button type="button" onclick="app.resolveSyncConflict('download')" class="w-full py-2.5 px-3 rounded-xl bg-theme-accent hover:opacity-90 text-white font-bold text-xs flex items-center justify-between shadow-sm transition">
-          <span>Cargar versión de Drive (Sobrescribir local)</span>
-          <span class="text-[10px] opacity-80 font-mono">Nube → Local</span>
-        </button>
-        <button type="button" onclick="app.resolveSyncConflict('merge')" class="w-full py-2.5 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs flex items-center justify-between transition">
-          <span>Fusionar Semanas (Conservar más reciente de cada una)</span>
-          <span class="text-[10px] opacity-80 font-mono">Fusión Inteligente</span>
-        </button>
+        <div id="conflictDiffsList" class="space-y-2">
+          <!-- Renderizado dinámico de diferencias exactas: Ej. Calorías, Sesiones Gym, Km Running, Hábitos... -->
+        </div>
       </div>
 
-      <div class="flex justify-end pt-2 border-t">
-        <button type="button" onclick="app.closeModal('modalSyncConflict')" class="px-4 py-1.5 rounded-xl subpanel-bg text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white font-semibold text-xs">Pausar Sincronización</button>
+      <!-- Botones de Acción Guiada -->
+      <div class="space-y-2 pt-2 border-t shrink-0">
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
+          <button type="button" onclick="app.resolveSyncConflict('upload')" class="py-2 px-3 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs flex flex-col items-center justify-center shadow-xs transition text-center" title="Guarda lo que tienes en pantalla y sobrescribe Google Drive">
+            <span>Conservar este equipo</span>
+            <span class="text-[9px] opacity-80 font-mono font-normal">Subir Local → Drive</span>
+          </button>
+          <button type="button" onclick="app.resolveSyncConflict('download')" class="py-2 px-3 rounded-xl bg-theme-accent hover:opacity-90 text-white font-bold text-xs flex flex-col items-center justify-center shadow-xs transition text-center" title="Descarga los datos de Google Drive y sustituye lo que hay en este equipo">
+            <span>Cargar versión de Drive</span>
+            <span class="text-[9px] opacity-80 font-mono font-normal">Nube → Este equipo</span>
+          </button>
+          <button type="button" onclick="app.resolveSyncConflict('merge')" class="py-2 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs flex flex-col items-center justify-center transition text-center" title="Compara semana a semana y conserva la más reciente de cada dispositivo">
+            <span>Fusión Inteligente</span>
+            <span class="text-[9px] opacity-80 font-mono font-normal">Combinar semanas</span>
+          </button>
+        </div>
+
+        <div class="flex justify-between items-center pt-1 text-[10px] text-stone-400">
+          <span>Si dudas, "Fusión Inteligente" conserva las semanas actualizadas de ambos lados.</span>
+          <button type="button" onclick="app.closeModal('modalSyncConflict')" class="hover:underline font-semibold">Pausar</button>
+        </div>
       </div>
     </div>
   </div>
@@ -15735,14 +15759,193 @@
           const localWeeksEl = document.getElementById('conflictLocalWeeks');
           const cloudTimeEl = document.getElementById('conflictCloudTime');
           const cloudWeeksEl = document.getElementById('conflictCloudWeeks');
+          const badgeEl = document.getElementById('conflictDiffCountBadge');
+          const listEl = document.getElementById('conflictDiffsList');
 
           const lDate = state.updatedAt ? new Date(state.updatedAt).toLocaleString() : 'Reciente';
           const cDate = cloudJson.updatedAt ? new Date(cloudJson.updatedAt).toLocaleString() : 'Reciente';
 
+          const getWeeksArray = (wks) => {
+            if (!wks) return [];
+            return Array.isArray(wks) ? wks : Object.values(wks);
+          };
+
+          const localWeeksArr = getWeeksArray(state.weeks);
+          const cloudWeeksArr = getWeeksArray(cloudJson.weeks);
+
           if (localTimeEl) localTimeEl.textContent = lDate;
-          if (localWeeksEl) localWeeksEl.textContent = `${(state.weeks || []).length} semanas guardadas`;
+          if (localWeeksEl) localWeeksEl.textContent = `${localWeeksArr.length} semanas guardadas`;
           if (cloudTimeEl) cloudTimeEl.textContent = cDate;
-          if (cloudWeeksEl) cloudWeeksEl.textContent = `${(cloudJson.weeks || []).length} semanas guardadas`;
+          if (cloudWeeksEl) cloudWeeksEl.textContent = `${cloudWeeksArr.length} semanas guardadas`;
+
+          // Generación de vista previa de diferencias clave
+          if (listEl) {
+            const curWkNum = state.currentWeek || 1;
+            const findWeek = (wks, num) => {
+              if (!wks) return null;
+              if (!Array.isArray(wks)) return wks[num] || null;
+              return wks.find(w => w && w.weekNum === num) || null;
+            };
+
+            const lw = findWeek(state.weeks, curWkNum) || (localWeeksArr.length > 0 ? localWeeksArr[localWeeksArr.length - 1] : null);
+            const cw = findWeek(cloudJson.weeks, curWkNum) || (cloudWeeksArr.length > 0 ? cloudWeeksArr[cloudWeeksArr.length - 1] : null);
+
+            const diffs = [];
+
+            if (localWeeksArr.length !== cloudWeeksArr.length) {
+              diffs.push({
+                day: 'General',
+                concept: 'Total de Semanas',
+                localVal: `${localWeeksArr.length} semanas`,
+                cloudVal: `${cloudWeeksArr.length} semanas`
+              });
+            }
+
+            if (lw && cw) {
+              const weekLabel = `Semana #${lw.weekNum || curWkNum}`;
+
+              // Comparar días de la semana activa
+              const daysLocal = Array.isArray(lw.days) ? lw.days : [];
+              const daysCloud = Array.isArray(cw.days) ? cw.days : [];
+
+              DAY_FULL.forEach((dayName, idx) => {
+                const ld = daysLocal[idx] || {};
+                const cd = daysCloud[idx] || {};
+
+                // 1. Calorías / Nutrición
+                const lKcal = Number(ld.nutritionKcal) || 0;
+                const cKcal = Number(cd.nutritionKcal) || 0;
+                if (lKcal !== cKcal) {
+                  diffs.push({
+                    day: `${dayName} (${weekLabel})`,
+                    concept: 'Calorías (Nutrición)',
+                    localVal: lKcal > 0 ? `${lKcal} kcal` : 'Sin registrar (0)',
+                    cloudVal: cKcal > 0 ? `${cKcal} kcal` : 'Sin registrar (0)'
+                  });
+                }
+
+                // 2. Gimnasio
+                const lGymSess = Number(ld.gym?.sessions) || 0;
+                const cGymSess = Number(cd.gym?.sessions) || 0;
+                const lGymType = ld.gym?.s1?.type || (lGymSess > 0 ? `${lGymSess} ses.` : 'Descanso');
+                const cGymType = cd.gym?.s1?.type || (cGymSess > 0 ? `${cGymSess} ses.` : 'Descanso');
+                if (lGymSess !== cGymSess || (lGymSess > 0 && cGymSess > 0 && lGymType !== cGymType)) {
+                  diffs.push({
+                    day: `${dayName} (${weekLabel})`,
+                    concept: 'Entreno Gimnasio',
+                    localVal: lGymSess > 0 ? `${lGymType} (${lGymSess}s)` : 'Descanso',
+                    cloudVal: cGymSess > 0 ? `${cGymType} (${cGymSess}s)` : 'Descanso'
+                  });
+                }
+
+                // 3. Running
+                const lKm = Number(ld.run?.km) || 0;
+                const cKm = Number(cd.run?.km) || 0;
+                const lRunType = ld.run?.s1?.type || '';
+                const cRunType = cd.run?.s1?.type || '';
+                if (lKm !== cKm || (lKm > 0 && cKm > 0 && lRunType !== cRunType)) {
+                  diffs.push({
+                    day: `${dayName} (${weekLabel})`,
+                    concept: 'Running',
+                    localVal: lKm > 0 ? `${lKm} km${lRunType ? ' (' + lRunType + ')' : ''}` : 'Sin carrera',
+                    cloudVal: cKm > 0 ? `${cKm} km${cRunType ? ' (' + cRunType + ')' : ''}` : 'Sin carrera'
+                  });
+                }
+
+                // 4. Estudio
+                const lStudy = (Array.isArray(lw.studyRealHours) ? Number(lw.studyRealHours[idx]) : 0) || 0;
+                const cStudy = (Array.isArray(cw.studyRealHours) ? Number(cw.studyRealHours[idx]) : 0) || 0;
+                if (lStudy !== cStudy) {
+                  diffs.push({
+                    day: `${dayName} (${weekLabel})`,
+                    concept: 'Horas de Estudio',
+                    localVal: `${lStudy}h`,
+                    cloudVal: `${cStudy}h`
+                  });
+                }
+
+                // 5. Hábitos personalizados
+                const allCustomHabits = [...(state.customHabits || []), ...(cloudJson.customHabits || [])];
+                const seenHabits = new Set();
+                allCustomHabits.forEach(h => {
+                  if (!h || !h.id || seenHabits.has(h.id)) return;
+                  seenHabits.add(h.id);
+                  const lHabVal = (lw.customHabitsData && Array.isArray(lw.customHabitsData[h.id])) ? lw.customHabitsData[h.id][idx] : null;
+                  const cHabVal = (cw.customHabitsData && Array.isArray(cw.customHabitsData[h.id])) ? cw.customHabitsData[h.id][idx] : null;
+
+                  if (lHabVal !== cHabVal) {
+                    const fmtVal = (v) => {
+                      if (v === true) return '✓ Hecho';
+                      if (v === null || v === undefined || v === '') return '—';
+                      return `${v} ${h.unit || ''}`.trim();
+                    };
+                    diffs.push({
+                      day: `${dayName} (${weekLabel})`,
+                      concept: `Hábito: ${h.name || 'Personalizado'}`,
+                      localVal: fmtVal(lHabVal),
+                      cloudVal: fmtVal(cHabVal)
+                    });
+                  }
+                });
+              });
+
+              // 6. Gastos de la semana
+              const lExpenses = Array.isArray(lw.expenses) ? lw.expenses : [];
+              const cExpenses = Array.isArray(cw.expenses) ? cw.expenses : [];
+              const lExpSum = lExpenses.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+              const cExpSum = cExpenses.reduce((s, it) => s + (Number(it.amount) || 0), 0);
+              if (lExpenses.length !== cExpenses.length || Math.abs(lExpSum - cExpSum) > 0.01) {
+                diffs.push({
+                  day: weekLabel,
+                  concept: 'Gastos de la Semana',
+                  localVal: `${lExpenses.length} gastos (${lExpSum.toFixed(2)}€)`,
+                  cloudVal: `${cExpenses.length} gastos (${cExpSum.toFixed(2)}€)`
+                });
+              }
+            }
+
+            // Actualizar badge de conteo
+            if (badgeEl) {
+              badgeEl.textContent = diffs.length === 1 ? '1 diferencia' : `${diffs.length} diferencias`;
+              if (diffs.length === 0) {
+                badgeEl.className = 'text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-emerald-950 text-emerald-300 border border-emerald-800';
+              } else {
+                badgeEl.className = 'text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-theme-accent-soft text-theme-accent border border-theme-accent/30';
+              }
+            }
+
+            // Renderizar lista de diferencias
+            if (diffs.length === 0) {
+              listEl.innerHTML = `
+                <div class="p-3 rounded-xl border text-center subpanel-bg space-y-1">
+                  <div class="text-emerald-500 font-bold text-xs">✓ Datos de la semana activa idénticos</div>
+                  <div class="text-[10px] text-stone-500 dark:text-slate-400">Las diferencias corresponden a sellos de tiempo, metadatos u otras configuraciones. Puedes usar <em>Fusión Inteligente</em> con seguridad.</div>
+                </div>
+              `;
+            } else {
+              listEl.innerHTML = diffs.map(d => `
+                <div class="p-2.5 rounded-xl border subpanel-bg space-y-1.5 transition hover:border-theme-main/40">
+                  <div class="flex items-center justify-between text-[11px] font-bold">
+                    <span class="text-stone-800 dark:text-slate-200 flex items-center gap-1.5">
+                      <span class="w-1.5 h-1.5 rounded-full bg-theme-accent inline-block"></span>
+                      <span>${d.day}</span>
+                    </span>
+                    <span class="text-[9.5px] font-mono px-1.5 py-0.5 rounded bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-400 font-normal">${d.concept}</span>
+                  </div>
+                  <div class="grid grid-cols-2 gap-2 text-[10.5px] pt-0.5">
+                    <div class="p-1.5 rounded-lg bg-stone-100 dark:bg-slate-900/60 border border-stone-200 dark:border-slate-800">
+                      <span class="text-[9px] uppercase tracking-wider block font-bold text-theme-main">En este equipo:</span>
+                      <span class="font-medium text-stone-800 dark:text-slate-200 break-words">${d.localVal}</span>
+                    </div>
+                    <div class="p-1.5 rounded-lg bg-stone-100 dark:bg-slate-900/60 border border-stone-200 dark:border-slate-800">
+                      <span class="text-[9px] uppercase tracking-wider block font-bold text-theme-accent">En Google Drive:</span>
+                      <span class="font-medium text-stone-800 dark:text-slate-200 break-words">${d.cloudVal}</span>
+                    </div>
+                  </div>
+                </div>
+              `).join('');
+            }
+          }
 
           this.openModal('modalSyncConflict');
         },
@@ -15764,15 +15967,23 @@
               localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
             } catch (_) {}
 
-            const cloudWeeks = pendingCloudConflictJson.weeks || [];
-            const localWeeks = state.weeks || [];
+            const getWeeksArray = (wks) => {
+              if (!wks) return [];
+              return Array.isArray(wks) ? wks : Object.values(wks);
+            };
+
+            const cloudWeeks = getWeeksArray(pendingCloudConflictJson.weeks);
+            const localWeeks = getWeeksArray(state.weeks);
             const mergedMap = new Map();
 
             // Mapear semanas locales
-            localWeeks.forEach(w => mergedMap.set(w.weekNum, w));
+            localWeeks.forEach(w => {
+              if (w && w.weekNum !== undefined) mergedMap.set(w.weekNum, w);
+            });
 
             // Comparar con semanas de la nube
             cloudWeeks.forEach(cw => {
+              if (!cw || cw.weekNum === undefined) return;
               if (!mergedMap.has(cw.weekNum)) {
                 mergedMap.set(cw.weekNum, cw);
               } else {
@@ -15785,7 +15996,13 @@
               }
             });
 
-            state.weeks = Array.from(mergedMap.values()).sort((a, b) => a.weekNum - b.weekNum);
+            const weeksObj = {};
+            Array.from(mergedMap.values()).forEach(w => {
+              if (w && w.weekNum !== undefined) {
+                weeksObj[w.weekNum] = w;
+              }
+            });
+            state.weeks = weeksObj;
             pendingCloudConflictJson = null;
             renderApp();
             saveState();
