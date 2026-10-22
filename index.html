@@ -1860,35 +1860,34 @@
         </div>
         <input type="hidden" id="manageCatEditId" value="" />
 
-        <!-- Selector rápido de emojis -->
-        <div>
-          <span class="text-[10px] text-slate-400 block mb-1">Elige un emoji sugerido o escribe el tuyo:</span>
-          <div class="flex flex-wrap gap-1 pb-1">
-            <button type="button" onclick="app.pickCategoryEmoji('🛒')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🛒</button>
-            <button type="button" onclick="app.pickCategoryEmoji('☕')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">☕</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🍻')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🍻</button>
-            <button type="button" onclick="app.pickCategoryEmoji('⛽')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">⛽</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🍽️')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🍽️</button>
-            <button type="button" onclick="app.pickCategoryEmoji('💊')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">💊</button>
-            <button type="button" onclick="app.pickCategoryEmoji('📦')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">📦</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🎮')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🎮</button>
-            <button type="button" onclick="app.pickCategoryEmoji('📚')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">📚</button>
-            <button type="button" onclick="app.pickCategoryEmoji('👕')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">👕</button>
-            <button type="button" onclick="app.pickCategoryEmoji('✈️')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">✈️</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🏠')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🏠</button>
-            <button type="button" onclick="app.pickCategoryEmoji('💡')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">💡</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🏋️')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🏋️</button>
-            <button type="button" onclick="app.pickCategoryEmoji('💻')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">💻</button>
-            <button type="button" onclick="app.pickCategoryEmoji('🎬')" class="w-7 h-7 rounded-lg subpanel-bg border hover:border-cyan-400 text-sm flex items-center justify-center">🎬</button>
+        <!-- Selector visual de Iconos Vectoriales SVG y Emojis -->
+        <div class="space-y-1.5">
+          <div class="flex items-center justify-between">
+            <span class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Icono de la Categoría:</span>
+            <button type="button" onclick="app.openIconPicker('category')" class="text-[10px] text-theme-main font-bold hover:underline flex items-center gap-1">
+              <span>Biblioteca SVG Completa</span>
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+            </button>
+          </div>
+          <!-- Barra rápida de iconos vectoriales recomendados para finanzas -->
+          <div id="quickCategoryIconRow" class="flex flex-wrap gap-1 pb-1">
+            <!-- Rellenado dinámicamente con SVGs limpios -->
           </div>
         </div>
 
         <div class="grid grid-cols-12 gap-2 items-center">
-          <div class="col-span-3">
-            <input id="manageCatEmojiInput" type="text" maxlength="4" placeholder="Emoji" class="w-full input-bg border rounded-xl px-2.5 py-2 text-center text-base focus:border-cyan-500 outline-none" autocomplete="off" />
+          <div class="col-span-4 sm:col-span-3">
+            <input type="hidden" id="manageCatIconInput" value="cart" />
+            <input type="hidden" id="manageCatEmojiInput" value="📦" />
+            <button type="button" onclick="app.openIconPicker('category')" class="w-full py-1.5 px-2 input-bg border rounded-xl font-bold flex items-center justify-center gap-1.5 hover:border-theme transition" title="Elegir icono SVG">
+              <span id="manageCatIconPreview" class="flex items-center justify-center text-theme-main">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/></svg>
+              </span>
+              <span class="text-[9px] text-stone-400 truncate">Elegir</span>
+            </button>
           </div>
-          <div class="col-span-6">
-            <input id="manageCatNameInput" type="text" placeholder="Nombre (ej. Gasolina, Restaurante...)" onkeydown="if(event.key==='Enter')app.saveCategory()" class="w-full input-bg border rounded-xl px-3 py-2 text-xs focus:border-cyan-500 outline-none" autocomplete="off" />
+          <div class="col-span-5 sm:col-span-6">
+            <input id="manageCatNameInput" type="text" placeholder="Nombre (ej. Supermercado, Ocio...)" onkeydown="if(event.key==='Enter')app.saveCategory()" class="w-full input-bg border rounded-xl px-3 py-2 text-xs focus:border-cyan-500 outline-none font-bold" autocomplete="off" />
           </div>
           <div class="col-span-3">
             <button id="catSubmitBtn" onclick="app.saveCategory()" class="w-full py-2 bg-theme-main hover:opacity-90 text-white font-bold rounded-xl text-xs shadow-md border border-theme/60 active:translate-y-0.5 transition">+ Añadir</button>
@@ -1927,11 +1926,18 @@
         <input type="hidden" id="habitEditId" value="" />
         
         <div class="grid grid-cols-12 gap-2">
-          <div class="col-span-3 sm:col-span-2 space-y-1">
-            <label class="block text-[10px] font-bold text-slate-400 uppercase">Icono:</label>
-            <input id="habitEmojiInput" type="text" value="⭐" maxlength="4" class="w-full text-center text-base py-1.5 input-bg border rounded-xl font-bold focus:border-theme outline-none" />
+          <div class="col-span-4 sm:col-span-3 space-y-1">
+            <label class="block text-[10px] font-bold text-slate-400 uppercase">Icono SVG:</label>
+            <input type="hidden" id="habitIconInput" value="star" />
+            <input type="hidden" id="habitEmojiInput" value="⭐" />
+            <button type="button" onclick="app.openIconPicker('habit')" class="w-full py-1.5 px-2 input-bg border rounded-xl font-bold flex items-center justify-center gap-1.5 hover:border-theme transition" title="Abrir biblioteca de iconos SVG">
+              <span id="habitIconPreview" class="flex items-center justify-center text-theme-main">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+              </span>
+              <span class="text-[9px] text-stone-400 truncate">Elegir</span>
+            </button>
           </div>
-          <div class="col-span-9 sm:col-span-10 space-y-1">
+          <div class="col-span-8 sm:col-span-9 space-y-1">
             <label class="block text-[10px] font-bold text-slate-400 uppercase">Nombre del Hábito:</label>
             <input id="habitNameInput" type="text" placeholder="Ej: Instagram / Redes, Lectura, Creatina..." required class="w-full px-3 py-1.5 input-bg border rounded-xl font-bold text-xs focus:border-theme outline-none" autocomplete="off" />
           </div>
@@ -1968,6 +1974,51 @@
 
       <div class="flex justify-end pt-2 border-t shrink-0">
         <button onclick="app.closeModal('modalManageHabits')" class="px-4 py-2 rounded-xl subpanel-bg font-semibold text-xs hover:bg-slate-800 transition">Listo</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL SELECTOR DE ICONOS VECTORIALES SVG -->
+  <div id="modalIconPicker" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+    <div class="panel-bg border rounded-2xl max-w-lg w-full p-4 sm:p-5 space-y-3.5 shadow-2xl text-xs max-h-[85vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-2 shrink-0">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-main text-white shadow-xs">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="m4.93 4.93 4.24 4.24"/><path d="m14.83 9.17 4.24-4.24"/><path d="m14.83 14.83 4.24 4.24"/><path d="m9.17 14.83-4.24 4.24"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-sm sm:text-base">Biblioteca de Iconos Vectoriales</h3>
+            <p class="text-[10px] text-stone-500 dark:text-slate-400">Selecciona un icono limpio SVG para tus hábitos o categorías</p>
+          </div>
+        </div>
+        <button onclick="app.closeModal('modalIconPicker')" class="text-slate-400 hover:text-white font-bold text-sm">✕</button>
+      </div>
+
+      <!-- Buscador y Filtros -->
+      <div class="space-y-2 shrink-0">
+        <div class="relative">
+          <input id="iconSearchInput" type="text" placeholder="Buscar por nombre o concepto (ej. agua, correr, café, leer...)" oninput="app.filterIcons()" class="w-full px-3 py-2 pl-9 input-bg border rounded-xl font-medium text-xs focus:border-theme outline-none" autocomplete="off" />
+          <svg class="w-4 h-4 text-stone-400 absolute left-3 top-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <div id="iconCategoryTabs" class="flex flex-wrap gap-1 text-[11px]">
+          <button type="button" onclick="app.setIconCategoryFilter('all')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white" data-cat="all">Todos</button>
+          <button type="button" onclick="app.setIconCategoryFilter('fitness')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme" data-cat="fitness">🏋️ Deporte</button>
+          <button type="button" onclick="app.setIconCategoryFilter('study')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme" data-cat="study">📚 Estudio</button>
+          <button type="button" onclick="app.setIconCategoryFilter('health')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme" data-cat="health">🥗 Salud</button>
+          <button type="button" onclick="app.setIconCategoryFilter('finance')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme" data-cat="finance">💶 Finanzas</button>
+          <button type="button" onclick="app.setIconCategoryFilter('lifestyle')" class="icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme" data-cat="lifestyle">✨ Estilo & Ocio</button>
+        </div>
+      </div>
+
+      <!-- Rejilla de Iconos -->
+      <div id="iconGridContainer" class="flex-1 overflow-y-auto pr-1 grid grid-cols-4 sm:grid-cols-6 md:grid-cols-7 gap-2 pt-1 pb-2">
+        <!-- Renderizado dinámicamente -->
+      </div>
+
+      <!-- Pie con selector manual / emoji fallback si se desea -->
+      <div class="flex items-center justify-between pt-2 border-t shrink-0">
+        <span id="iconSelectionSummary" class="text-[10px] text-stone-400">Haz clic en un icono para seleccionarlo</span>
+        <button onclick="app.closeModal('modalIconPicker')" class="px-4 py-1.5 rounded-xl subpanel-bg font-semibold text-xs hover:bg-slate-800 transition">Cancelar</button>
       </div>
     </div>
   </div>
@@ -3273,8 +3324,8 @@
           <span id="kpi1BlocksCount" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0 / 6</span>
           <span class="text-[9px] sm:text-[10px] font-mono text-stone-500 dark:text-slate-400 hidden sm:inline">Objetivo</span>
         </div>
-        <!-- Tier 3: Fila Inferior de Estado (Baterías Flexibles y Adaptables) -->
-        <div id="kpi1Batteries" class="flex flex-nowrap gap-1 pt-1 items-end h-7 sm:h-9 overflow-hidden"></div>
+        <!-- Tier 3: Fila Inferior de Estado (Baterías Flexibles y Adaptables en 1 o 2 filas) -->
+        <div id="kpi1Batteries" class="w-full pt-1"></div>
       </div>
 
       <!-- KPI 2: Anillo de Estudio + Compensación (Clic para ver por asignatura y ajustar) -->
@@ -5039,6 +5090,85 @@
         }
       }
 
+      // ==========================================
+      // BIBLIOTECA DE ICONOS VECTORIALES SVG CURADA
+      // ==========================================
+      const SVG_ICON_LIBRARY = {
+        // --- 1. FITNESS & DEPORTE ---
+        'dumbbell': { name: 'Pesas / Gym', cat: 'fitness', tags: 'pesas gym fitness entrenamiento fuerza gimnasio musculacion', svg: '<path d="M6 5v14M18 5v14M6 12h12M3 8v8M21 8v8"/>' },
+        'run': { name: 'Running / Carrera', cat: 'fitness', tags: 'correr run running cardio trotar sprint zapatilla', svg: '<path d="M19 14l-4-4M15 10l-3 3 2 4M10 13l-4 4M12 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 10l4-3 4 3"/>' },
+        'flame': { name: 'Fuego / Calorías', cat: 'fitness', tags: 'fuego calorias quema energia intensidad racha', svg: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>' },
+        'heart': { name: 'Corazón / Cardio', cat: 'fitness', tags: 'corazon cardio salud pulso vida esfuerzo', svg: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>' },
+        'activity': { name: 'Pulso / Actividad', cat: 'fitness', tags: 'pulso actividad frecuencia cardio electrocardiograma', svg: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>' },
+        'target': { name: 'Diana / Puntería', cat: 'fitness', tags: 'diana objetivo meta foco punteria reto acierto', svg: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>' },
+        'timer': { name: 'Cronómetro', cat: 'fitness', tags: 'cronometro tiempo series descansos ritmo reloj', svg: '<line x1="10" x2="14" y1="2" y2="2"/><line x1="12" x2="15" y1="14" y2="11"/><circle cx="12" cy="14" r="8"/>' },
+        'trophy': { name: 'Trofeo / Victoria', cat: 'fitness', tags: 'trofeo copa ganador record meta victoria exito', svg: '<path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.66V17c0 .55-.47.98-.97 1.21C7.85 18.75 7 20.24 7 22M14 14.66V17c0 .55.47.98.97 1.21C16.15 18.75 17 20.24 17 22M18 2H6v7a6 6 0 0 0 12 0V2Z"/>' },
+        'footsteps': { name: 'Pasos / Caminata', cat: 'fitness', tags: 'pasos caminar paseo 10000 pasos actividad', svg: '<path d="M4 16v-2.38C4 11.5 6 9 8 9s4 2.5 4 4.62V16M12 21v-2.38C12 16.5 14 14 16 14s4 2.5 4 4.62V21"/>' },
+        'zap': { name: 'Rayo / Energía', cat: 'fitness', tags: 'rayo energia potencia fuerza chispa rapido', svg: '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' },
+
+        // --- 2. ESTUDIO & PRODUCTIVIDAD ---
+        'book': { name: 'Libro / Lectura', cat: 'study', tags: 'libro lectura estudiar paginas leer cultura', svg: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20M4 19.5A2.5 2.5 0 0 0 6.5 22H20V2H6.5A2.5 2.5 0 0 0 4 4.5v15z"/>' },
+        'graduation-cap': { name: 'Universidad / Clase', cat: 'study', tags: 'universidad clase carrera grado master examen birrete', svg: '<path d="M22 10v6M2 10l10-5 10 5-10 5zM6 12v5c0 2 3 3 6 3s6-1 6-3v-5"/>' },
+        'pen': { name: 'Pluma / Apuntes', cat: 'study', tags: 'pluma boli escribir apuntes redaccion tarea', svg: '<path d="M12 19l7-7 3 3-7 7-3-3zM18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5zM2 2l7.586 7.586M11 11l-4 4"/>' },
+        'check-circle': { name: 'Check / Tarea', cat: 'study', tags: 'check tarea completada ok exito listo deberes', svg: '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>' },
+        'clock': { name: 'Reloj / Pomodoro', cat: 'study', tags: 'reloj tiempo horas puntualidad pomodoro temporizador', svg: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>' },
+        'lightbulb': { name: 'Bombilla / Ideas', cat: 'study', tags: 'bombilla idea creatividad proyecto ingenio foco', svg: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/>' },
+        'folder': { name: 'Carpeta / Archivo', cat: 'study', tags: 'carpeta archivo organizacion temario documentos', svg: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>' },
+        'briefcase': { name: 'Maletín / Trabajo', cat: 'study', tags: 'maletin trabajo oficina profesional curro empleo', svg: '<rect width="20" height="14" x="2" y="7" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>' },
+        'code': { name: 'Código / Dev', cat: 'study', tags: 'codigo programar software programacion web python dev', svg: '<polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>' },
+
+        // --- 3. SALUD & NUTRICIÓN & HÁBITOS ---
+        'droplet': { name: 'Agua / Hidratación', cat: 'health', tags: 'agua gota hidratacion sed botella beber', svg: '<path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/>' },
+        'apple': { name: 'Manzana / Nutrición', cat: 'health', tags: 'manzana fruta comida nutricion dieta sano saludable verdura', svg: '<path d="M12 20.94c1.5 0 2.75 1.06 4 1.06 3 0 6-8 6-12.22A4.91 4.91 0 0 0 17 5c-2.22 0-4 1.44-5 2-1-.56-2.78-2-5-2a4.9 4.9 0 0 0-5 4.78C2 14 5 22 8 22c1.25 0 2.5-1.06 4-1.06Z"/><path d="M10 2c1 .5 2 2 2 5"/>' },
+        'pill': { name: 'Píldora / Creatina', cat: 'health', tags: 'pildora pastilla medicamento creatina suplementos vitaminas proteina', svg: '<path d="m10.5 20.5 10-10a4.95 4.95 0 1 0-7-7l-10 10a4.95 4.95 0 1 0 7 7Z"/><path d="m8.5 8.5 7 7"/>' },
+        'moon': { name: 'Luna / Sueño', cat: 'health', tags: 'luna sueno dormir descanso noche 8h descanso reparador', svg: '<path d="M12 3a6 6 0 0 0 9 9 9 9 0 1 1-9-9Z"/>' },
+        'sun': { name: 'Sol / Despertar', cat: 'health', tags: 'sol manana despertar madrugar luz vitd vitalidad', svg: '<circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>' },
+        'scale': { name: 'Báscula / Peso', cat: 'health', tags: 'peso bascula volumen definicion seguimiento kilos', svg: '<path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"/><path d="M7 21h10"/><path d="M12 3v18"/><path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"/>' },
+        'utensils': { name: 'Comida / Restaurante', cat: 'health', tags: 'cubiertos comida restaurante cenar almorzar taper plato', svg: '<path d="M18 2v20M21 15V2v0a5 5 0 0 0-5 5v6c0 1.1.9 2 2 2h3Zm-17 0h3a2 2 0 0 0 2-2V7a5 5 0 0 0-5-5v13ZM4 22V15"/>' },
+        'coffee': { name: 'Café / Energía', cat: 'health', tags: 'cafe cafeina taza desayuno relax te infusion', svg: '<path d="M17 8h1a4 4 0 1 1 0 8h-1M3 8h14v9a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4Z"/><line x1="6" y1="2" x2="6" y2="4"/><line x1="10" y1="2" x2="10" y2="4"/><line x1="14" y1="2" x2="14" y2="4"/>' },
+
+        // --- 4. FINANZAS & CONSUMO ---
+        'cart': { name: 'Supermercado / Compra', cat: 'finance', tags: 'compra carrito super supermercado mercadona viveres comida', svg: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>' },
+        'wallet': { name: 'Cartera / Efectivo', cat: 'finance', tags: 'cartera dinero billetes efectivo sueldo pagos presupuesto', svg: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z"/>' },
+        'piggy': { name: 'Hucha / Ahorro', cat: 'finance', tags: 'hucha cerdito ahorro sobrante guardar futuro', svg: '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-2.5 1-3.5-.5-8.5-1-8.5Z"/><circle cx="8" cy="11" r="1"/>' },
+        'credit-card': { name: 'Tarjeta / Banco', cat: 'finance', tags: 'tarjeta credito debito banco cuenta visa mastercard pago', svg: '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>' },
+        'receipt': { name: 'Ticket / Factura', cat: 'finance', tags: 'ticket recibo factura cuenta gasto desglose', svg: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M8 7h8M8 11h8M8 15h5"/>' },
+        'fuel': { name: 'Gasolina / Transporte', cat: 'finance', tags: 'gasolina combustible coche moto repostar transporte diesel', svg: '<path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/>' },
+        'home': { name: 'Hogar / Alquiler', cat: 'finance', tags: 'casa hogar alquiler piso comunidad luz agua wifi gas', svg: '<path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/>' },
+        'tag': { name: 'Ropa / Moda / Tag', cat: 'finance', tags: 'ropa compras zara moda estilo compras calzado', svg: '<path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"/><line x1="7" y1="7" x2="7.01" y2="7"/>' },
+        'gift': { name: 'Regalo / Cumple', cat: 'finance', tags: 'regalo sorpresa fiesta detalle cumpleano amigo', svg: '<polyline points="20 12 20 22 4 22 4 12"/><rect width="20" height="5" x="2" y="7"/><line x1="12" y1="22" x2="12" y2="7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>' },
+        'beer': { name: 'Ocio / Bares / Fiesta', cat: 'finance', tags: 'cerveza copa bar bares fiesta caña ocio salir noche amigos', svg: '<path d="M17 11h1a3 3 0 0 1 0 6h-1M9 12v6M13 12v6M5 8h12v11a3 3 0 0 1-3 3H8a3 3 0 0 1-3-3V8Z"/><path d="M5 8a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2"/>' },
+
+        // --- 5. ESTILO DE VIDA, TECNOLOGÍA & OCIO ---
+        'smartphone': { name: 'Móvil / Pantalla', cat: 'lifestyle', tags: 'movil telefono redes instagram tiktok pantalla limite tiempo', svg: '<rect width="14" height="20" x="5" y="2" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/>' },
+        'monitor': { name: 'Ordenador / Setup', cat: 'lifestyle', tags: 'pantalla monitor pc gaming tecnologia ordenador escritorio', svg: '<rect width="20" height="14" x="2" y="3" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/>' },
+        'gamepad': { name: 'Videojuegos / Ocio', cat: 'lifestyle', tags: 'videojuegos play xbox switch jugar ocio diversion relax', svg: '<line x1="6" y1="12" x2="10" y2="12"/><line x1="8" y1="10" x2="8" y2="14"/><line x1="15" y1="13" x2="15.01" y2="13"/><line x1="18" y1="11" x2="18.01" y2="11"/><rect width="20" height="12" x="2" y="6" rx="6"/>' },
+        'headphones': { name: 'Música / Podcast', cat: 'lifestyle', tags: 'musica auriculares cascos podcast spotify concentracion audio', svg: '<path d="M3 18v-6a9 9 0 0 1 18 0v6M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>' },
+        'film': { name: 'Cine / Películas', cat: 'lifestyle', tags: 'cine pelicula serie netflix cine filmin ver entretenimiento', svg: '<rect width="20" height="20" x="2" y="2" rx="2.18" ry="2.18"/><line x1="7" y1="2" x2="7" y2="22"/><line x1="17" y1="2" x2="17" y2="22"/><line x1="2" y1="12" x2="22" y2="12"/><line x1="2" y1="7" x2="7" y2="7"/><line x1="2" y1="17" x2="7" y2="17"/><line x1="17" y1="17" x2="22" y2="17"/><line x1="17" y1="7" x2="22" y2="7"/>' },
+        'plane': { name: 'Viajes / Vacaciones', cat: 'lifestyle', tags: 'avion viaje viajar vacaciones vuelo escapada turismo', svg: '<path d="M17.8 19.2 16 11l3.5-3.5C21 6 21.5 4 21 3c-1-.5-3 0-4.5 1.5L13 8 4.8 6.2c-.5-.1-.9.1-1.1.5l-.3.5c-.2.5-.1 1 .3 1.3L9 12l-2 3H4l-1 1 3 2 2 3 1-1v-3l3-2 3.5 5.3c.3.4.8.5 1.3.3l.5-.2c.4-.3.6-.7.5-1.2z"/>' },
+        'smile': { name: 'Sonrisa / Ánimo', cat: 'lifestyle', tags: 'sonrisa animo humor felicidad positividad bienestar', svg: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/>' },
+        'star': { name: 'Estrella / Prioridad', cat: 'lifestyle', tags: 'estrella favorito importante destacada clave exito', svg: '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>' },
+        'shield': { name: 'Escudo / Disciplina', cat: 'lifestyle', tags: 'escudo proteccion disciplina seguridad constancia autocontrol', svg: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+        'sparkles': { name: 'Chispas / Hábitos', cat: 'lifestyle', tags: 'chispas magia brillo evolucion transformar nuevo', svg: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/><path d="m5 3 1 2 2 1-2 1-1 2-1-2-2-1 2-1Z"/>' }
+      };
+
+      // Helper universal para renderizar el icono vectorial SVG o emoji según corresponda
+      function renderItemIcon(iconIdOrEmoji, className = 'w-4 h-4', fallbackIcon = 'star') {
+        if (!iconIdOrEmoji) {
+          const fb = SVG_ICON_LIBRARY[fallbackIcon] || SVG_ICON_LIBRARY['star'];
+          return `<svg class="${className} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${fb.svg}</svg>`;
+        }
+
+        // Si es un ID de la biblioteca SVG
+        if (SVG_ICON_LIBRARY[iconIdOrEmoji]) {
+          const it = SVG_ICON_LIBRARY[iconIdOrEmoji];
+          return `<svg class="${className} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${it.svg}</svg>`;
+        }
+
+        // Si es un emoji antiguo o texto corto
+        return `<span class="inline-flex items-center justify-center leading-none text-center shrink-0 ${className}">${iconIdOrEmoji}</span>`;
+      }
+
       const DEFAULT_STATE = {
         version: 4,
         theme: 'dark',
@@ -5051,6 +5181,7 @@
         piggyBank: { balance: 0.00, history: [] },
         savingsGoals: [],
         carryOverToCurrent: 0.00,
+        deletedBaseModules: [],
         enabledModules: {
           gym: true,
           run: true,
@@ -5738,6 +5869,7 @@
           nutri: true,
           budget: true
         }, s.enabledModules);
+        if (!Array.isArray(s.deletedBaseModules)) s.deletedBaseModules = [];
         if (!Array.isArray(s.customHabits)) s.customHabits = [];
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
@@ -7329,28 +7461,47 @@
         else kpi1Card.classList.remove('gold-glow');
 
         const batteryData = [];
-        if (enabled.gym) batteryData.push({ name: 'Gym', pct: m.gymPct });
-        if (enabled.run) batteryData.push({ name: 'Run', pct: m.runPct });
-        if (enabled.study) batteryData.push({ name: 'Estudio', pct: m.studyPct });
-        if (enabled.academic) batteryData.push({ name: 'Clase', pct: m.attPct });
-        if (enabled.nutri) batteryData.push({ name: 'Nutri', pct: m.nutriPct });
-        if (enabled.budget) batteryData.push({ name: 'Tope', pct: m.finPct });
+        if (enabled.gym) batteryData.push({ id: 'gym', name: 'Gimnasio', icon: 'dumbbell', pct: m.gymPct });
+        if (enabled.run) batteryData.push({ id: 'run', name: 'Running', icon: 'run', pct: m.runPct });
+        if (enabled.study) batteryData.push({ id: 'study', name: 'Estudio', icon: 'book', pct: m.studyPct });
+        if (enabled.academic) batteryData.push({ id: 'academic', name: 'Clases', icon: 'graduation-cap', pct: m.attPct });
+        if (enabled.nutri) batteryData.push({ id: 'nutri', name: 'Nutrición', icon: 'apple', pct: m.nutriPct });
+        if (enabled.budget) batteryData.push({ id: 'budget', name: 'Presupuesto', icon: 'wallet', pct: m.finPct });
         activeHabits.forEach(h => {
-          batteryData.push({ name: h.emoji || h.name.slice(0, 4), pct: m.customHabitsPct[h.id] || 0 });
+          batteryData.push({
+            id: h.id,
+            name: h.name,
+            icon: h.iconId || h.emoji || 'star',
+            pct: m.customHabitsPct[h.id] || 0
+          });
         });
 
-        document.getElementById('kpi1Batteries').innerHTML = batteryData.map(b => {
-          const color = getScoreColor(b.pct);
-          const height = Math.min(100, Math.max(10, b.pct));
-          return `
-            <div class="flex-1 min-w-[20px] max-w-[42px] flex flex-col items-center gap-0.5 h-full justify-end">
-              <div class="w-full subpanel-bg rounded h-6 overflow-hidden flex flex-col justify-end p-0.5 border">
-                <div style="height:${height}%; background-color:${color};" class="w-full rounded-xs transition-all duration-300"></div>
+        // Contenedor adaptable: 1 fila si son <= 6, o rejilla de 2 filas compactas (máx 6 por fila) si hay más
+        const totalBats = batteryData.length;
+        const useGrid = totalBats > 6;
+        const batContainer = document.getElementById('kpi1Batteries');
+        if (batContainer) {
+          if (useGrid) {
+            batContainer.className = 'grid grid-cols-6 gap-x-1 gap-y-1 pt-1 items-end w-full';
+          } else {
+            batContainer.className = 'flex flex-nowrap gap-1 pt-1 items-end h-8 sm:h-9 overflow-hidden w-full';
+          }
+
+          batContainer.innerHTML = batteryData.map(b => {
+            const color = getScoreColor(b.pct);
+            const height = Math.min(100, Math.max(12, b.pct));
+            return `
+              <div class="flex-1 min-w-[16px] max-w-[42px] flex flex-col items-center gap-0.5 justify-end" title="${escapeHtml(b.name)}: ${Math.round(b.pct)}%">
+                <div class="w-full subpanel-bg rounded ${useGrid ? 'h-4 sm:h-5' : 'h-5 sm:h-6'} overflow-hidden flex flex-col justify-end p-0.5 border">
+                  <div style="height:${height}%; background-color:${color};" class="w-full rounded-xs transition-all duration-300"></div>
+                </div>
+                <div class="w-3.5 h-3.5 sm:w-4 sm:h-4 flex items-center justify-center text-stone-500 dark:text-slate-400">
+                  ${renderItemIcon(b.icon, 'w-3 h-3 text-stone-600 dark:text-slate-300')}
+                </div>
               </div>
-              <span class="text-[7.5px] sm:text-[8px] font-bold text-stone-500 dark:text-slate-400 truncate w-full text-center" title="${b.name}">${b.name}</span>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
 
         // KPI 2
         const studyPlan = (w.studyHoursPlan || []).reduce((a, b) => a + Number(b), 0) || 15;
@@ -7902,7 +8053,9 @@
                   return `
                     <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
                       <div class="flex items-center gap-2">
-                        <span class="text-base">${h.emoji || '⭐'}</span>
+                        <span class="w-6 h-6 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
+                          ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                        </span>
                         <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
                       </div>
                       ${bodyHtml}
@@ -8202,10 +8355,12 @@
         activeHabits.forEach(h => {
           let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]">
             <div class="flex items-center gap-1">
-              <span class="text-xs shrink-0">${h.emoji || '⭐'}</span>
+              <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center text-theme-main shrink-0">
+                ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3 h-3 text-theme-main')}
+              </span>
               <span class="text-[11px] truncate">${escapeHtml(h.name)}</span>
             </div>
-            <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-4 truncate">
+            <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">
               ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}
             </div>
           </td>`;
@@ -9117,28 +9272,57 @@
         const g = state.goalsTemplate;
         const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
 
-        // Renderizar toggles de módulos nativos
+        // Renderizar toggles de módulos nativos + hábitos personalizados
         const togglesContainer = document.getElementById('modularTogglesRow');
         if (togglesContainer) {
-          const modules = [
-            { key: 'gym', label: 'Gimnasio', icon: '🏋️' },
-            { key: 'run', label: 'Running / Cardio', icon: '🏃' },
-            { key: 'study', label: 'Estudio', icon: '📚' },
-            { key: 'academic', label: 'Asistencia Clases', icon: '🎓' },
-            { key: 'nutri', label: 'Nutrición / Kcal', icon: '🥗' },
-            { key: 'budget', label: 'Presupuesto Semanal', icon: '💶' }
+          const deleted = state.deletedBaseModules || [];
+          const baseModules = [
+            { key: 'gym', label: 'Gimnasio', iconId: 'dumbbell', isBase: true },
+            { key: 'run', label: 'Running / Cardio', iconId: 'run', isBase: true },
+            { key: 'study', label: 'Estudio', iconId: 'book', isBase: true },
+            { key: 'academic', label: 'Asistencia Clases', iconId: 'graduation-cap', isBase: true },
+            { key: 'nutri', label: 'Nutrición / Kcal', iconId: 'apple', isBase: true },
+            { key: 'budget', label: 'Presupuesto Semanal', iconId: 'wallet', isBase: true }
+          ].filter(m => !deleted.includes(m.key));
+
+          const customHabitsList = (state.customHabits || []).map(h => ({
+            key: h.id,
+            label: h.name,
+            iconId: h.iconId || h.emoji || 'star',
+            isBase: false,
+            active: h.active !== false
+          }));
+
+          const allToggles = [
+            ...baseModules.map(m => ({
+              ...m,
+              active: enabled[m.key] !== false
+            })),
+            ...customHabitsList
           ];
 
-          togglesContainer.innerHTML = modules.map(m => {
-            const isAct = enabled[m.key] !== false;
+          togglesContainer.innerHTML = allToggles.map(item => {
+            const isAct = item.active;
+            const toggleFn = item.isBase ? `app.toggleModule('${item.key}')` : `app.toggleCustomHabit('${item.key}')`;
+            const deleteFn = item.isBase ? `app.deleteBaseModule('${item.key}', '${escapeHtml(item.label)}')` : `app.deleteCustomHabit('${item.key}')`;
+
             return `
-              <button type="button" onclick="app.toggleModule('${m.key}')" class="px-2.5 py-1.5 rounded-xl border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 ${isAct ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}">
-                <span>${m.icon}</span>
-                <span>${m.label}</span>
-                <span class="w-1.5 h-1.5 rounded-full ${isAct ? 'bg-white' : 'bg-stone-400 dark:bg-slate-600'}"></span>
-              </button>
+              <div class="inline-flex items-center rounded-xl border transition shadow-xs ${isAct ? 'bg-theme-main text-white border-theme' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}">
+                <button type="button" onclick="${toggleFn}" class="px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition active:scale-95" title="${isAct ? 'Clic para pausar' : 'Clic para activar'}">
+                  <span class="w-3.5 h-3.5 flex items-center justify-center shrink-0">${renderItemIcon(item.iconId, 'w-3.5 h-3.5')}</span>
+                  <span class="truncate max-w-[120px]">${escapeHtml(item.label)}</span>
+                  <span class="w-1.5 h-1.5 rounded-full ${isAct ? 'bg-white' : 'bg-stone-400 dark:bg-slate-600'}"></span>
+                </button>
+                <button type="button" onclick="${deleteFn}" class="pr-2 pl-1 py-1.5 text-xs opacity-60 hover:opacity-100 hover:text-rose-300 transition" title="Eliminar módulo de la plantilla">
+                  ✕
+                </button>
+              </div>
             `;
-          }).join('');
+          }).join('') + (deleted.length > 0 ? `
+            <button type="button" onclick="app.restoreBaseModules()" class="px-2.5 py-1.5 rounded-xl border border-dashed border-theme text-theme-main text-xs font-bold hover:bg-theme-main/10 transition">
+              + Restaurar módulos (${deleted.length})
+            </button>
+          ` : '');
         }
 
         document.getElementById('goalGymInput').value = g.gymSessions;
@@ -9453,7 +9637,9 @@
               <div class="space-y-1">
                 <div class="flex items-center justify-between gap-1">
                   <span class="font-bold text-stone-900 dark:text-white truncate flex items-center gap-1.5" title="${escapeHtml(h.name)}">
-                    <span class="text-sm shrink-0">${h.emoji || '⭐'}</span>
+                    <span class="w-5 h-5 rounded subpanel-bg flex items-center justify-center text-theme-main shrink-0">
+                      ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                    </span>
                     <span class="truncate">${escapeHtml(h.name)}</span>
                   </span>
                   <span style="color:${color}" class="font-mono font-black text-xs shrink-0">${Math.round(curPct)}%</span>
@@ -9661,8 +9847,8 @@
 
           allPillars.push({
             id: h.id,
-            name: `${h.emoji || '⭐'} ${h.name}`,
-            iconSvg: `<span class="text-base">${h.emoji || '⭐'}</span>`,
+            name: h.name,
+            iconSvg: `<span class="w-6 h-6 rounded flex items-center justify-center text-theme-main shrink-0">${renderItemIcon(h.iconId || h.emoji || 'star', 'w-4 h-4 text-theme-main')}</span>`,
             current: currentStr,
             target: targetStr,
             pct: p,
@@ -10758,7 +10944,7 @@
           const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
           habitsEvolBox.innerHTML = activeHabits.map(h => {
             const isSel = metric === `habit_${h.id}`;
-            return `<button onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1 ${isSel ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white'}"><span>${h.emoji || '⭐'}</span><span class="truncate max-w-[80px]">${escapeHtml(h.name)}</span></button>`;
+            return `<button onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${isSel ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white'}"><span>${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3 h-3')}</span><span class="truncate max-w-[80px]">${escapeHtml(h.name)}</span></button>`;
           }).join('');
         }
 
@@ -14326,9 +14512,115 @@
           });
         },
 
+        // --- GESTIÓN DE LA BIBLIOTECA DE ICONOS VECTORIALES SVG ---
+        currentIconTarget: null, // 'habit' | 'category'
+        currentIconCategoryFilter: 'all',
+
+        openIconPicker(targetType = 'habit') {
+          this.currentIconTarget = targetType;
+          this.currentIconCategoryFilter = 'all';
+          const searchInp = document.getElementById('iconSearchInput');
+          if (searchInp) searchInp.value = '';
+          this.updateIconCategoryFilterUI();
+          this.renderIconGrid();
+          this.openModal('modalIconPicker');
+          setTimeout(() => searchInp && searchInp.focus(), 60);
+        },
+
+        setIconCategoryFilter(cat) {
+          this.currentIconCategoryFilter = cat;
+          this.updateIconCategoryFilterUI();
+          this.renderIconGrid();
+        },
+
+        updateIconCategoryFilterUI() {
+          const btns = document.querySelectorAll('.icon-cat-btn');
+          btns.forEach(b => {
+            const c = b.getAttribute('data-cat');
+            if (c === this.currentIconCategoryFilter) {
+              b.className = 'icon-cat-btn px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs';
+            } else {
+              b.className = 'icon-cat-btn px-2.5 py-1 rounded-lg font-semibold subpanel-bg border text-stone-600 dark:text-slate-300 hover:border-theme transition';
+            }
+          });
+        },
+
+        filterIcons() {
+          this.renderIconGrid();
+        },
+
+        renderIconGrid() {
+          const container = document.getElementById('iconGridContainer');
+          if (!container) return;
+
+          const query = (document.getElementById('iconSearchInput')?.value || '').toLowerCase().trim();
+          const cat = this.currentIconCategoryFilter;
+
+          const entries = Object.entries(SVG_ICON_LIBRARY).filter(([id, data]) => {
+            if (cat !== 'all' && data.cat !== cat) return false;
+            if (!query) return true;
+            const fullText = `${data.name} ${data.tags} ${id}`.toLowerCase();
+            return fullText.includes(query);
+          });
+
+          if (entries.length === 0) {
+            container.innerHTML = `<div class="col-span-full py-8 text-center text-slate-400 text-xs">No se encontraron iconos para "${escapeHtml(query)}"</div>`;
+            return;
+          }
+
+          container.innerHTML = entries.map(([id, data]) => `
+            <button type="button" onclick="app.selectIcon('${id}')" class="group flex flex-col items-center justify-center p-2 rounded-xl subpanel-bg border hover:border-theme-main hover:bg-theme-main/10 transition active:scale-95 text-center gap-1.5" title="${data.name}">
+              <div class="w-8 h-8 rounded-lg flex items-center justify-center text-stone-700 dark:text-slate-200 group-hover:text-theme-main transition-colors">
+                <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${data.svg}</svg>
+              </div>
+              <span class="text-[9px] font-bold text-stone-600 dark:text-slate-300 group-hover:text-theme-main truncate w-full block">${data.name.split('/')[0].trim()}</span>
+            </button>
+          `).join('');
+        },
+
+        selectIcon(iconId) {
+          if (!SVG_ICON_LIBRARY[iconId]) return;
+          const target = this.currentIconTarget;
+
+          if (target === 'habit') {
+            const iconInp = document.getElementById('habitIconInput');
+            const preview = document.getElementById('habitIconPreview');
+            if (iconInp) iconInp.value = iconId;
+            if (preview) {
+              preview.innerHTML = renderItemIcon(iconId, 'w-5 h-5 text-theme-main');
+            }
+          } else if (target === 'category') {
+            const catIconInp = document.getElementById('manageCatIconInput');
+            const preview = document.getElementById('manageCatIconPreview');
+            if (catIconInp) catIconInp.value = iconId;
+            if (preview) {
+              preview.innerHTML = renderItemIcon(iconId, 'w-4 h-4 text-theme-main');
+            }
+          }
+
+          this.closeModal('modalIconPicker');
+          this.showToast(`Icono "${SVG_ICON_LIBRARY[iconId].name}" seleccionado`, 'info');
+        },
+
+        renderCategoryQuickIcons() {
+          const row = document.getElementById('quickCategoryIconRow');
+          if (!row) return;
+          const recIcons = ['cart', 'coffee', 'beer', 'fuel', 'utensils', 'pill', 'home', 'book', 'tag', 'gift', 'smartphone', 'gamepad'];
+          row.innerHTML = recIcons.map(id => {
+            const it = SVG_ICON_LIBRARY[id];
+            if (!it) return '';
+            return `
+              <button type="button" onclick="app.selectIcon('${id}')" class="p-1.5 rounded-lg subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 hover:text-theme-main transition active:scale-95" title="${it.name}">
+                <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${it.svg}</svg>
+              </button>
+            `;
+          }).join('');
+        },
+
         openManageCategoriesModal() {
           app.ensureCategoryIds();
           app.cancelCategoryEdit();
+          app.renderCategoryQuickIcons();
           app.renderCategoriesManagerList();
           document.getElementById('modalManageCategories').classList.remove('hidden');
         },
@@ -14371,7 +14663,9 @@
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="6 9 12 15 18 9"/></svg>
                     </button>
                   </div>
-                  <span class="emoji-sticker w-8 h-8 text-sm shrink-0">${c.emoji || '📦'}</span>
+                  <span class="w-8 h-8 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
+                    ${renderItemIcon(c.iconId || c.emoji || 'cart', 'w-4 h-4 text-theme-main')}
+                  </span>
                   <div class="truncate">
                     <span class="font-bold text-white text-xs block truncate">${c.name}</span>
                     <span class="text-[10px] text-slate-400 font-mono">${count} compra${count === 1 ? '' : 's'}</span>
@@ -14418,6 +14712,13 @@
           if (!cat) return;
 
           document.getElementById('manageCatEditId').value = cat.id;
+          const iconId = cat.iconId || (SVG_ICON_LIBRARY[cat.emoji] ? cat.emoji : 'cart');
+          const catIconInp = document.getElementById('manageCatIconInput');
+          if (catIconInp) catIconInp.value = iconId;
+          const preview = document.getElementById('manageCatIconPreview');
+          if (preview) {
+            preview.innerHTML = renderItemIcon(cat.iconId || cat.emoji || 'cart', 'w-4 h-4 text-theme-main');
+          }
           document.getElementById('manageCatEmojiInput').value = cat.emoji || '📦';
           document.getElementById('manageCatNameInput').value = cat.name || '';
           document.getElementById('catFormTitle').textContent = `Editar Categoría: "${cat.name}"`;
@@ -14428,7 +14729,13 @@
 
         cancelCategoryEdit() {
           document.getElementById('manageCatEditId').value = '';
-          document.getElementById('manageCatEmojiInput').value = '🛒';
+          const catIconInp = document.getElementById('manageCatIconInput');
+          if (catIconInp) catIconInp.value = 'cart';
+          const preview = document.getElementById('manageCatIconPreview');
+          if (preview) {
+            preview.innerHTML = renderItemIcon('cart', 'w-4 h-4 text-theme-main');
+          }
+          document.getElementById('manageCatEmojiInput').value = '📦';
           document.getElementById('manageCatNameInput').value = '';
           document.getElementById('catFormTitle').textContent = 'Añadir Nueva Categoría';
           document.getElementById('catSubmitBtn').textContent = '+ Añadir';
@@ -14438,6 +14745,7 @@
         saveCategory() {
           app.ensureCategoryIds();
           const editId = document.getElementById('manageCatEditId').value;
+          const iconId = document.getElementById('manageCatIconInput')?.value || 'cart';
           const emoji = (document.getElementById('manageCatEmojiInput').value || '').trim() || '📦';
           const name = (document.getElementById('manageCatNameInput').value || '').trim();
 
@@ -14455,6 +14763,7 @@
             const oldName = cat.name.trim();
             const newFormatted = `${emoji} ${name}`.trim();
 
+            cat.iconId = iconId;
             cat.emoji = emoji;
             cat.name = name;
 
@@ -14479,6 +14788,7 @@
             cats.push({
               id: 'cat_' + Date.now() + '_' + Math.random().toString(36).substr(2, 4),
               name,
+              iconId,
               emoji
             });
           }
@@ -15494,6 +15804,43 @@
           this.showToast(`Módulo ${nextVal ? 'activado' : 'pausado'}.`, 'info');
         },
 
+        async deleteBaseModule(moduleKey, moduleLabel) {
+          const confirmed = await this.showConfirm({
+            title: 'Quitar Módulo Base',
+            message: `¿Deseas quitar el módulo "${moduleLabel}" de la plantilla?\n\nSe pausará y no contará en los KPIs de la semana activa. Siempre podrás restaurarlo cuando quieras.`,
+            confirmText: 'Quitar Módulo',
+            cancelText: 'Cancelar',
+            isDanger: true
+          });
+          if (!confirmed) return;
+
+          pushUndo(`Quitar módulo base ${moduleLabel}`);
+          if (!Array.isArray(state.deletedBaseModules)) state.deletedBaseModules = [];
+          if (!state.deletedBaseModules.includes(moduleKey)) {
+            state.deletedBaseModules.push(moduleKey);
+          }
+
+          if (state.enabledModules) state.enabledModules[moduleKey] = false;
+          const curWk = state.weeks[state.currentWeek];
+          if (curWk && curWk.enabledModules) curWk.enabledModules[moduleKey] = false;
+
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+          this.showToast(`Módulo "${moduleLabel}" quitado de la plantilla.`, 'info');
+        },
+
+        restoreBaseModules() {
+          pushUndo('Restaurar módulos base');
+          state.deletedBaseModules = [];
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+          this.showToast('Módulos base restaurados en la plantilla.', 'success');
+        },
+
         openManageHabitsModal() {
           this.resetHabitForm();
           this.renderCustomHabitsList();
@@ -15506,6 +15853,8 @@
           const submitBtn = document.getElementById('habitSubmitBtn');
           const cancelBtn = document.getElementById('habitCancelEditBtn');
           const nameInp = document.getElementById('habitNameInput');
+          const iconInp = document.getElementById('habitIconInput');
+          const preview = document.getElementById('habitIconPreview');
           const emojiInp = document.getElementById('habitEmojiInput');
           const typeSel = document.getElementById('habitTypeSelect');
 
@@ -15514,6 +15863,8 @@
           if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
           if (cancelBtn) cancelBtn.classList.add('hidden');
           if (nameInp) nameInp.value = '';
+          if (iconInp) iconInp.value = 'star';
+          if (preview) preview.innerHTML = renderItemIcon('star', 'w-5 h-5 text-theme-main');
           if (emojiInp) emojiInp.value = '⭐';
           if (typeSel) {
             typeSel.value = 'max_limit';
@@ -15587,6 +15938,7 @@
         saveCustomHabit() {
           const editId = document.getElementById('habitEditId')?.value || '';
           const name = (document.getElementById('habitNameInput')?.value || '').trim();
+          const iconId = (document.getElementById('habitIconInput')?.value || 'star').trim();
           const emoji = (document.getElementById('habitEmojiInput')?.value || '⭐').trim() || '⭐';
           const type = document.getElementById('habitTypeSelect')?.value || 'max_limit';
 
@@ -15597,7 +15949,8 @@
           let habitData = {
             id: editId || ('habit_' + Date.now()),
             name,
-            emoji,
+            iconId,
+            emoji: emoji || '⭐',
             type,
             active: true
           };
@@ -15651,6 +16004,13 @@
           document.getElementById('habitCancelEditBtn').classList.remove('hidden');
 
           document.getElementById('habitNameInput').value = habit.name;
+          const iconId = habit.iconId || (SVG_ICON_LIBRARY[habit.emoji] ? habit.emoji : 'star');
+          const iconInp = document.getElementById('habitIconInput');
+          if (iconInp) iconInp.value = iconId;
+          const preview = document.getElementById('habitIconPreview');
+          if (preview) {
+            preview.innerHTML = renderItemIcon(habit.iconId || habit.emoji || 'star', 'w-5 h-5 text-theme-main');
+          }
           document.getElementById('habitEmojiInput').value = habit.emoji || '⭐';
           document.getElementById('habitTypeSelect').value = habit.type;
 
@@ -15721,8 +16081,10 @@
 
             return `
               <div class="flex items-center justify-between p-2 rounded-xl subpanel-bg border ${isActive ? 'border-stone-300 dark:border-slate-700' : 'opacity-60 border-dashed'}">
-                <div class="flex items-center gap-2 truncate min-w-0">
-                  <span class="text-base">${h.emoji || '⭐'}</span>
+                <div class="flex items-center gap-2.5 truncate min-w-0">
+                  <span class="w-8 h-8 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
+                    ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-4 h-4 text-theme-main')}
+                  </span>
                   <div class="truncate">
                     <span class="font-bold block truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
                     <span class="text-[9.5px] text-stone-500 dark:text-slate-400">${typeLabel} • ${detail}</span>
