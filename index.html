@@ -2369,6 +2369,42 @@
     </div>
   </div>
 
+  <!-- CAPAS GLOBALES DEL TOUR GUIADO INTERACTIVO (SPOTLIGHT OVERLAY & TOOLTIP FLOTANTE) -->
+  <div id="tourOverlay" class="fixed inset-0 z-50 pointer-events-none hidden transition-opacity duration-300">
+    <!-- Recuadro resaltado (Spotlight) con sombra expansiva oscura -->
+    <div id="tourHighlightBox" class="absolute pointer-events-none rounded-2xl transition-all duration-300 shadow-[0_0_0_9999px_rgba(0,0,0,0.78)] border-2 border-theme-main ring-4 ring-theme-main/30"></div>
+    
+    <!-- Popover / Tooltip Flotante con Explicación y Controles -->
+    <div id="tourTooltipBox" class="absolute pointer-events-auto panel-bg border border-theme rounded-2xl p-4 sm:p-5 shadow-2xl space-y-3 w-[calc(100vw-2rem)] sm:w-96 text-xs transition-all duration-300 z-10 flex flex-col">
+      <div class="flex items-center justify-between border-b pb-2">
+        <div class="flex items-center gap-2">
+          <span id="tourStepBadge" class="text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-theme-main text-white">Paso 1 de 8</span>
+          <span id="tourTargetTitle" class="font-bold text-xs text-stone-900 dark:text-white truncate">Recuadro</span>
+        </div>
+        <button type="button" onclick="app.endGuidedTour()" class="text-stone-400 hover:text-stone-700 dark:hover:text-white font-bold text-sm px-1" title="Cerrar tour">✕</button>
+      </div>
+
+      <div id="tourDescriptionText" class="text-[11.5px] text-stone-700 dark:text-slate-300 leading-relaxed min-h-[50px]">
+        <!-- Inyectado dinámicamente -->
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t text-xs">
+        <button type="button" onclick="app.prevTourStep()" id="tourPrevBtn" class="px-3 py-1.5 rounded-xl subpanel-bg border text-stone-700 dark:text-slate-300 font-bold hover:border-theme-main transition text-[11px] flex items-center gap-1">
+          <span>←</span> Anterior
+        </button>
+        <div class="flex items-center gap-2">
+          <button type="button" onclick="app.endGuidedTour()" class="px-2.5 py-1.5 text-stone-400 hover:text-stone-600 dark:hover:text-slate-200 text-[11px] font-semibold">Saltar</button>
+          <button type="button" onclick="app.nextTourStep()" id="tourNextBtn" class="px-4 py-1.5 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold shadow-xs transition text-[11px] flex items-center gap-1">
+            <span>Siguiente</span> <span>→</span>
+          </button>
+          <button type="button" onclick="app.endGuidedTour()" id="tourFinishBtn" class="hidden px-4 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 text-white font-bold shadow-xs transition text-[11px] flex items-center gap-1">
+            <span>¡Entendido!</span> <span>✓</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <!-- MODAL: BIENVENIDA E INTRODUCCIÓN INTERACTIVA (ONBOARDING) -->
   <div id="modalWelcomeIntro" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
     <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[92vh] flex flex-col relative overflow-hidden">
@@ -2527,7 +2563,7 @@
       </div>
 
       <!-- VISOR DE DIFERENCIAS DETALLADAS (COMPARADOR DÍA A DÍA Y MÉTRICAS) -->
-      <div class="space-y-1.5 flex-1 overflow-y-auto pr-1">
+      <div id="conflictComparisonMainView" class="space-y-1.5 flex-1 overflow-y-auto pr-1">
         <div class="flex items-center justify-between">
           <span class="font-bold text-[11px] uppercase tracking-wider text-stone-600 dark:text-slate-300 flex items-center gap-1.5">
             <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
@@ -2541,8 +2577,34 @@
         </div>
       </div>
 
-      <!-- Botones de Acción Guiada -->
-      <div class="space-y-2 pt-2 border-t shrink-0">
+      <!-- VISTA PREVIA Y CONFIRMACIÓN DE FUSIÓN INTELIGENTE -->
+      <div id="conflictMergePreviewView" class="hidden space-y-2.5 flex-1 overflow-y-auto pr-1">
+        <div class="flex items-center justify-between border-b pb-2">
+          <span class="font-bold text-xs text-theme-main flex items-center gap-1.5">
+            <span>✨</span>
+            <span>Resumen del Resultado de la Fusión:</span>
+          </span>
+          <span id="conflictMergeTotalBadge" class="text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-theme-main/15 text-theme-main border border-theme-main/30">-</span>
+        </div>
+
+        <p class="text-[11px] text-stone-600 dark:text-slate-400">
+          La <strong>Fusión Inteligente</strong> conservará las semanas cerradas más recientes de cada dispositivo y mantendrá tus datos sin sobrescribir información crítica:
+        </p>
+
+        <div id="conflictMergeWeeksList" class="space-y-1.5 max-h-56 overflow-y-auto pr-0.5 font-mono text-[11px]">
+          <!-- Lista generada dinámicamente con las semanas resultantes y su procedencia -->
+        </div>
+
+        <div class="p-2.5 rounded-xl border border-amber-500/30 bg-amber-500/10 text-stone-700 dark:text-slate-300 text-[10.5px] space-y-1">
+          <div class="font-bold text-amber-600 dark:text-amber-400 flex items-center gap-1">
+            <span>⚠️</span> ¿Prefieres quedarte solo con un archivo sin combinar?
+          </div>
+          <div>Si esta combinación no es lo que esperas, puedes volver atrás o elegir quedarte 100% con este equipo o 100% con Google Drive.</div>
+        </div>
+      </div>
+
+      <!-- Botones de Acción Guiada (Vista Principal) -->
+      <div id="conflictMainActions" class="space-y-2 pt-2 border-t shrink-0">
         <div class="grid grid-cols-1 sm:grid-cols-3 gap-2">
           <button type="button" onclick="app.resolveSyncConflict('upload')" class="py-2 px-3 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs flex flex-col items-center justify-center shadow-xs transition text-center" title="Guarda lo que tienes en pantalla y sobrescribe Google Drive">
             <span>Conservar este equipo</span>
@@ -2552,15 +2614,32 @@
             <span>Cargar versión de Drive</span>
             <span class="text-[9px] opacity-80 font-mono font-normal">Nube → Este equipo</span>
           </button>
-          <button type="button" onclick="app.resolveSyncConflict('merge')" class="py-2 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs flex flex-col items-center justify-center transition text-center" title="Compara semana a semana y conserva la más reciente de cada dispositivo">
+          <button type="button" onclick="app.previewMergeResult()" class="py-2 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs flex flex-col items-center justify-center transition text-center" title="Compara semana a semana y muestra el resumen antes de aplicar">
             <span>Fusión Inteligente</span>
-            <span class="text-[9px] opacity-80 font-mono font-normal">Combinar semanas</span>
+            <span class="text-[9px] opacity-80 font-mono font-normal">Ver resumen de combinación</span>
           </button>
         </div>
 
         <div class="flex justify-between items-center pt-1 text-[10px] text-stone-400">
-          <span>Si dudas, "Fusión Inteligente" conserva las semanas actualizadas de ambos lados.</span>
+          <span>Si dudas, "Fusión Inteligente" revisa y combina las semanas de ambos lados.</span>
           <button type="button" onclick="app.closeModal('modalSyncConflict')" class="hover:underline font-semibold">Pausar</button>
+        </div>
+      </div>
+
+      <!-- Botones de Acción (Vista Resumen de Fusión) -->
+      <div id="conflictMergeActions" class="hidden space-y-2 pt-2 border-t shrink-0">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <button type="button" onclick="app.confirmMergeResult()" class="py-2.5 px-3 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-md transition text-center flex items-center justify-center gap-1.5">
+            <span>✓ Confirmar y Aplicar Fusión</span>
+          </button>
+          <button type="button" onclick="app.cancelMergePreview()" class="py-2.5 px-3 rounded-xl subpanel-bg border hover:border-theme-main text-stone-800 dark:text-slate-200 font-bold text-xs transition text-center">
+            <span>← Volver / Ver diferencias</span>
+          </button>
+        </div>
+        <div class="flex items-center justify-center gap-4 text-[10.5px] pt-1">
+          <button type="button" onclick="app.resolveSyncConflict('upload')" class="text-theme-main hover:underline font-semibold">Preferir solo Este Equipo</button>
+          <span class="text-stone-400">•</span>
+          <button type="button" onclick="app.resolveSyncConflict('download')" class="text-theme-accent hover:underline font-semibold">Preferir solo Drive</button>
         </div>
       </div>
     </div>
@@ -3487,7 +3566,7 @@
         <!-- ========================================================
              LOS 4 KPIS SUPERIORES (SIEMPRE VISIBLES - ARQUITECTURA 3 NIVELES)
              ======================================================== -->
-        <section class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
+        <section id="kpiGridContainer" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
       <!-- KPI 1: 6 Baterías -->
       <div id="kpiCard1" onclick="app.openKpi1BlocksModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver el desglose y diagnóstico de los 6 bloques de metas">
         <!-- Tier 1: Fila Superior -->
@@ -15541,8 +15620,175 @@
         setLabScope(scope) { state.ui.labScope = scope; renderTab4(); saveState(); },
         setEvolMetric(metric) { state.ui.evolMetric = metric; renderTab4(); saveState(); },
 
-        // --- INTRODUCCIÓN INTERACTIVA Y ONBOARDING ---
-        welcomeTourStep: 0,
+        // --- TOUR GUIADO INTERACTIVO POR LA PÁGINA (SPOTLIGHT & TOOLTIP FLOTANTE) ---
+        guidedTourStep: 0,
+        guidedTourSteps: [
+          {
+            tab: 1,
+            targetId: 'mainAppHeader',
+            title: '1. Cabecera, Semanas y Sincronización',
+            description: 'Desde aquí cambias de semana (◀ / ▶), activas el <strong>Candado de Solo Lectura</strong> para evitar toques accidentales, cambias la paleta bicolor y pulsas <strong>Sincronizar</strong> para actualizar Drive y la app en tu iPad.'
+          },
+          {
+            tab: 1,
+            targetId: 'kpiGridContainer',
+            title: '2. Tarjetas de KPIs y Diagnóstico',
+            description: 'Tus 4 métricas vitales: <strong>Objetivos</strong> (baterías de gym, run, estudio y nutrición), <strong>Horas de Estudio</strong> con anillo de avance, <strong>Asistencia</strong> a clase con auditoría de faltas y <strong>Ritmo de Gasto</strong> del presupuesto semanal.'
+          },
+          {
+            tab: 1,
+            targetId: 'todayFocusContainer',
+            title: '3. Enfoque de Hoy & Registro Táctil',
+            description: 'Tu recuadro diario principal: anota calorías con un toque rápido, marca sesiones de gym (pierna, torso...), kilometraje de running y hábitos personales con checkboxes o valores numéricos.'
+          },
+          {
+            tab: 1,
+            targetId: 'interactiveListsPanel',
+            title: '4. Listas de Entregas y Gastos Rápidos',
+            description: 'Organiza tus entregas universitarias, exámenes y notas con fechas y subtareas. Además, puedes anotar compras sobre la marcha pulsando <kbd class="px-1 py-0.5 rounded border text-[9px] font-mono">N</kbd> o tocando en la pastilla flotante.'
+          },
+          {
+            tab: 2,
+            targetId: 'tab2',
+            title: '5. Pestaña 02: Metas, Horario y Módulos',
+            description: 'Configura tu semana ideal: define tus metas de estudio, activa o desactiva módulos enteros (incluso los predeterminados), crea nuevos hábitos con iconos SVG y asigna tu horario de clases.'
+          },
+          {
+            tab: 3,
+            targetId: 'tab3',
+            title: '6. Pestaña 03: Finanzas Pro y la Hucha',
+            description: 'Control financiero de precisión: presupuesto semanal automático, recibos fijos mensuales que se desmarcan cada mes y tu <strong>Hucha</strong> con metas de ahorro individuales y simulación de compras.'
+          },
+          {
+            tab: 4,
+            targetId: 'tab4',
+            title: '7. Pestaña 04: Estadísticas & Laboratorio',
+            description: 'Analiza tu rendimiento: mapa de calor anatómico por grupos musculares, evolución histórica del Score (0-100) y comparador de métricas entre semanas pasadas.'
+          },
+          {
+            tab: 1,
+            targetId: 'dockPomoPill',
+            title: '8. Modo Zen & Temporizador Pomodoro',
+            description: 'Inicia sesiones de estudio profundo desde la pastilla flotante o pulsando <kbd class="px-1 py-0.5 rounded border text-[9px] font-mono">Z</kbd>. En iPad la pantalla no se apaga y el reloj nunca se congela.'
+          }
+        ],
+
+        startGuidedTour() {
+          this.closeModal('modalWelcomeIntro');
+          this.guidedTourStep = 0;
+          const overlay = document.getElementById('tourOverlay');
+          if (overlay) overlay.classList.remove('hidden');
+          this.renderGuidedTourStep();
+        },
+
+        endGuidedTour() {
+          const overlay = document.getElementById('tourOverlay');
+          if (overlay) overlay.classList.add('hidden');
+          localStorage.setItem('centro_onboarding_shown', 'true');
+          this.showToast('¡Has completado el tour interactivo! Ya tienes el control total.', 'success', 3500);
+        },
+
+        nextTourStep() {
+          if (this.guidedTourStep < this.guidedTourSteps.length - 1) {
+            this.guidedTourStep++;
+            this.renderGuidedTourStep();
+          } else {
+            this.endGuidedTour();
+          }
+        },
+
+        prevTourStep() {
+          if (this.guidedTourStep > 0) {
+            this.guidedTourStep--;
+            this.renderGuidedTourStep();
+          }
+        },
+
+        renderGuidedTourStep() {
+          const stepData = this.guidedTourSteps[this.guidedTourStep];
+          if (!stepData) return;
+
+          // 1. Cambiar de pestaña si el paso lo requiere
+          if (state.activeTab !== stepData.tab) {
+            this.switchTab(stepData.tab);
+          }
+
+          const badge = document.getElementById('tourStepBadge');
+          const title = document.getElementById('tourTargetTitle');
+          const desc = document.getElementById('tourDescriptionText');
+          const nextBtn = document.getElementById('tourNextBtn');
+          const prevBtn = document.getElementById('tourPrevBtn');
+          const finishBtn = document.getElementById('tourFinishBtn');
+
+          if (badge) badge.textContent = `Paso ${this.guidedTourStep + 1} de ${this.guidedTourSteps.length}`;
+          if (title) title.textContent = stepData.title;
+          if (desc) desc.innerHTML = stepData.description;
+
+          if (prevBtn) {
+            if (this.guidedTourStep === 0) prevBtn.classList.add('opacity-40', 'pointer-events-none');
+            else prevBtn.classList.remove('opacity-40', 'pointer-events-none');
+          }
+
+          if (nextBtn && finishBtn) {
+            if (this.guidedTourStep === this.guidedTourSteps.length - 1) {
+              nextBtn.classList.add('hidden');
+              finishBtn.classList.remove('hidden');
+            } else {
+              nextBtn.classList.remove('hidden');
+              finishBtn.classList.add('hidden');
+            }
+          }
+
+          // 2. Localizar y resaltar el elemento objetivo con scroll suave
+          setTimeout(() => {
+            let el = document.getElementById(stepData.targetId);
+            if (!el && stepData.targetId === 'quickExpensesSection') {
+              el = document.getElementById('quickExpensesCard') || document.getElementById('tab1');
+            }
+            if (!el && stepData.targetId === 'kpiGridContainer') {
+              el = document.getElementById('kpiCard1')?.parentElement || document.getElementById('kpiCard1');
+            }
+            if (!el) el = document.getElementById('tab1');
+
+            if (el) {
+              el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+              setTimeout(() => {
+                const rect = el.getBoundingClientRect();
+                const hlBox = document.getElementById('tourHighlightBox');
+                const ttBox = document.getElementById('tourTooltipBox');
+
+                if (hlBox) {
+                  hlBox.style.top = `${rect.top - 6}px`;
+                  hlBox.style.left = `${rect.left - 6}px`;
+                  hlBox.style.width = `${rect.width + 12}px`;
+                  hlBox.style.height = `${rect.height + 12}px`;
+                }
+
+                // Posicionar tooltip inteligentemente
+                if (ttBox) {
+                  const ttHeight = ttBox.offsetHeight || 190;
+                  const ttWidth = ttBox.offsetWidth || 340;
+                  const spaceBelow = window.innerHeight - (rect.bottom + 12);
+                  const spaceAbove = rect.top - 12;
+
+                  let topPos = 0;
+                  if (spaceBelow >= ttHeight || spaceBelow >= spaceAbove) {
+                    topPos = Math.min(window.innerHeight - ttHeight - 16, rect.bottom + 14);
+                  } else {
+                    topPos = Math.max(16, rect.top - ttHeight - 14);
+                  }
+
+                  let leftPos = Math.max(16, Math.min(window.innerWidth - ttWidth - 16, rect.left + (rect.width - ttWidth) / 2));
+
+                  ttBox.style.top = `${topPos}px`;
+                  ttBox.style.left = `${leftPos}px`;
+                }
+              }, 250);
+            }
+          }, 60);
+        },
+
         openWelcomeIntroModal() {
           this.welcomeTourStep = 0;
           const home = document.getElementById('welcomeStepHome');
@@ -15552,12 +15798,7 @@
           this.openModal('modalWelcomeIntro');
         },
         startWelcomeTour() {
-          this.welcomeTourStep = 0;
-          const home = document.getElementById('welcomeStepHome');
-          const tour = document.getElementById('welcomeStepTour');
-          if (home) home.classList.add('hidden');
-          if (tour) tour.classList.remove('hidden');
-          this.renderWelcomeTourStep();
+          this.startGuidedTour();
         },
         skipWelcomeIntro() {
           localStorage.setItem('centro_onboarding_shown', 'true');
@@ -16375,6 +16616,16 @@
             }
           }
 
+          // Resetear vista al abrir el modal de conflicto
+          const compView = document.getElementById('conflictComparisonMainView');
+          const mergeView = document.getElementById('conflictMergePreviewView');
+          const mainActs = document.getElementById('conflictMainActions');
+          const mergeActs = document.getElementById('conflictMergeActions');
+          if (compView) compView.classList.remove('hidden');
+          if (mergeView) mergeView.classList.add('hidden');
+          if (mainActs) mainActs.classList.remove('hidden');
+          if (mergeActs) mergeActs.classList.add('hidden');
+
           this.openModal('modalSyncConflict');
         },
 
@@ -16439,7 +16690,104 @@
           }
         },
 
-        // --- GESTIÓN DE PLANTILLA MODULAR Y HÁBITOS PERSONALIZADOS ---
+        // --- RESUMEN Y VISTA PREVIA DE FUSIÓN DE DRIVE ---
+        previewMergeResult() {
+          if (!pendingCloudConflictJson) return;
+
+          const getWeeksArray = (wks) => {
+            if (!wks) return [];
+            return Array.isArray(wks) ? wks : Object.values(wks);
+          };
+
+          const cloudWeeks = getWeeksArray(pendingCloudConflictJson.weeks);
+          const localWeeks = getWeeksArray(state.weeks);
+          const mergedList = [];
+          const mergedMap = new Map();
+
+          // Semanas locales
+          localWeeks.forEach(w => {
+            if (w && w.weekNum !== undefined) {
+              mergedMap.set(w.weekNum, { week: w, source: 'local', reason: 'Semana en este equipo' });
+            }
+          });
+
+          // Semanas de la nube
+          cloudWeeks.forEach(cw => {
+            if (!cw || cw.weekNum === undefined) return;
+            if (!mergedMap.has(cw.weekNum)) {
+              mergedMap.set(cw.weekNum, { week: cw, source: 'cloud', reason: 'Nueva (solo existía en Drive)' });
+            } else {
+              const current = mergedMap.get(cw.weekNum);
+              const lw = current.week;
+              const cTime = cw.closedAt ? new Date(cw.closedAt).getTime() : 0;
+              const lTime = lw.closedAt ? new Date(lw.closedAt).getTime() : 0;
+              if (cTime > lTime) {
+                mergedMap.set(cw.weekNum, { week: cw, source: 'cloud', reason: 'Versión de Drive más reciente / cerrada' });
+              } else {
+                current.reason = 'Versión local conservada (más reciente)';
+              }
+            }
+          });
+
+          const sortedWeeks = Array.from(mergedMap.entries()).sort((a, b) => a[0] - b[0]);
+          let countLocal = 0;
+          let countCloud = 0;
+
+          const listEl = document.getElementById('conflictMergeWeeksList');
+          if (listEl) {
+            listEl.innerHTML = sortedWeeks.map(([wNum, info]) => {
+              const isCloud = info.source === 'cloud';
+              if (isCloud) countCloud++; else countLocal++;
+              const wObj = info.week;
+              const isClosed = !!wObj.isClosed;
+
+              return `
+                <div class="p-2 rounded-xl border subpanel-bg flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="font-bold text-xs ${isCloud ? 'text-theme-accent' : 'text-theme-main'} shrink-0">Semana #${wNum}</span>
+                    <span class="text-[9px] px-1.5 py-0.2 rounded font-mono ${isClosed ? 'bg-emerald-950 text-emerald-300 border border-emerald-800' : 'bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-300'} shrink-0">${isClosed ? 'Cerrada' : 'Abierta'}</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400 truncate">${info.reason}</span>
+                  </div>
+                  <div class="shrink-0">
+                    <span class="text-[9.5px] px-2 py-0.5 rounded-full font-bold ${isCloud ? 'bg-theme-accent-soft text-theme-accent border border-theme-accent/30' : 'bg-theme-soft text-theme-main border border-theme-main/30'}">
+                      ${isCloud ? 'Origen: Drive ☁️' : 'Origen: Local 💻'}
+                    </span>
+                  </div>
+                </div>
+              `;
+            }).join('');
+          }
+
+          const badgeEl = document.getElementById('conflictMergeTotalBadge');
+          if (badgeEl) {
+            badgeEl.textContent = `${sortedWeeks.length} semanas (${countLocal} locales, ${countCloud} de nube)`;
+          }
+
+          // Cambiar a la vista de vista previa de fusión
+          const compView = document.getElementById('conflictComparisonMainView');
+          const mergeView = document.getElementById('conflictMergePreviewView');
+          const mainActs = document.getElementById('conflictMainActions');
+          const mergeActs = document.getElementById('conflictMergeActions');
+          if (compView) compView.classList.add('hidden');
+          if (mergeView) mergeView.classList.remove('hidden');
+          if (mainActs) mainActs.classList.add('hidden');
+          if (mergeActs) mergeActs.classList.remove('hidden');
+        },
+
+        cancelMergePreview() {
+          const compView = document.getElementById('conflictComparisonMainView');
+          const mergeView = document.getElementById('conflictMergePreviewView');
+          const mainActs = document.getElementById('conflictMainActions');
+          const mergeActs = document.getElementById('conflictMergeActions');
+          if (compView) compView.classList.remove('hidden');
+          if (mergeView) mergeView.classList.add('hidden');
+          if (mainActs) mainActs.classList.remove('hidden');
+          if (mergeActs) mergeActs.classList.add('hidden');
+        },
+
+        async confirmMergeResult() {
+          await this.resolveSyncConflict('merge');
+        },
         toggleModule(moduleKey) {
           pushUndo('Alternar módulo nativo');
           if (!state.enabledModules) {
