@@ -5705,6 +5705,14 @@
           closedAt: null,
           budgetLimit: state?.financeSettings ? (state.financeSettings.mode === 'auto' ? calculateAutoWeeklyBudget() : state.financeSettings.manualBudget) : 60.0,
           goals: JSON.parse(JSON.stringify(templateGoals)),
+          enabledModules: Object.assign({
+            gym: true,
+            run: true,
+            study: true,
+            academic: true,
+            nutri: true,
+            budget: true
+          }, state?.enabledModules || {}),
           studyHoursPlan: [...templateGoals.studyHoursDaily],
           studyRealHours: [0, 0, 0, 0, 0, 0, 0],
           studyBySubject: {},
@@ -5797,6 +5805,25 @@
 
         // Sanitización profunda de cada día en cada semana para evitar fallos de renderizado
         Object.values(s.weeks).forEach(wk => {
+          if (!wk.enabledModules || typeof wk.enabledModules !== 'object') {
+            wk.enabledModules = Object.assign({
+              gym: true,
+              run: true,
+              study: true,
+              academic: true,
+              nutri: true,
+              budget: true
+            }, s.enabledModules || {});
+          } else {
+            wk.enabledModules = Object.assign({
+              gym: true,
+              run: true,
+              study: true,
+              academic: true,
+              nutri: true,
+              budget: true
+            }, wk.enabledModules);
+          }
           if (wk.goals && wk.goals.nutri) {
             if (wk.goals.nutri.kcal === undefined) wk.goals.nutri.kcal = s.goalsTemplate.nutri.kcal;
             if (wk.goals.nutri.margin === undefined) wk.goals.nutri.margin = s.goalsTemplate.nutri.margin;
@@ -5908,6 +5935,14 @@
         return state.weeks[state.viewingWeek] || state.weeks[state.currentWeek];
       }
 
+      function getWeekEnabledModules(w = getActiveWeek()) {
+        const fallback = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        if (w && w.enabledModules && typeof w.enabledModules === 'object') {
+          return Object.assign({}, fallback, w.enabledModules);
+        }
+        return Object.assign({}, fallback);
+      }
+
       function calculateAutoWeeklyBudget() {
         const s = state.financeSettings;
         const fixedSum = state.monthlyFixedItems.reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
@@ -5974,7 +6009,7 @@
       function calculateWeekMetrics(w) {
         if (!w) return { score: 0, gymPct: 0, runPct: 0, studyPct: 0, attPct: 0, nutriPct: 0, finPct: 0, spent: 0, budget: 60, customHabitsPct: {}, totalActiveBlocks: 6, blocksMetCount: 0 };
         const g = w.goals;
-        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const enabled = getWeekEnabledModules(w);
 
         // 1. Gym (Soporte para 1, 2 o +2 sesiones por día)
         const gymReal = w.days.reduce((acc, d) => acc + (d.gym.sessions || 0), 0);
@@ -7284,8 +7319,8 @@
         // Widget de Próximo Hito Académico y Personal (Alta Visibilidad en Hero Banner y Cabecera)
         renderMilestoneWidget();
 
-        // KPI 1 Dinámico (Módulos Base Activos + Hábitos Personalizados)
-        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        // KPI 1 Dinámico (Módulos Base Activos + Hábitos Personalizados de la Semana en Visualización)
+        const enabled = getWeekEnabledModules(w);
         const activeHabits = (state?.customHabits || []).filter(h => h.active !== false);
 
         document.getElementById('kpi1BlocksCount').textContent = `${m.blocksMetCount} / ${m.totalActiveBlocks}`;
@@ -7545,7 +7580,7 @@
         const studyPlan = Number(w.studyHoursPlan[dIdx] || 0);
         const studyPct = studyPlan > 0 ? Math.min(100, Math.round((studyDone / studyPlan) * 100)) : (studyDone > 0 ? 100 : 0);
         const nutriEval = evalNutritionStatus(day.nutritionKcal, w.goals.nutri?.kcal, w.goals.nutri?.phase);
-        const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
         const habitsData = w.customHabitsData || {};
 
@@ -7901,7 +7936,7 @@
       function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
         const w = getActiveWeek();
         const dateRange = getWeekDateRange(w.weekNum);
-        const enabled = state.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
         const habitsData = w.customHabitsData || {};
 
@@ -9522,7 +9557,7 @@
         const budgetLimit = Number(w.budgetLimit) || 60;
         const spent = m.spent;
 
-        const enabled = state?.enabledModules || { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
+        const enabled = getWeekEnabledModules(w);
         const activeHabits = (state?.customHabits || []).filter(h => h.active !== false);
 
         const allPillars = [];
@@ -15431,12 +15466,32 @@
           if (!state.enabledModules) {
             state.enabledModules = { gym: true, run: true, study: true, academic: true, nutri: true, budget: true };
           }
-          state.enabledModules[moduleKey] = !state.enabledModules[moduleKey];
+          const nextVal = !state.enabledModules[moduleKey];
+          state.enabledModules[moduleKey] = nextVal;
+
+          // Impactar también en la semana activa actual para reflejo inmediato en el presente
+          const curWk = state.weeks[state.currentWeek];
+          if (curWk) {
+            if (!curWk.enabledModules || typeof curWk.enabledModules !== 'object') {
+              curWk.enabledModules = Object.assign({}, state.enabledModules);
+            }
+            curWk.enabledModules[moduleKey] = nextVal;
+          }
+
+          // Si el usuario está viendo otra semana futura abierta, actualizarla también
+          const viewWk = state.weeks[state.viewingWeek];
+          if (viewWk && viewWk !== curWk && !viewWk.isClosed && viewWk.weekNum > state.currentWeek) {
+            if (!viewWk.enabledModules || typeof viewWk.enabledModules !== 'object') {
+              viewWk.enabledModules = Object.assign({}, state.enabledModules);
+            }
+            viewWk.enabledModules[moduleKey] = nextVal;
+          }
+
           renderTab2();
           renderDailyHabits();
           renderHeaderAndKPIs();
           saveState();
-          this.showToast(`Módulo ${state.enabledModules[moduleKey] ? 'activado' : 'pausado'}.`, 'info');
+          this.showToast(`Módulo ${nextVal ? 'activado' : 'pausado'}.`, 'info');
         },
 
         openManageHabitsModal() {
