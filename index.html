@@ -693,6 +693,31 @@
       animation: softPulse 2.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
     }
 
+    /* Animación perimetral de parpadeo de alta visibilidad para Pomodoro (Modo Silencioso / Alarma) */
+    @keyframes zenPerimeterFlash {
+      0%, 100% {
+        opacity: 0;
+        box-shadow: inset 0 0 0 0 transparent;
+      }
+      25%, 75% {
+        opacity: 1;
+        box-shadow: inset 0 0 0 12px var(--theme-accent, #EF4444),
+                    inset 0 0 60px 20px rgba(239, 68, 68, 0.55),
+                    0 0 40px 10px rgba(239, 68, 68, 0.45);
+        background-color: rgba(239, 68, 68, 0.12);
+      }
+      50% {
+        opacity: 0.2;
+        box-shadow: inset 0 0 0 6px var(--theme-accent, #EF4444),
+                    inset 0 0 20px 5px rgba(239, 68, 68, 0.2);
+        background-color: transparent;
+      }
+    }
+    .zen-flash-active {
+      display: block !important;
+      animation: zenPerimeterFlash 0.75s ease-in-out infinite !important;
+    }
+
     /* Estados visuales columna HOY */
     .today-col { 
       background: var(--theme-soft, rgba(29, 78, 216, 0.08)) !important; 
@@ -799,7 +824,7 @@
        ======================================================== -->
 
   <!-- MODAL MODO ZEN POMODORO -->
-  <div id="zenModal" class="fixed inset-0 z-50 hidden bg-[#FBF7F0]/95 dark:bg-[#070B14]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none text-stone-900 dark:text-white transition-colors duration-200">
+  <div id="zenModal" class="fixed inset-0 z-50 hidden bg-[#FBF7F0]/95 dark:bg-[#070B14]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none text-stone-900 dark:text-white transition-colors duration-200 overflow-y-auto overscroll-contain">
     <div class="absolute top-6 right-6 flex items-center gap-3">
       <button onclick="app.toggleZen(false)" class="px-3 py-1.5 rounded-xl subpanel-bg border border-stone-300 dark:border-slate-700 text-stone-700 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white text-xs font-bold tracking-wide flex items-center gap-1.5 transition">
         <span>✕</span>
@@ -927,7 +952,7 @@
   </div>
 
   <!-- Capa de Parpadeo Perimetral para Alerta en Modo Silencio -->
-  <div id="zenScreenFlash" class="fixed inset-0 pointer-events-none z-[100] hidden border-8 border-theme-accent ring-8 ring-theme-accent/50 shadow-[inset_0_0_80px_rgba(239,68,68,0.4)]"></div>
+  <div id="zenScreenFlash" class="fixed inset-0 pointer-events-none z-[100] hidden"></div>
 
   <!-- MODAL CIERRE DE SEMANA -->
   <div id="closeWeekModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
@@ -5362,18 +5387,21 @@
       }
 
       let titleFlashInterval = null;
+      let screenFlashTimeout = null;
       function triggerPomoAlert(phase, sound) {
-        // 1. Sonido escalado por volumen
+        // 1. Sonido escalado por volumen (no sonará si está en 'silent')
         playSoundAlarm(sound || (state?.pomo?.sound) || 'bowl');
 
-        // 2. Alerta visual perimetral de pantalla (#zenScreenFlash)
+        // 2. Alerta visual perimetral de pantalla (#zenScreenFlash) con parpadeo de alta visibilidad
         const flashEl = document.getElementById('zenScreenFlash');
         if (flashEl) {
+          if (screenFlashTimeout) clearTimeout(screenFlashTimeout);
           flashEl.classList.remove('hidden');
-          flashEl.classList.add('animate-pulse');
-          setTimeout(() => {
-            flashEl.classList.remove('animate-pulse');
+          flashEl.classList.add('zen-flash-active');
+          screenFlashTimeout = setTimeout(() => {
+            flashEl.classList.remove('zen-flash-active');
             flashEl.classList.add('hidden');
+            screenFlashTimeout = null;
           }, 3500);
         }
 
@@ -5403,9 +5431,76 @@
         }
       }
 
+      // Funciones de gestión de Wake Lock (evita que la pantalla se apague en iPad / tablets / móviles durante el Pomodoro)
+      async function requestPomoWakeLock() {
+        if ('wakeLock' in navigator) {
+          try {
+            if (!pomoWakeLock) {
+              pomoWakeLock = await navigator.wakeLock.request('screen');
+              pomoWakeLock.addEventListener('release', () => {
+                pomoWakeLock = null;
+              });
+            }
+          } catch (err) {
+            // Wake Lock puede ser denegado por batería baja o configuración del sistema
+            console.log('Wake Lock no disponible o denegado:', err);
+          }
+        }
+      }
+
+      async function releasePomoWakeLock() {
+        if (pomoWakeLock) {
+          try {
+            await pomoWakeLock.release();
+          } catch (_) {}
+          pomoWakeLock = null;
+        }
+      }
+
+      // Sincronización precisa de Pomodoro contra el reloj de la vida real (Date.now)
+      // Resuelve la congelación del temporizador al apagarse o bloquearse la pantalla en iPad / iOS / Android
+      function syncPomoTime(now = Date.now()) {
+        const p = state?.pomo;
+        if (!p || !p.isRunning) return;
+
+        const lastTick = p.lastTick || now;
+        const elapsedSec = Math.floor((now - lastTick) / 1000);
+        if (elapsedSec <= 0) return;
+
+        p.lastTick = now;
+
+        if (p.timeLeft > elapsedSec) {
+          p.timeLeft -= elapsedSec;
+          if (p.phase === 'work') {
+            p.effectiveSeconds = (p.effectiveSeconds || 0) + elapsedSec;
+          }
+          renderPomodoroUI();
+        } else {
+          // El bloque actual ha expirado mientras la pantalla estaba bloqueada o en reposo
+          const remainingInCurrent = p.timeLeft;
+          if (p.phase === 'work') {
+            p.effectiveSeconds = (p.effectiveSeconds || 0) + remainingInCurrent;
+          }
+          const expiredPhase = p.phase;
+          p.isRunning = false;
+          clearInterval(pomoTimerInterval);
+          pomoTimerInterval = null;
+          releasePomoWakeLock();
+          triggerPomoAlert(expiredPhase, p.sound);
+
+          // Avanzar a la siguiente fase
+          p.phase = expiredPhase === 'work' ? 'rest' : 'work';
+          p.timeLeft = (p.phase === 'work' ? p.studyMin : p.restMin) * 60;
+          renderPomodoroUI();
+          app.showToast(`¡Tiempo de ${p.phase === 'work' ? 'Enfoque' : 'Descanso'}!`, 'info', 5000);
+          saveState();
+        }
+      }
+
       // ESTADO GLOBAL Y PERSISTENCIA
       let state = null;
       let pomoTimerInterval = null;
+      let pomoWakeLock = null;
       let lastDeletedItem = null;
       let undoTimeout = null;
       let fileHandle = null;
@@ -12179,23 +12274,19 @@
           const p = state.pomo;
           p.isRunning = !p.isRunning;
           if (p.isRunning) {
+            p.lastTick = Date.now();
+            requestPomoWakeLock();
+            if (pomoTimerInterval) clearInterval(pomoTimerInterval);
             pomoTimerInterval = setInterval(() => {
-              if (p.timeLeft > 0) {
-                p.timeLeft--;
-                if (p.phase === 'work') p.effectiveSeconds++;
-                renderPomodoroUI();
-              } else {
-                p.isRunning = false;
-                clearInterval(pomoTimerInterval);
-                triggerPomoAlert(p.phase, p.sound);
-                p.phase = p.phase === 'work' ? 'rest' : 'work';
-                p.timeLeft = (p.phase === 'work' ? p.studyMin : p.restMin) * 60;
-                renderPomodoroUI();
-                app.showToast(`¡Tiempo de ${p.phase === 'work' ? 'Enfoque' : 'Descanso'}!`, 'info', 5000);
-              }
+              syncPomoTime();
             }, 1000);
           } else {
-            clearInterval(pomoTimerInterval);
+            p.lastTick = null;
+            if (pomoTimerInterval) {
+              clearInterval(pomoTimerInterval);
+              pomoTimerInterval = null;
+            }
+            releasePomoWakeLock();
           }
           renderPomodoroUI();
           saveState();
@@ -12272,6 +12363,7 @@
           const willShow = (show !== undefined) ? show : modal.classList.contains('hidden');
           if (willShow) {
             modal.classList.remove('hidden');
+            document.body.classList.add('overflow-hidden');
             const vol = state.pomo.volume !== undefined ? state.pomo.volume : 80;
             const slider = document.getElementById('zenVolumeSlider');
             if (slider) slider.value = vol;
@@ -12290,6 +12382,7 @@
             }
           } else {
             modal.classList.add('hidden');
+            document.body.classList.remove('overflow-hidden');
           }
         },
         toggleZenSettingsDrawer() {
@@ -12404,7 +12497,7 @@
         },
         testPomoSound() {
           const snd = state?.pomo?.sound || 'bowl';
-          playSoundAlarm(snd);
+          triggerPomoAlert(state?.pomo?.phase || 'work', snd);
         },
 
         // Métodos del Mini-Calendario de Notas con Fecha
@@ -16545,12 +16638,24 @@
         if (gdriveUserEmail) {
           syncGdriveCloud(true);
         }
+        if (state && state.pomo && state.pomo.isRunning) {
+          pomoTimerInterval = setInterval(() => {
+            syncPomoTime();
+          }, 1000);
+          syncPomoTime();
+          requestPomoWakeLock();
+        }
         registerServiceWorker();
         checkWeekRollover();
       }
 
       document.addEventListener('visibilitychange', () => {
         if (document.visibilityState === 'visible') {
+          // Re-sincronizar el reloj del Pomodoro con el tiempo real transcurrido durante la inactividad / bloqueo
+          if (state && state.pomo && state.pomo.isRunning) {
+            syncPomoTime();
+            requestPomoWakeLock();
+          }
           checkWeekRollover();
           renderHeaderAndKPIs();
           if (gdriveUserEmail) {
