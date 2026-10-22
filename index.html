@@ -1334,7 +1334,11 @@
 
       </div>
 
-      <div class="pt-2 border-t border-theme flex justify-end shrink-0">
+      <div class="pt-2 border-t border-theme flex justify-between items-center shrink-0">
+        <button type="button" onclick="app.closeModal('userGuideModal'); app.openWelcomeIntroModal();" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-stone-700 dark:text-slate-300 font-bold transition flex items-center gap-1.5 text-[11px]" title="Ver la bienvenida inicial y tour interactivo">
+          <span>🚀</span>
+          <span>Ver Tour Interactivo</span>
+        </button>
         <button onclick="app.closeModal('userGuideModal')" class="px-4 py-1.5 rounded-xl bg-theme-main text-white font-bold hover:opacity-90 transition">Entendido</button>
       </div>
     </div>
@@ -2362,6 +2366,126 @@
         </div>
         <button onclick="app.closeModal('modalKpi4Budget')" class="px-5 py-2 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-md border border-theme/60 active:translate-y-0.5 transition">Cerrar</button>
       </div>
+    </div>
+  </div>
+
+  <!-- MODAL: BIENVENIDA E INTRODUCCIÓN INTERACTIVA (ONBOARDING) -->
+  <div id="modalWelcomeIntro" class="fixed inset-0 z-50 hidden bg-black/85 backdrop-blur-md flex items-center justify-center p-3 sm:p-4">
+    <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 sm:p-6 space-y-4 shadow-2xl text-xs max-h-[92vh] flex flex-col relative overflow-hidden">
+      
+      <!-- Fondo decorativo sutil -->
+      <div class="absolute -top-12 -right-12 w-40 h-40 bg-theme-main/10 rounded-full blur-2xl pointer-events-none"></div>
+      <div class="absolute -bottom-12 -left-12 w-40 h-40 bg-theme-accent/10 rounded-full blur-2xl pointer-events-none"></div>
+
+      <!-- VISTA 0: PANTALLA INICIAL DE BIENVENIDA -->
+      <div id="welcomeStepHome" class="space-y-4">
+        <div class="flex items-center justify-between border-b pb-3">
+          <div class="flex items-center gap-2.5">
+            <div class="vector-seal bg-theme-main text-white shadow-xs">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon></svg>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-base sm:text-lg text-stone-900 dark:text-white">¡Bienvenido a tu <span class="italic font-normal">Centro de Control</span>!</h3>
+              <p class="text-[10px] sm:text-[11px] text-stone-500 dark:text-slate-400">Tu cabina de mando personal para hábitos, estudios, finanzas y rendimiento</p>
+            </div>
+          </div>
+          <button type="button" onclick="app.skipWelcomeIntro()" class="text-stone-400 hover:text-stone-700 dark:hover:text-white font-bold text-sm px-1.5 py-0.5" title="Saltar">✕</button>
+        </div>
+
+        <p class="text-stone-700 dark:text-slate-300 leading-relaxed text-[11.5px]">
+          Esta aplicación está diseñada para ser ultra-rápida, privada y personalizable. Puedes comenzar explorando un breve tour interactivo de 1 minuto o sincronizar tus datos existentes desde la nube.
+        </p>
+
+        <!-- Tarjetas de Opciones Principales -->
+        <div class="space-y-2.5 pt-1">
+          <!-- Opción 1: Ver Introducción Interactiva -->
+          <button type="button" onclick="app.startWelcomeTour()" class="w-full p-3.5 rounded-xl border border-theme-main/40 bg-theme-soft hover:bg-theme-main/15 text-left transition flex items-center justify-between group cursor-pointer shadow-xs">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-theme-main text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                🚀
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-stone-900 dark:text-white">Hacer un Tour Rápido (1 min)</h4>
+                <p class="text-[10px] text-stone-600 dark:text-slate-400">Descubre en 4 pasos cómo funcionan los módulos, finanzas y el modo zen.</p>
+              </div>
+            </div>
+            <span class="text-theme-main font-bold text-sm group-hover:translate-x-1 transition-transform">→</span>
+          </button>
+
+          <!-- Opción 2: Sincronizar con Google Drive -->
+          <button type="button" onclick="app.welcomeConnectDrive()" class="w-full p-3.5 rounded-xl border border-theme-accent/40 bg-theme-accent-soft hover:bg-theme-accent/15 text-left transition flex items-center justify-between group cursor-pointer shadow-xs">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-theme-accent text-white flex items-center justify-center font-bold text-sm shrink-0 shadow-xs group-hover:scale-105 transition-transform">
+                ☁️
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-stone-900 dark:text-white">Ya tengo cuenta / Sincronizar Drive</h4>
+                <p class="text-[10px] text-stone-600 dark:text-slate-400">Inicia sesión con Google para cargar tus datos guardados desde tu PC u otro iPad.</p>
+              </div>
+            </div>
+            <span class="text-theme-accent font-bold text-sm group-hover:translate-x-1 transition-transform">→</span>
+          </button>
+
+          <!-- Opción 3: Entrar Directo -->
+          <button type="button" onclick="app.skipWelcomeIntro()" class="w-full p-3 rounded-xl border subpanel-bg hover:border-stone-400 dark:hover:border-slate-600 text-left transition flex items-center justify-between group cursor-pointer">
+            <div class="flex items-center gap-3">
+              <div class="w-8 h-8 rounded-lg bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-slate-300 flex items-center justify-center font-bold text-sm shrink-0">
+                ✨
+              </div>
+              <div>
+                <h4 class="font-bold text-xs text-stone-800 dark:text-slate-200">Empezar a usar directamente</h4>
+                <p class="text-[10px] text-stone-500 dark:text-slate-400">Saltar introducción y empezar en blanco.</p>
+              </div>
+            </div>
+            <span class="text-stone-400 font-bold text-sm group-hover:translate-x-1 transition-transform">✓</span>
+          </button>
+        </div>
+
+        <div class="pt-2 text-center text-[10px] text-stone-400">
+          Podrás consultar este tour o el manual completo en cualquier momento pulsando en <strong>Guía</strong>.
+        </div>
+      </div>
+
+      <!-- VISTA 1: PASOS DEL TOUR INTERACTIVO (CARRUSEL DE 4 PASOS) -->
+      <div id="welcomeStepTour" class="hidden space-y-3.5 flex flex-col flex-1">
+        <!-- Indicador de Progreso Superior -->
+        <div class="flex items-center justify-between border-b pb-2">
+          <div class="flex items-center gap-2">
+            <span id="welcomeTourStepBadge" class="text-[9.5px] font-mono px-2 py-0.5 rounded-full font-bold bg-theme-main text-white">Paso 1 de 4</span>
+            <span id="welcomeTourCategoryTitle" class="font-bold text-xs text-stone-800 dark:text-slate-200">Panel Diario & Score</span>
+          </div>
+          <button type="button" onclick="app.skipWelcomeIntro()" class="text-stone-400 hover:text-stone-700 dark:hover:text-white font-bold text-xs">Omitir</button>
+        </div>
+
+        <!-- Contenido Dinámico de la Tarjeta del Tour -->
+        <div id="welcomeTourCardBody" class="p-3.5 rounded-xl border subpanel-bg space-y-3 min-h-[175px] flex flex-col justify-center">
+          <!-- Inyectado dinámicamente por app.renderWelcomeTourStep() -->
+        </div>
+
+        <!-- Indicadores de Puntos (Dots) -->
+        <div class="flex items-center justify-center gap-1.5 py-1">
+          <span id="welcomeDot_0" class="w-2 h-2 rounded-full bg-theme-main transition-all"></span>
+          <span id="welcomeDot_1" class="w-2 h-2 rounded-full bg-stone-300 dark:bg-slate-700 transition-all"></span>
+          <span id="welcomeDot_2" class="w-2 h-2 rounded-full bg-stone-300 dark:bg-slate-700 transition-all"></span>
+          <span id="welcomeDot_3" class="w-2 h-2 rounded-full bg-stone-300 dark:bg-slate-700 transition-all"></span>
+        </div>
+
+        <!-- Botones de Navegación del Tour -->
+        <div class="flex items-center justify-between pt-2 border-t shrink-0">
+          <button type="button" onclick="app.prevWelcomeTourStep()" id="welcomeTourPrevBtn" class="px-3.5 py-1.5 rounded-xl subpanel-bg border text-stone-700 dark:text-slate-300 font-bold hover:border-theme-main transition text-xs flex items-center gap-1">
+            <span>←</span> Anterior
+          </button>
+          <div class="flex items-center gap-2">
+            <button type="button" onclick="app.nextWelcomeTourStep()" id="welcomeTourNextBtn" class="px-4 py-1.5 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold shadow-xs transition text-xs flex items-center gap-1">
+              <span>Siguiente</span> <span>→</span>
+            </button>
+            <button type="button" onclick="app.finishWelcomeTour()" id="welcomeTourFinishBtn" class="hidden px-4 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 text-white font-bold shadow-xs transition text-xs flex items-center gap-1">
+              <span>¡Empezar ahora!</span> <span>✓</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </div>
 
@@ -15417,6 +15541,160 @@
         setLabScope(scope) { state.ui.labScope = scope; renderTab4(); saveState(); },
         setEvolMetric(metric) { state.ui.evolMetric = metric; renderTab4(); saveState(); },
 
+        // --- INTRODUCCIÓN INTERACTIVA Y ONBOARDING ---
+        welcomeTourStep: 0,
+        openWelcomeIntroModal() {
+          this.welcomeTourStep = 0;
+          const home = document.getElementById('welcomeStepHome');
+          const tour = document.getElementById('welcomeStepTour');
+          if (home) home.classList.remove('hidden');
+          if (tour) tour.classList.add('hidden');
+          this.openModal('modalWelcomeIntro');
+        },
+        startWelcomeTour() {
+          this.welcomeTourStep = 0;
+          const home = document.getElementById('welcomeStepHome');
+          const tour = document.getElementById('welcomeStepTour');
+          if (home) home.classList.add('hidden');
+          if (tour) tour.classList.remove('hidden');
+          this.renderWelcomeTourStep();
+        },
+        skipWelcomeIntro() {
+          localStorage.setItem('centro_onboarding_shown', 'true');
+          this.closeModal('modalWelcomeIntro');
+        },
+        welcomeConnectDrive() {
+          this.skipWelcomeIntro();
+          this.syncGoogleDriveNow();
+        },
+        nextWelcomeTourStep() {
+          if (this.welcomeTourStep < 3) {
+            this.welcomeTourStep++;
+            this.renderWelcomeTourStep();
+          } else {
+            this.finishWelcomeTour();
+          }
+        },
+        prevWelcomeTourStep() {
+          if (this.welcomeTourStep > 0) {
+            this.welcomeTourStep--;
+            this.renderWelcomeTourStep();
+          } else {
+            // Volver a la pantalla de bienvenida inicial
+            const home = document.getElementById('welcomeStepHome');
+            const tour = document.getElementById('welcomeStepTour');
+            if (home) home.classList.remove('hidden');
+            if (tour) tour.classList.add('hidden');
+          }
+        },
+        finishWelcomeTour() {
+          this.skipWelcomeIntro();
+          this.showToast('¡Tour completado! Ya puedes personalizar tu semana 🚀', 'success', 3500);
+        },
+        renderWelcomeTourStep() {
+          const step = this.welcomeTourStep;
+          const badge = document.getElementById('welcomeTourStepBadge');
+          const title = document.getElementById('welcomeTourCategoryTitle');
+          const body = document.getElementById('welcomeTourCardBody');
+          const nextBtn = document.getElementById('welcomeTourNextBtn');
+          const finishBtn = document.getElementById('welcomeTourFinishBtn');
+
+          if (badge) badge.textContent = `Paso ${step + 1} de 4`;
+
+          // Actualizar dots
+          for (let i = 0; i < 4; i++) {
+            const dot = document.getElementById(`welcomeDot_${i}`);
+            if (dot) {
+              if (i === step) {
+                dot.className = 'w-5 h-2 rounded-full bg-theme-main transition-all duration-300';
+              } else {
+                dot.className = 'w-2 h-2 rounded-full bg-stone-300 dark:bg-slate-700 transition-all duration-300';
+              }
+            }
+          }
+
+          if (nextBtn && finishBtn) {
+            if (step === 3) {
+              nextBtn.classList.add('hidden');
+              finishBtn.classList.remove('hidden');
+            } else {
+              nextBtn.classList.remove('hidden');
+              finishBtn.classList.add('hidden');
+            }
+          }
+
+          const tourStepsData = [
+            {
+              category: 'Panel Diario (Pestaña 01)',
+              title: 'Hábitos diarios, entrenamientos y Score',
+              html: `
+                <div class="flex items-start gap-3">
+                  <div class="text-3xl shrink-0 p-2 rounded-xl bg-theme-soft border border-theme-main/30">📊</div>
+                  <div class="space-y-1">
+                    <h5 class="font-bold text-xs text-stone-900 dark:text-white">Tu seguimiento diario en un solo vistazo</h5>
+                    <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+                      Registra tus calorías, sesiones de gimnasio (pierna, torso, etc.), kilómetros de carrera y horas de estudio. Todo calcula un <strong>Score de 0 a 100</strong> diario y mantiene tus <strong>rachas vivas</strong>.
+                    </p>
+                    <div class="text-[10px] text-stone-500 font-mono pt-1">Tip: Pulsa en las tarjetas de hábitos para registrar con un solo toque.</div>
+                  </div>
+                </div>
+              `
+            },
+            {
+              category: 'Plantilla Modular (Pestaña 02)',
+              title: 'Horario semanal y hábitos a tu medida',
+              html: `
+                <div class="flex items-start gap-3">
+                  <div class="text-3xl shrink-0 p-2 rounded-xl bg-theme-soft border border-theme-main/30">⚙️</div>
+                  <div class="space-y-1">
+                    <h5 class="font-bold text-xs text-stone-900 dark:text-white">Adapta el Centro a tu estilo de vida</h5>
+                    <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+                      En <strong>Metas y Horario</strong> puedes activar o desactivar módulos (gym, run, estudio, notas...), crear tus propios hábitos con iconos SVG y configurar tu horario de clases universitarias.
+                    </p>
+                    <div class="text-[10px] text-stone-500 font-mono pt-1">Tip: Los cambios que hagas en una semana no alteran las semanas pasadas archivadas.</div>
+                  </div>
+                </div>
+              `
+            },
+            {
+              category: 'Finanzas Pro (Pestaña 03)',
+              title: 'Presupuesto semanal, gastos y la hucha',
+              html: `
+                <div class="flex items-start gap-3">
+                  <div class="text-3xl shrink-0 p-2 rounded-xl bg-theme-soft border border-theme-main/30">💰</div>
+                  <div class="space-y-1">
+                    <h5 class="font-bold text-xs text-stone-900 dark:text-white">Control total de tu dinero sin esfuerzo</h5>
+                    <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+                      Establece tu presupuesto semanal, añade gastos al instante pulsando <kbd class="px-1 py-0.5 rounded border text-[9px] font-mono">N</kbd> y transfiere tus ahorros semanales a la <strong>Hucha</strong> para alcanzar tus metas.
+                    </p>
+                    <div class="text-[10px] text-stone-500 font-mono pt-1">Tip: Aprende automáticamente tus categorías más frecuentes según lo que escribas.</div>
+                  </div>
+                </div>
+              `
+            },
+            {
+              category: 'Modo Zen & iPad PWA',
+              title: 'Pomodoro concentrado y sincronización nube',
+              html: `
+                <div class="flex items-start gap-3">
+                  <div class="text-3xl shrink-0 p-2 rounded-xl bg-theme-soft border border-theme-main/30">⏱️</div>
+                  <div class="space-y-1">
+                    <h5 class="font-bold text-xs text-stone-900 dark:text-white">Estudio profundo y sincronización multidispositivo</h5>
+                    <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+                      Usa el <strong>Modo Zen</strong> (o pulsa <kbd class="px-1 py-0.5 rounded border text-[9px] font-mono">Z</kbd>) para concentrarte. Si usas iPad, la pantalla no se apaga y el temporizador no se congela. Además, sincroniza en tiempo real con <strong>Google Drive</strong>.
+                    </p>
+                    <div class="text-[10px] text-stone-500 font-mono pt-1">Tip: Pulsa "Cerrar Semana" cada domingo para archivar y consolidar estadísticas.</div>
+                  </div>
+                </div>
+              `
+            }
+          ];
+
+          const cur = tourStepsData[step];
+          if (title) title.textContent = cur.category;
+          if (body) body.innerHTML = cur.html;
+        },
+
         openBackupModal() {
           updateGdriveUI();
           document.getElementById('backupModal').classList.remove('hidden');
@@ -16704,6 +16982,16 @@
         }
         registerServiceWorker();
         checkWeekRollover();
+
+        // Mostrar introducción interactiva / onboarding si es un usuario o dispositivo nuevo
+        const onboardingShown = localStorage.getItem('centro_onboarding_shown');
+        const hasDriveSession = !!localStorage.getItem('gdrive_user_email');
+        const weeksCount = Object.keys(state.weeks || {}).length;
+        if (!onboardingShown && !hasDriveSession && weeksCount <= 1) {
+          setTimeout(() => {
+            app.openWelcomeIntroModal();
+          }, 400);
+        }
       }
 
       document.addEventListener('visibilitychange', () => {
