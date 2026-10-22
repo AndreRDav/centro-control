@@ -1,6 +1,6 @@
 // Service Worker para Centro de Control PWA
 // Gestiona el ciclo de vida, caché offline y notificación de actualizaciones instantáneas
-const CACHE_NAME = 'centro-control-v1.2.9';
+const CACHE_NAME = 'centro-control-v1.3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -31,12 +31,11 @@ self.addEventListener('activate', (event) => {
           }
         })
       );
-    })
+    }).then(() => self.clients.claim())
   );
-  self.clients.claim();
 });
 
-// Estrategia Network First para el archivo HTML (para tener siempre la última versión si hay red)
+// Estrategia Network First estricta para el archivo HTML (con cache-control no-cache)
 self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
@@ -44,13 +43,15 @@ self.addEventListener('fetch', (event) => {
   // Si es la página principal HTML o navegación
   if (req.mode === 'navigate' || req.headers.get('accept')?.includes('text/html')) {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
         .then((networkRes) => {
-          const resClone = networkRes.clone();
-          caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+          if (networkRes && networkRes.status === 200) {
+            const resClone = networkRes.clone();
+            caches.open(CACHE_NAME).then((cache) => cache.put(req, resClone));
+          }
           return networkRes;
         })
-        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html')))
+        .catch(() => caches.match(req).then((cached) => cached || caches.match('./index.html') || caches.match('./')))
     );
     return;
   }
@@ -60,7 +61,7 @@ self.addEventListener('fetch', (event) => {
     caches.match(req).then((cached) => {
       if (cached) return cached;
       return fetch(req).then((networkRes) => {
-        if (!networkRes || networkRes.status !== 200 || networkRes.type !== 'basic') {
+        if (!networkRes || networkRes.status !== 200) {
           return networkRes;
         }
         const resClone = networkRes.clone();

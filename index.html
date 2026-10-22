@@ -3265,6 +3265,14 @@
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
         </button>
 
+        <!-- Botón Recargar / Sincronizar App y Drive (Especial para iPad PWA) -->
+        <button onclick="app.refreshAppAndSync()" id="headerSyncRefreshBtn" class="h-8 px-2 sm:px-2.5 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Sincronizar con Google Drive y comprobar actualizaciones de la app">
+          <svg id="headerSyncRefreshIcon" class="w-3.5 h-3.5 text-theme-main shrink-0 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+          </svg>
+          <span class="hidden xl:inline">Sincronizar</span>
+        </button>
+
         <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="h-8 px-2 sm:px-2.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-[11px] sm:text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           <span class="whitespace-nowrap">Cerrar Semana</span>
@@ -15479,6 +15487,45 @@
           updateGdriveUI();
           this.showToast('Sesión de Google Drive cerrada.', 'info');
         },
+        async refreshAppAndSync() {
+          const icon = document.getElementById('headerSyncRefreshIcon');
+          if (icon) icon.classList.add('rotate-180');
+          this.showToast('Sincronizando con Drive y comprobando versión...', 'info', 2000);
+
+          // 1. Comprobar actualización de Service Worker (código de la app)
+          if ('serviceWorker' in navigator) {
+            try {
+              const reg = await navigator.serviceWorker.getRegistration();
+              if (reg) {
+                await reg.update();
+                if (reg.waiting) {
+                  const banner = document.getElementById('pwaUpdateBanner');
+                  if (banner) banner.classList.remove('hidden');
+                  this.showToast('¡Nueva versión del Centro de Control lista!', 'blue', 4000);
+                }
+              }
+            } catch (swErr) {
+              console.log('No se pudo verificar actualización de Service Worker:', swErr);
+            }
+          }
+
+          // 2. Sincronizar con Google Drive
+          if (gdriveUserEmail) {
+            try {
+              await syncGdriveCloud(true);
+              this.showToast('Sincronización con Google Drive completada.', 'success', 2500);
+            } catch (gErr) {
+              console.warn('Error sincronizando con Drive:', gErr);
+            }
+          } else {
+            this.showToast('Datos locales listos. Conecta Drive en Copias para nube.', 'info', 3000);
+          }
+
+          setTimeout(() => {
+            if (icon) icon.classList.remove('rotate-180');
+          }, 600);
+        },
+
         applyPwaUpdate() {
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
@@ -15489,7 +15536,17 @@
               }
             });
           }
-          window.location.reload(true);
+          // Limpiar caché de navegador y recargar
+          if ('caches' in window) {
+            caches.keys().then(keys => {
+              keys.forEach(k => caches.delete(k));
+              window.location.reload(true);
+            }).catch(() => {
+              window.location.reload(true);
+            });
+          } else {
+            window.location.reload(true);
+          }
         },
         openModal(id) {
           const el = document.getElementById(id);
@@ -16661,12 +16718,25 @@
           if (gdriveUserEmail) {
             syncGdriveCloud(true);
           }
+          // Comprobar activamente si hay una nueva versión del Service Worker en el servidor (iPad PWA)
+          if ('serviceWorker' in navigator && swRegistration) {
+            swRegistration.update().catch(() => {});
+          }
         }
       });
 
+      let swRegistration = null;
       function registerServiceWorker() {
         if ('serviceWorker' in navigator && (window.location.protocol === 'https:' || window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')) {
           navigator.serviceWorker.register('./sw.js').then((reg) => {
+            swRegistration = reg;
+
+            // Si ya hay un worker esperando ser activado
+            if (reg.waiting && navigator.serviceWorker.controller) {
+              const banner = document.getElementById('pwaUpdateBanner');
+              if (banner) banner.classList.remove('hidden');
+            }
+
             reg.addEventListener('updatefound', () => {
               const newWorker = reg.installing;
               if (newWorker) {
@@ -16678,6 +16748,11 @@
                 });
               }
             });
+
+            // Forzar comprobación de versión cada 30 minutos mientras la app esté abierta
+            setInterval(() => {
+              reg.update().catch(() => {});
+            }, 30 * 60 * 1000);
           }).catch((err) => {
             console.log('Service Worker no activo en entorno actual:', err);
           });
