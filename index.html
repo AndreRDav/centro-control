@@ -6807,14 +6807,25 @@
         const targetY = height - pad - ((targetVal - minVal) / (maxVal - minVal || 1)) * (height - pad * 2);
 
         const isSingleWeek = dataPoints.length === 1;
-        const points = dataPoints.map((val, idx) => ({
-          x: isSingleWeek ? (width / 2) : pad + (idx / Math.max(1, dataPoints.length - 1)) * (width - pad * 2),
-          y: height - pad - ((val - minVal) / (maxVal - minVal || 1)) * (height - pad * 2),
-          val,
-          label: `S${weeks[idx].weekNum}`
-        }));
+        const points = dataPoints.map((val, idx) => {
+          // Evaluar si cumple meta según tipo de métrica
+          let isMet = false;
+          if (metric === 'spend') {
+            isMet = val <= targetVal; // En gasto, menos o igual es éxito
+          } else if (isHabitMetric && customHabitObj && customHabitObj.type === 'max_limit') {
+            isMet = val <= targetVal; // En límites de tiempo/pantalla, menos o igual es éxito
+          } else {
+            isMet = val >= targetVal; // En estudio, km, score y metas acumulativas, llegar o superar es éxito
+          }
 
-        const pathD = isSingleWeek ? '' : points.map((p, i) => `${i === 0 ? 'M' : 'L'} ${p.x} ${p.y}`).join(' ');
+          return {
+            x: isSingleWeek ? (width / 2) : pad + (idx / Math.max(1, dataPoints.length - 1)) * (width - pad * 2),
+            y: height - pad - ((val - minVal) / (maxVal - minVal || 1)) * (height - pad * 2),
+            val,
+            isMet,
+            label: `S${weeks[idx].weekNum}`
+          };
+        });
 
         const isDark = (typeof state !== 'undefined' && state?.theme) ? (state.theme === 'dark') : document.documentElement.classList.contains('dark');
         const palKey = ACCENT_PALETTES[state?.themePalette || 'blue_red'] ? state.themePalette : 'blue_red';
@@ -6824,8 +6835,24 @@
         const textColor = isDark ? '#F1F5F9' : '#1C1917';
         const textMuted = isDark ? '#94A3B8' : '#78716C';
         const baseGridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(120, 113, 108, 0.25)';
-        const strokeLineColor = colors.theme700 || 'var(--theme-700, #1D4ED8)';
-        const accentColor = colors.accent || 'var(--theme-accent, #D93829)';
+        const successPointColor = colors.theme700 || 'var(--theme-700, #1D4ED8)';
+        const failPointColor = colors.accent || 'var(--theme-accent, #D93829)';
+        const targetLineColor = isDark ? '#F59E0B' : '#D97706'; // Ambar / Dorado nítido para la meta de referencia
+
+        // Trazado de segmentos coloreados: cada tramo hacia un punto refleja el estado de la semana destino
+        let segmentsHtml = '';
+        if (!isSingleWeek) {
+          for (let i = 0; i < points.length - 1; i++) {
+            const p1 = points[i];
+            const p2 = points[i + 1];
+            // Si la semana de llegada no cumplió meta, la línea hacia ella se dibuja en color de aviso (rojo/acento)
+            const segColor = p2.isMet ? successPointColor : failPointColor;
+            const isDashed = !p2.isMet;
+            segmentsHtml += `
+              <line x1="${p1.x}" y1="${p1.y}" x2="${p2.x}" y2="${p2.y}" stroke="${segColor}" stroke-width="3" stroke-linecap="round" ${isDashed ? 'stroke-dasharray="6 3"' : ''} />
+            `;
+          }
+        }
 
         return `
           <svg viewBox="0 0 ${width} ${height}" class="w-full h-full select-none" xmlns="http://www.w3.org/2000/svg">
@@ -6833,23 +6860,26 @@
             <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="${baseGridColor}" stroke-width="1.2" />
             <line x1="${pad}" y1="${pad}" x2="${width - pad}" y2="${pad}" stroke="${baseGridColor}" stroke-width="1" stroke-dasharray="2 4" opacity="0.4" />
             
-            <!-- Línea de Meta (Target) punteada -->
-            <line x1="${pad}" y1="${targetY}" x2="${width - pad}" y2="${targetY}" stroke="${accentColor}" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.8" />
-            <text x="${width - pad}" y="${Math.max(12, targetY - 4)}" text-anchor="end" font-size="9" font-weight="700" fill="${accentColor}" font-family="JetBrains Mono, monospace">Meta: ${targetVal.toFixed(metric === 'score' ? 0 : 1)}</text>
+            <!-- Línea de Meta (Target) punteada de referencia -->
+            <line x1="${pad}" y1="${targetY}" x2="${width - pad}" y2="${targetY}" stroke="${targetLineColor}" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.85" />
+            <text x="${width - pad}" y="${Math.max(12, targetY - 4)}" text-anchor="end" font-size="9" font-weight="700" fill="${targetLineColor}" font-family="JetBrains Mono, monospace">Meta: ${targetVal.toFixed(metric === 'score' ? 0 : 1)}</text>
 
-            ${!isSingleWeek ? `
-              <!-- Línea de evolución continua entre semanas -->
-              <path d="${pathD}" fill="none" stroke="${strokeLineColor}" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
-            ` : ''}
+            <!-- Trazos de línea continua o de aviso según meta -->
+            ${segmentsHtml}
 
-            ${points.map(p => `
-              <g class="transition-transform">
-                ${isSingleWeek ? `<circle cx="${p.x}" cy="${p.y}" r="10" fill="${accentColor}" opacity="0.18" class="animate-pulse" />` : ''}
-                <circle cx="${p.x}" cy="${p.y}" r="${isSingleWeek ? 6.5 : 5}" fill="${accentColor}" stroke="${strokeLineColor}" stroke-width="2.5" />
-                <text x="${p.x}" y="${p.y - (isSingleWeek ? 12 : 9)}" text-anchor="middle" font-size="10.5" font-weight="800" fill="${textColor}" font-family="JetBrains Mono, monospace">${p.val.toFixed(metric === 'score' ? 0 : 1)}</text>
-                <text x="${p.x}" y="${height - 8}" text-anchor="middle" font-size="10" font-weight="700" fill="${textMuted}" font-family="JetBrains Mono, monospace">${p.label}</text>
-              </g>
-            `).join('')}
+            ${points.map(p => {
+              const ptFill = p.isMet ? successPointColor : failPointColor;
+              const ptStroke = p.isMet ? (isDark ? '#0F172A' : '#FFFFFF') : (isDark ? '#450A0A' : '#FEF2F2');
+              const valColor = p.isMet ? textColor : failPointColor;
+              return `
+                <g class="transition-transform">
+                  ${!p.isMet ? `<circle cx="${p.x}" cy="${p.y}" r="9" fill="${failPointColor}" opacity="0.22" class="animate-pulse" />` : ''}
+                  <circle cx="${p.x}" cy="${p.y}" r="${isSingleWeek ? 6.5 : 5.5}" fill="${ptFill}" stroke="${ptStroke}" stroke-width="2" />
+                  <text x="${p.x}" y="${p.y - (isSingleWeek ? 12 : 9)}" text-anchor="middle" font-size="10.5" font-weight="800" fill="${valColor}" font-family="JetBrains Mono, monospace">${p.val.toFixed(metric === 'score' ? 0 : 1)}</text>
+                  <text x="${p.x}" y="${height - 8}" text-anchor="middle" font-size="10" font-weight="700" fill="${textMuted}" font-family="JetBrains Mono, monospace">${p.label}</text>
+                </g>
+              `;
+            }).join('')}
           </svg>
         `;
       }
@@ -7977,95 +8007,91 @@
           `;
         }
 
-        // Renderizar Hábitos Personalizados en dos columnas
-        let customCardsHtml = '';
-        if (activeHabits.length > 0) {
-          customCardsHtml = `
-            <div class="col-span-1 md:col-span-2 pt-2 border-t border-stone-200 dark:border-slate-800">
-              <div class="flex items-center justify-between mb-2">
-                <span class="text-[11px] font-bold text-stone-600 dark:text-slate-400 uppercase tracking-wider">Hábitos Personalizados</span>
-                <button onclick="app.openManageHabitsModal()" class="text-[10px] text-theme-main font-bold hover:underline">+ Configurar</button>
+        // Generar tarjetas para hábitos personalizados activos
+        const customCards = activeHabits.map(h => {
+          const dayVal = (habitsData[h.id] || [])[dIdx];
+          let bodyHtml = '';
+
+          if (h.type === 'max_limit') {
+            const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
+            const maxDaily = Number(h.targetDaily) || 1;
+            const isExceeded = curVal !== null && curVal > maxDaily;
+            const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (isExceeded ? 'bg-theme-accent-soft text-theme-accent border-theme-accent' : 'bg-theme-soft text-theme-main border-theme');
+            const badgeLabel = curVal === null ? 'Sin registrar' : (isExceeded ? `Excedido (+${(curVal - maxDaily).toFixed(1)})` : 'Bajo límite (OK)');
+
+            bodyHtml = `
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-2 flex-1">
+                  <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <span class="text-[10px] font-semibold text-stone-500">${h.unit || 'h'} (máx ${maxDaily})</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-                ${activeHabits.map(h => {
-                  const dayVal = (habitsData[h.id] || [])[dIdx];
-                  let bodyHtml = '';
-
-                  if (h.type === 'max_limit') {
-                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
-                    const maxDaily = Number(h.targetDaily) || 1;
-                    const isExceeded = curVal !== null && curVal > maxDaily;
-                    const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (isExceeded ? 'bg-theme-accent-soft text-theme-accent border-theme-accent' : 'bg-theme-soft text-theme-main border-theme');
-                    const badgeLabel = curVal === null ? 'Sin registrar' : (isExceeded ? `Excedido (+${(curVal - maxDaily).toFixed(1)})` : 'Bajo límite (OK)');
-
-                    bodyHtml = `
-                      <div class="flex items-center justify-between gap-2 pt-1">
-                        <div class="flex items-center gap-2 flex-1">
-                          <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                          <span class="text-[10px] font-semibold text-stone-500">${h.unit || 'h'} (máx ${maxDaily})</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
-                      </div>
-                    `;
-                  } else if (h.type === 'min_accum') {
-                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : 0;
-                    bodyHtml = `
-                      <div class="flex items-center justify-between gap-2 pt-1">
-                        <div class="flex items-center gap-2 flex-1">
-                          <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
-                          <span class="text-[10px] font-semibold text-stone-500">${h.unit || ''} hoy</span>
-                        </div>
-                        <div class="flex gap-1">
-                          <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 1)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+1</button>
-                          <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 5)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+5</button>
-                        </div>
-                      </div>
-                    `;
-                  } else if (h.type === 'binary_check') {
-                    const isChecked = dayVal === true || dayVal === 1 || dayVal === 'true';
-                    bodyHtml = `
-                      <div class="pt-1 flex items-center justify-between">
-                        <span class="text-[10px] text-stone-500">Completado hoy:</span>
-                        <button onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="px-3 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-500'}">
-                          ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>'}
-                        </button>
-                      </div>
-                    `;
-                  } else if (h.type === 'target_range') {
-                    const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
-                    const c = Number(h.targetCenter) || 0;
-                    const m = Number(h.targetMargin) || 0;
-                    const inRange = curVal !== null && curVal >= (c - m) && curVal <= (c + m);
-                    const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
-                    const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + m) ? 'Por encima' : 'Por debajo'));
-
-                    bodyHtml = `
-                      <div class="flex items-center justify-between gap-2 pt-1">
-                        <div class="flex items-center gap-2 flex-1">
-                          <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                          <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${m} ${h.unit || ''}</span>
-                        </div>
-                        <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
-                      </div>
-                    `;
-                  }
-
-                  return `
-                    <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
-                      <div class="flex items-center gap-2">
-                        <span class="w-6 h-6 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
-                          ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
-                        </span>
-                        <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
-                      </div>
-                      ${bodyHtml}
-                    </div>
-                  `;
-                }).join('')}
+            `;
+          } else if (h.type === 'min_accum') {
+            const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : 0;
+            bodyHtml = `
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-2 flex-1">
+                  <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
+                  <span class="text-[10px] font-semibold text-stone-500">${h.unit || ''} hoy</span>
+                </div>
+                <div class="flex gap-1">
+                  <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 1)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+1</button>
+                  <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 5)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+5</button>
+                </div>
               </div>
+            `;
+          } else if (h.type === 'binary_check') {
+            const isChecked = dayVal === true || dayVal === 1 || dayVal === 'true';
+            bodyHtml = `
+              <div class="pt-1 flex items-center justify-between">
+                <span class="text-[10px] text-stone-500">Completado hoy:</span>
+                <button onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="px-3 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-500'}">
+                  ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>'}
+                </button>
+              </div>
+            `;
+          } else if (h.type === 'target_range') {
+            const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
+            const c = Number(h.targetCenter) || 0;
+            const m = Number(h.targetMargin) || 0;
+            const inRange = curVal !== null && curVal >= (c - m) && curVal <= (c + m);
+            const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
+            const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + m) ? 'Por encima' : 'Por debajo'));
+
+            bodyHtml = `
+              <div class="flex items-center justify-between gap-2 pt-1">
+                <div class="flex items-center gap-2 flex-1">
+                  <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${m} ${h.unit || ''}</span>
+                </div>
+                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+              </div>
+            `;
+          }
+
+          return `
+            <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
+              <div class="flex items-center gap-2">
+                <span class="w-6 h-6 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
+                  ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                </span>
+                <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
+              </div>
+              ${bodyHtml}
             </div>
           `;
-        }
+        });
+
+        // Repartir armónicamente los hábitos personalizados entre la columna izquierda y derecha para un flujo unificado y natural
+        customCards.forEach((cardHtml, idx) => {
+          if (idx % 2 === 0) {
+            leftColHtml += cardHtml;
+          } else {
+            rightColHtml += cardHtml;
+          }
+        });
 
         container.innerHTML = `
           ${urgentHtml}
@@ -8073,16 +8099,15 @@
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
             <!-- Columna Izquierda -->
             <div class="space-y-3">
-              ${leftColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Módulos físicos desactivados</div>'}
+              ${leftColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
             </div>
 
             <!-- Columna Derecha -->
             <div class="space-y-3">
-              ${rightColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Módulos académicos desactivados</div>'}
+              ${rightColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
             </div>
-
-            ${customCardsHtml}
           </div>
+        `;
         `;
       }
 
