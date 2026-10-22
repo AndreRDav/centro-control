@@ -1066,7 +1066,7 @@
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
                 <span>Sincronizar Ahora</span>
               </button>
-              <button type="button" onclick="app.connectGoogleDrive()" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
+              <button type="button" onclick="app.connectGoogleDrive(true)" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
                 <span id="driveAccountActionBtnText">Cambiar Cuenta</span>
               </button>
             </div>
@@ -3273,8 +3273,8 @@
           <span id="kpi1BlocksCount" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white">0 / 6</span>
           <span class="text-[9px] sm:text-[10px] font-mono text-stone-500 dark:text-slate-400 hidden sm:inline">Objetivo</span>
         </div>
-        <!-- Tier 3: Fila Inferior de Estado -->
-        <div id="kpi1Batteries" class="grid grid-cols-6 gap-1 pt-1 items-end h-7 sm:h-9"></div>
+        <!-- Tier 3: Fila Inferior de Estado (Baterías Flexibles y Adaptables) -->
+        <div id="kpi1Batteries" class="flex flex-nowrap gap-1 pt-1 items-end h-7 sm:h-9 overflow-hidden"></div>
       </div>
 
       <!-- KPI 2: Anillo de Estudio + Compensación (Clic para ver por asignatura y ajustar) -->
@@ -4176,6 +4176,28 @@
         </div>
       </div>
 
+      <!-- ANALÍTICA Y ESTADÍSTICAS DE HÁBITOS PERSONALIZADOS -->
+      <div id="tab4CustomHabitsSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
+        <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
+          <div class="flex items-center gap-2">
+            <div class="vector-seal bg-theme-main text-white shadow-xs">
+              <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Rendimiento de Hábitos Personalizados</h3>
+              <span class="text-[10px] text-stone-500 dark:text-slate-400">Progreso semanal y acumulado histórico por tipo de meta</span>
+            </div>
+          </div>
+          <button type="button" onclick="app.openManageHabitsModal()" class="px-3 py-1 rounded-xl subpanel-bg border hover:border-theme text-xs text-theme-main font-bold transition flex items-center gap-1.5 shadow-sm">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            <span>Configurar Hábitos</span>
+          </button>
+        </div>
+        <div id="tab4CustomHabitsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+          <!-- Renderizado dinámico de estadísticas de hábitos -->
+        </div>
+      </div>
+
       <!-- MAPA MUSCULAR ANATÓMICO SVG ULTRA-DETALLADO (Frontal y Posterior) + RADAR TRI-SISTEMA -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <!-- Mapa Muscular Anatómico Siluetas -->
@@ -4263,11 +4285,12 @@
             </div>
           </div>
           <!-- Selector de métrica a graficar -->
-          <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs">
+          <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs flex-wrap">
             <button onclick="app.setEvolMetric('score')" id="evolMetricScore" class="px-2.5 py-1 rounded-lg font-bold">Score (0-100)</button>
             <button onclick="app.setEvolMetric('study')" id="evolMetricStudy" class="px-2.5 py-1 rounded-lg text-stone-500 dark:text-slate-400 font-bold">Estudio (h)</button>
             <button onclick="app.setEvolMetric('km')" id="evolMetricKm" class="px-2.5 py-1 rounded-lg text-stone-500 dark:text-slate-400 font-bold">Km Running</button>
             <button onclick="app.setEvolMetric('spend')" id="evolMetricSpend" class="px-2.5 py-1 rounded-lg text-stone-500 dark:text-slate-400 font-bold">Gasto (€)</button>
+            <div id="tab4HabitsEvolButtons" class="inline-flex items-center gap-1"></div>
           </div>
         </div>
 
@@ -4277,7 +4300,7 @@
         <div class="space-y-2 pt-2 border-t">
           <div class="flex items-center gap-1.5 text-xs font-bold uppercase tracking-wider text-stone-500 dark:text-slate-400">
             <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg>
-            <h4>Mapa de Calor de Cumplimiento (6 Bloques)</h4>
+            <h4 id="consistencyHeatmapTitle">Mapa de Calor de Cumplimiento</h4>
           </div>
           <div id="consistencyHeatmapGrid" class="overflow-x-auto"></div>
         </div>
@@ -5468,7 +5491,11 @@
             if (origCallback) origCallback(resp);
             resolve(resp.access_token || null);
           };
-          tokenClient.requestAccessToken({ prompt: gdriveUserEmail ? '' : 'select_account' });
+          const requestOpts = { prompt: '' };
+          if (gdriveUserEmail) {
+            requestOpts.hint = gdriveUserEmail;
+          }
+          tokenClient.requestAccessToken(requestOpts);
         });
       }
 
@@ -6563,13 +6590,42 @@
 
         const curW = weeks[weeks.length - 1] || weeks[0];
         let targetVal = 100;
-        if (metric === 'score') targetVal = 85;
+        let isHabitMetric = false;
+        let customHabitObj = null;
+
+        if (metric.startsWith('habit_')) {
+          isHabitMetric = true;
+          const hId = metric.replace('habit_', '');
+          customHabitObj = (state.customHabits || []).find(h => h.id === hId);
+          if (customHabitObj) {
+            if (customHabitObj.type === 'max_limit') targetVal = Number(customHabitObj.targetDaily) || 1;
+            else if (customHabitObj.type === 'min_accum') targetVal = Number(customHabitObj.targetWeekly) || 10;
+            else if (customHabitObj.type === 'binary_check') targetVal = Number(customHabitObj.targetWeeklyDays) || 7;
+            else if (customHabitObj.type === 'target_range') targetVal = Number(customHabitObj.targetCenter) || 8;
+          }
+        } else if (metric === 'score') targetVal = 85;
         else if (metric === 'study') targetVal = (curW.studyHoursPlan || []).reduce((a, b) => a + Number(b), 0) || curW.goals?.studyHours || 15;
         else if (metric === 'km') targetVal = curW.goals?.runKm || 15;
         else if (metric === 'spend') targetVal = curW.budgetLimit || 60;
 
         const dataPoints = weeks.map(w => {
           const m = calculateWeekMetrics(w);
+          if (isHabitMetric && customHabitObj) {
+            const hId = customHabitObj.id;
+            const hData = (w.customHabitsData && w.customHabitsData[hId]) || [];
+            if (customHabitObj.type === 'max_limit') {
+              const nums = hData.filter(v => v !== null && !isNaN(v)).map(Number);
+              return nums.length ? (nums.reduce((a, b) => a + b, 0) / nums.length) : 0;
+            } else if (customHabitObj.type === 'min_accum') {
+              return hData.reduce((acc, v) => acc + (Number(v) || 0), 0);
+            } else if (customHabitObj.type === 'binary_check') {
+              return hData.filter(Boolean).length;
+            } else if (customHabitObj.type === 'target_range') {
+              const c = Number(customHabitObj.targetCenter) || 0;
+              const mg = Number(customHabitObj.targetMargin) || 0;
+              return hData.filter(v => v !== null && !isNaN(v) && Number(v) >= (c - mg) && Number(v) <= (c + mg)).length;
+            }
+          }
           if (metric === 'score') return m.score;
           if (metric === 'study') return m.studyReal;
           if (metric === 'km') return m.runKmReal;
@@ -6578,7 +6634,7 @@
         });
 
         const width = 600, height = 150, pad = 25;
-        const maxVal = Math.max(...dataPoints, targetVal, metric === 'score' ? 100 : 10);
+        const maxVal = Math.max(...dataPoints, targetVal, metric === 'score' ? 100 : 5);
         const minVal = 0;
 
         const targetY = height - pad - ((targetVal - minVal) / (maxVal - minVal || 1)) * (height - pad * 2);
@@ -7168,12 +7224,12 @@
         if (state.theme === 'light') {
           html.classList.remove('dark');
           if (themeIconEl) themeIconEl.innerHTML = '<svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>';
-          document.getElementById('themeToggleText').textContent = 'Crema Editorial';
+          document.getElementById('themeToggleText').textContent = 'Modo Claro';
           if (metaTheme) metaTheme.content = '#f5f0e8';
         } else {
           html.classList.add('dark');
           if (themeIconEl) themeIconEl.innerHTML = '<svg class="w-3.5 h-3.5 text-blue-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>';
-          document.getElementById('themeToggleText').textContent = 'Azul Espacial';
+          document.getElementById('themeToggleText').textContent = 'Modo Oscuro';
           if (metaTheme) metaTheme.content = '#080d1a';
         }
         applyAccentPalette(state.themePalette || 'blue_red');
@@ -7248,15 +7304,15 @@
           batteryData.push({ name: h.emoji || h.name.slice(0, 4), pct: m.customHabitsPct[h.id] || 0 });
         });
 
-        document.getElementById('kpi1Batteries').innerHTML = batteryData.slice(0, 8).map(b => {
+        document.getElementById('kpi1Batteries').innerHTML = batteryData.map(b => {
           const color = getScoreColor(b.pct);
           const height = Math.min(100, Math.max(10, b.pct));
           return `
-            <div class="flex flex-col items-center gap-0.5 h-full justify-end">
+            <div class="flex-1 min-w-[20px] max-w-[42px] flex flex-col items-center gap-0.5 h-full justify-end">
               <div class="w-full subpanel-bg rounded h-6 overflow-hidden flex flex-col justify-end p-0.5 border">
                 <div style="height:${height}%; background-color:${color};" class="w-full rounded-xs transition-all duration-300"></div>
               </div>
-              <span class="text-[8px] font-bold text-stone-500 dark:text-slate-400 truncate w-full text-center">${b.name}</span>
+              <span class="text-[7.5px] sm:text-[8px] font-bold text-stone-500 dark:text-slate-400 truncate w-full text-center" title="${b.name}">${b.name}</span>
             </div>
           `;
         }).join('');
@@ -9289,6 +9345,97 @@
         if (badge) badge.textContent = `${scopeTotal.toFixed(1)} h`;
       }
 
+      function renderTab4CustomHabits(isWeek) {
+        const grid = document.getElementById('tab4CustomHabitsGrid');
+        const section = document.getElementById('tab4CustomHabitsSection');
+        if (!grid || !section) return;
+
+        const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+        if (activeHabits.length === 0) {
+          section.classList.add('hidden');
+          return;
+        }
+        section.classList.remove('hidden');
+
+        const curW = getActiveWeek();
+        const curMetrics = calculateWeekMetrics(curW);
+        const allWeeks = Object.values(state.weeks || {});
+
+        grid.innerHTML = activeHabits.map(h => {
+          const stats = curMetrics.customHabitsStats?.[h.id] || {};
+          const curPct = curMetrics.customHabitsPct?.[h.id] || 0;
+          const color = getScoreColor(curPct);
+
+          let curDesc = '';
+          let histDesc = '';
+
+          if (h.type === 'max_limit') {
+            const raw = (curW.customHabitsData?.[h.id] || []).filter(v => v !== null && !isNaN(v)).map(Number);
+            const avg = raw.length ? (raw.reduce((a, b) => a + b, 0) / raw.length).toFixed(1) : '0';
+            curDesc = `Media sem: ${avg} / máx ${h.targetDaily}${h.unit || 'h'}`;
+
+            // Histórico
+            let histSum = 0, histDays = 0;
+            allWeeks.forEach(w => {
+              const vals = (w.customHabitsData?.[h.id] || []).filter(v => v !== null && !isNaN(v)).map(Number);
+              vals.forEach(v => { histSum += v; histDays++; });
+            });
+            const histAvg = histDays ? (histSum / histDays).toFixed(1) : '0';
+            histDesc = `Media histórica: ${histAvg}${h.unit || 'h'}/d`;
+          } else if (h.type === 'min_accum') {
+            const sum = (curW.customHabitsData?.[h.id] || []).reduce((acc, v) => acc + (Number(v) || 0), 0);
+            curDesc = `${sum.toFixed(1)} / ${h.targetWeekly} ${h.unit || ''}`;
+
+            let histSum = 0;
+            allWeeks.forEach(w => {
+              (w.customHabitsData?.[h.id] || []).forEach(v => { histSum += (Number(v) || 0); });
+            });
+            histDesc = `Acumulado total: ${histSum.toFixed(1)} ${h.unit || ''}`;
+          } else if (h.type === 'binary_check') {
+            const daysDone = (curW.customHabitsData?.[h.id] || []).filter(Boolean).length;
+            curDesc = `${daysDone} / ${h.targetWeeklyDays || 7} días`;
+
+            let histChecks = 0;
+            allWeeks.forEach(w => {
+              histChecks += (w.customHabitsData?.[h.id] || []).filter(Boolean).length;
+            });
+            histDesc = `Días totales cumplidos: ${histChecks}`;
+          } else if (h.type === 'target_range') {
+            const c = Number(h.targetCenter) || 0;
+            const mg = Number(h.targetMargin) || 0;
+            const valid = (curW.customHabitsData?.[h.id] || []).filter(v => v !== null && !isNaN(v) && Number(v) >= (c - mg) && Number(v) <= (c + mg)).length;
+            curDesc = `${valid} / ${h.targetWeeklyDays || 6} días en diana (${c} ± ${mg})`;
+
+            let histValid = 0;
+            allWeeks.forEach(w => {
+              histValid += (w.customHabitsData?.[h.id] || []).filter(v => v !== null && !isNaN(v) && Number(v) >= (c - mg) && Number(v) <= (c + mg)).length;
+            });
+            histDesc = `Total días en diana: ${histValid}`;
+          }
+
+          return `
+            <div class="p-3 rounded-xl subpanel-bg border border-stone-200/80 dark:border-slate-800/80 space-y-2 text-xs hover:border-theme transition shadow-xs flex flex-col justify-between">
+              <div class="space-y-1">
+                <div class="flex items-center justify-between gap-1">
+                  <span class="font-bold text-stone-900 dark:text-white truncate flex items-center gap-1.5" title="${escapeHtml(h.name)}">
+                    <span class="text-sm shrink-0">${h.emoji || '⭐'}</span>
+                    <span class="truncate">${escapeHtml(h.name)}</span>
+                  </span>
+                  <span style="color:${color}" class="font-mono font-black text-xs shrink-0">${Math.round(curPct)}%</span>
+                </div>
+                <div class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">
+                  ${curDesc}
+                </div>
+              </div>
+              <div class="pt-1.5 border-t border-stone-200/60 dark:border-slate-800/80 flex items-center justify-between">
+                <span class="text-[9px] text-stone-400 dark:text-slate-400 font-mono truncate">${histDesc}</span>
+                <button type="button" onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-0.5 rounded subpanel-bg border hover:border-theme text-[9.5px] font-bold text-theme-main transition shrink-0" title="Ver gráfica de evolución">Evolución</button>
+              </div>
+            </div>
+          `;
+        }).join('');
+      }
+
       function renderSubjectStudyStatsModal() {
         const container = document.getElementById('modalStudySubjectsList');
         if (!container) return;
@@ -10478,6 +10625,9 @@
         // Estadísticas y Registro de Estudio por Asignatura
         renderTab4StudySubjects(isWeek);
 
+        // Rendimiento y Analítica de Hábitos Personalizados
+        renderTab4CustomHabits(isWeek);
+
         // Conteo Sistemas Running
         const weeksToScan = isWeek ? [getActiveWeek()] : Object.values(state.weeks);
         let seriesCount = 0, rodajeCount = 0, tiradaCount = 0, totalKm = 0;
@@ -10559,12 +10709,24 @@
 
         // Gráfico de Evolución
         const metric = state.ui.evolMetric || 'score';
-        ['score', 'study', 'km', 'spend'].forEach(m => {
+        const baseMetrics = ['score', 'study', 'km', 'spend'];
+        baseMetrics.forEach(m => {
           const btn = document.getElementById(`evolMetric${m.charAt(0).toUpperCase() + m.slice(1)}`);
           if (btn) {
             btn.className = m === metric ? 'px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs' : 'px-2.5 py-1 rounded-lg text-slate-400 font-bold hover:text-white transition';
           }
         });
+
+        // Botones dinámicos de hábitos en el selector de evolución
+        const habitsEvolBox = document.getElementById('tab4HabitsEvolButtons');
+        if (habitsEvolBox) {
+          const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+          habitsEvolBox.innerHTML = activeHabits.map(h => {
+            const isSel = metric === `habit_${h.id}`;
+            return `<button onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1 ${isSel ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white'}"><span>${h.emoji || '⭐'}</span><span class="truncate max-w-[80px]">${escapeHtml(h.name)}</span></button>`;
+          }).join('');
+        }
+
         document.getElementById('evolutionChartContainer').innerHTML = renderEvolutionLineChart(metric);
 
         // Heatmap
@@ -14785,13 +14947,20 @@
             if (sec) sec.classList.toggle('hidden', t !== tabKey);
           });
         },
-        async connectGoogleDrive() {
+        async connectGoogleDrive(forceSelectAccount = false) {
           if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
             return this.showToast('Cargando servicios de Google... Revisa tu conexión a internet.', 'warning');
           }
           initGsiClient();
           if (tokenClient) {
-            tokenClient.requestAccessToken({ prompt: gdriveUserEmail ? 'select_account' : 'consent' });
+            const reqOpts = {};
+            if (forceSelectAccount || !gdriveUserEmail) {
+              reqOpts.prompt = 'select_account';
+            } else {
+              reqOpts.prompt = '';
+              reqOpts.hint = gdriveUserEmail;
+            }
+            tokenClient.requestAccessToken(reqOpts);
           } else {
             this.showToast('No se pudo inicializar la autenticación de Google.', 'error');
           }
