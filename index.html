@@ -6185,9 +6185,6 @@
         } catch (_) {
           updateAutoSaveUI(false);
         }
-      } catch (_) {
-          updateAutoSaveUI(false);
-        }
       }
 
       function createEmptyWeek(weekNum, templateGoals, templateSchedule) {
@@ -6863,9 +6860,9 @@
         if (totalMinutes === 0) return showZeroAsMin ? '0m' : '0h';
         const h = Math.floor(totalMinutes / 60);
         const m = totalMinutes % 60;
-        if (h > 0 && m > 0) return ${h}h m;
-        if (h > 0) return ${h}h;
-        return ${m}m;
+        if (h > 0 && m > 0) return `${h}h ${m}m`;
+        if (h > 0) return `${h}h`;
+        return `${m}m`;
       }
       // GRÁFICOS SVG
       function renderSvgRing(pct, real, goal) {
