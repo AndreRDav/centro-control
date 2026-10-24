@@ -11601,6 +11601,8 @@
         let doneTasks = 0;
         
         activeHabits.forEach(h => {
+          const activeDays = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
+          if (h.type === 'binary_check' && !activeDays.includes(todayIdx)) return;
           const val = (habitsData[h.id] || [])[todayIdx];
           const slots = Number(h.slotsCount) || 1;
           if (h.type === 'binary_check' && slots > 1) {
@@ -17250,28 +17252,85 @@
 
         onHabitSlotsCountChange(count, existingLabels = []) {
           const container = document.getElementById('habitSlotLabelsContainer');
+          const modeLbl = document.getElementById('habitSlotsModeLabel');
           if (!container) return;
-          const num = parseInt(count, 10) || 1;
-          if (num <= 1) {
+          const num = parseInt(count, 10);
+          if (isNaN(num) || num <= 1) {
+            if (modeLbl) modeLbl.textContent = 'Check Tradicional (1 toma)';
+            const singleHourBox = document.getElementById('habitSingleHourBox');
+            if (singleHourBox) singleHourBox.classList.remove('hidden');
             container.innerHTML = '';
             return;
           }
-          const defaultHours = ['09:00', '14:00', '21:00', '18:00', '23:00'];
+          if (modeLbl) modeLbl.textContent = 'Multi-casillas (' + num + ' tomas/día)';
+          const singleHourBox = document.getElementById('habitSingleHourBox');
+          if (singleHourBox) singleHourBox.classList.add('hidden');
+
+          const currentTyped = [];
+          const existingInps = container.querySelectorAll('input[id^="habitSlotLabel_"]');
+          existingInps.forEach((inp, idx) => {
+            currentTyped[idx] = inp.value;
+          });
+
+          const defaultHours = ['09:00', '14:00', '21:00', '18:00', '23:00', '08:00', '12:00', '16:00', '20:00', '22:00'];
           let inputsHtml = '<div class="p-2.5 rounded-xl bg-theme-soft/50 border border-theme space-y-1.5">' +
             '<div class="flex items-center justify-between text-[10.5px] font-bold text-theme-main">' +
-              '<span>Horas o Avisos Fijos por Casilla:</span>' +
-              '<span class="text-[9.5px] text-stone-400 font-normal">Fijas cada día en la matriz</span>' +
+              '<span>Horas o Avisos Fijos por Casilla (' + num + ' tomas diarias):</span>' +
+              '<span class="text-[9.5px] text-stone-400 font-normal">Sin límite de tomas</span>' +
             '</div>' +
-            '<div class="grid grid-cols-' + Math.min(num, 3) + ' gap-2">';
+            '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">';
           for (let i = 0; i < num; i++) {
-            const defaultVal = existingLabels[i] || defaultHours[i] || ('Toma ' + (i + 1));
+            const val = (currentTyped[i] !== undefined && currentTyped[i] !== '') 
+              ? currentTyped[i] 
+              : ((existingLabels[i] !== undefined && existingLabels[i] !== '') ? existingLabels[i] : (defaultHours[i] || ('Toma ' + (i + 1))));
             inputsHtml += '<div class="space-y-0.5">' +
               '<label class="block text-[9px] font-bold text-stone-500">Casilla #' + (i + 1) + ':</label>' +
-              '<input type="text" id="habitSlotLabel_' + i + '" value="' + escapeHtml(defaultVal) + '" placeholder="ej: 09:00" class="w-full px-2 py-1 input-bg border rounded-lg font-mono text-center font-bold text-xs focus:border-theme outline-none" />' +
+              '<input type="text" id="habitSlotLabel_' + i + '" value="' + escapeHtml(val) + '" placeholder="ej: 09:00" class="w-full px-2 py-1 input-bg border rounded-lg font-mono text-center font-bold text-xs focus:border-theme outline-none" />' +
             '</div>';
           }
           inputsHtml += '</div></div>';
           container.innerHTML = inputsHtml;
+        },
+
+        toggleHabitActiveDay(dIdx) {
+          const inp = document.getElementById('habitActiveDaysInput');
+          if (!inp) return;
+          let days = [];
+          try { days = JSON.parse(inp.value); } catch (_) { days = [0, 1, 2, 3, 4, 5, 6]; }
+          if (days.includes(dIdx)) {
+            if (days.length > 1) {
+              days = days.filter(x => x !== dIdx);
+            } else {
+              this.showToast('Debe haber al menos 1 día activo.', 'warning');
+              return;
+            }
+          } else {
+            days.push(dIdx);
+            days.sort((a, b) => a - b);
+          }
+          inp.value = JSON.stringify(days);
+
+          const btn = document.getElementById('habitDayBtn_' + dIdx);
+          if (btn) {
+            const isActive = days.includes(dIdx);
+            btn.className = 'flex-1 py-1 rounded-lg border font-mono font-bold text-[11px] text-center transition cursor-pointer ' + (isActive ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-400 hover:border-theme');
+          }
+
+          const summaryEl = document.getElementById('habitActiveDaysSummary');
+          if (summaryEl) {
+            if (days.length === 7) summaryEl.textContent = 'Todos los días (7/7)';
+            else if (days.length === 5 && !days.includes(5) && !days.includes(6)) summaryEl.textContent = 'Lunes a Viernes (5/7)';
+            else if (days.length === 2 && days.includes(5) && days.includes(6)) summaryEl.textContent = 'Fines de semana (2/7)';
+            else {
+              const labels = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+              summaryEl.textContent = days.map(d => labels[d]).join(', ') + ' (' + days.length + '/7)';
+            }
+          }
+
+          const targetDaysInput = document.getElementById('habitTargetWeeklyDays');
+          if (targetDaysInput) {
+            targetDaysInput.value = days.length;
+          }
         },
 
         toggleHabitSlotCheck(dayIdx, habitId, slotIdx) {
@@ -17497,16 +17556,56 @@
               </div>
             `;
           } else if (type === 'binary_check') {
+            const currentSlots = (currentValues.slotsCount !== undefined && currentValues.slotsCount !== null) ? Math.max(1, Number(currentValues.slotsCount)) : 1;
+            const currentDays = currentValues.targetWeeklyDays !== undefined ? currentValues.targetWeeklyDays : '7';
+            const currentHour = currentValues.fixedHour || (currentValues.slotLabels && currentValues.slotLabels[0]) || '';
+            const activeDays = Array.isArray(currentValues.activeDays) ? currentValues.activeDays : [0, 1, 2, 3, 4, 5, 6];
+            const daysLetters = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
             box.innerHTML = `
-              <div class="space-y-1 col-span-2">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Meta de Días Cumplidos por Semana:</label>
-                <input id="habitTargetWeeklyDays" type="number" min="1" max="7" step="1" value="${currentValues.targetWeeklyDays !== undefined ? currentValues.targetWeeklyDays : '7'}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tomas / Checks al día:</label>
+                <input id="habitSlotsCount" type="number" min="1" step="1" value="${currentSlots}" oninput="app.onHabitSlotsCountChange(this.value)" onchange="app.onHabitSlotsCountChange(this.value)" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" placeholder="1 = Sí/No tradicional" />
               </div>
               <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tipo:</label>
-                <div class="py-2 text-[11px] font-semibold text-stone-500 dark:text-slate-400">Check Sí / No</div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Días Meta por Semana:</label>
+                <input id="habitTargetWeeklyDays" type="number" min="1" max="7" step="1" value="${currentDays}" required class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" />
               </div>
+              <div class="space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Modalidad:</label>
+                <div id="habitSlotsModeLabel" class="py-2 text-[11px] font-semibold text-theme-main">${currentSlots > 1 ? `Multi-casillas (${currentSlots} tomas)` : 'Check Tradicional (1 toma)'}</div>
+              </div>
+
+              <!-- Días de la Semana Activos -->
+              <div class="col-span-1 sm:col-span-3 p-2.5 rounded-xl bg-theme-soft/40 border border-theme space-y-1.5">
+                <div class="flex items-center justify-between text-[10px] font-bold text-stone-700 dark:text-slate-200">
+                  <span>📅 Días de la semana en que aplica:</span>
+                  <span id="habitActiveDaysSummary" class="text-[9.5px] font-mono text-theme-main font-bold">${activeDays.length === 7 ? 'Todos los días (7/7)' : activeDays.length + ' días seleccionados'}</span>
+                </div>
+                <div class="flex items-center gap-1.5">
+                  ${daysLetters.map((d, dIdx) => {
+                    const isActive = activeDays.includes(dIdx);
+                    return `
+                      <button type="button" onclick="app.toggleHabitActiveDay(${dIdx})" id="habitDayBtn_${dIdx}" class="flex-1 py-1 rounded-lg border font-mono font-bold text-[11px] text-center transition cursor-pointer ${isActive ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-400 hover:border-theme'}">
+                        ${d}
+                      </button>
+                    `;
+                  }).join('')}
+                </div>
+                <input type="hidden" id="habitActiveDaysInput" value='${JSON.stringify(activeDays)}' />
+              </div>
+
+              <!-- Hora / Aviso Fijo para Check Tradicional (si slotsCount === 1) -->
+              <div id="habitSingleHourBox" class="${currentSlots > 1 ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-1">
+                <div class="flex items-center justify-between">
+                  <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">⏰ Hora o Aviso Fijo (Opcional):</label>
+                  <span class="text-[9.5px] text-stone-400">Visible fijo en la matriz cada día</span>
+                </div>
+                <input type="text" id="habitFixedHour" value="${escapeHtml(currentHour)}" placeholder="ej: 09:00, 21:30 o Antes de dormir" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-mono font-bold text-xs focus:border-theme outline-none" />
+              </div>
+
+              <div id="habitSlotLabelsContainer" class="col-span-1 sm:col-span-3 space-y-1.5 pt-1"></div>
             `;
+            setTimeout(() => app.onHabitSlotsCountChange(currentSlots, currentValues.slotLabels || []), 10);
           } else if (type === 'target_range') {
             box.innerHTML = `
               <div class="space-y-1">
@@ -17554,7 +17653,30 @@
             habitData.targetDaily = parseFloat(document.getElementById('habitTargetDaily')?.value || '1');
             habitData.unit = (document.getElementById('habitUnit')?.value || 'u').trim();
           } else if (type === 'binary_check') {
+            const slotsCount = Math.max(1, parseInt(document.getElementById('habitSlotsCount')?.value || '1', 10));
+            habitData.slotsCount = slotsCount;
             habitData.targetWeeklyDays = parseInt(document.getElementById('habitTargetWeeklyDays')?.value || '7', 10);
+            
+            const activeDaysInp = document.getElementById('habitActiveDaysInput');
+            if (activeDaysInp) {
+              try { habitData.activeDays = JSON.parse(activeDaysInp.value); } catch (_) { habitData.activeDays = [0, 1, 2, 3, 4, 5, 6]; }
+            } else {
+              habitData.activeDays = [0, 1, 2, 3, 4, 5, 6];
+            }
+
+            if (slotsCount > 1) {
+              habitData.slotLabels = [];
+              for (let s = 0; s < slotsCount; s++) {
+                const inp = document.getElementById('habitSlotLabel_' + s);
+                const lbl = inp ? (inp.value || '').trim() : '';
+                habitData.slotLabels.push(lbl || ('Toma ' + (s + 1)));
+              }
+              habitData.fixedHour = habitData.slotLabels[0] || '';
+            } else {
+              const fixedHourVal = (document.getElementById('habitFixedHour')?.value || '').trim();
+              habitData.fixedHour = fixedHourVal;
+              habitData.slotLabels = fixedHourVal ? [fixedHourVal] : [];
+            }
           } else if (type === 'target_range') {
             habitData.targetCenter = parseFloat(document.getElementById('habitTargetCenter')?.value || '8');
             habitData.targetMargin = parseFloat(document.getElementById('habitTargetMargin')?.value || '0.5');
