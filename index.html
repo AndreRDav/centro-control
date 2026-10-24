@@ -1062,7 +1062,7 @@
   </div>
 
   <!-- MODAL COPIAS Y RESPALDOS -->
-  <div id="backupModal" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="backupModal" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex justify-between items-center border-b pb-2">
         <h3 class="font-bold text-sm flex items-center gap-2">
@@ -1974,7 +1974,7 @@
   </div>
 
   <!-- MODAL: GESTIÓN Y CREACIÓN DE HÁBITOS PERSONALIZADOS -->
-  <div id="modalManageHabits" class="fixed inset-0 z-50 hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalManageHabits" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] flex flex-col">
       <div class="flex justify-between items-center border-b pb-2.5 shrink-0">
         <div class="flex items-center gap-2">
@@ -2860,96 +2860,270 @@
   
   <!-- MODAL PERSONALIZAR VISTA DEL DASHBOARD -->
   <div id="modalViewCustomizer" onclick="if(event.target===this)app.closeModal('modalViewCustomizer')" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-    <div class="editorial-card panel-bg border rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl text-xs">
-      <div class="flex justify-between items-center border-b pb-2.5">
+    <div class="editorial-card panel-bg border rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] flex flex-col">
+      <div class="flex justify-between items-center border-b pb-2.5 shrink-0">
         <div class="flex items-center gap-2">
           <div class="vector-seal bg-theme-main text-white shadow-xs">
             <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
           </div>
           <div>
             <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Personalizar <span class="italic font-normal">Dashboard</span></h3>
-            <span class="text-[10px] text-slate-400">Activa u oculta bloques para una interfaz 100% limpia a tu medida</span>
+            <span class="text-[10px] text-slate-400">Configura modos predeterminados o personaliza cada ventana a tu gusto</span>
           </div>
         </div>
         <button onclick="app.closeModal('modalViewCustomizer')" class="w-7 h-7 rounded-lg subpanel-bg border flex items-center justify-center text-slate-400 hover:text-stone-900 dark:hover:text-white font-bold transition">✕</button>
       </div>
 
       <!-- Modos Predeterminados (Presets) -->
-      <div class="space-y-1.5 pb-2.5 border-b">
+      <div class="space-y-1.5 pb-2.5 border-b shrink-0">
         <span class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Modos Predeterminados:</span>
         <div class="grid grid-cols-3 gap-2">
           <!-- Preset 1: Enfoque -->
           <button type="button" onclick="app.applyPreset('focus')" id="presetBtn_focus" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
             <span class="text-sm">🎯</span>
             <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Enfoque</span>
-            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Solo Hoy</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Zero distracciones</span>
           </button>
           <!-- Preset 2: Equilibrado -->
           <button type="button" onclick="app.applyPreset('balanced')" id="presetBtn_balanced" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
             <span class="text-sm">⚖️</span>
             <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Equilibrado</span>
-            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Hoy + Matriz</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Hoy + Matriz juntos</span>
           </button>
           <!-- Preset 3: Mucha Info (Pro) -->
           <button type="button" onclick="app.applyPreset('pro')" id="presetBtn_pro" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
             <span class="text-sm">📊</span>
             <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Mucha Info</span>
-            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Todo abierto</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Todo desplegado</span>
           </button>
         </div>
       </div>
 
-      <!-- Opciones de personalización individual -->
-      <div class="space-y-2 pt-1">
-        <span class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Ajustes Individuales:</span>
-        <!-- 1. KPIs Superiores -->
-        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
-          <div class="space-y-0.5 pr-2">
-            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Métricas y 4 KPIs Superiores</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">Tarjetas de resumen de hábitos, estudio, clases y presupuesto.</div>
-          </div>
-          <input type="checkbox" id="prefShowKpis" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
-        </label>
+      <!-- PESTAÑAS DE VENTANA DENTRO DEL MODAL -->
+      <div class="flex items-center gap-1 p-1 rounded-xl subpanel-bg border shrink-0 text-center font-bold text-[11px]">
+        <button type="button" onclick="app.switchViewCustomizerTab('tab1')" id="viewCustomizerTabBtn_tab1" class="flex-1 py-1.5 px-1 rounded-lg transition bg-theme-main text-white shadow-xs">01 Diario</button>
+        <button type="button" onclick="app.switchViewCustomizerTab('tab2')" id="viewCustomizerTabBtn_tab2" class="flex-1 py-1.5 px-1 rounded-lg transition text-stone-500 hover:text-stone-800 dark:hover:text-white">02 Metas/Horario</button>
+        <button type="button" onclick="app.switchViewCustomizerTab('tab3')" id="viewCustomizerTabBtn_tab3" class="flex-1 py-1.5 px-1 rounded-lg transition text-stone-500 hover:text-stone-800 dark:hover:text-white">03 Finanzas</button>
+        <button type="button" onclick="app.switchViewCustomizerTab('tab4')" id="viewCustomizerTabBtn_tab4" class="flex-1 py-1.5 px-1 rounded-lg transition text-stone-500 hover:text-stone-800 dark:hover:text-white">04 Stats</button>
+      </div>
 
-        <!-- 2. Matriz Semanal Completa -->
-        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
-          <div class="space-y-0.5 pr-2">
-            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Matriz Semanal de Hábitos (L – D)</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">Tabla con los 7 días y barras de porcentaje acumulativo.</div>
-          </div>
-          <input type="checkbox" id="prefShowWeekMatrix" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
-        </label>
+      <!-- CONTENEDOR DESPLAZABLE DE OPCIONES INDIVIDUALES -->
+      <div class="space-y-2 overflow-y-auto pr-1 flex-1">
+        
+        <!-- PESTAÑA 1: DIARIO -->
+        <div id="viewCustomizerPane_tab1" class="space-y-2">
+          <!-- Banners y Avisos -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Banners y Avisos Superiores</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Avisos de semana vencida, histórico y recordatorios de entregas atrasadas.</div>
+            </div>
+            <input type="checkbox" id="prefShowBanners" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
 
-        <!-- 3. Tarjetas de Enfoque y Desglose Diario -->
-        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
-          <div class="space-y-0.5 pr-2">
-            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Panel de Enfoque Diario (Hoy)</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">La lista clara de lo que tienes que hacer hoy paso a paso.</div>
-          </div>
-          <input type="checkbox" id="prefShowDailyCards" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
-        </label>
+          <!-- 4 KPIs Superiores -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Métricas y 4 KPIs Superiores</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Barra plegable con las 4 tarjetas de hábitos, estudio, clases y presupuesto.</div>
+            </div>
+            <input type="checkbox" id="prefShowKpis" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
 
-        <!-- 4. Docks Flotantes -->
-        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
-          <div class="space-y-0.5 pr-2">
-            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Docks Flotantes (Pomodoro y Gasto Rápido)</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">Pastillas flotantes en la parte inferior de la pantalla.</div>
-          </div>
-          <input type="checkbox" id="prefShowDocks" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
-        </label>
+          <!-- Enfoque de Hoy -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Panel de Enfoque Diario (Hoy)</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Tarjeta protagonista con los hábitos del día y selector Lun–Dom.</div>
+            </div>
+            <input type="checkbox" id="prefShowDailyCards" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
 
-        <!-- 5. Selector de Densidad Visual -->
-        <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
+          <!-- Matriz Semanal Completa -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Matriz Semanal de Hábitos (L – D)</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Tabla con los 7 días colocada junto a Hoy.</div>
+            </div>
+            <input type="checkbox" id="prefShowWeekMatrix" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Movimientos Recientes -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Movimientos y Gastos Recientes</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Lista rápida de los últimos gastos de la semana debajo de Hoy.</div>
+            </div>
+            <input type="checkbox" id="prefShowRecentExpenses" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Listas, Tareas y Entregas -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Listas, Tareas y Entregas</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Panel derecho con entregas, notas, compras y objetivos.</div>
+            </div>
+            <input type="checkbox" id="prefShowListsPanel" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Calendario de Notas -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Calendario de Notas y Entregas</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Mini-calendario mensual para filtrar tareas por fecha.</div>
+            </div>
+            <input type="checkbox" id="prefShowMiniCalendar" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Docks Flotantes -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Docks Flotantes (Pomodoro y Gasto)</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Pastillas flotantes en la esquina inferior.</div>
+            </div>
+            <input type="checkbox" id="prefShowDocks" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- PESTAÑA 2: METAS Y HORARIO -->
+        <div id="viewCustomizerPane_tab2" class="hidden space-y-2">
+          <!-- Plantilla Modular de Metas -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Configuración y Plantilla Modular de Metas</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Barra modular para activar/pausar bloques base y configurar objetivos.</div>
+            </div>
+            <input type="checkbox" id="prefTab2ShowGoals" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Horario Semanal de Clases -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Plantilla de Horario Semanal</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Parrilla de horarios de clases de lunes a domingo.</div>
+            </div>
+            <input type="checkbox" id="prefTab2ShowSchedule" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Reglas Académicas y Asistencia -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Reglas Académicas y Colchón de Faltas</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Auditoría de asignaturas, colchón de faltas y semáforo de riesgo.</div>
+            </div>
+            <input type="checkbox" id="prefTab2ShowAttendance" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- PESTAÑA 3: FINANZAS PRO -->
+        <div id="viewCustomizerPane_tab3" class="hidden space-y-2">
+          <!-- Configuración de Presupuesto -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Configuración del Presupuesto</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Modo manual o automático, ingresos y umbral de gastos hormiga.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowBudget" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Metas de Ahorro Individuales -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Metas de Ahorro Individuales</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Tarjetas de objetivos de ahorro con barra de progreso y aportaciones.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowSavingsGoals" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Hucha Global de Ahorro -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Hucha Global de Ahorro</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Balance acumulado, meta mensual y gráfico de tendencia.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowPiggy" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Gastos Fijos Mensuales -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Gastos Fijos Mensuales</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Suscripciones y recibos recurrentes.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowFixedExpenses" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Registro y Tabla de Gastos -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Tabla Completa de Gastos Semanales</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Desglose de transacciones, botón de añadir y exportación CSV.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowExpensesTable" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Gráficas Financieras y Gastos Hormiga -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Gráficas de Distribución & Gasto Hormiga</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Distribución de gastos diarios y analítica de fugas pequeñas.</div>
+            </div>
+            <input type="checkbox" id="prefTab3ShowExpenseCharts" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- PESTAÑA 4: ESTADÍSTICAS -->
+        <div id="viewCustomizerPane_tab4" class="hidden space-y-2">
+          <!-- Auditoría de Estudio -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Auditoría de Estudio por Asignatura</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Horas acumuladas y desglose de estudio asignado.</div>
+            </div>
+            <input type="checkbox" id="prefTab4ShowStudyAudit" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Analítica de Hábitos Personalizados -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Analítica de Hábitos Personalizados</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Rachas, porcentajes y cumplimiento de tus propios hábitos.</div>
+            </div>
+            <input type="checkbox" id="prefTab4ShowCustomHabits" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Biometría: Mapa Muscular y Running -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Biometría (Muscular y Running)</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Siluetas anatómicas y radar tri-sistema de atletismo.</div>
+            </div>
+            <input type="checkbox" id="prefTab4ShowBiometrics" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- Evolución Histórica y Heatmap -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Evolución Histórica, Gráficas y Heatmap</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Curvas de rendimiento, mapa de calor y semanas archivadas.</div>
+            </div>
+            <input type="checkbox" id="prefTab4ShowEvolution" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+        </div>
+
+        <!-- Densidad Visual -->
+        <div class="p-3 rounded-xl subpanel-bg border space-y-1.5 pt-2">
           <div class="font-bold text-[11px] text-stone-900 dark:text-white">Densidad Visual de la Pantalla:</div>
           <div class="grid grid-cols-2 gap-2">
             <button type="button" onclick="app.setDensity('cozy')" id="densityBtnCozy" class="p-2 rounded-lg border font-bold text-center text-xs transition">Espacioso (Cómodo)</button>
             <button type="button" onclick="app.setDensity('compact')" id="densityBtnCompact" class="p-2 rounded-lg border font-bold text-center text-xs transition">Compacto (Menos scroll)</button>
           </div>
         </div>
+
       </div>
 
-      <div class="flex items-center justify-between pt-2 border-t">
-        <button onclick="app.resetUiPreferences()" class="text-stone-400 hover:text-stone-600 text-xs">Restablecer Todo</button>
+      <div class="flex items-center justify-between pt-2.5 border-t shrink-0">
+        <button onclick="app.resetUiPreferences()" class="text-stone-400 hover:text-stone-600 dark:hover:text-stone-200 text-xs">Restablecer Todo</button>
         <button onclick="app.closeModal('modalViewCustomizer')" class="px-5 py-2 rounded-xl bg-theme-main text-white font-bold text-xs shadow transition">Listo</button>
       </div>
     </div>
@@ -3645,53 +3819,42 @@
       </div>
     </div>
 
-    <!-- Banner de Advertencia en Modo Histórico Desbloqueado -->
-    <div id="historicalBanner" class="hidden bg-amber-950/80 border border-amber-600 text-amber-200 px-4 py-2 rounded-xl flex items-center justify-between text-xs">
-      <span class="flex items-center gap-2">
-        <svg class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
-        <span><strong>Modo Edición Histórica:</strong> Estás editando una semana pasada. Los cambios recalcularán las rachas en cascada.</span>
-      </span>
-      <button onclick="app.returnToActiveWeek()" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Volver a la Semana Actual</button>
-    </div>
-
-    <!-- Banner Permanente de Semana Vencida Pendiente de Cerrar -->
-    <div id="pendingWeekCloseBanner" class="hidden panel-bg border-2 border-theme-accent p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-lg">
-      <div class="flex items-center gap-2.5">
-        <div class="vector-seal bg-theme-accent text-white w-6 h-6 shadow-xs shrink-0">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-        </div>
-        <div>
-          <span class="font-black text-stone-900 dark:text-white block sm:inline" id="pendingWeekCloseBannerText">Semana anterior pendiente de cierre.</span>
-          <span class="text-[11px] text-stone-500 dark:text-slate-400 sm:ml-1">Cierra la semana para activar los días de esta nueva semana sin solapamientos.</span>
-        </div>
-      </div>
-      <button onclick="app.openCloseWeekModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-white text-xs shadow-sm border border-theme-accent active:translate-y-0.5 transition flex items-center gap-1.5 shrink-0">
-        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-        <span>Cerrar Semana Ahora</span>
-      </button>
-    </div>
-
-    <!-- BLOQUE SUPERIOR DE BANNERS Y KPIS -->
-    <div id="topBannersKpisWrapper" class="space-y-2">
-      <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
-      <div id="kpisSlimHeaderBar" class="editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-xs hover:border-theme-main transition cursor-pointer" onclick="app.toggleKpisAccordion()">
-        <div class="flex items-center gap-2">
-          <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
-            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-          </div>
-          <div class="text-left flex items-center gap-2">
-            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight">Métricas & 4 KPIs Semanales</span>
-            <span class="text-[9.5px] text-stone-500 dark:text-slate-400 font-mono sm:inline hidden">Hábitos • Estudio • Clases • Finanzas</span>
-          </div>
-        </div>
-        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
-          <span id="kpisSlimStatusText">Mostrar</span>
-          <span id="kpisSlimArrow" class="text-[9px]">▼</span>
+    <!-- ========================================================
+         BLOQUE SUPERIOR DE BANNERS Y AVISOS GLOBALES
+         ======================================================== -->
+    <div id="topBannersWrapper" class="space-y-2">
+      <!-- Banner de Advertencia en Modo Histórico Desbloqueado -->
+      <div id="historicalBanner" class="hidden bg-amber-950/80 border border-amber-600 text-amber-200 px-4 py-2.5 rounded-xl flex items-center justify-between text-xs gap-2">
+        <span class="flex items-center gap-2">
+          <svg class="w-4 h-4 text-amber-400 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+          <span><strong>Modo Edición Histórica:</strong> Estás editando una semana pasada. Los cambios recalcularán las rachas en cascada.</span>
+        </span>
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="app.returnToActiveWeek()" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Volver a la Semana Actual</button>
+          <button onclick="document.getElementById('historicalBanner').classList.add('hidden')" class="p-1 rounded-lg hover:bg-amber-800/50 text-amber-300 font-bold" title="Cerrar aviso">✕</button>
         </div>
       </div>
 
-      <!-- Contenedor Plegable de los 4 KPIs -->
-      <div id="kpisCollapsibleBody" class="hidden space-y-3 pt-1">
+      <!-- Banner Permanente de Semana Vencida Pendiente de Cerrar -->
+      <div id="pendingWeekCloseBanner" class="hidden panel-bg border-2 border-theme-accent p-3 rounded-2xl flex flex-wrap items-center justify-between gap-2.5 text-xs shadow-lg">
+        <div class="flex items-center gap-2.5">
+          <div class="vector-seal bg-theme-accent text-white w-6 h-6 shadow-xs shrink-0">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+          <div>
+            <span class="font-black text-stone-900 dark:text-white block sm:inline" id="pendingWeekCloseBannerText">Semana anterior pendiente de cierre.</span>
+            <span class="text-[11px] text-stone-500 dark:text-slate-400 sm:ml-1">Cierra la semana para activar los días de esta nueva semana sin solapamientos.</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 shrink-0">
+          <button onclick="app.openCloseWeekModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-white text-xs shadow-sm border border-theme-accent active:translate-y-0.5 transition flex items-center gap-1.5 shrink-0">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+            <span>Cerrar Semana Ahora</span>
+          </button>
+          <button onclick="document.getElementById('pendingWeekCloseBanner').classList.add('hidden')" class="p-1.5 rounded-xl subpanel-bg border text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold" title="Cerrar aviso">✕</button>
+        </div>
+      </div>
+
       <!-- Banner de Bienvenida / Modo Inicial para Nuevos Usuarios -->
       <div id="welcomeNewUserBanner" class="hidden editorial-card panel-bg border-2 border-theme-main/60 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-md">
         <div class="flex items-start gap-2.5">
@@ -3713,35 +3876,37 @@
           <button onclick="app.dismissWelcomeBanner()" class="px-3 py-1.5 rounded-xl subpanel-bg border text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs">Entendido</button>
         </div>
       </div>
-      <!-- Botón de Toggle Rápido de KPIs en Móvil (Tarjeta Destacada que no pasa desapercibida) -->
-      <div class="sm:hidden">
-        <button type="button" onclick="app.toggleMobileKpis()" id="toggleMobileKpisBtn" class="w-full editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-sm hover:border-theme-main transition group">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
-              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
-            </div>
-            <div class="text-left">
-              <span class="text-[11px] font-bold text-stone-900 dark:text-white block leading-tight">Métricas & Hitos Semanales</span>
-              <span class="text-[9px] text-stone-500 dark:text-slate-400 font-mono">Banners, alertas y 4 KPIs de rendimiento</span>
-            </div>
+
+      <!-- Banner Exclusivo de Entregas e Hitos Atrasados -->
+      <div id="overdueMilestonesAlertBanner" class="hidden panel-bg border-l-4 border-l-rose-500 border rounded-2xl p-3 sm:p-3.5 shadow-lg text-xs transition-all"></div>
+
+      <!-- Banner Destacado de Próximo Hito Académico -->
+      <div id="featuredMilestoneBanner" class="hidden panel-bg border rounded-2xl p-3.5 sm:p-4 shadow-xl text-xs transition-all"></div>
+    </div>
+
+    <!-- ========================================================
+         BLOQUE SUPERIOR DE MÉTRICAS Y 4 KPIS SEMANALES
+         ======================================================== -->
+    <div id="topKpisWrapper" class="space-y-2">
+      <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
+      <div id="kpisSlimHeaderBar" class="editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-xs hover:border-theme-main transition cursor-pointer" onclick="app.toggleKpisAccordion()">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           </div>
-          <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
-            <span id="toggleMobileKpisStatusText">Mostrar</span>
-            <span id="toggleMobileKpisArrow" class="text-[9px]">▼</span>
+          <div class="text-left flex items-center gap-2">
+            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight">Métricas & 4 KPIs Semanales</span>
+            <span class="text-[9.5px] text-stone-500 dark:text-slate-400 font-mono sm:inline hidden">Hábitos • Estudio • Clases • Finanzas</span>
           </div>
-        </button>
+        </div>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
+          <span id="kpisSlimStatusText">Mostrar</span>
+          <span id="kpisSlimArrow" class="text-[9px]">▼</span>
+        </div>
       </div>
 
-      <div id="mobileKpisCollapsibleContainer" class="space-y-3 transition-all duration-300">
-        <!-- Banner Exclusivo de Entregas e Hitos Atrasados (Alerta Separada) -->
-        <div id="overdueMilestonesAlertBanner" class="hidden panel-bg border-l-4 border-l-rose-500 border rounded-2xl p-3 sm:p-3.5 shadow-lg text-xs transition-all mb-2"></div>
-
-        <!-- Banner Destacado de Próximo Hito Académico (Alta Visibilidad) -->
-        <div id="featuredMilestoneBanner" class="hidden panel-bg border rounded-2xl p-3.5 sm:p-4 shadow-xl text-xs transition-all"></div>
-
-        <!-- ========================================================
-             LOS 4 KPIS SUPERIORES (SIEMPRE VISIBLES - ARQUITECTURA 3 NIVELES)
-             ======================================================== -->
+      <!-- Contenedor Plegable de los 4 KPIs -->
+      <div id="kpisCollapsibleBody" class="hidden space-y-3 pt-1">
         <section id="kpiGridContainer" class="grid grid-cols-2 lg:grid-cols-4 gap-2 sm:gap-3">
       <!-- KPI 1: 6 Baterías -->
       <div id="kpiCard1" onclick="app.openKpi1BlocksModal()" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3.5 flex flex-col justify-between shadow-lg relative min-h-[115px] sm:min-h-[140px] cursor-pointer hover:border-theme-main transition group" title="Haz clic para ver el desglose y diagnóstico de los 6 bloques de metas">
@@ -3848,17 +4013,16 @@
       </div>
     </div>
 
-
     <!-- ========================================================
          PESTAÑA 1: PANEL DIARIO (REGISTRO + GASTO + POMO + LISTAS)
          ======================================================== -->
-    <main id="tab1" class="grid grid-cols-1 xl:grid-cols-12 gap-3 items-start">
+    <main id="tab1" class="space-y-3">
       
-      <!-- IZQUIERDA: REGISTRO + MOVIMIENTOS RECIENTES (7/12) -->
-      <div class="xl:col-span-7 space-y-3">
+      <!-- FILA SUPERIOR DE HÁBITOS: HOY + MATRIZ SEMANAL (LADO A LADO) -->
+      <div id="tab1HabitsRow" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
         
         <!-- ENFOQUE DE HOY: HERO CARD PROTAGONISTA -->
-        <div id="todayFocusContainer" class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
+        <div id="todayFocusContainer" class="lg:col-span-6 editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 relative z-10">
             <div class="flex items-center gap-2">
@@ -3890,7 +4054,9 @@
         </div>
 
         <!-- CONTENEDOR COLAPSABLE: MATRIZ SEMANAL COMPLETA (LUNES A DOMINGO) -->
-        <div id="weekTableContainer" class="hidden editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
+
+        <!-- CONTENEDOR DE MATRIZ SEMANAL COMPLETA (LADO A LADO CON HOY) -->
+        <div id="weekTableContainer" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex items-center justify-between pb-1 border-b relative z-10">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
@@ -3909,7 +4075,15 @@
         </div>
 
         <!-- LISTA EDITORIAL DE ÚLTIMOS GASTOS Y MOVIMIENTOS (PESTAÑA 1) -->
-        <div id="tab1RecentExpensesBar" class="editorial-card panel-bg border rounded-2xl p-3.5 space-y-2.5 shadow-md text-xs">
+
+      </div>
+
+      <!-- FILA SECUNDARIA: GASTOS RECIENTES + LISTAS, TAREAS Y CALENDARIO -->
+      <div id="tab1SecondaryRow" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+        
+        <!-- IZQUIERDA: MOVIMIENTOS RECIENTES (5/12) -->
+        <div class="lg:col-span-5 space-y-3">
+          <div id="tab1RecentExpensesBar" class="editorial-card panel-bg border rounded-2xl p-3.5 space-y-2.5 shadow-md text-xs">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
               <div class="vector-seal bg-theme-main text-white shrink-0">
@@ -3930,14 +4104,11 @@
           </div>
           <div id="quickRecentExpenses" class="space-y-1"></div>
         </div>
+        </div>
 
-      </div>
-
-      <!-- DERECHA: LISTAS, TAREAS Y ENTREGAS (5/12) -->
-      <div class="xl:col-span-5 space-y-3">
-        
-        <!-- LISTAS INTERACTIVAS Y ENTREGAS -->
-        <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
+        <!-- DERECHA: LISTAS, TAREAS Y ENTREGAS (7/12) -->
+        <div class="lg:col-span-7 space-y-3">
+          <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
               <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4093,7 +4264,7 @@
         </div>
 
         <!-- MINI-CALENDARIO LIGERO DE NOTAS CON FECHA -->
-        <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all mt-3">
+          <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all mt-3">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 cursor-pointer select-none" onclick="app.toggleMiniCalendarCollapse()" title="Plegar / desplegar calendario">
               <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs flex items-center justify-center">
@@ -4120,6 +4291,7 @@
             <div id="miniCalendarSelectedDrawer" class="hidden pt-2 border-t border-theme space-y-1"></div>
           </div>
         </div>
+        </div>
 
       </div>
 
@@ -4131,7 +4303,7 @@
     <section id="tab2" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
       
       <!-- CONFIGURACIÓN DE METAS SEMANALES -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
+      <div id="tab2ModularHabitsSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4274,7 +4446,7 @@
       </div>
 
       <!-- PLANTILLA DE HORARIO SEMANAL (LUNES A DOMINGO) -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
+      <div id="tab2ScheduleSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4291,7 +4463,7 @@
       </div>
 
       <!-- REGLAS ACADÉMICAS Y COLCHÓN DE FALTAS CON SEMÁFORO DE RIESGO -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
+      <div id="tab2AttendanceRulesSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-accent text-white shadow-xs">
@@ -4320,7 +4492,7 @@
       <!-- FILA SUPERIOR: CONFIGURACIÓN DEL PRESUPUESTO + METAS DE AHORRO INDIVIDUALES (LADO A LADO) -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <!-- Modo Presupuesto -->
-        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
+        <div id="tab3BudgetConfigCard" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
               <div class="flex items-center gap-2">
@@ -4378,7 +4550,7 @@
         </div>
 
         <!-- Metas de Ahorro Individuales (Lado a lado con Configuración del Presupuesto) -->
-        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
+        <div id="tab3SavingsGoalsCard" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
           <div class="space-y-3">
             <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
               <div class="flex items-center gap-2">
@@ -4464,7 +4636,7 @@
       <!-- GASTOS FIJOS MENSUALES + REGISTRO RÁPIDO EN PESTAÑA FINANZAS -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <!-- Gastos Fijos Mensuales -->
-        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs">
+        <div id="tab3FixedExpensesCard" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs">
           <div class="flex justify-between items-center border-b pb-2">
             <div class="flex items-center gap-2">
               <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4486,7 +4658,7 @@
         </div>
 
         <!-- Tabla de Gastos Semanales con Botón Añadir Directo + Exportación a Excel/CSV -->
-        <div class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs">
+        <div id="tab3ExpensesTableCard" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs">
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
             <div class="flex items-center gap-2">
               <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4539,7 +4711,7 @@
       </div>
 
       <!-- GRÁFICA INTERACTIVA: DISTRIBUCIÓN DE GASTOS DIARIOS POR CATEGORÍA (LUNES A DOMINGO) -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4 text-xs">
+      <div id="tab3ExpenseChartsSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4 text-xs">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4638,7 +4810,7 @@
       </div>
 
       <!-- AUDITORÍA Y ESTADÍSTICAS DE ESTUDIO POR ASIGNATURA (NUEVO PANEL) -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
+      <div id="tab4StudyAuditSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4686,7 +4858,7 @@
       </div>
 
       <!-- MAPA MUSCULAR ANATÓMICO SVG ULTRA-DETALLADO (Frontal y Posterior) + RADAR TRI-SISTEMA -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+      <div id="tab4BiometricsSection" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
         <!-- Mapa Muscular Anatómico Siluetas -->
         <div class="lg:col-span-7 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
           <div class="flex justify-between items-center border-b pb-2">
@@ -4760,7 +4932,7 @@
       </div>
 
       <!-- EVOLUCIÓN HISTÓRICA, HEATMAP Y SEMANAS ARCHIVADAS -->
-      <div class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
+      <div id="tab4EvolutionSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
             <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -8292,14 +8464,30 @@
           renderTodayFocusCard(activeFocusDay);
         }
 
-        // Matriz Semanal Completa Colapsable
+        // Matriz Semanal Completa Colapsable (Lado a lado con Hoy)
         if (weekBox) {
-          if (isCollapsed) {
+          const isHiddenByPref = state.uiPreferences && state.uiPreferences.showWeekMatrix === false;
+          if (isCollapsed || isHiddenByPref) {
             weekBox.classList.add('hidden');
-            if (toggleBtn) toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz Completa</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>`;
+            if (todayBox) {
+              todayBox.classList.remove('lg:col-span-6');
+              todayBox.classList.add('lg:col-span-12');
+            }
+            if (toggleBtn) {
+              toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>`;
+              if (isHiddenByPref) toggleBtn.classList.add('hidden');
+              else toggleBtn.classList.remove('hidden');
+            }
           } else {
             weekBox.classList.remove('hidden');
-            if (toggleBtn) toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
+            if (todayBox) {
+              todayBox.classList.remove('lg:col-span-12');
+              todayBox.classList.add('lg:col-span-6');
+            }
+            if (toggleBtn) {
+              toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
+              toggleBtn.classList.remove('hidden');
+            }
             const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
             renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
           }
@@ -12071,8 +12259,14 @@
         },
 
         toggleWeekTable() {
-          state.ui.weekTableCollapsed = !state.ui.weekTableCollapsed;
+          if (state.uiPreferences && state.uiPreferences.showWeekMatrix === false) {
+            state.uiPreferences.showWeekMatrix = true;
+            state.ui.weekTableCollapsed = false;
+          } else {
+            state.ui.weekTableCollapsed = !state.ui.weekTableCollapsed;
+          }
           renderDailyHabits();
+          this.applyUiPreferences();
           saveState();
         },
         setDailyViewMode(mode) {
@@ -17421,39 +17615,58 @@
           this.openModal('modalViewCustomizer');
         },
 
+        switchViewCustomizerTab(tabKey) {
+          const tabs = ['tab1', 'tab2', 'tab3', 'tab4'];
+          tabs.forEach(t => {
+            const btn = document.getElementById('viewCustomizerTabBtn_' + t);
+            const pane = document.getElementById('viewCustomizerPane_' + t);
+            const active = (t === tabKey);
+            if (btn) {
+              if (active) {
+                btn.className = 'flex-1 py-1.5 px-1 rounded-lg transition bg-theme-main text-white shadow-xs font-bold text-[11px]';
+              } else {
+                btn.className = 'flex-1 py-1.5 px-1 rounded-lg transition text-stone-500 hover:text-stone-800 dark:hover:text-white font-bold text-[11px]';
+              }
+            }
+            if (pane) pane.classList.toggle('hidden', !active);
+          });
+        },
+
         saveUiPreferences() {
           if (!state.uiPreferences) state.uiPreferences = {};
-          const chkKpis = document.getElementById('prefShowKpis');
-          const chkMatrix = document.getElementById('prefShowWeekMatrix');
-          const chkDaily = document.getElementById('prefShowDailyCards');
-          const chkDocks = document.getElementById('prefShowDocks');
-          if (chkKpis) state.uiPreferences.showKpis = chkKpis.checked;
-          if (chkMatrix) state.uiPreferences.showWeekMatrix = chkMatrix.checked;
-          if (chkDaily) state.uiPreferences.showDailyCards = chkDaily.checked;
-          if (chkDocks) state.uiPreferences.showDocks = chkDocks.checked;
-          this.applyUiPreferences();
-          saveState();
-        },
-
-        resetUiPreferences() {
-          state.uiPreferences = {
-            showKpis: true,
-            showWeekMatrix: true,
-            showDailyCards: true,
-            showDocks: true,
-            density: 'cozy',
-            welcomeDismissed: false
+          const getVal = id => {
+            const el = document.getElementById(id);
+            return el ? el.checked : true;
           };
-          this.applyUiPreferences();
-          saveState();
-          this.showToast('Preferencias de vista restablecidas.', 'info');
-        },
 
-        dismissWelcomeBanner() {
-          if (!state.uiPreferences) state.uiPreferences = {};
-          state.uiPreferences.welcomeDismissed = true;
-          const b = document.getElementById('welcomeNewUserBanner');
-          if (b) b.classList.add('hidden');
+          state.uiPreferences.showBanners = getVal('prefShowBanners');
+          state.uiPreferences.showKpis = getVal('prefShowKpis');
+          state.uiPreferences.showDailyCards = getVal('prefShowDailyCards');
+          state.uiPreferences.showWeekMatrix = getVal('prefShowWeekMatrix');
+          state.uiPreferences.showRecentExpenses = getVal('prefShowRecentExpenses');
+          state.uiPreferences.showListsPanel = getVal('prefShowListsPanel');
+          state.uiPreferences.showMiniCalendar = getVal('prefShowMiniCalendar');
+          state.uiPreferences.showDocks = getVal('prefShowDocks');
+
+          state.uiPreferences.tab2ShowGoals = getVal('prefTab2ShowGoals');
+          state.uiPreferences.tab2ShowSchedule = getVal('prefTab2ShowSchedule');
+          state.uiPreferences.tab2ShowAttendance = getVal('prefTab2ShowAttendance');
+
+          state.uiPreferences.tab3ShowBudget = getVal('prefTab3ShowBudget');
+          state.uiPreferences.tab3ShowSavingsGoals = getVal('prefTab3ShowSavingsGoals');
+          state.uiPreferences.tab3ShowPiggy = getVal('prefTab3ShowPiggy');
+          state.uiPreferences.tab3ShowFixedExpenses = getVal('prefTab3ShowFixedExpenses');
+          state.uiPreferences.tab3ShowExpensesTable = getVal('prefTab3ShowExpensesTable');
+          state.uiPreferences.tab3ShowExpenseCharts = getVal('prefTab3ShowExpenseCharts');
+
+          state.uiPreferences.tab4ShowStudyAudit = getVal('prefTab4ShowStudyAudit');
+          state.uiPreferences.tab4ShowCustomHabits = getVal('prefTab4ShowCustomHabits');
+          state.uiPreferences.tab4ShowBiometrics = getVal('prefTab4ShowBiometrics');
+          state.uiPreferences.tab4ShowEvolution = getVal('prefTab4ShowEvolution');
+
+          state.uiPreferences.activePreset = null; // Modo personalizado
+          this.applyUiPreferences();
+          renderDailyHabits();
           saveState();
         },
 
@@ -17462,38 +17675,111 @@
           state.uiPreferences.density = density;
           this.applyUiPreferences();
           saveState();
-          this.showToast(density === 'compact' ? 'Densidad compacta activada.' : 'Densidad estándar activada.', 'info', 1500);
+        },
+
+        resetUiPreferences() {
+          state.uiPreferences = null;
+          this.applyPreset('balanced');
+          this.showToast('Preferencias restablecidas al modo Equilibrado.', 'info', 1500);
         },
 
         applyPreset(presetKey) {
           if (!state.uiPreferences) state.uiPreferences = {};
           state.uiPreferences.activePreset = presetKey;
+
           if (presetKey === 'focus') {
+            state.uiPreferences.showBanners = false;
             state.uiPreferences.showKpis = false;
-            state.uiPreferences.showWeekMatrix = false;
             state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showWeekMatrix = false;
+            state.uiPreferences.showRecentExpenses = false;
+            state.uiPreferences.showListsPanel = true;
+            state.uiPreferences.showMiniCalendar = false;
             state.uiPreferences.showDocks = false;
+
+            state.uiPreferences.tab2ShowGoals = true;
+            state.uiPreferences.tab2ShowSchedule = false;
+            state.uiPreferences.tab2ShowAttendance = false;
+
+            state.uiPreferences.tab3ShowBudget = true;
+            state.uiPreferences.tab3ShowSavingsGoals = false;
+            state.uiPreferences.tab3ShowPiggy = false;
+            state.uiPreferences.tab3ShowFixedExpenses = false;
+            state.uiPreferences.tab3ShowExpensesTable = true;
+            state.uiPreferences.tab3ShowExpenseCharts = false;
+
+            state.uiPreferences.tab4ShowStudyAudit = false;
+            state.uiPreferences.tab4ShowCustomHabits = false;
+            state.uiPreferences.tab4ShowBiometrics = false;
+            state.uiPreferences.tab4ShowEvolution = true;
+
             state.uiPreferences.density = 'compact';
             state.uiPreferences.kpisCollapsed = true;
-            this.showToast('🎯 Modo Enfoque activado: Solo lo de Hoy.', 'info', 1800);
+            state.ui.weekTableCollapsed = true;
+            this.showToast('🎯 Modo Enfoque activado: Máxima concentración en lo de hoy.', 'info', 1800);
           } else if (presetKey === 'balanced') {
+            state.uiPreferences.showBanners = true;
             state.uiPreferences.showKpis = true;
-            state.uiPreferences.showWeekMatrix = true;
             state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showWeekMatrix = true;
+            state.uiPreferences.showRecentExpenses = true;
+            state.uiPreferences.showListsPanel = true;
+            state.uiPreferences.showMiniCalendar = true;
             state.uiPreferences.showDocks = true;
+
+            state.uiPreferences.tab2ShowGoals = true;
+            state.uiPreferences.tab2ShowSchedule = true;
+            state.uiPreferences.tab2ShowAttendance = true;
+
+            state.uiPreferences.tab3ShowBudget = true;
+            state.uiPreferences.tab3ShowSavingsGoals = true;
+            state.uiPreferences.tab3ShowPiggy = true;
+            state.uiPreferences.tab3ShowFixedExpenses = true;
+            state.uiPreferences.tab3ShowExpensesTable = true;
+            state.uiPreferences.tab3ShowExpenseCharts = true;
+
+            state.uiPreferences.tab4ShowStudyAudit = true;
+            state.uiPreferences.tab4ShowCustomHabits = true;
+            state.uiPreferences.tab4ShowBiometrics = true;
+            state.uiPreferences.tab4ShowEvolution = true;
+
             state.uiPreferences.density = 'cozy';
             state.uiPreferences.kpisCollapsed = true;
-            this.showToast('⚖️ Modo Equilibrado activado: Hoy + KPIs plegados.', 'info', 1800);
+            state.ui.weekTableCollapsed = false;
+            this.showToast('⚖️ Modo Equilibrado activado: Hoy y Matriz lado a lado.', 'info', 1800);
           } else if (presetKey === 'pro') {
+            state.uiPreferences.showBanners = true;
             state.uiPreferences.showKpis = true;
-            state.uiPreferences.showWeekMatrix = true;
             state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showWeekMatrix = true;
+            state.uiPreferences.showRecentExpenses = true;
+            state.uiPreferences.showListsPanel = true;
+            state.uiPreferences.showMiniCalendar = true;
             state.uiPreferences.showDocks = true;
+
+            state.uiPreferences.tab2ShowGoals = true;
+            state.uiPreferences.tab2ShowSchedule = true;
+            state.uiPreferences.tab2ShowAttendance = true;
+
+            state.uiPreferences.tab3ShowBudget = true;
+            state.uiPreferences.tab3ShowSavingsGoals = true;
+            state.uiPreferences.tab3ShowPiggy = true;
+            state.uiPreferences.tab3ShowFixedExpenses = true;
+            state.uiPreferences.tab3ShowExpensesTable = true;
+            state.uiPreferences.tab3ShowExpenseCharts = true;
+
+            state.uiPreferences.tab4ShowStudyAudit = true;
+            state.uiPreferences.tab4ShowCustomHabits = true;
+            state.uiPreferences.tab4ShowBiometrics = true;
+            state.uiPreferences.tab4ShowEvolution = true;
+
             state.uiPreferences.density = 'cozy';
             state.uiPreferences.kpisCollapsed = false;
-            this.showToast('📊 Modo Mucha Info activado: Todo visible.', 'info', 1800);
+            state.ui.weekTableCollapsed = false;
+            this.showToast('📊 Modo Mucha Info activado: Todas las métricas y paneles visibles.', 'info', 1800);
           }
           this.applyUiPreferences();
+          renderDailyHabits();
           saveState();
         },
 
@@ -17516,10 +17802,27 @@
           if (!state.uiPreferences) {
             state.uiPreferences = {
               activePreset: 'balanced',
+              showBanners: true,
               showKpis: true,
-              showWeekMatrix: true,
               showDailyCards: true,
+              showWeekMatrix: true,
+              showRecentExpenses: true,
+              showListsPanel: true,
+              showMiniCalendar: true,
               showDocks: true,
+              tab2ShowGoals: true,
+              tab2ShowSchedule: true,
+              tab2ShowAttendance: true,
+              tab3ShowBudget: true,
+              tab3ShowSavingsGoals: true,
+              tab3ShowPiggy: true,
+              tab3ShowFixedExpenses: true,
+              tab3ShowExpensesTable: true,
+              tab3ShowExpenseCharts: true,
+              tab4ShowStudyAudit: true,
+              tab4ShowCustomHabits: true,
+              tab4ShowBiometrics: true,
+              tab4ShowEvolution: true,
               density: 'cozy',
               kpisCollapsed: true,
               welcomeDismissed: false
@@ -17527,8 +17830,14 @@
           }
           const p = state.uiPreferences;
 
-          // 1. KPIs Superiores & Barra fina
-          const kpisWrap = document.getElementById('topBannersKpisWrapper');
+          // TAB 1: Banners superiores
+          const bannersWrap = document.getElementById('topBannersWrapper');
+          if (bannersWrap) {
+            bannersWrap.classList.toggle('hidden', p.showBanners === false);
+          }
+
+          // TAB 1: KPIs Superiores & Barra fina
+          const kpisWrap = document.getElementById('topKpisWrapper');
           if (kpisWrap) {
             kpisWrap.classList.toggle('hidden', p.showKpis === false);
           }
@@ -17542,29 +17851,89 @@
             if (kpisArrow) kpisArrow.textContent = isColl ? '▼' : '▲';
           }
 
-          // 2. Matriz Semanal Completa y botón de desplegar en Hoy
+          // TAB 1: Enfoque de Hoy & Matriz Semanal (Lado a lado)
+          const todayWrap = document.getElementById('todayFocusContainer');
           const matrixWrap = document.getElementById('weekTableContainer');
           const toggleBtn = document.getElementById('toggleWeekTableBtn');
-          if (p.showWeekMatrix === false) {
-            if (matrixWrap) matrixWrap.classList.add('hidden');
-            if (toggleBtn) toggleBtn.classList.add('hidden');
-          } else {
-            if (toggleBtn) toggleBtn.classList.remove('hidden');
+          if (todayWrap) {
+            todayWrap.classList.toggle('hidden', p.showDailyCards === false);
+          }
+          if (matrixWrap && todayWrap) {
+            const hideMatrix = (p.showWeekMatrix === false || state.ui.weekTableCollapsed === true);
+            matrixWrap.classList.toggle('hidden', hideMatrix);
+            if (hideMatrix) {
+              todayWrap.classList.remove('lg:col-span-6');
+              todayWrap.classList.add('lg:col-span-12');
+            } else {
+              todayWrap.classList.remove('lg:col-span-12');
+              todayWrap.classList.add('lg:col-span-6');
+              matrixWrap.classList.add('lg:col-span-6');
+            }
+          }
+          if (toggleBtn) {
+            toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
           }
 
-          // 3. Tarjetas de Enfoque Diario
-          const dailyWrap = document.getElementById('todayFocusContainer');
-          if (dailyWrap) {
-            dailyWrap.classList.toggle('hidden', p.showDailyCards === false);
-          }
+          // TAB 1: Gastos Recientes, Listas y Mini-Calendario
+          const recExp = document.getElementById('tab1RecentExpensesBar');
+          if (recExp) recExp.classList.toggle('hidden', p.showRecentExpenses === false);
 
-          // 4. Docks Flotantes (selector real #floatingDock)
+          const listsP = document.getElementById('interactiveListsPanel');
+          if (listsP) listsP.classList.toggle('hidden', p.showListsPanel === false);
+
+          const miniCal = document.getElementById('notesMiniCalendarPanel');
+          if (miniCal) miniCal.classList.toggle('hidden', p.showMiniCalendar === false);
+
+          // TAB 1 / Global: Docks Flotantes
           const floatingDock = document.getElementById('floatingDock');
           if (floatingDock) {
             floatingDock.classList.toggle('hidden', p.showDocks === false);
+            floatingDock.style.display = (p.showDocks === false) ? 'none' : '';
           }
 
-          // 5. Densidad Visual
+          // TAB 2: Secciones de Metas y Horario
+          const t2Goals = document.getElementById('tab2ModularHabitsSection');
+          if (t2Goals) t2Goals.classList.toggle('hidden', p.tab2ShowGoals === false);
+
+          const t2Schedule = document.getElementById('tab2ScheduleSection');
+          if (t2Schedule) t2Schedule.classList.toggle('hidden', p.tab2ShowSchedule === false);
+
+          const t2Att = document.getElementById('tab2AttendanceRulesSection');
+          if (t2Att) t2Att.classList.toggle('hidden', p.tab2ShowAttendance === false);
+
+          // TAB 3: Secciones de Finanzas
+          const t3Budget = document.getElementById('tab3BudgetConfigCard');
+          if (t3Budget) t3Budget.classList.toggle('hidden', p.tab3ShowBudget === false);
+
+          const t3Savings = document.getElementById('tab3SavingsGoalsCard');
+          if (t3Savings) t3Savings.classList.toggle('hidden', p.tab3ShowSavingsGoals === false);
+
+          const t3Piggy = document.getElementById('tab3PiggyCard');
+          if (t3Piggy) t3Piggy.classList.toggle('hidden', p.tab3ShowPiggy === false);
+
+          const t3Fixed = document.getElementById('tab3FixedExpensesCard');
+          if (t3Fixed) t3Fixed.classList.toggle('hidden', p.tab3ShowFixedExpenses === false);
+
+          const t3Table = document.getElementById('tab3ExpensesTableCard');
+          if (t3Table) t3Table.classList.toggle('hidden', p.tab3ShowExpensesTable === false);
+
+          const t3Charts = document.getElementById('tab3ExpenseChartsSection');
+          if (t3Charts) t3Charts.classList.toggle('hidden', p.tab3ShowExpenseCharts === false);
+
+          // TAB 4: Secciones de Estadísticas
+          const t4Study = document.getElementById('tab4StudyAuditSection');
+          if (t4Study) t4Study.classList.toggle('hidden', p.tab4ShowStudyAudit === false);
+
+          const t4Habits = document.getElementById('tab4CustomHabitsSection');
+          if (t4Habits) t4Habits.classList.toggle('hidden', p.tab4ShowCustomHabits === false);
+
+          const t4Bio = document.getElementById('tab4BiometricsSection');
+          if (t4Bio) t4Bio.classList.toggle('hidden', p.tab4ShowBiometrics === false);
+
+          const t4Evol = document.getElementById('tab4EvolutionSection');
+          if (t4Evol) t4Evol.classList.toggle('hidden', p.tab4ShowEvolution === false);
+
+          // Densidad Visual
           if (p.density === 'compact') {
             document.documentElement.classList.add('density-compact');
           } else {
@@ -17582,12 +17951,12 @@
             }
           }
 
-          // 6. Highlight active preset button in modal
-          const activePre = p.activePreset || (p.showKpis === false ? 'focus' : (p.kpisCollapsed !== false ? 'balanced' : 'pro'));
+          // Highlight active preset button
+          const activePre = p.activePreset || 'balanced';
           ['focus', 'balanced', 'pro'].forEach(pre => {
             const el = document.getElementById('presetBtn_' + pre);
             if (el) {
-              if (el && pre === activePre) {
+              if (pre === activePre) {
                 el.className = 'p-2 rounded-xl border-2 border-theme bg-theme-soft font-bold text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer shadow-xs text-theme-main';
               } else {
                 el.className = 'p-2 rounded-xl border subpanel-bg text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme opacity-80';
@@ -17595,21 +17964,41 @@
             }
           });
 
-          // 7. Banner Bienvenida
+          // Welcome banner dismiss
           const welcomeBanner = document.getElementById('welcomeNewUserBanner');
           if (welcomeBanner) {
-            welcomeBanner.classList.toggle('hidden', p.welcomeDismissed === true || p.showKpis === false);
+            welcomeBanner.classList.toggle('hidden', p.welcomeDismissed === true || p.showBanners === false);
           }
 
-          // Sincronizar checkboxes individuales
-          const chkKpis = document.getElementById('prefShowKpis');
-          const chkMatrix = document.getElementById('prefShowWeekMatrix');
-          const chkDaily = document.getElementById('prefShowDailyCards');
-          const chkDocks = document.getElementById('prefShowDocks');
-          if (chkKpis) chkKpis.checked = p.showKpis !== false;
-          if (chkMatrix) chkMatrix.checked = p.showWeekMatrix !== false;
-          if (chkDaily) chkDaily.checked = p.showDailyCards !== false;
-          if (chkDocks) chkDocks.checked = p.showDocks !== false;
+          // Sincronizar checkboxes
+          const syncCheck = (id, val) => {
+            const chk = document.getElementById(id);
+            if (chk) chk.checked = (val !== false);
+          };
+          syncCheck('prefShowBanners', p.showBanners);
+          syncCheck('prefShowKpis', p.showKpis);
+          syncCheck('prefShowDailyCards', p.showDailyCards);
+          syncCheck('prefShowWeekMatrix', p.showWeekMatrix);
+          syncCheck('prefShowRecentExpenses', p.showRecentExpenses);
+          syncCheck('prefShowListsPanel', p.showListsPanel);
+          syncCheck('prefShowMiniCalendar', p.showMiniCalendar);
+          syncCheck('prefShowDocks', p.showDocks);
+
+          syncCheck('prefTab2ShowGoals', p.tab2ShowGoals);
+          syncCheck('prefTab2ShowSchedule', p.tab2ShowSchedule);
+          syncCheck('prefTab2ShowAttendance', p.tab2ShowAttendance);
+
+          syncCheck('prefTab3ShowBudget', p.tab3ShowBudget);
+          syncCheck('prefTab3ShowSavingsGoals', p.tab3ShowSavingsGoals);
+          syncCheck('prefTab3ShowPiggy', p.tab3ShowPiggy);
+          syncCheck('prefTab3ShowFixedExpenses', p.tab3ShowFixedExpenses);
+          syncCheck('prefTab3ShowExpensesTable', p.tab3ShowExpensesTable);
+          syncCheck('prefTab3ShowExpenseCharts', p.tab3ShowExpenseCharts);
+
+          syncCheck('prefTab4ShowStudyAudit', p.tab4ShowStudyAudit);
+          syncCheck('prefTab4ShowCustomHabits', p.tab4ShowCustomHabits);
+          syncCheck('prefTab4ShowBiometrics', p.tab4ShowBiometrics);
+          syncCheck('prefTab4ShowEvolution', p.tab4ShowEvolution);
         },
 
         scrollToToday() {
@@ -18047,11 +18436,22 @@
           return;
         }
 
-        if (e.key === '1') app.switchTab(1);
-        else if (e.key === '2') app.switchTab(2);
-        else if (e.key === '3') app.switchTab(3);
-        else if (e.key === '4') app.switchTab(4);
-        else if (e.key === 'ArrowLeft') {
+        const shortcutsModal = document.getElementById('modalShortcuts');
+        const isShortcutsOpen = shortcutsModal && !shortcutsModal.classList.contains('hidden');
+
+        if (e.key === '1') {
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
+          app.switchTab(1);
+        } else if (e.key === '2') {
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
+          app.switchTab(2);
+        } else if (e.key === '3') {
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
+          app.switchTab(3);
+        } else if (e.key === '4') {
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
+          app.switchTab(4);
+        } else if (e.key === 'ArrowLeft') {
           e.preventDefault();
           app.navWeek(-1);
         } else if (e.key === 'ArrowRight') {
@@ -18059,25 +18459,33 @@
           app.navWeek(1);
         } else if (e.key.toLowerCase() === 't') {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.returnToActiveWeek();
           app.scrollToToday();
         } else if (e.key.toLowerCase() === 'b') {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.openModal('backupModal');
         } else if (e.key.toLowerCase() === 'p') {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
+          app.toggleDockPomo(true);
           app.togglePomo();
+          app.showToast(state.pomo.isRunning ? '⏱️ Pomodoro en marcha' : '⏸️ Pomodoro pausado', 'info', 1200);
         } else if (e.key.toLowerCase() === 'g') {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.openManageHabitsModal();
         } else if (e.key.toLowerCase() === 'n') {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.toggleDockExpense(true);
         } else if (e.key.toLowerCase() === 'd') {
           e.preventDefault();
           app.toggleTheme();
         } else if (e.key.toLowerCase() === 'z' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           if (e.shiftKey) {
             app.toggleDockPomo();
           } else {
