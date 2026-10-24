@@ -1076,26 +1076,49 @@
           <span id="driveSyncUserEmail" class="hidden font-mono font-bold text-theme-main text-[10px] truncate max-w-[150px]"></span>
         </div>
         <div id="driveButtonsContainer" class="pt-1">
-          <!-- Si NO está conectado: un solo botón principal claro -->
+          <!-- Si NO esta conectado: un solo boton principal claro -->
           <div id="driveLoggedOutActions" class="space-y-1.5">
-            <button type="button" onclick="app.connectGoogleDrive()" class="w-full p-2.5 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-2 transition text-center shadow-xs">
+            <button type="button" onclick="app.connectGoogleDrive()" class="w-full p-2.5 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-2 transition text-center shadow-xs cursor-pointer">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-              <span id="driveConnectBtnText">Iniciar Sesión con Google</span>
+              <span id="driveConnectBtnText">Iniciar SesiÃ³n con Google</span>
             </button>
-            <p class="text-[10px] text-stone-400 dark:text-slate-500 text-center">Inicia sesión una sola vez en cada dispositivo (PC, iPad, móvil) para compartir los datos.</p>
+            <p class="text-[10px] text-stone-400 dark:text-slate-500 text-center">Inicia sesiÃ³n en tus dispositivos (PC, iPad, mÃ³vil) para compartir los datos en tiempo real.</p>
           </div>
-          <!-- Si YA está conectado: acciones claras de sincronizar, renovar o cambiar cuenta -->
-          <div id="driveLoggedInActions" class="hidden space-y-1.5">
-            <div class="grid grid-cols-2 gap-2">
-              <button type="button" onclick="app.syncGoogleDriveNow()" class="p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center shadow-xs">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
-                <span>Sincronizar Ahora</span>
+          <!-- Si YA esta conectado: diagnostico y acciones completas -->
+          <div id="driveLoggedInActions" class="hidden space-y-2">
+            <!-- Diagnostico de sincronizacion -->
+            <div class="p-2 rounded-lg bg-stone-100/70 dark:bg-slate-900/70 border border-stone-200/60 dark:border-slate-800 text-[10.5px] space-y-1 font-mono">
+              <div class="flex items-center justify-between text-stone-600 dark:text-slate-300">
+                <span>Ãšltima sinc. nube:</span>
+                <strong id="driveLastSyncTimeText" class="text-stone-900 dark:text-white">-</strong>
+              </div>
+              <div class="flex items-center justify-between text-stone-600 dark:text-slate-300">
+                <span>ModificaciÃ³n local:</span>
+                <strong id="driveLocalModTimeText" class="text-stone-900 dark:text-white">-</strong>
+              </div>
+            </div>
+
+            <!-- Boton principal de sincronizacion bidireccional -->
+            <button type="button" onclick="app.syncGoogleDriveNow()" class="w-full p-2 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-1.5 transition text-center shadow-xs cursor-pointer">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
+              <span>Sincronizar Bidireccional Ahora</span>
+            </button>
+
+            <!-- Acciones forzadas y cambio de cuenta -->
+            <div class="grid grid-cols-3 gap-1.5 pt-0.5 text-[10px]">
+              <button type="button" onclick="app.forceUploadToDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-blue-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Sube tus datos locales reemplazando el archivo de la nube">
+                <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                <span>Forzar Subida</span>
               </button>
-              <button type="button" onclick="app.connectGoogleDrive(true)" class="p-2 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1.5 transition text-center">
-                <span id="driveAccountActionBtnText">Cambiar Cuenta</span>
+              <button type="button" onclick="app.forceDownloadFromDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-emerald-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Descarga los datos de Google Drive reemplazando los locales">
+                <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Forzar Bajada</span>
+              </button>
+              <button type="button" onclick="app.connectGoogleDrive(true)" class="p-1.5 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer">
+                <span id="driveAccountActionBtnText">Cuenta</span>
               </button>
             </div>
-            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">✓ Autoguardado activo. Cada cambio se sube a tu Drive automáticamente.</p>
+            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">âœ“ Autoguardado activo. Cada cambio se sube a tu Drive automÃ¡ticamente.</p>
           </div>
         </div>
       </div>
@@ -3422,6 +3445,7 @@
                 <span id="lockIcon" class="flex items-center justify-center"></span>
                 <span id="lockText" class="hidden sm:inline">Solo Lectura</span>
               </button>
+              <span id="headerBuildInfoBadge" class="font-mono text-[8.5px] sm:text-[9px] px-1.5 py-0.2 rounded border bg-stone-100/80 dark:bg-slate-800/80 text-stone-500 dark:text-slate-400 select-none tracking-tight" title="VersiÃ³n de compilaciÃ³n PWA: v1.3.2 â€¢ 24 oct. 16:45">v1.3.2 â€¢ 24/10 16:45</span>
             </div>
             
             <div class="flex items-center gap-2 pt-0.5 text-[9.5px] sm:text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
@@ -5835,8 +5859,28 @@
       let isGdriveSyncing = false;
       let gdriveDebounceTimer = null;
 
+      function getLocalDeviceId() {
+        let devId = localStorage.getItem('cc_local_device_id');
+        if (!devId) {
+          devId = 'dev_' + Math.random().toString(36).substr(2, 9);
+          localStorage.setItem('cc_local_device_id', devId);
+        }
+        return devId;
+      }
+
       function isGdriveConnected() {
         return !!(gdriveAccessToken && Date.now() < gdriveTokenExpiry);
+      }
+
+      function formatSyncTime(ts) {
+        if (!ts || isNaN(ts)) return 'Nunca';
+        const d = new Date(Number(ts));
+        const day = String(d.getDate()).padStart(2, '0');
+        const month = String(d.getMonth() + 1).padStart(2, '0');
+        const hours = String(d.getHours()).padStart(2, '0');
+        const mins = String(d.getMinutes()).padStart(2, '0');
+        const secs = String(d.getSeconds()).padStart(2, '0');
+        return `${day}/${month} ${hours}:${mins}:${secs}`;
       }
 
       function updateGdriveUI(statusText, badgeClass = null) {
@@ -5862,17 +5906,28 @@
             emailSpan.classList.remove('hidden');
           }
           if (descText) {
-            descText.textContent = isOnline ? 'Sincronizado con Google Drive.' : 'Sesión pausada. Pulsa Sincronizar para reconectar.';
+            descText.textContent = isOnline ? 'Sincronizado con Google Drive.' : 'SesiÃ³n pausada. Pulsa Sincronizar para reconectar.';
           }
           if (changeAccountTxt) {
-            changeAccountTxt.textContent = 'Cambiar Cuenta';
+            changeAccountTxt.textContent = 'Cuenta';
           }
         } else {
           if (emailSpan) emailSpan.classList.add('hidden');
           if (descText) {
             descText.textContent = 'Vincula tu cuenta de Google para guardar y sincronizar entre dispositivos.';
           }
-          if (connectBtnTxt) connectBtnTxt.textContent = 'Iniciar Sesión con Google';
+          if (connectBtnTxt) connectBtnTxt.textContent = 'Iniciar SesiÃ³n con Google';
+        }
+
+        // DiagnÃ³stico visual en el modal
+        const lastSyncEl = document.getElementById('driveLastSyncTimeText');
+        if (lastSyncEl) {
+          const lastTs = localStorage.getItem('gdrive_last_synced_time');
+          lastSyncEl.textContent = formatSyncTime(lastTs);
+        }
+        const localModEl = document.getElementById('driveLocalModTimeText');
+        if (localModEl) {
+          localModEl.textContent = formatSyncTime(state.updatedAt);
         }
 
         if (badge) {
@@ -5884,7 +5939,7 @@
             badge.textContent = 'CONECTADO';
           } else if (gdriveUserEmail) {
             badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-700';
-            badge.textContent = 'RENOVAR SESIÓN';
+            badge.textContent = 'RENOVAR SESIÃ“N';
           } else {
             badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400';
             badge.textContent = 'DISPONIBLE';
@@ -5898,13 +5953,13 @@
             dot.title = `Sincronizado con Google Drive (${gdriveUserEmail || 'Activo'})`;
           } else if (gdriveUserEmail) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-accent cursor-pointer hover:scale-125 transition shrink-0';
-            dot.title = 'Sesión de Google Drive expirada (clic para renovar)';
+            dot.title = 'SesiÃ³n de Google Drive expirada (clic para renovar)';
           } else if (fileHandle) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-main/80 cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = 'Autoguardado en archivo local activo';
           } else {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-stone-400 dark:bg-slate-600 cursor-pointer hover:scale-125 transition shrink-0';
-            dot.title = 'Sin sincronización activa (clic para conectar Drive)';
+            dot.title = 'Sin sincronizaciÃ³n activa (clic para conectar Drive)';
           }
         }
       }
@@ -5918,7 +5973,7 @@
             prompt: '',
             callback: async (resp) => {
               if (resp.error) {
-                console.warn('Error en autenticación Google:', resp);
+                console.warn('Error en autenticaciÃ³n Google:', resp);
                 updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
                 return;
               }
@@ -5927,7 +5982,7 @@
               localStorage.setItem('gdrive_access_token', gdriveAccessToken);
               localStorage.setItem('gdrive_token_expiry', gdriveTokenExpiry);
 
-              // Obtener email del usuario para confirmación visual
+              // Obtener email del usuario para confirmaciÃ³n visual
               try {
                 const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                   headers: { Authorization: `Bearer ${gdriveAccessToken}` }
@@ -5940,7 +5995,7 @@
               } catch (_) {}
 
               updateGdriveUI();
-              app.showToast('¡Conectado a Google Drive! Sincronizando datos...', 'success');
+              app.showToast('Â¡Conectado a Google Drive! Sincronizando datos...', 'success');
               await syncGdriveCloud(true); // Pull y Push inicial
             }
           });
@@ -5955,7 +6010,7 @@
         initGsiClient();
         if (!tokenClient) return null;
 
-        // Si no es interactivo (guardado automático en background), no abrimos popup para no molestar ni ser bloqueados
+        // Si no es interactivo (guardado automÃ¡tico en background), no abrimos popup para no molestar ni ser bloqueados
         if (!interactive) {
           updateGdriveUI();
           return null;
@@ -5987,13 +6042,21 @@
         });
       }
 
-      async function findGdriveFileId(token) {
-        if (gdriveFileId) return gdriveFileId;
+      async function findGdriveFileId(token, forceRefresh = false) {
+        if (gdriveFileId && !forceRefresh) return gdriveFileId;
         const q = encodeURIComponent(`name = '${GOOGLE_DRIVE_FILENAME}' and trashed = false`);
-        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id, name, modifiedTime)`, {
+        const res = await fetch(`https://www.googleapis.com/drive/v3/files?q=${q}&fields=files(id, name, modifiedTime)&orderBy=modifiedTime desc`, {
           headers: { Authorization: `Bearer ${token}` }
         });
-        if (!res.ok) return null;
+        if (!res.ok) {
+          if (res.status === 401) {
+            gdriveAccessToken = null;
+            gdriveTokenExpiry = 0;
+            localStorage.removeItem('gdrive_access_token');
+            localStorage.removeItem('gdrive_token_expiry');
+          }
+          return null;
+        }
         const data = await res.json();
         if (data.files && data.files.length > 0) {
           gdriveFileId = data.files[0].id;
@@ -6006,36 +6069,48 @@
       let pendingCloudConflictJson = null;
 
       async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
-        if (isGdriveSyncing) return;
+        if (isGdriveSyncing) return { success: false, reason: 'already_syncing' };
         const token = await ensureGdriveToken(allowPull);
         if (!token) {
           updateGdriveUI();
-          return;
+          return { success: false, reason: 'no_token' };
         }
 
         isGdriveSyncing = true;
         updateGdriveUI('SINCRONIZANDO...', 'bg-blue-950 text-blue-300 border border-blue-700 animate-pulse');
 
         try {
+          const myDeviceId = getLocalDeviceId();
           let fileId = await findGdriveFileId(token);
 
-          // Sincronización inteligente bidireccional basada en updatedAt y detección de conflicto
+          // SincronizaciÃ³n inteligente bidireccional basada en updatedAt y detecciÃ³n de conflicto
           if (fileId && !forceUpload) {
             try {
               const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
                 headers: { Authorization: `Bearer ${token}` }
               });
-              if (dlRes.ok) {
+              if (dlRes.status === 401) {
+                gdriveAccessToken = null;
+                gdriveTokenExpiry = 0;
+                localStorage.removeItem('gdrive_access_token');
+                localStorage.removeItem('gdrive_token_expiry');
+                updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+                return { success: false, reason: 'token_expired' };
+              }
+              if (dlRes.status === 404) {
+                // El archivo ya no existe con ese ID, refrescamos bÃºsqueda
+                fileId = await findGdriveFileId(token, true);
+              } else if (dlRes.ok) {
                 const cloudJson = await dlRes.json();
-                if (cloudJson && cloudJson.weeks) {
+                if (cloudJson && (cloudJson.weeks || cloudJson.history)) {
                   const cloudTimestamp = Number(cloudJson.updatedAt) || 0;
                   const localTimestamp = Number(state.updatedAt) || 0;
                   const lastSynced = Number(localStorage.getItem('gdrive_last_synced_time') || 0);
 
-                  // Detección de conflicto real: Ambos modificaron después de la última sincronización
+                  // DetecciÃ³n de conflicto real: Ambos modificaron despuÃ©s de la Ãºltima sincronizaciÃ³n en dispositivos diferentes
                   const cloudChangedSinceSync = cloudTimestamp > (lastSynced + 3000);
                   const localChangedSinceSync = localTimestamp > (lastSynced + 3000);
-                  const differentDevice = cloudJson.deviceId && state.deviceId && (cloudJson.deviceId !== state.deviceId);
+                  const differentDevice = cloudJson.deviceId && (cloudJson.deviceId !== myDeviceId);
 
                   if (!forceDownload && cloudChangedSinceSync && localChangedSinceSync && differentDevice && Math.abs(cloudTimestamp - localTimestamp) > 3000) {
                     // Conflicto: Mostrar modal interactivo para que el usuario decida y evitar sobreescritura accidental
@@ -6043,24 +6118,25 @@
                     isGdriveSyncing = false;
                     updateGdriveUI('CONFLICTO', 'bg-amber-950 text-amber-300 border border-amber-700 animate-pulse');
                     app.showSyncConflictModal(cloudJson);
-                    return;
+                    return { success: true, action: 'conflict' };
                   }
 
-                  // Si la nube es más reciente o si forzamos descarga:
-                  if (forceDownload || cloudTimestamp > localTimestamp || (allowPull && cloudTimestamp >= localTimestamp)) {
-                    // Guardar backup automático previo por seguridad
+                  // Si la nube es mÃ¡s reciente o forzamos descarga:
+                  if (forceDownload || cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
+                    // Backup de seguridad antes de sobreescribir
                     try {
                       localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
                     } catch (_) {}
 
                     state = sanitizeState(cloudJson);
+                    state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo fÃ­sico actual
                     state.lastSyncedCloudUpdatedAt = cloudTimestamp;
                     localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
                     renderApp();
                     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
                     updateGdriveUI();
                     isGdriveSyncing = false;
-                    return;
+                    return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
                   }
                 }
               }
@@ -6069,14 +6145,20 @@
             }
           }
 
-          // Subir el estado actual a Google Drive (el estado local es más reciente o el usuario eligió subir)
-          state.updatedAt = Date.now();
-          if (!state.deviceId) {
-            state.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+          // Si llegamos aquÃ­ y es forceDownload pero no se pudo descargar
+          if (forceDownload) {
+            updateGdriveUI();
+            return { success: false, reason: 'download_failed' };
           }
+
+          // Subir el estado actual a Google Drive (el estado local es mÃ¡s reciente o el usuario eligiÃ³ subir)
+          state.updatedAt = Date.now();
+          state.deviceId = myDeviceId;
           const content = JSON.stringify(state, null, 2);
+
+          let uploadSuccess = false;
           if (fileId) {
-            // Actualizar archivo existente
+            // Actualizar archivo existente con PATCH
             const updateRes = await fetch(`https://www.googleapis.com/upload/drive/v3/files/${fileId}?uploadType=media`, {
               method: 'PATCH',
               headers: {
@@ -6085,15 +6167,24 @@
               },
               body: content
             });
-            if (!updateRes.ok && updateRes.status === 404) {
+            if (updateRes.ok) {
+              uploadSuccess = true;
+            } else if (updateRes.status === 404) {
               fileId = null;
               gdriveFileId = null;
               localStorage.removeItem('gdrive_file_id');
+            } else if (updateRes.status === 401) {
+              gdriveAccessToken = null;
+              gdriveTokenExpiry = 0;
+              localStorage.removeItem('gdrive_access_token');
+              localStorage.removeItem('gdrive_token_expiry');
+              updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+              return { success: false, reason: 'token_expired' };
             }
           }
 
           if (!fileId) {
-            // Crear archivo nuevo en la raíz del Google Drive del usuario
+            // Crear archivo nuevo en la raÃ­z del Google Drive del usuario
             const metadata = {
               name: GOOGLE_DRIVE_FILENAME,
               mimeType: 'application/json'
@@ -6111,14 +6202,30 @@
               const cData = await createRes.json();
               gdriveFileId = cData.id;
               localStorage.setItem('gdrive_file_id', gdriveFileId);
+              uploadSuccess = true;
+            } else if (createRes.status === 401) {
+              gdriveAccessToken = null;
+              gdriveTokenExpiry = 0;
+              localStorage.removeItem('gdrive_access_token');
+              localStorage.removeItem('gdrive_token_expiry');
+              updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+              return { success: false, reason: 'token_expired' };
             }
           }
 
-          localStorage.setItem('gdrive_last_synced_time', String(state.updatedAt));
-          updateGdriveUI();
+          if (uploadSuccess) {
+            localStorage.setItem('gdrive_last_synced_time', String(state.updatedAt));
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+            updateGdriveUI();
+            return { success: true, action: 'uploaded', timestamp: state.updatedAt };
+          } else {
+            updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
+            return { success: false, reason: 'upload_failed' };
+          }
         } catch (err) {
           console.warn('Error sincronizando con Google Drive:', err);
           updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
+          return { success: false, reason: err.message || 'unknown_error' };
         } finally {
           isGdriveSyncing = false;
         }
@@ -6183,6 +6290,9 @@
             updateAutoSaveUI(false);
           }
         } catch (_) {
+          updateAutoSaveUI(false);
+        }
+      } catch (_) {
           updateAutoSaveUI(false);
         }
       }
@@ -6862,7 +6972,7 @@
         const m = totalMinutes % 60;
         if (h > 0 && m > 0) return `${h}h ${m}m`;
         if (h > 0) return `${h}h`;
-        return `${m}m`;
+        return ${m}m;
       }
       // GRÁFICOS SVG
       function renderSvgRing(pct, real, goal) {
@@ -16022,18 +16132,74 @@
           if (!gdriveUserEmail) {
             const connect = await this.showConfirm({
               title: 'Conectar con Google Drive',
-              message: 'Para sincronizar tu iPad y tu PC automáticamente, necesitas vincular tu cuenta de Google una vez.\n\n¿Deseas iniciar sesión con Google ahora?',
-              confirmText: 'Iniciar Sesión',
+              message: 'Para sincronizar tu mÃ³vil, iPad y tu PC automÃ¡ticamente, necesitas vincular tu cuenta de Google una vez.\n\nÂ¿Deseas iniciar sesiÃ³n con Google ahora?',
+              confirmText: 'Iniciar SesiÃ³n',
               cancelText: 'Cancelar',
               isDanger: false
             });
             if (connect) this.connectGoogleDrive();
             return;
           }
-          this.showToast('Sincronizando con Google Drive...', 'info');
-          await syncGdriveCloud(true);
-          this.showToast('¡Datos sincronizados con Google Drive!', 'success');
+          this.showToast('Sincronizando con Google Drive...', 'info', 2500);
+          const res = await syncGdriveCloud(true);
+          if (res && res.success) {
+            if (res.action === 'downloaded') {
+              this.showToast('Â¡Datos actualizados desde Google Drive!', 'success', 3000);
+            } else if (res.action === 'uploaded') {
+              this.showToast('Â¡Datos locales subidos a Google Drive!', 'success', 3000);
+            } else if (res.action === 'conflict') {
+              // Ya se muestra el modal de conflicto
+            } else {
+              this.showToast('Datos sincronizados y al dÃ­a.', 'success', 2500);
+            }
+          } else {
+            const reason = res ? res.reason : 'desconocida';
+            if (reason === 'token_expired') {
+              this.showToast('Tu sesiÃ³n de Google expirÃ³. Haz clic en Renovar SesiÃ³n.', 'warning', 4500);
+            } else {
+              this.showToast('No se pudo completar la sincronizaciÃ³n (' + reason + '). Revisa tu conexiÃ³n.', 'error', 4500);
+            }
+          }
         },
+
+        async forceUploadToDrive() {
+          if (!gdriveUserEmail) return this.connectGoogleDrive();
+          const ok = await this.showConfirm({
+            title: 'Forzar Subida a Google Drive',
+            message: 'Esta acciÃ³n SOBREESCRIBIRÃ el archivo en Google Drive con la versiÃ³n que tienes en este dispositivo.\n\nÂ¿Deseas continuar?',
+            confirmText: 'Forzar Subida',
+            cancelText: 'Cancelar',
+            isDanger: true
+          });
+          if (!ok) return;
+          this.showToast('Subiendo copia local forzada a Drive...', 'info', 3000);
+          const res = await syncGdriveCloud(false, true, false);
+          if (res && res.success) {
+            this.showToast('Â¡Copia local guardada en Google Drive con Ã©xito!', 'success', 3500);
+          } else {
+            this.showToast('Error al forzar subida a Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
+          }
+        },
+
+        async forceDownloadFromDrive() {
+          if (!gdriveUserEmail) return this.connectGoogleDrive();
+          const ok = await this.showConfirm({
+            title: 'Forzar Descarga de Google Drive',
+            message: 'Esta acciÃ³n SOBREESCRIBIRÃ tus datos locales con la copia que estÃ¡ guardada en Google Drive.\n\nÂ¿Deseas continuar?',
+            confirmText: 'Forzar Bajada',
+            cancelText: 'Cancelar',
+            isDanger: true
+          });
+          if (!ok) return;
+          this.showToast('Descargando archivo desde Google Drive...', 'info', 3000);
+          const res = await syncGdriveCloud(true, false, true);
+          if (res && res.success) {
+            this.showToast('Â¡Copia de Google Drive cargada con Ã©xito en este dispositivo!', 'success', 3500);
+          } else {
+            this.showToast('Error al forzar bajada de Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
+          }
+        },
+
         disconnectGoogleDrive() {
           gdriveAccessToken = null;
           gdriveTokenExpiry = 0;
@@ -16044,14 +16210,15 @@
           localStorage.removeItem('gdrive_user_email');
           localStorage.removeItem('gdrive_file_id');
           updateGdriveUI();
-          this.showToast('Sesión de Google Drive cerrada.', 'info');
+          this.showToast('SesiÃ³n de Google Drive cerrada.', 'info');
         },
+
         async refreshAppAndSync() {
           const icon = document.getElementById('headerSyncRefreshIcon');
           if (icon) icon.classList.add('rotate-180');
-          this.showToast('Sincronizando con Drive y comprobando versión...', 'info', 2000);
+          this.showToast('Sincronizando con Drive y comprobando versiÃ³n...', 'info', 2000);
 
-          // 1. Comprobar actualización de Service Worker (código de la app)
+          // 1. Comprobar actualizaciÃ³n de Service Worker (cÃ³digo de la app)
           if ('serviceWorker' in navigator) {
             try {
               const reg = await navigator.serviceWorker.getRegistration();
@@ -16060,19 +16227,30 @@
                 if (reg.waiting) {
                   const banner = document.getElementById('pwaUpdateBanner');
                   if (banner) banner.classList.remove('hidden');
-                  this.showToast('¡Nueva versión del Centro de Control lista!', 'blue', 4000);
+                  this.showToast('Â¡Nueva versiÃ³n del Centro de Control lista!', 'blue', 4000);
                 }
               }
             } catch (swErr) {
-              console.log('No se pudo verificar actualización de Service Worker:', swErr);
+              console.log('No se pudo verificar actualizaciÃ³n de Service Worker:', swErr);
             }
           }
 
           // 2. Sincronizar con Google Drive
           if (gdriveUserEmail) {
             try {
-              await syncGdriveCloud(true);
-              this.showToast('Sincronización con Google Drive completada.', 'success', 2500);
+              const res = await syncGdriveCloud(true);
+              if (res && res.success) {
+                if (res.action === 'downloaded') {
+                  this.showToast('Actualizado con cambios mÃ¡s recientes de la nube.', 'success', 2500);
+                } else {
+                  this.showToast('SincronizaciÃ³n con Google Drive completada.', 'success', 2500);
+                }
+              } else {
+                const reason = res ? res.reason : 'error';
+                if (reason === 'token_expired') {
+                  this.showToast('SesiÃ³n de Drive expirada. Pulsa en el indicador para renovar.', 'warning', 3500);
+                }
+              }
             } catch (gErr) {
               console.warn('Error sincronizando con Drive:', gErr);
             }
@@ -16084,8 +16262,7 @@
             if (icon) icon.classList.remove('rotate-180');
           }, 600);
         },
-
-        applyPwaUpdate() {
+                applyPwaUpdate() {
           if ('serviceWorker' in navigator) {
             navigator.serviceWorker.getRegistrations().then(registrations => {
               for (let reg of registrations) {
