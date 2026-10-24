@@ -813,7 +813,12 @@
         scrollbar-width: none;
       }
     }
-  </style>
+  
+    .density-compact .editorial-card { padding: 0.65rem !important; }
+    .density-compact .subpanel-bg { padding: 0.5rem !important; }
+    .density-compact td { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
+    .density-compact #mainAppHeader { padding: 0.5rem 0.75rem !important; }
+</style>
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-24 sm:pb-16 transition-colors duration-200">
   <!-- Capa de Textura Litográfica Fija (Tactile Noise) -->
@@ -2848,6 +2853,78 @@
   <div id="toastContainer" class="fixed top-5 right-5 z-[9999] flex flex-col gap-2 pointer-events-none max-w-sm w-full px-3"></div>
 
   <!-- MODAL DE ATAJOS DE TECLADO Y GUÍA RÁPIDA -->
+  
+  <!-- MODAL PERSONALIZAR VISTA DEL DASHBOARD -->
+  <div id="modalViewCustomizer" onclick="if(event.target===this)app.closeModal('modalViewCustomizer')" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="editorial-card panel-bg border rounded-2xl max-w-md w-full p-5 space-y-4 shadow-2xl text-xs">
+      <div class="flex justify-between items-center border-b pb-2.5">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-main text-white shadow-xs">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          </div>
+          <div>
+            <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Personalizar <span class="italic font-normal">Dashboard</span></h3>
+            <span class="text-[10px] text-slate-400">Activa u oculta bloques para una interfaz 100% limpia a tu medida</span>
+          </div>
+        </div>
+        <button onclick="app.closeModal('modalViewCustomizer')" class="w-7 h-7 rounded-lg subpanel-bg border flex items-center justify-center text-slate-400 hover:text-stone-900 dark:hover:text-white font-bold transition">✕</button>
+      </div>
+
+      <!-- Opciones de personalización -->
+      <div class="space-y-2.5">
+        <!-- 1. KPIs Superiores -->
+        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+          <div class="space-y-0.5 pr-2">
+            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Métricas y 4 KPIs Superiores</div>
+            <div class="text-[10px] text-stone-500 dark:text-slate-400">Tarjetas de resumen de hábitos, estudio, clases y presupuesto.</div>
+          </div>
+          <input type="checkbox" id="prefShowKpis" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+        </label>
+
+        <!-- 2. Matriz Semanal Completa -->
+        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+          <div class="space-y-0.5 pr-2">
+            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Matriz Semanal de Hábitos (L – D)</div>
+            <div class="text-[10px] text-stone-500 dark:text-slate-400">Tabla con los 7 días y barras de porcentaje acumulativo.</div>
+          </div>
+          <input type="checkbox" id="prefShowWeekMatrix" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+        </label>
+
+        <!-- 3. Tarjetas de Enfoque y Desglose Diario -->
+        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+          <div class="space-y-0.5 pr-2">
+            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Panel de Enfoque Diario (Hoy)</div>
+            <div class="text-[10px] text-stone-500 dark:text-slate-400">La lista clara de lo que tienes que hacer hoy paso a paso.</div>
+          </div>
+          <input type="checkbox" id="prefShowDailyCards" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+        </label>
+
+        <!-- 4. Docks Flotantes -->
+        <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+          <div class="space-y-0.5 pr-2">
+            <div class="font-bold text-[11px] text-stone-900 dark:text-white">Docks Flotantes (Pomodoro y Gasto Rápido)</div>
+            <div class="text-[10px] text-stone-500 dark:text-slate-400">Pastillas flotantes en la parte inferior de la pantalla.</div>
+          </div>
+          <input type="checkbox" id="prefShowDocks" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+        </label>
+
+        <!-- 5. Selector de Densidad Visual -->
+        <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
+          <div class="font-bold text-[11px] text-stone-900 dark:text-white">Densidad Visual de la Pantalla:</div>
+          <div class="grid grid-cols-2 gap-2">
+            <button type="button" onclick="app.setDensity('cozy')" id="densityBtnCozy" class="p-2 rounded-lg border font-bold text-center text-xs transition">Espacioso (Cómodo)</button>
+            <button type="button" onclick="app.setDensity('compact')" id="densityBtnCompact" class="p-2 rounded-lg border font-bold text-center text-xs transition">Compacto (Menos scroll)</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-between pt-2 border-t">
+        <button onclick="app.resetUiPreferences()" class="text-stone-400 hover:text-stone-600 text-xs">Restablecer Todo</button>
+        <button onclick="app.closeModal('modalViewCustomizer')" class="px-5 py-2 rounded-xl bg-theme-main text-white font-bold text-xs shadow transition">Listo</button>
+      </div>
+    </div>
+  </div>
+
   <div id="modalShortcuts" onclick="if(event.target===this)app.closeModal('modalShortcuts')" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="editorial-card panel-bg border rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex justify-between items-center border-b pb-2.5">
@@ -2864,27 +2941,35 @@
       </div>
 
       <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 max-h-[65vh] overflow-y-auto pr-1">
-        <!-- Navegación -->
+        <!-- Navegación y Productividad -->
         <div class="p-3 rounded-xl subpanel-bg border space-y-2">
           <div class="font-bold text-[11px] text-theme-main dark:text-cyan-400 flex items-center gap-1.5">
             <span>🧭</span> Navegación Principal
           </div>
           <div class="space-y-1.5 text-[11px]">
             <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Semana / Enfoque</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">1</kbd>
+              <span class="text-stone-700 dark:text-slate-300">Semana anterior / siguiente</span>
+              <div class="flex items-center gap-1">
+                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">◀</kbd>
+                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">▶</kbd>
+              </div>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Horario / Faltas</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">2</kbd>
+              <span class="text-stone-700 dark:text-slate-300">Ir a la semana actual (Hoy)</span>
+              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">T</kbd>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Finanzas Pro</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">3</kbd>
+              <span class="text-stone-700 dark:text-slate-300">Pestañas 1 – 4</span>
+              <div class="flex items-center gap-0.5">
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">1</kbd>
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">2</kbd>
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">3</kbd>
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">4</kbd>
+              </div>
             </div>
             <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Laboratorio / Datos</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">4</kbd>
+              <span class="text-stone-700 dark:text-slate-300">Copias de seguridad</span>
+              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">B</kbd>
             </div>
           </div>
         </div>
@@ -2897,11 +2982,26 @@
           </div>
           <div class="space-y-1.5 text-[11px]">
             <div class="flex items-center justify-between">
+              <span class="text-stone-700 dark:text-slate-300 font-bold text-theme-main">Guardar / Sincronizar Ahora</span>
+              <div class="flex items-center gap-1">
+                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Ctrl</kbd>
+                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">S</kbd>
+              </div>
+            </div>
+            <div class="flex items-center justify-between">
               <span class="text-stone-700 dark:text-slate-300">Deshacer última acción</span>
               <div class="flex items-center gap-1">
                 <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Ctrl</kbd>
                 <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Z</kbd>
               </div>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-stone-700 dark:text-slate-300">Iniciar / Pausar Pomodoro</span>
+              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">P</kbd>
+            </div>
+            <div class="flex items-center justify-between">
+              <span class="text-stone-700 dark:text-slate-300">Nuevo hábito / meta</span>
+              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">G</kbd>
             </div>
             <div class="flex items-center justify-between">
               <span class="text-stone-700 dark:text-slate-300">Nuevo gasto rápido</span>
@@ -2918,59 +3018,30 @@
           </div>
         </div>
 
-        <!-- Listas y Notas -->
-        <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+        <!-- Modo Zen y Utilidades -->
+        <div class="p-3 rounded-xl subpanel-bg border space-y-2 col-span-1 sm:col-span-2">
           <div class="font-bold text-[11px] text-accent-green flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"/><rect x="8" y="2" width="8" height="4" rx="1" ry="1"/></svg>
-            <span>Listas y Tareas</span>
+            <span>🧘</span> Modo Zen y Ayuda
           </div>
-          <div class="space-y-1.5 text-[11px]">
-            <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Menú contextual</span>
-              <span class="font-mono text-[10px] font-bold text-stone-600 dark:text-slate-300">Clic Derecho o •••</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Reordenar / Anidar</span>
-              <span class="font-mono text-[10px] font-bold text-stone-600 dark:text-slate-300">Arrastrar y soltar</span>
-            </div>
-            <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Guardar en formulario</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Enter</kbd>
-            </div>
-          </div>
-        </div>
-
-        <!-- Hucha y Pomodoro -->
-        <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-          <div class="font-bold text-[11px] text-theme-accent flex items-center gap-1.5">
-            <span>🐷</span> Hucha y Pomodoro
-          </div>
-          <div class="space-y-1.5 text-[11px]">
-            <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Fórmulas en Hucha</span>
-              <span class="font-mono text-[10px] font-bold text-theme-main">15 + 8.5*2</span>
-            </div>
-            <div class="flex items-center justify-between">
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2 text-[11px]">
+            <div class="flex items-center justify-between p-1.5 rounded-lg subpanel-bg">
               <span class="text-stone-700 dark:text-slate-300">Modo Zen Completo</span>
               <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Z</kbd>
             </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between p-1.5 rounded-lg subpanel-bg">
               <span class="text-stone-700 dark:text-slate-300">Burbuja Pomodoro</span>
               <div class="flex items-center gap-1">
-                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Shift</kbd>
-                <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Z</kbd>
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">Shift</kbd>
+                <kbd class="kbd px-1 py-0.5 rounded font-mono text-[9px] font-bold">Z</kbd>
               </div>
             </div>
-            <div class="flex items-center justify-between">
-              <span class="text-stone-700 dark:text-slate-300">Pausar/Reanudar en Zen</span>
-              <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">Espacio</kbd>
-            </div>
-            <div class="flex items-center justify-between">
+            <div class="flex items-center justify-between p-1.5 rounded-lg subpanel-bg">
               <span class="text-stone-700 dark:text-slate-300">Abrir esta ayuda</span>
               <kbd class="kbd px-1.5 py-0.5 rounded font-mono text-[10px] font-bold">?</kbd>
             </div>
           </div>
         </div>
+      </div>
       </div>
 
       <div class="flex justify-end pt-2 border-t">
@@ -3451,6 +3522,13 @@
               <span id="lockIcon"></span>
               <span id="lockText">Solo Lectura</span>
             </button>
+            <!-- Mini Progreso Diario en Cabecera -->
+            <div id="headerDailyProgressPill" class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-[10px] font-bold text-theme-main cursor-pointer" onclick="app.scrollToToday()" title="Progreso de hábitos de hoy (clic para ir a hoy)">
+              <span id="headerDailyProgressText">Hoy: 0/0 (0%)</span>
+              <div class="w-10 h-1.5 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden">
+                <div id="headerDailyProgressBar" class="h-full bg-theme-main transition-all duration-300" style="width: 0%"></div>
+              </div>
+            </div>
           </div>
           
           <div class="flex items-center gap-2 pt-0.5 text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
@@ -3480,6 +3558,11 @@
         <button onclick="app.toggleTheme()" id="themeToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
           <span id="themeToggleIcon" class="flex items-center justify-center"></span>
           <span id="themeToggleText" class="hidden sm:inline">Tema</span>
+        </button>
+        <!-- Botón Personalizar Vista Dashboard -->
+        <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
+          <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
+          <span class="hidden sm:inline">Vista</span>
         </button>
 
         <!-- Selector de Paleta de Color de Acento Centralizado (Dúo Bicolor) -->
@@ -3561,6 +3644,27 @@
 
     <!-- BLOQUE SUPERIOR DE BANNERS Y KPIS (PLEGABLE EN MÓVIL PARA VER DIRECTAMENTE EL CONTENIDO) -->
     <div id="topBannersKpisWrapper" class="space-y-3">
+      <!-- Banner de Bienvenida / Modo Inicial para Nuevos Usuarios -->
+      <div id="welcomeNewUserBanner" class="hidden editorial-card panel-bg border-2 border-theme-main/60 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-md">
+        <div class="flex items-start gap-2.5">
+          <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 mt-0.5">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+          </div>
+          <div class="space-y-0.5">
+            <div class="font-bold text-stone-900 dark:text-white flex items-center gap-2">
+              <span>¡Bienvenido a tu Centro de Control!</span>
+              <span class="px-2 py-0.2 rounded-full bg-theme-soft text-theme-main font-mono text-[9.5px]">Modo Inicial</span>
+            </div>
+            <p class="text-[11px] text-stone-600 dark:text-slate-300 leading-relaxed">
+              Si la interfaz te parece densa, no te preocupes: puedes pulsar en <strong>«Vista»</strong> en la cabecera para ocultar lo que no uses (como finanzas o métricas) y empezar con solo 2 o 3 hábitos sencillos.
+            </p>
+          </div>
+        </div>
+        <div class="flex items-center gap-2">
+          <button onclick="app.openViewCustomizerModal()" class="px-3 py-1.5 rounded-xl bg-theme-main text-white font-bold hover:opacity-90 transition text-xs shadow-xs">Personalizar Vista</button>
+          <button onclick="app.dismissWelcomeBanner()" class="px-3 py-1.5 rounded-xl subpanel-bg border text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs">Entendido</button>
+        </div>
+      </div>
       <!-- Botón de Toggle Rápido de KPIs en Móvil (Tarjeta Destacada que no pasa desapercibida) -->
       <div class="sm:hidden">
         <button type="button" onclick="app.toggleMobileKpis()" id="toggleMobileKpisBtn" class="w-full editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-sm hover:border-theme-main transition group">
@@ -11485,6 +11589,52 @@
         }).join('');
       }
 
+      
+      function updateHeaderDailyProgress() {
+        const w = getActiveWeek();
+        if (!w) return;
+        const todayIdx = (new Date().getDay() + 6) % 7;
+        const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+        const habitsData = w.customHabitsData || {};
+        
+        let totalTasks = 0;
+        let doneTasks = 0;
+        
+        activeHabits.forEach(h => {
+          const val = (habitsData[h.id] || [])[todayIdx];
+          const slots = Number(h.slotsCount) || 1;
+          if (h.type === 'binary_check' && slots > 1) {
+            totalTasks += slots;
+            if (Array.isArray(val)) {
+              doneTasks += val.filter(Boolean).length;
+            } else if (val) {
+              doneTasks += slots;
+            }
+          } else if (h.type === 'binary_check') {
+            totalTasks += 1;
+            if (val === true || val === 1 || val === 'true') doneTasks += 1;
+          } else if (h.type === 'max_limit') {
+            totalTasks += 1;
+            if (val !== null && val !== undefined && Number(val) <= Number(h.targetDaily)) doneTasks += 1;
+          } else if (h.type === 'min_accum') {
+            totalTasks += 1;
+            if (val !== null && val !== undefined && Number(val) >= (Number(h.targetDaily) || 1)) doneTasks += 1;
+          } else if (h.type === 'target_range') {
+            totalTasks += 1;
+            const c = Number(h.targetCenter) || 0, mg = Number(h.targetMargin) || 0;
+            if (val !== null && val !== undefined && Number(val) >= (c - mg) && Number(val) <= (c + mg)) doneTasks += 1;
+          }
+        });
+
+        const pct = totalTasks > 0 ? Math.round((doneTasks / totalTasks) * 100) : 0;
+        const textEl = document.getElementById('headerDailyProgressText');
+        const barEl = document.getElementById('headerDailyProgressBar');
+        const pillEl = document.getElementById('headerDailyProgressPill');
+        if (pillEl) pillEl.classList.toggle('hidden', totalTasks === 0);
+        if (textEl) textEl.textContent = 'Hoy: ' + doneTasks + '/' + totalTasks + ' (' + pct + '%)';
+        if (barEl) barEl.style.width = pct + '%';
+      }
+
       function renderApp() {
         renderHeaderAndKPIs();
         renderDockExpenseUI();
@@ -17080,6 +17230,205 @@
           renderHeaderAndKPIs();
           saveState();
           this.showToast('Módulos base restaurados en la plantilla.', 'success');
+        },
+
+        manualQuickSave() {
+          saveState();
+          if (isGdriveConnected()) {
+            this.showToast('💾 Guardando en disco y sincronizando con Google Drive...', 'info', 1800);
+            syncGdriveCloud(false, true, false).then(res => {
+              if (res && res.success) {
+                this.showToast('✓ ¡Datos guardados y subidos a Google Drive!', 'success', 2500);
+              } else {
+                this.showToast('✓ Guardado local listo (revisa la sesión con Drive).', 'info', 2500);
+              }
+            });
+          } else {
+            this.showToast('💾 ¡Datos guardados localmente con éxito! (Ctrl+S)', 'success', 2000);
+          }
+        },
+
+        onHabitSlotsCountChange(count, existingLabels = []) {
+          const container = document.getElementById('habitSlotLabelsContainer');
+          if (!container) return;
+          const num = parseInt(count, 10) || 1;
+          if (num <= 1) {
+            container.innerHTML = '';
+            return;
+          }
+          const defaultHours = ['09:00', '14:00', '21:00', '18:00', '23:00'];
+          let inputsHtml = '<div class="p-2.5 rounded-xl bg-theme-soft/50 border border-theme space-y-1.5">' +
+            '<div class="flex items-center justify-between text-[10.5px] font-bold text-theme-main">' +
+              '<span>Horas o Avisos Fijos por Casilla:</span>' +
+              '<span class="text-[9.5px] text-stone-400 font-normal">Fijas cada día en la matriz</span>' +
+            '</div>' +
+            '<div class="grid grid-cols-' + Math.min(num, 3) + ' gap-2">';
+          for (let i = 0; i < num; i++) {
+            const defaultVal = existingLabels[i] || defaultHours[i] || ('Toma ' + (i + 1));
+            inputsHtml += '<div class="space-y-0.5">' +
+              '<label class="block text-[9px] font-bold text-stone-500">Casilla #' + (i + 1) + ':</label>' +
+              '<input type="text" id="habitSlotLabel_' + i + '" value="' + escapeHtml(defaultVal) + '" placeholder="ej: 09:00" class="w-full px-2 py-1 input-bg border rounded-lg font-mono text-center font-bold text-xs focus:border-theme outline-none" />' +
+            '</div>';
+          }
+          inputsHtml += '</div></div>';
+          container.innerHTML = inputsHtml;
+        },
+
+        toggleHabitSlotCheck(dayIdx, habitId, slotIdx) {
+          if (state.isReadOnlyLocked) return this.showToast('Semana bloqueada en modo solo lectura.', 'warning');
+          const w = getActiveWeek();
+          if (!w.customHabitsData) w.customHabitsData = {};
+          if (!w.customHabitsData[habitId]) w.customHabitsData[habitId] = [null, null, null, null, null, null, null];
+
+          const h = (state.customHabits || []).find(x => x.id === habitId);
+          const slotsCount = h && Number(h.slotsCount) > 1 ? Number(h.slotsCount) : 1;
+
+          let cur = w.customHabitsData[habitId][dayIdx];
+          let slotsArr;
+          if (Array.isArray(cur)) {
+            slotsArr = [...cur];
+          } else if (cur === true || cur === 1 || cur === 'true') {
+            slotsArr = Array(slotsCount).fill(true);
+          } else {
+            slotsArr = Array(slotsCount).fill(false);
+          }
+          while (slotsArr.length < slotsCount) slotsArr.push(false);
+
+          slotsArr[slotIdx] = !slotsArr[slotIdx];
+          w.customHabitsData[habitId][dayIdx] = slotsArr;
+
+          pushUndo('Marcar toma de hábito');
+          renderDailyHabits();
+          const todayIdx = (new Date().getDay() + 6) % 7;
+          const m = calculateWeekMetrics(w);
+          const streaks = calculateStreaks(w.weekNum);
+          const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
+          renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
+          renderHeaderAndKPIs();
+          updateHeaderDailyProgress();
+          saveState();
+        },
+
+        openViewCustomizerModal() {
+          this.applyUiPreferences();
+          this.openModal('modalViewCustomizer');
+        },
+
+        saveUiPreferences() {
+          if (!state.uiPreferences) state.uiPreferences = {};
+          const chkKpis = document.getElementById('prefShowKpis');
+          const chkMatrix = document.getElementById('prefShowWeekMatrix');
+          const chkDaily = document.getElementById('prefShowDailyCards');
+          const chkDocks = document.getElementById('prefShowDocks');
+          if (chkKpis) state.uiPreferences.showKpis = chkKpis.checked;
+          if (chkMatrix) state.uiPreferences.showWeekMatrix = chkMatrix.checked;
+          if (chkDaily) state.uiPreferences.showDailyCards = chkDaily.checked;
+          if (chkDocks) state.uiPreferences.showDocks = chkDocks.checked;
+          this.applyUiPreferences();
+          saveState();
+        },
+
+        resetUiPreferences() {
+          state.uiPreferences = {
+            showKpis: true,
+            showWeekMatrix: true,
+            showDailyCards: true,
+            showDocks: true,
+            density: 'cozy',
+            welcomeDismissed: false
+          };
+          this.applyUiPreferences();
+          saveState();
+          this.showToast('Preferencias de vista restablecidas.', 'info');
+        },
+
+        dismissWelcomeBanner() {
+          if (!state.uiPreferences) state.uiPreferences = {};
+          state.uiPreferences.welcomeDismissed = true;
+          const b = document.getElementById('welcomeNewUserBanner');
+          if (b) b.classList.add('hidden');
+          saveState();
+        },
+
+        setDensity(density) {
+          if (!state.uiPreferences) state.uiPreferences = {};
+          state.uiPreferences.density = density;
+          this.applyUiPreferences();
+          saveState();
+          this.showToast(density === 'compact' ? 'Densidad compacta activada.' : 'Densidad estándar activada.', 'info', 1500);
+        },
+
+        applyUiPreferences() {
+          if (!state.uiPreferences) {
+            state.uiPreferences = {
+              showKpis: true,
+              showWeekMatrix: true,
+              showDailyCards: true,
+              showDocks: true,
+              density: 'cozy',
+              welcomeDismissed: false
+            };
+          }
+          const p = state.uiPreferences;
+
+          const kpisWrap = document.getElementById('topBannersKpisWrapper');
+          if (kpisWrap) {
+            kpisWrap.classList.toggle('hidden', p.showKpis === false);
+          }
+
+          const matrixWrap = document.getElementById('weekTableContainer');
+          if (matrixWrap && p.showWeekMatrix === false) {
+            matrixWrap.classList.add('hidden');
+          }
+
+          const dailyWrap = document.getElementById('todayFocusContainer');
+          if (dailyWrap) {
+            dailyWrap.classList.toggle('hidden', p.showDailyCards === false);
+          }
+
+          const pomoDock = document.getElementById('dockPomoContainer') || document.getElementById('floatingPomoDock');
+          const expDock = document.getElementById('dockExpenseContainer') || document.getElementById('floatingExpenseDock');
+          if (pomoDock) pomoDock.classList.toggle('hidden', p.showDocks === false);
+          if (expDock) expDock.classList.toggle('hidden', p.showDocks === false);
+
+          if (p.density === 'compact') {
+            document.documentElement.classList.add('density-compact');
+          } else {
+            document.documentElement.classList.remove('density-compact');
+          }
+          const btnCozy = document.getElementById('densityBtnCozy');
+          const btnCompact = document.getElementById('densityBtnCompact');
+          if (btnCozy && btnCompact) {
+            if (p.density === 'compact') {
+              btnCompact.className = 'p-2 rounded-lg border-2 border-theme bg-theme-soft font-bold text-center text-xs text-theme-main shadow-xs';
+              btnCozy.className = 'p-2 rounded-lg border subpanel-bg font-semibold text-center text-xs text-stone-500 hover:border-theme';
+            } else {
+              btnCozy.className = 'p-2 rounded-lg border-2 border-theme bg-theme-soft font-bold text-center text-xs text-theme-main shadow-xs';
+              btnCompact.className = 'p-2 rounded-lg border subpanel-bg font-semibold text-center text-xs text-stone-500 hover:border-theme';
+            }
+          }
+
+          const welcomeBanner = document.getElementById('welcomeNewUserBanner');
+          if (welcomeBanner) {
+            welcomeBanner.classList.toggle('hidden', p.welcomeDismissed === true || p.showKpis === false);
+          }
+
+          const chkKpis = document.getElementById('prefShowKpis');
+          const chkMatrix = document.getElementById('prefShowWeekMatrix');
+          const chkDaily = document.getElementById('prefShowDailyCards');
+          const chkDocks = document.getElementById('prefShowDocks');
+          if (chkKpis) chkKpis.checked = p.showKpis !== false;
+          if (chkMatrix) chkMatrix.checked = p.showWeekMatrix !== false;
+          if (chkDaily) chkDaily.checked = p.showDailyCards !== false;
+          if (chkDocks) chkDocks.checked = p.showDocks !== false;
+        },
+
+        scrollToToday() {
+          const el = document.getElementById('todayFocusContainer');
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            this.showToast('Enfocando panel de hoy.', 'info', 1200);
+          }
         },
 
         openManageHabitsModal() {
