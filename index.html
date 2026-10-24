@@ -3445,7 +3445,7 @@
                 <span id="lockIcon" class="flex items-center justify-center"></span>
                 <span id="lockText" class="hidden sm:inline">Solo Lectura</span>
               </button>
-              <span id="headerBuildInfoBadge" class="font-mono text-[8.5px] sm:text-[9px] px-1.5 py-0.2 rounded border bg-stone-100/80 dark:bg-slate-800/80 text-stone-500 dark:text-slate-400 select-none tracking-tight" title="VersiÃ³n de compilaciÃ³n PWA: v1.3.2 â€¢ 24 oct. 16:45">v1.3.2 â€¢ 24/10 16:45</span>
+              <span id="headerBuildInfoBadge" class="font-mono text-[8.5px] sm:text-[9px] px-1.5 py-0.2 rounded border bg-stone-100/80 dark:bg-slate-800/80 text-stone-500 dark:text-slate-400 select-none tracking-tight" title="Version: v1.3.2 (24/10 17:15)">v1.3.2 | 24/10 17:15</span>
             </div>
             
             <div class="flex items-center gap-2 pt-0.5 text-[9.5px] sm:text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
@@ -3631,7 +3631,7 @@
         <!-- Tier 2: Fila Central Protagonista -->
         <div class="flex items-center justify-between gap-1 py-0.5">
           <div class="min-w-0">
-            <div id="kpi2Numbers" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white truncate">0.0 / 15.0 h</div>
+            <div id="kpi2Numbers" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white truncate">0m / 15h</div>
             <div id="kpi2Compensate" class="text-[9px] sm:text-[10px] text-theme-main font-medium truncate">Al día con el plan</div>
           </div>
           <div id="kpi2RingBox" class="relative w-8 h-8 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center"></div>
@@ -6292,9 +6292,6 @@
         } catch (_) {
           updateAutoSaveUI(false);
         }
-      } catch (_) {
-          updateAutoSaveUI(false);
-        }
       }
 
       function createEmptyWeek(weekNum, templateGoals, templateSchedule) {
@@ -6972,7 +6969,7 @@
         const m = totalMinutes % 60;
         if (h > 0 && m > 0) return `${h}h ${m}m`;
         if (h > 0) return `${h}h`;
-        return ${m}m;
+        return `${m}m`;
       }
       // GRÁFICOS SVG
       function renderSvgRing(pct, real, goal) {
