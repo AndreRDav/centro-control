@@ -814,10 +814,14 @@
       }
     }
   
-    .density-compact .editorial-card { padding: 0.65rem !important; }
-    .density-compact .subpanel-bg { padding: 0.5rem !important; }
-    .density-compact td { padding-top: 0.25rem !important; padding-bottom: 0.25rem !important; }
-    .density-compact #mainAppHeader { padding: 0.5rem 0.75rem !important; }
+    .density-compact { font-size: 0.92rem; }
+    .density-compact .editorial-card { padding: 0.65rem 0.8rem !important; margin-bottom: 0.4rem !important; }
+    .density-compact .subpanel-bg { padding: 0.45rem !important; }
+    .density-compact td, .density-compact th { padding-top: 0.2rem !important; padding-bottom: 0.2rem !important; }
+    .density-compact #mainAppHeader { padding: 0.45rem 0.75rem !important; }
+    .density-compact .space-y-3 > * + * { margin-top: 0.45rem !important; }
+    .density-compact .space-y-4 > * + * { margin-top: 0.6rem !important; }
+    .density-compact .p-3, .density-compact .p-4, .density-compact .p-5 { padding: 0.65rem !important; }
 </style>
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-24 sm:pb-16 transition-colors duration-200">
@@ -2870,8 +2874,34 @@
         <button onclick="app.closeModal('modalViewCustomizer')" class="w-7 h-7 rounded-lg subpanel-bg border flex items-center justify-center text-slate-400 hover:text-stone-900 dark:hover:text-white font-bold transition">✕</button>
       </div>
 
-      <!-- Opciones de personalización -->
-      <div class="space-y-2.5">
+      <!-- Modos Predeterminados (Presets) -->
+      <div class="space-y-1.5 pb-2.5 border-b">
+        <span class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Modos Predeterminados:</span>
+        <div class="grid grid-cols-3 gap-2">
+          <!-- Preset 1: Enfoque -->
+          <button type="button" onclick="app.applyPreset('focus')" id="presetBtn_focus" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
+            <span class="text-sm">🎯</span>
+            <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Enfoque</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Solo Hoy</span>
+          </button>
+          <!-- Preset 2: Equilibrado -->
+          <button type="button" onclick="app.applyPreset('balanced')" id="presetBtn_balanced" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
+            <span class="text-sm">⚖️</span>
+            <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Equilibrado</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Hoy + Matriz</span>
+          </button>
+          <!-- Preset 3: Mucha Info (Pro) -->
+          <button type="button" onclick="app.applyPreset('pro')" id="presetBtn_pro" class="p-2 rounded-xl border text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme">
+            <span class="text-sm">📊</span>
+            <span class="font-bold text-[10.5px] text-stone-800 dark:text-white leading-tight">Mucha Info</span>
+            <span class="text-[8.5px] text-stone-500 dark:text-slate-400">Todo abierto</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Opciones de personalización individual -->
+      <div class="space-y-2 pt-1">
+        <span class="block text-[10px] font-bold text-stone-500 uppercase tracking-wider">Ajustes Individuales:</span>
         <!-- 1. KPIs Superiores -->
         <label class="p-3 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
           <div class="space-y-0.5 pr-2">
@@ -3041,7 +3071,6 @@
             </div>
           </div>
         </div>
-      </div>
       </div>
 
       <div class="flex justify-end pt-2 border-t">
@@ -3642,8 +3671,27 @@
       </button>
     </div>
 
-    <!-- BLOQUE SUPERIOR DE BANNERS Y KPIS (PLEGABLE EN MÓVIL PARA VER DIRECTAMENTE EL CONTENIDO) -->
-    <div id="topBannersKpisWrapper" class="space-y-3">
+    <!-- BLOQUE SUPERIOR DE BANNERS Y KPIS -->
+    <div id="topBannersKpisWrapper" class="space-y-2">
+      <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
+      <div id="kpisSlimHeaderBar" class="editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-xs hover:border-theme-main transition cursor-pointer" onclick="app.toggleKpisAccordion()">
+        <div class="flex items-center gap-2">
+          <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
+            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+          </div>
+          <div class="text-left flex items-center gap-2">
+            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight">Métricas & 4 KPIs Semanales</span>
+            <span class="text-[9.5px] text-stone-500 dark:text-slate-400 font-mono sm:inline hidden">Hábitos • Estudio • Clases • Finanzas</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
+          <span id="kpisSlimStatusText">Mostrar</span>
+          <span id="kpisSlimArrow" class="text-[9px]">▼</span>
+        </div>
+      </div>
+
+      <!-- Contenedor Plegable de los 4 KPIs -->
+      <div id="kpisCollapsibleBody" class="hidden space-y-3 pt-1">
       <!-- Banner de Bienvenida / Modo Inicial para Nuevos Usuarios -->
       <div id="welcomeNewUserBanner" class="hidden editorial-card panel-bg border-2 border-theme-main/60 p-3.5 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs shadow-md">
         <div class="flex items-start gap-2.5">
@@ -17417,39 +17465,106 @@
           this.showToast(density === 'compact' ? 'Densidad compacta activada.' : 'Densidad estándar activada.', 'info', 1500);
         },
 
+        applyPreset(presetKey) {
+          if (!state.uiPreferences) state.uiPreferences = {};
+          state.uiPreferences.activePreset = presetKey;
+          if (presetKey === 'focus') {
+            state.uiPreferences.showKpis = false;
+            state.uiPreferences.showWeekMatrix = false;
+            state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showDocks = false;
+            state.uiPreferences.density = 'compact';
+            state.uiPreferences.kpisCollapsed = true;
+            this.showToast('🎯 Modo Enfoque activado: Solo lo de Hoy.', 'info', 1800);
+          } else if (presetKey === 'balanced') {
+            state.uiPreferences.showKpis = true;
+            state.uiPreferences.showWeekMatrix = true;
+            state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showDocks = true;
+            state.uiPreferences.density = 'cozy';
+            state.uiPreferences.kpisCollapsed = true;
+            this.showToast('⚖️ Modo Equilibrado activado: Hoy + KPIs plegados.', 'info', 1800);
+          } else if (presetKey === 'pro') {
+            state.uiPreferences.showKpis = true;
+            state.uiPreferences.showWeekMatrix = true;
+            state.uiPreferences.showDailyCards = true;
+            state.uiPreferences.showDocks = true;
+            state.uiPreferences.density = 'cozy';
+            state.uiPreferences.kpisCollapsed = false;
+            this.showToast('📊 Modo Mucha Info activado: Todo visible.', 'info', 1800);
+          }
+          this.applyUiPreferences();
+          saveState();
+        },
+
+        toggleKpisAccordion(forceState = null) {
+          if (!state.uiPreferences) state.uiPreferences = {};
+          const body = document.getElementById('kpisCollapsibleBody');
+          const txt = document.getElementById('kpisSlimStatusText');
+          const arrow = document.getElementById('kpisSlimArrow');
+          if (!body) return;
+          const isCurrentlyHidden = body.classList.contains('hidden');
+          const shouldShow = forceState !== null ? forceState : isCurrentlyHidden;
+          body.classList.toggle('hidden', !shouldShow);
+          if (txt) txt.textContent = shouldShow ? 'Plegar' : 'Mostrar';
+          if (arrow) arrow.textContent = shouldShow ? '▲' : '▼';
+          state.uiPreferences.kpisCollapsed = !shouldShow;
+          saveState();
+        },
+
         applyUiPreferences() {
           if (!state.uiPreferences) {
             state.uiPreferences = {
+              activePreset: 'balanced',
               showKpis: true,
               showWeekMatrix: true,
               showDailyCards: true,
               showDocks: true,
               density: 'cozy',
+              kpisCollapsed: true,
               welcomeDismissed: false
             };
           }
           const p = state.uiPreferences;
 
+          // 1. KPIs Superiores & Barra fina
           const kpisWrap = document.getElementById('topBannersKpisWrapper');
           if (kpisWrap) {
             kpisWrap.classList.toggle('hidden', p.showKpis === false);
           }
-
-          const matrixWrap = document.getElementById('weekTableContainer');
-          if (matrixWrap && p.showWeekMatrix === false) {
-            matrixWrap.classList.add('hidden');
+          const kpisBody = document.getElementById('kpisCollapsibleBody');
+          const kpisTxt = document.getElementById('kpisSlimStatusText');
+          const kpisArrow = document.getElementById('kpisSlimArrow');
+          if (kpisBody) {
+            const isColl = p.kpisCollapsed !== false;
+            kpisBody.classList.toggle('hidden', isColl);
+            if (kpisTxt) kpisTxt.textContent = isColl ? 'Mostrar' : 'Plegar';
+            if (kpisArrow) kpisArrow.textContent = isColl ? '▼' : '▲';
           }
 
+          // 2. Matriz Semanal Completa y botón de desplegar en Hoy
+          const matrixWrap = document.getElementById('weekTableContainer');
+          const toggleBtn = document.getElementById('toggleWeekTableBtn');
+          if (p.showWeekMatrix === false) {
+            if (matrixWrap) matrixWrap.classList.add('hidden');
+            if (toggleBtn) toggleBtn.classList.add('hidden');
+          } else {
+            if (toggleBtn) toggleBtn.classList.remove('hidden');
+          }
+
+          // 3. Tarjetas de Enfoque Diario
           const dailyWrap = document.getElementById('todayFocusContainer');
           if (dailyWrap) {
             dailyWrap.classList.toggle('hidden', p.showDailyCards === false);
           }
 
-          const pomoDock = document.getElementById('dockPomoContainer') || document.getElementById('floatingPomoDock');
-          const expDock = document.getElementById('dockExpenseContainer') || document.getElementById('floatingExpenseDock');
-          if (pomoDock) pomoDock.classList.toggle('hidden', p.showDocks === false);
-          if (expDock) expDock.classList.toggle('hidden', p.showDocks === false);
+          // 4. Docks Flotantes (selector real #floatingDock)
+          const floatingDock = document.getElementById('floatingDock');
+          if (floatingDock) {
+            floatingDock.classList.toggle('hidden', p.showDocks === false);
+          }
 
+          // 5. Densidad Visual
           if (p.density === 'compact') {
             document.documentElement.classList.add('density-compact');
           } else {
@@ -17467,11 +17582,26 @@
             }
           }
 
+          // 6. Highlight active preset button in modal
+          const activePre = p.activePreset || (p.showKpis === false ? 'focus' : (p.kpisCollapsed !== false ? 'balanced' : 'pro'));
+          ['focus', 'balanced', 'pro'].forEach(pre => {
+            const el = document.getElementById('presetBtn_' + pre);
+            if (el) {
+              if (el && pre === activePre) {
+                el.className = 'p-2 rounded-xl border-2 border-theme bg-theme-soft font-bold text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer shadow-xs text-theme-main';
+              } else {
+                el.className = 'p-2 rounded-xl border subpanel-bg text-center transition flex flex-col items-center justify-center gap-1 cursor-pointer hover:border-theme opacity-80';
+              }
+            }
+          });
+
+          // 7. Banner Bienvenida
           const welcomeBanner = document.getElementById('welcomeNewUserBanner');
           if (welcomeBanner) {
             welcomeBanner.classList.toggle('hidden', p.welcomeDismissed === true || p.showKpis === false);
           }
 
+          // Sincronizar checkboxes individuales
           const chkKpis = document.getElementById('prefShowKpis');
           const chkMatrix = document.getElementById('prefShowWeekMatrix');
           const chkDaily = document.getElementById('prefShowDailyCards');
@@ -17861,6 +17991,13 @@
         const tag = (e.target.tagName || '').toLowerCase();
         const id = e.target.id || '';
 
+        // Global Ctrl+S / Cmd+S (Guardado manual instantáneo)
+        if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 's') {
+          e.preventDefault();
+          app.manualQuickSave();
+          return;
+        }
+
         // Global Ctrl+Z / Cmd+Z (Deshacer)
         if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && !e.shiftKey) {
           const isTyping = tag === 'input' || tag === 'textarea';
@@ -17914,7 +18051,26 @@
         else if (e.key === '2') app.switchTab(2);
         else if (e.key === '3') app.switchTab(3);
         else if (e.key === '4') app.switchTab(4);
-        else if (e.key.toLowerCase() === 'n') {
+        else if (e.key === 'ArrowLeft') {
+          e.preventDefault();
+          app.navWeek(-1);
+        } else if (e.key === 'ArrowRight') {
+          e.preventDefault();
+          app.navWeek(1);
+        } else if (e.key.toLowerCase() === 't') {
+          e.preventDefault();
+          app.returnToActiveWeek();
+          app.scrollToToday();
+        } else if (e.key.toLowerCase() === 'b') {
+          e.preventDefault();
+          app.openModal('backupModal');
+        } else if (e.key.toLowerCase() === 'p') {
+          e.preventDefault();
+          app.togglePomo();
+        } else if (e.key.toLowerCase() === 'g') {
+          e.preventDefault();
+          app.openManageHabitsModal();
+        } else if (e.key.toLowerCase() === 'n') {
           e.preventDefault();
           app.toggleDockExpense(true);
         } else if (e.key.toLowerCase() === 'd') {
