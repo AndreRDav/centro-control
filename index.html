@@ -1069,7 +1069,7 @@
             <svg class="w-4 h-4 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 10h-1.26A8 8 0 1 0 9 20h9a5 5 0 0 0 0-10z"/></svg>
             <span>Sincronización en la Nube (Google Drive)</span>
           </div>
-          <span id="driveSyncStatusBadge" class="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400">DISPONIBLE</span>
+          <span id="driveSyncStatusBadge" class="px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400">NO CONECTADO</span>
         </div>
         <div class="flex items-center justify-between text-[11px] text-stone-500 dark:text-slate-400">
           <span id="driveSyncDescText">Vincula tu cuenta de Google para guardar y sincronizar entre dispositivos.</span>
@@ -1080,20 +1080,20 @@
           <div id="driveLoggedOutActions" class="space-y-1.5">
             <button type="button" onclick="app.connectGoogleDrive()" class="w-full p-2.5 rounded-lg bg-theme-main text-white font-bold hover:opacity-90 flex items-center justify-center gap-2 transition text-center shadow-xs cursor-pointer">
               <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3"/></svg>
-              <span id="driveConnectBtnText">Iniciar SesiÃ³n con Google</span>
+              <span id="driveConnectBtnText">Iniciar Sesión con Google</span>
             </button>
-            <p class="text-[10px] text-stone-400 dark:text-slate-500 text-center">Inicia sesiÃ³n en tus dispositivos (PC, iPad, mÃ³vil) para compartir los datos en tiempo real.</p>
+            <p class="text-[10px] text-stone-400 dark:text-slate-500 text-center">Inicia sesión en tus dispositivos (PC, iPad, móvil) para compartir los datos en tiempo real.</p>
           </div>
-          <!-- Si YA esta conectado: diagnostico y acciones completas -->
+          <!-- Si YA esta conectado: diagnostico y sincronizar ahora -->
           <div id="driveLoggedInActions" class="hidden space-y-2">
             <!-- Diagnostico de sincronizacion -->
             <div class="p-2 rounded-lg bg-stone-100/70 dark:bg-slate-900/70 border border-stone-200/60 dark:border-slate-800 text-[10.5px] space-y-1 font-mono">
               <div class="flex items-center justify-between text-stone-600 dark:text-slate-300">
-                <span>Ãšltima sinc. nube:</span>
+                <span>Última sinc. nube:</span>
                 <strong id="driveLastSyncTimeText" class="text-stone-900 dark:text-white">-</strong>
               </div>
               <div class="flex items-center justify-between text-stone-600 dark:text-slate-300">
-                <span>ModificaciÃ³n local:</span>
+                <span>Modificación local:</span>
                 <strong id="driveLocalModTimeText" class="text-stone-900 dark:text-white">-</strong>
               </div>
             </div>
@@ -1103,22 +1103,22 @@
               <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/></svg>
               <span>Sincronizar Bidireccional Ahora</span>
             </button>
+            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">✓ Autoguardado activo. Cada cambio se sube a tu Drive automáticamente.</p>
+          </div>
 
-            <!-- Acciones forzadas y cambio de cuenta -->
-            <div class="grid grid-cols-3 gap-1.5 pt-0.5 text-[10px]">
-              <button type="button" onclick="app.forceUploadToDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-blue-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Sube tus datos locales reemplazando el archivo de la nube">
-                <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
-                <span>Forzar Subida</span>
-              </button>
-              <button type="button" onclick="app.forceDownloadFromDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-emerald-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Descarga los datos de Google Drive reemplazando los locales">
-                <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Forzar Bajada</span>
-              </button>
-              <button type="button" onclick="app.connectGoogleDrive(true)" class="p-1.5 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer">
-                <span id="driveAccountActionBtnText">Cuenta</span>
-              </button>
-            </div>
-            <p class="text-[10px] text-emerald-600 dark:text-emerald-400 text-center">âœ“ Autoguardado activo. Cada cambio se sube a tu Drive automÃ¡ticamente.</p>
+          <!-- Acciones forzadas y cambio de cuenta: siempre visibles para máxima claridad -->
+          <div class="grid grid-cols-3 gap-1.5 pt-1.5 text-[10px]">
+            <button type="button" onclick="app.forceUploadToDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-blue-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Sube tus datos locales reemplazando el archivo de la nube">
+              <svg class="w-3 h-3 text-blue-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+              <span>Forzar Subida</span>
+            </button>
+            <button type="button" onclick="app.forceDownloadFromDrive()" class="p-1.5 rounded-lg subpanel-bg border hover:border-emerald-500 font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer" title="Descarga los datos de Google Drive reemplazando los locales">
+              <svg class="w-3 h-3 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+              <span>Forzar Bajada</span>
+            </button>
+            <button type="button" onclick="app.connectGoogleDrive(true)" class="p-1.5 rounded-lg subpanel-bg border hover:border-theme-main font-semibold text-stone-700 dark:text-slate-200 flex items-center justify-center gap-1 transition text-center cursor-pointer">
+              <span id="driveAccountActionBtnText">Cuenta</span>
+            </button>
           </div>
         </div>
       </div>
@@ -5902,7 +5902,7 @@
             emailSpan.classList.remove('hidden');
           }
           if (descText) {
-            descText.textContent = isOnline ? 'Sincronizado con Google Drive.' : 'SesiÃ³n pausada. Pulsa Sincronizar para reconectar.';
+            descText.textContent = isOnline ? 'Sincronizado con Google Drive.' : 'Sesión pausada. Pulsa Sincronizar para reconectar.';
           }
           if (changeAccountTxt) {
             changeAccountTxt.textContent = 'Cuenta';
@@ -5912,10 +5912,10 @@
           if (descText) {
             descText.textContent = 'Vincula tu cuenta de Google para guardar y sincronizar entre dispositivos.';
           }
-          if (connectBtnTxt) connectBtnTxt.textContent = 'Iniciar SesiÃ³n con Google';
+          if (connectBtnTxt) connectBtnTxt.textContent = 'Iniciar Sesión con Google';
         }
 
-        // DiagnÃ³stico visual en el modal
+        // Diagnóstico visual en el modal
         const lastSyncEl = document.getElementById('driveLastSyncTimeText');
         if (lastSyncEl) {
           const lastTs = localStorage.getItem('gdrive_last_synced_time');
@@ -5935,10 +5935,10 @@
             badge.textContent = 'CONECTADO';
           } else if (gdriveUserEmail) {
             badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-amber-950 text-amber-300 border border-amber-700';
-            badge.textContent = 'RENOVAR SESIÃ“N';
+            badge.textContent = 'RENOVAR SESIÓN';
           } else {
             badge.className = 'px-2 py-0.5 rounded font-mono text-[9px] font-bold bg-slate-800 text-slate-400';
-            badge.textContent = 'DISPONIBLE';
+            badge.textContent = 'NO CONECTADO';
           }
         }
 
@@ -5949,13 +5949,13 @@
             dot.title = `Sincronizado con Google Drive (${gdriveUserEmail || 'Activo'})`;
           } else if (gdriveUserEmail) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-accent cursor-pointer hover:scale-125 transition shrink-0';
-            dot.title = 'SesiÃ³n de Google Drive expirada (clic para renovar)';
+            dot.title = 'Sesión de Google Drive expirada (clic para renovar)';
           } else if (fileHandle) {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-theme-main/80 cursor-pointer hover:scale-125 transition shrink-0';
             dot.title = 'Autoguardado en archivo local activo';
           } else {
             dot.className = 'w-2.5 h-2.5 rounded-full bg-stone-400 dark:bg-slate-600 cursor-pointer hover:scale-125 transition shrink-0';
-            dot.title = 'Sin sincronizaciÃ³n activa (clic para conectar Drive)';
+            dot.title = 'Sin sincronización activa (clic para conectar Drive)';
           }
         }
       }
@@ -5969,7 +5969,7 @@
             prompt: '',
             callback: async (resp) => {
               if (resp.error) {
-                console.warn('Error en autenticaciÃ³n Google:', resp);
+                console.warn('Error en autenticación Google:', resp);
                 updateGdriveUI('ERROR', 'bg-rose-950 text-rose-300 border border-rose-700');
                 return;
               }
@@ -5978,7 +5978,7 @@
               localStorage.setItem('gdrive_access_token', gdriveAccessToken);
               localStorage.setItem('gdrive_token_expiry', gdriveTokenExpiry);
 
-              // Obtener email del usuario para confirmaciÃ³n visual
+              // Obtener email del usuario para confirmación visual
               try {
                 const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
                   headers: { Authorization: `Bearer ${gdriveAccessToken}` }
@@ -6006,7 +6006,7 @@
         initGsiClient();
         if (!tokenClient) return null;
 
-        // Si no es interactivo (guardado automÃ¡tico en background), no abrimos popup para no molestar ni ser bloqueados
+        // Si no es interactivo (guardado automático en background), no abrimos popup para no molestar ni ser bloqueados
         if (!interactive) {
           updateGdriveUI();
           return null;
@@ -6079,7 +6079,7 @@
           const myDeviceId = getLocalDeviceId();
           let fileId = await findGdriveFileId(token);
 
-          // SincronizaciÃ³n inteligente bidireccional basada en updatedAt y detecciÃ³n de conflicto
+          // Sincronización inteligente bidireccional basada en updatedAt y detección de conflicto
           if (fileId && !forceUpload) {
             try {
               const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
@@ -6090,11 +6090,11 @@
                 gdriveTokenExpiry = 0;
                 localStorage.removeItem('gdrive_access_token');
                 localStorage.removeItem('gdrive_token_expiry');
-                updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+                updateGdriveUI('RENOVAR SESIÓN', 'bg-amber-950 text-amber-300 border border-amber-700');
                 return { success: false, reason: 'token_expired' };
               }
               if (dlRes.status === 404) {
-                // El archivo ya no existe con ese ID, refrescamos bÃºsqueda
+                // El archivo ya no existe con ese ID, refrescamos búsqueda
                 fileId = await findGdriveFileId(token, true);
               } else if (dlRes.ok) {
                 const cloudJson = await dlRes.json();
@@ -6103,7 +6103,7 @@
                   const localTimestamp = Number(state.updatedAt) || 0;
                   const lastSynced = Number(localStorage.getItem('gdrive_last_synced_time') || 0);
 
-                  // DetecciÃ³n de conflicto real: Ambos modificaron despuÃ©s de la Ãºltima sincronizaciÃ³n en dispositivos diferentes
+                  // Detección de conflicto real: Ambos modificaron después de la última sincronización en dispositivos diferentes
                   const cloudChangedSinceSync = cloudTimestamp > (lastSynced + 3000);
                   const localChangedSinceSync = localTimestamp > (lastSynced + 3000);
                   const differentDevice = cloudJson.deviceId && (cloudJson.deviceId !== myDeviceId);
@@ -6117,7 +6117,7 @@
                     return { success: true, action: 'conflict' };
                   }
 
-                  // Si la nube es mÃ¡s reciente o forzamos descarga:
+                  // Si la nube es más reciente o forzamos descarga:
                   if (forceDownload || cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
                     // Backup de seguridad antes de sobreescribir
                     try {
@@ -6125,7 +6125,7 @@
                     } catch (_) {}
 
                     state = sanitizeState(cloudJson);
-                    state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo fÃ­sico actual
+                    state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo físico actual
                     state.lastSyncedCloudUpdatedAt = cloudTimestamp;
                     localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
                     renderApp();
@@ -6141,13 +6141,13 @@
             }
           }
 
-          // Si llegamos aquÃ­ y es forceDownload pero no se pudo descargar
+          // Si llegamos aquí y es forceDownload pero no se pudo descargar
           if (forceDownload) {
             updateGdriveUI();
             return { success: false, reason: 'download_failed' };
           }
 
-          // Subir el estado actual a Google Drive (el estado local es mÃ¡s reciente o el usuario eligiÃ³ subir)
+          // Subir el estado actual a Google Drive (el estado local es más reciente o el usuario eligió subir)
           state.updatedAt = Date.now();
           state.deviceId = myDeviceId;
           const content = JSON.stringify(state, null, 2);
@@ -6174,13 +6174,13 @@
               gdriveTokenExpiry = 0;
               localStorage.removeItem('gdrive_access_token');
               localStorage.removeItem('gdrive_token_expiry');
-              updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+              updateGdriveUI('RENOVAR SESIÓN', 'bg-amber-950 text-amber-300 border border-amber-700');
               return { success: false, reason: 'token_expired' };
             }
           }
 
           if (!fileId) {
-            // Crear archivo nuevo en la raÃ­z del Google Drive del usuario
+            // Crear archivo nuevo en la raíz del Google Drive del usuario
             const metadata = {
               name: GOOGLE_DRIVE_FILENAME,
               mimeType: 'application/json'
@@ -6204,7 +6204,7 @@
               gdriveTokenExpiry = 0;
               localStorage.removeItem('gdrive_access_token');
               localStorage.removeItem('gdrive_token_expiry');
-              updateGdriveUI('RENOVAR SESIÃ“N', 'bg-amber-950 text-amber-300 border border-amber-700');
+              updateGdriveUI('RENOVAR SESIÓN', 'bg-amber-950 text-amber-300 border border-amber-700');
               return { success: false, reason: 'token_expired' };
             }
           }
@@ -6275,7 +6275,7 @@
               }
             } catch (_) {}
 
-            // En mÃ³viles nunca ejecutar sincronizaciÃ³n continua en disco en arranque
+            // En móviles nunca ejecutar sincronización continua en disco en arranque
             if (perm === 'granted' && !isMobileDevice) {
               updateAutoSaveUI(true);
               syncDiskFile();
@@ -8018,7 +8018,7 @@
         const deltaStudy = realUntilToday - planUntilToday;
         const compEl = document.getElementById('kpi2Compensate');
         if (deltaStudy >= 0) {
-          compEl.textContent = `Al dÃ­a (+${formatHoursToHMin(deltaStudy)})`;
+          compEl.textContent = `Al día (+${formatHoursToHMin(deltaStudy)})`;
           compEl.className = 'text-[10px] text-theme-main font-bold flex items-center gap-1';
         } else {
           const daysLeft = Math.max(1, 6 - todayDayIndex);
@@ -10038,7 +10038,7 @@
               </div>
               <div class="flex items-center justify-between text-[10px] text-stone-500 dark:text-slate-400">
                 <span>Semana: <strong class="text-stone-800 dark:text-slate-200 font-mono">${formatHoursToHMin(curWeekHrs)}</strong></span>
-                <span>HistÃ³rico: <strong class="text-emerald-600 dark:text-emerald-400 font-mono">${formatHoursToHMin(curGlobalHrs)}</strong></span>
+                <span>Histórico: <strong class="text-emerald-600 dark:text-emerald-400 font-mono">${formatHoursToHMin(curGlobalHrs)}</strong></span>
               </div>
               <div class="flex items-center justify-between gap-1 pt-1.5 border-t border-stone-200/60 dark:border-slate-800/80">
                 <div class="flex items-center gap-1">
@@ -16125,8 +16125,8 @@
           if (!gdriveUserEmail) {
             const connect = await this.showConfirm({
               title: 'Conectar con Google Drive',
-              message: 'Para sincronizar tu mÃ³vil, iPad y tu PC automÃ¡ticamente, necesitas vincular tu cuenta de Google una vez.\n\nÂ¿Deseas iniciar sesiÃ³n con Google ahora?',
-              confirmText: 'Iniciar SesiÃ³n',
+              message: 'Para sincronizar tu móvil, iPad y tu PC automáticamente, necesitas vincular tu cuenta de Google una vez.\n\n¿Deseas iniciar sesión con Google ahora?',
+              confirmText: 'Iniciar Sesión',
               cancelText: 'Cancelar',
               isDanger: false
             });
@@ -16143,14 +16143,14 @@
             } else if (res.action === 'conflict') {
               // Ya se muestra el modal de conflicto
             } else {
-              this.showToast('Datos sincronizados y al dÃ­a.', 'success', 2500);
+              this.showToast('Datos sincronizados y al día.', 'success', 2500);
             }
           } else {
             const reason = res ? res.reason : 'desconocida';
             if (reason === 'token_expired') {
-              this.showToast('Tu sesiÃ³n de Google expirÃ³. Haz clic en Renovar SesiÃ³n.', 'warning', 4500);
+              this.showToast('Tu sesión de Google expiró. Haz clic en Renovar Sesión.', 'warning', 4500);
             } else {
-              this.showToast('No se pudo completar la sincronizaciÃ³n (' + reason + '). Revisa tu conexiÃ³n.', 'error', 4500);
+              this.showToast('No se pudo completar la sincronización (' + reason + '). Revisa tu conexión.', 'error', 4500);
             }
           }
         },
@@ -16159,7 +16159,7 @@
           if (!gdriveUserEmail) return this.connectGoogleDrive();
           const ok = await this.showConfirm({
             title: 'Forzar Subida a Google Drive',
-            message: 'Esta acciÃ³n SOBREESCRIBIRÃ el archivo en Google Drive con la versiÃ³n que tienes en este dispositivo.\n\nÂ¿Deseas continuar?',
+            message: 'Esta acción SOBREESCRIBIRÁ el archivo en Google Drive con la versión que tienes en este dispositivo.\n\n¿Deseas continuar?',
             confirmText: 'Forzar Subida',
             cancelText: 'Cancelar',
             isDanger: true
@@ -16168,7 +16168,7 @@
           this.showToast('Subiendo copia local forzada a Drive...', 'info', 3000);
           const res = await syncGdriveCloud(false, true, false);
           if (res && res.success) {
-            this.showToast('Â¡Copia local guardada en Google Drive con Ã©xito!', 'success', 3500);
+            this.showToast('¡Copia local guardada en Google Drive con éxito!', 'success', 3500);
           } else {
             this.showToast('Error al forzar subida a Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
           }
@@ -16178,7 +16178,7 @@
           if (!gdriveUserEmail) return this.connectGoogleDrive();
           const ok = await this.showConfirm({
             title: 'Forzar Descarga de Google Drive',
-            message: 'Esta acciÃ³n SOBREESCRIBIRÃ tus datos locales con la copia que estÃ¡ guardada en Google Drive.\n\nÂ¿Deseas continuar?',
+            message: 'Esta acción SOBREESCRIBIRÁ tus datos locales con la copia que está guardada en Google Drive.\n\n¿Deseas continuar?',
             confirmText: 'Forzar Bajada',
             cancelText: 'Cancelar',
             isDanger: true
@@ -16187,7 +16187,7 @@
           this.showToast('Descargando archivo desde Google Drive...', 'info', 3000);
           const res = await syncGdriveCloud(true, false, true);
           if (res && res.success) {
-            this.showToast('Â¡Copia de Google Drive cargada con Ã©xito en este dispositivo!', 'success', 3500);
+            this.showToast('¡Copia de Google Drive cargada con éxito en este dispositivo!', 'success', 3500);
           } else {
             this.showToast('Error al forzar bajada de Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
           }
@@ -16203,15 +16203,15 @@
           localStorage.removeItem('gdrive_user_email');
           localStorage.removeItem('gdrive_file_id');
           updateGdriveUI();
-          this.showToast('SesiÃ³n de Google Drive cerrada.', 'info');
+          this.showToast('Sesión de Google Drive cerrada.', 'info');
         },
 
         async refreshAppAndSync() {
           const icon = document.getElementById('headerSyncRefreshIcon');
           if (icon) icon.classList.add('rotate-180');
-          this.showToast('Sincronizando con Drive y comprobando versiÃ³n...', 'info', 2000);
+          this.showToast('Sincronizando con Drive y comprobando versión...', 'info', 2000);
 
-          // 1. Comprobar actualizaciÃ³n de Service Worker (cÃ³digo de la app)
+          // 1. Comprobar actualización de Service Worker (código de la app)
           if ('serviceWorker' in navigator) {
             try {
               const reg = await navigator.serviceWorker.getRegistration();
@@ -16220,11 +16220,11 @@
                 if (reg.waiting) {
                   const banner = document.getElementById('pwaUpdateBanner');
                   if (banner) banner.classList.remove('hidden');
-                  this.showToast('Â¡Nueva versiÃ³n del Centro de Control lista!', 'blue', 4000);
+                  this.showToast('¡Nueva versión del Centro de Control lista!', 'blue', 4000);
                 }
               }
             } catch (swErr) {
-              console.log('No se pudo verificar actualizaciÃ³n de Service Worker:', swErr);
+              console.log('No se pudo verificar actualización de Service Worker:', swErr);
             }
           }
 
@@ -16234,14 +16234,14 @@
               const res = await syncGdriveCloud(true);
               if (res && res.success) {
                 if (res.action === 'downloaded') {
-                  this.showToast('Actualizado con cambios mÃ¡s recientes de la nube.', 'success', 2500);
+                  this.showToast('Actualizado con cambios más recientes de la nube.', 'success', 2500);
                 } else {
-                  this.showToast('SincronizaciÃ³n con Google Drive completada.', 'success', 2500);
+                  this.showToast('Sincronización con Google Drive completada.', 'success', 2500);
                 }
               } else {
                 const reason = res ? res.reason : 'error';
                 if (reason === 'token_expired') {
-                  this.showToast('SesiÃ³n de Drive expirada. Pulsa en el indicador para renovar.', 'warning', 3500);
+                  this.showToast('Sesión de Drive expirada. Pulsa en el indicador para renovar.', 'warning', 3500);
                 }
               }
             } catch (gErr) {
@@ -16517,7 +16517,7 @@
         async unbindLocalFile() {
           const conf = await this.showConfirm({
             title: 'Desvincular Archivo Local',
-            message: 'Â¿Deseas desvincular el archivo local de este dispositivo?\n\nEsto detendrÃ¡ las peticiones de permiso al guardar y no afectarÃ¡ tus datos ni a Google Drive.',
+            message: '¿Deseas desvincular el archivo local de este dispositivo?\n\nEsto detendrá las peticiones de permiso al guardar y no afectará tus datos ni a Google Drive.',
             confirmText: 'Desvincular',
             cancelText: 'Cancelar',
             isDanger: false
@@ -16526,7 +16526,7 @@
           fileHandle = null;
           await clearStoredFileHandleFromDB();
           updateAutoSaveUI(false);
-          this.showToast('Archivo local desvinculado con Ã©xito.', 'info');
+          this.showToast('Archivo local desvinculado con éxito.', 'info');
         },
         openShortcutsModal() {
           const m = document.getElementById('modalShortcuts');
