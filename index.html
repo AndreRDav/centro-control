@@ -3428,93 +3428,89 @@
        ======================================================== -->
   <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4 mobile-header-spacing">
 
-    <!-- CABECERA PRINCIPAL (STICKY AUTO-HIDE) -->
-    <header id="mainAppHeader" class="main-app-header sticky top-2 z-40 editorial-card panel-bg border rounded-2xl p-2.5 sm:p-4 flex flex-col 2xl:flex-row 2xl:items-center justify-between gap-3 shadow-xl backdrop-blur-md">
-      <!-- Fila 1: Logo + Título + Navegación Semanas con Candado -->
-      <div class="flex items-center justify-between 2xl:justify-start gap-3 w-full 2xl:w-auto shrink-0">
-        <div class="flex items-center gap-2.5 sm:gap-3 shrink-0">
-          <div id="appHeaderLogo" class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300 shrink-0">
-            <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon></svg>
-          </div>
-          <div class="shrink-0">
-            <div class="flex items-center gap-2">
-              <h1 class="text-sm sm:text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white whitespace-nowrap select-none">CENTRO DE <span class="italic font-normal">Control</span></h1>
-              
-              <!-- Candado de Seguridad Solo Lectura / Edición (en desktop o móvil) -->
-              <button onclick="app.toggleReadOnlyLock()" id="readOnlyLockBtn" class="px-1.5 sm:px-2 py-0.5 rounded text-[9px] sm:text-[10px] font-bold border transition flex items-center gap-1" title="Bloquear edición accidental">
-                <span id="lockIcon" class="flex items-center justify-center"></span>
-                <span id="lockText" class="hidden sm:inline">Solo Lectura</span>
-              </button>
-              <span id="headerBuildInfoBadge" class="font-mono text-[8.5px] sm:text-[9px] px-1.5 py-0.2 rounded border bg-stone-100/80 dark:bg-slate-800/80 text-stone-500 dark:text-slate-400 select-none tracking-tight" title="Version: v1.3.2 (24/10 17:15)">v1.3.2 | 24/10 17:15</span>
-            </div>
-            
-            <div class="flex items-center gap-2 pt-0.5 text-[9.5px] sm:text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
-              <span id="headerDateRangeBadge" class="font-semibold text-stone-700 dark:text-slate-200 truncate">13 oct. – 19 oct. 2026</span>
-              <span id="headerNextDeadlineDivider" class="text-stone-400 dark:text-slate-500 hidden sm:inline">•</span>
-              <span id="headerNextDeadlineWidget" class="text-amber-500 dark:text-amber-400 font-medium hidden sm:inline truncate">⏳ Sin entregas próximas</span>
-            </div>
-          </div>
+    <!-- CABECERA PRINCIPAL -->
+    <header id="mainAppHeader" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-2 z-40 backdrop-blur-md">
+      <!-- Logo + Título + Navegación Semanas + Candado -->
+      <div class="flex items-center gap-3">
+        <div id="appHeaderLogo" class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300 shrink-0">
+          <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon></svg>
         </div>
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="text-base md:text-lg font-serif font-bold tracking-tight text-stone-900 dark:text-white whitespace-nowrap select-none">CENTRO DE <span class="italic font-normal">Control</span></h1>
+            
+            <!-- Selector de Semanas con Candado -->
+            <div class="flex items-center gap-1 subpanel-bg border px-1 py-0.5 rounded-lg shrink-0">
+              <button onclick="app.navWeek(-1)" class="px-1.5 py-0.5 hover:text-stone-900 dark:hover:text-blue-400 text-xs font-bold cursor-pointer" title="Semana anterior">◀</button>
+              <span id="headerWeekBadge" class="px-2 py-0.5 text-[10px] font-bold rounded bg-stone-200/80 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-mono border border-stone-300/60 dark:border-slate-700">Semana #1</span>
+              <button onclick="app.navWeek(1)" class="px-1.5 py-0.5 hover:text-stone-900 dark:hover:text-blue-400 text-xs font-bold cursor-pointer" title="Semana siguiente">▶</button>
+            </div>
 
-        <!-- Selector de Semanas con Candado -->
-        <div class="flex items-center gap-1 subpanel-bg border px-1 py-0.5 rounded-lg shrink-0">
-          <button onclick="app.navWeek(-1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana anterior">◀</button>
-          <span id="headerWeekBadge" class="px-1.5 sm:px-2 py-0.5 text-[10px] font-bold rounded bg-stone-200/80 dark:bg-slate-800 text-stone-800 dark:text-slate-200 font-mono border border-stone-300/60 dark:border-slate-700">Semana #1</span>
-          <button onclick="app.navWeek(1)" class="px-1.5 py-0.5 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white text-xs font-bold" title="Semana siguiente">▶</button>
+            <!-- Candado de Seguridad Solo Lectura / Edición -->
+            <button onclick="app.toggleReadOnlyLock()" id="readOnlyLockBtn" class="px-2 py-0.5 rounded text-[10px] font-bold border transition flex items-center gap-1 cursor-pointer" title="Bloquear edición accidental">
+              <span id="lockIcon"></span>
+              <span id="lockText">Solo Lectura</span>
+            </button>
+          </div>
+          
+          <div class="flex items-center gap-2 pt-0.5 text-[10px] md:text-[11px] text-stone-500 dark:text-slate-400">
+            <span id="headerDateRangeBadge" class="font-semibold text-stone-700 dark:text-slate-200">13 oct. – 19 oct. 2026</span>
+            <span id="headerNextDeadlineDivider" class="text-stone-400 dark:text-slate-500">•</span>
+            <span id="headerNextDeadlineWidget" class="text-amber-500 dark:text-amber-400 font-medium">⏳ Sin entregas próximas</span>
+          </div>
         </div>
       </div>
 
-      <!-- Centro: Pestañas Principales (Ocultas en móvil porque ya están en la barra inferior fija) -->
-      <nav class="hidden sm:flex sm:items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold w-full xl:w-auto">
-        <button onclick="app.switchTab(1)" id="tabNav1" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span><span>Panel Diario</span></button>
-        <button onclick="app.switchTab(2)" id="tabNav2" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span><span>Metas y Horario</span></button>
-        <button onclick="app.switchTab(3)" id="tabNav3" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span><span>Finanzas Pro</span></button>
-        <button onclick="app.switchTab(4)" id="tabNav4" class="px-2.5 sm:px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap text-center flex items-center justify-center"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span><span>Estadísticas</span></button>
+      <!-- Pestañas Principales (Panel Diario, Metas, Finanzas, Estadísticas) -->
+      <nav class="hidden sm:flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold">
+        <button onclick="app.switchTab(1)" id="tabNav1" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span>Panel Diario</button>
+        <button onclick="app.switchTab(2)" id="tabNav2" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span>Metas y Horario</button>
+        <button onclick="app.switchTab(3)" id="tabNav3" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span>Finanzas Pro</button>
+        <button onclick="app.switchTab(4)" id="tabNav4" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span>Estadísticas</button>
       </nav>
 
-      <!-- Derecha: Barra unificada de controles y herramientas -->
-      <div class="flex flex-wrap items-center justify-between sm:justify-end gap-1 sm:gap-1.5 w-full xl:w-auto">
-        <!-- Botón Atajos de Teclado (Oculto en móvil) -->
-        <button onclick="app.openShortcutsModal()" class="hidden sm:flex h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
+      <!-- Botones de Acción + Tema + Paleta + Sincronizar + Cerrar Semana + Copias -->
+      <div class="flex items-center gap-1.5 sm:gap-2">
+        <button onclick="app.openShortcutsModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-300 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
-          <span class="hidden 2xl:inline">Atajos</span>
+          <span class="hidden md:inline">Atajos</span>
           <kbd class="px-1 py-0.2 rounded text-[10px] font-mono border border-stone-300 dark:border-slate-700 opacity-75">?</kbd>
         </button>
 
-        <button onclick="app.toggleTheme()" id="themeToggleBtn" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
+        <button onclick="app.toggleTheme()" id="themeToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
           <span id="themeToggleIcon" class="flex items-center justify-center"></span>
-          <span id="themeToggleText" class="hidden 2xl:inline">Tema</span>
+          <span id="themeToggleText" class="hidden sm:inline">Tema</span>
         </button>
 
         <!-- Selector de Paleta de Color de Acento Centralizado (Dúo Bicolor) -->
-        <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar paleta cromática bicolor">
+        <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar paleta cromática bicolor">
           <div class="flex items-center -space-x-1">
             <span id="palettePickerActiveDot" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
             <span id="palettePickerActiveDot2" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
           </div>
-          <span class="hidden 2xl:inline text-stone-700 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
+          <span class="hidden xl:inline text-stone-800 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
         </button>
 
-        <!-- Botón Recargar / Sincronizar App y Drive (Especial para iPad PWA) -->
-        <button onclick="app.refreshAppAndSync()" id="headerSyncRefreshBtn" class="h-8 px-2 sm:px-2.5 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Sincronizar con Google Drive y comprobar actualizaciones de la app">
+        <!-- Botón Recargar / Sincronizar App y Drive -->
+        <button onclick="app.refreshAppAndSync()" id="headerSyncRefreshBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center justify-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Sincronizar con Google Drive y comprobar actualizaciones de la app">
           <svg id="headerSyncRefreshIcon" class="w-3.5 h-3.5 text-theme-main shrink-0 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
             <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
           </svg>
-          <span class="hidden xl:inline">Sincronizar</span>
+          <span class="hidden md:inline">Sincronizar</span>
         </button>
 
-        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="h-8 px-2 sm:px-2.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-[11px] sm:text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1 cursor-pointer whitespace-nowrap">
+        <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="px-3 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           <span class="whitespace-nowrap">Cerrar Semana</span>
         </button>
 
-        <button onclick="app.openUserGuideModal()" class="h-8 px-2 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
+        <button onclick="app.openUserGuideModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
           <span class="hidden md:inline">Guía</span>
         </button>
 
-        <button onclick="app.openBackupModal()" class="h-8 px-2 sm:px-2.5 rounded-xl subpanel-bg border text-[11px] sm:text-xs font-semibold flex items-center justify-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
+        <button onclick="app.openBackupModal()" class="px-3 py-1.5 rounded-xl subpanel-bg border text-xs font-semibold flex items-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
           <span class="hidden md:inline">Copias</span>
           <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0" title="Autoguardado en disco"></span>
