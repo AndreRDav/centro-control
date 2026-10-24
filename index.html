@@ -2912,13 +2912,31 @@
         
         <!-- PESTAÑA 1: DIARIO -->
         <div id="viewCustomizerPane_tab1" class="space-y-2">
-          <!-- Banners y Avisos -->
+          <!-- 1. Avisos de Sistema (Semana Vencida y Modo Histórico) -->
           <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
             <div class="space-y-0.5 pr-2">
-              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Banners y Avisos Superiores</div>
-              <div class="text-[10px] text-stone-500 dark:text-slate-400">Avisos de semana vencida, histórico y recordatorios de entregas atrasadas.</div>
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Avisos de Sistema (Semana Vencida / Histórico)</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Alertas de cierre de semana y aviso al editar semanas pasadas.</div>
             </div>
-            <input type="checkbox" id="prefShowBanners" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+            <input type="checkbox" id="prefShowSystemBanners" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- 2. Alerta de Entregas Atrasadas -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Alerta de Entregas Atrasadas</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Banner superior con el recuento de notas y entregas con fecha límite vencida.</div>
+            </div>
+            <input type="checkbox" id="prefShowOverdueAlert" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
+          </label>
+
+          <!-- 3. Banner de Próximos Hitos -->
+          <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+            <div class="space-y-0.5 pr-2">
+              <div class="font-bold text-[11px] text-stone-900 dark:text-white">Banner de Próximo Hito Académico / Personal</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Tarjeta destacada con el examen, entrega o evento futuro más próximo.</div>
+            </div>
+            <input type="checkbox" id="prefShowUpcomingMilestone" onchange="app.saveUiPreferences()" class="w-4 h-4 accent-theme cursor-pointer" />
           </label>
 
           <!-- 4 KPIs Superiores -->
@@ -3831,7 +3849,7 @@
         </span>
         <div class="flex items-center gap-2 shrink-0">
           <button onclick="app.returnToActiveWeek()" class="px-3 py-1 rounded-lg bg-amber-500 text-slate-950 font-bold hover:bg-amber-400">Volver a la Semana Actual</button>
-          <button onclick="document.getElementById('historicalBanner').classList.add('hidden')" class="p-1 rounded-lg hover:bg-amber-800/50 text-amber-300 font-bold" title="Cerrar aviso">✕</button>
+          <button type="button" onclick="app.dismissBanner('historicalBanner')" class="p-1.5 rounded-lg hover:bg-amber-800/60 text-amber-300 hover:text-white font-bold transition" title="Cerrar aviso durante esta sesión">✕</button>
         </div>
       </div>
 
@@ -3851,7 +3869,7 @@
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             <span>Cerrar Semana Ahora</span>
           </button>
-          <button onclick="document.getElementById('pendingWeekCloseBanner').classList.add('hidden')" class="p-1.5 rounded-xl subpanel-bg border text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold" title="Cerrar aviso">✕</button>
+          <button type="button" onclick="app.dismissBanner('pendingWeekCloseBanner')" class="p-2 rounded-xl subpanel-bg border hover:border-theme text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold transition flex items-center justify-center shrink-0" title="Cerrar aviso durante esta sesión">✕</button>
         </div>
       </div>
 
@@ -4078,11 +4096,11 @@
 
       </div>
 
-      <!-- FILA SECUNDARIA: GASTOS RECIENTES + LISTAS, TAREAS Y CALENDARIO -->
+      <!-- FILA SECUNDARIA: BALANCEADA A LA MISMA ALTURA (SIN HUECOS) -->
       <div id="tab1SecondaryRow" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
         
-        <!-- IZQUIERDA: MOVIMIENTOS RECIENTES (5/12) -->
-        <div class="lg:col-span-5 space-y-3">
+        <!-- COLUMNA IZQUIERDA: MOVIMIENTOS RECIENTES + CALENDARIO DE NOTAS -->
+        <div id="tab1LeftCol" class="lg:col-span-5 space-y-3 transition-all duration-300">
           <div id="tab1RecentExpensesBar" class="editorial-card panel-bg border rounded-2xl p-3.5 space-y-2.5 shadow-md text-xs">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
@@ -4104,10 +4122,37 @@
           </div>
           <div id="quickRecentExpenses" class="space-y-1"></div>
         </div>
+          <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all mt-3">
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-2 cursor-pointer select-none" onclick="app.toggleMiniCalendarCollapse()" title="Plegar / desplegar calendario">
+              <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs flex items-center justify-center">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+              </div>
+              <span class="font-serif font-bold text-xs sm:text-sm tracking-tight text-stone-900 dark:text-white">Calendario de Notas <span class="italic font-normal">y Entregas</span></span>
+              <span id="miniCalendarCollapseIcon" class="text-[10px] text-stone-400 dark:text-slate-500 font-bold ml-1">▼</span>
+            </div>
+            <div class="flex items-center gap-1">
+              <button type="button" onclick="app.navMiniCalendar(-1)" class="w-6 h-6 rounded-lg subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs transition" title="Mes anterior">◀</button>
+              <button type="button" onclick="app.navMiniCalendar(0)" id="miniCalendarMonthYearLabel" class="px-2 py-0.5 rounded-lg subpanel-bg border hover:border-theme font-bold text-[11px] font-mono text-stone-800 dark:text-slate-200 transition" title="Ir a hoy">Octubre 2026</button>
+              <button type="button" onclick="app.navMiniCalendar(1)" class="w-6 h-6 rounded-lg subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs transition" title="Mes siguiente">▶</button>
+            </div>
+          </div>
+
+          <div id="miniCalendarBody" class="space-y-2">
+            <!-- Días de la semana -->
+            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px] font-bold text-stone-400 dark:text-slate-500 pb-0.5 border-b border-theme">
+              <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
+            </div>
+            <!-- Grid de días del mes -->
+            <div id="miniCalendarGrid" class="grid grid-cols-7 gap-1 text-center font-mono text-[11px]"></div>
+            <!-- Lista de notas del día seleccionado -->
+            <div id="miniCalendarSelectedDrawer" class="hidden pt-2 border-t border-theme space-y-1"></div>
+          </div>
+        </div>
         </div>
 
-        <!-- DERECHA: LISTAS, TAREAS Y ENTREGAS (7/12) -->
-        <div class="lg:col-span-7 space-y-3">
+        <!-- COLUMNA DERECHA: LISTAS, TAREAS Y ENTREGAS -->
+        <div id="tab1RightCol" class="lg:col-span-7 space-y-3 transition-all duration-300">
           <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
@@ -4260,35 +4305,6 @@
             <div>
               <input id="newListItemNote" type="text" placeholder="Nota / descripción adicional (opcional)..." onkeydown="if(event.key==='Enter')app.addNewListItem()" class="w-full input-bg border rounded-lg px-2 py-1 text-[11px] text-stone-500 dark:text-slate-400 focus:text-stone-800 dark:focus:text-slate-200 outline-none" autocomplete="off" />
             </div>
-          </div>
-        </div>
-
-        <!-- MINI-CALENDARIO LIGERO DE NOTAS CON FECHA -->
-          <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all mt-3">
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-2 cursor-pointer select-none" onclick="app.toggleMiniCalendarCollapse()" title="Plegar / desplegar calendario">
-              <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs flex items-center justify-center">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
-              </div>
-              <span class="font-serif font-bold text-xs sm:text-sm tracking-tight text-stone-900 dark:text-white">Calendario de Notas <span class="italic font-normal">y Entregas</span></span>
-              <span id="miniCalendarCollapseIcon" class="text-[10px] text-stone-400 dark:text-slate-500 font-bold ml-1">▼</span>
-            </div>
-            <div class="flex items-center gap-1">
-              <button type="button" onclick="app.navMiniCalendar(-1)" class="w-6 h-6 rounded-lg subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs transition" title="Mes anterior">◀</button>
-              <button type="button" onclick="app.navMiniCalendar(0)" id="miniCalendarMonthYearLabel" class="px-2 py-0.5 rounded-lg subpanel-bg border hover:border-theme font-bold text-[11px] font-mono text-stone-800 dark:text-slate-200 transition" title="Ir a hoy">Octubre 2026</button>
-              <button type="button" onclick="app.navMiniCalendar(1)" class="w-6 h-6 rounded-lg subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 flex items-center justify-center font-bold text-xs transition" title="Mes siguiente">▶</button>
-            </div>
-          </div>
-
-          <div id="miniCalendarBody" class="space-y-2">
-            <!-- Días de la semana -->
-            <div class="grid grid-cols-7 gap-1 text-center font-mono text-[10px] font-bold text-stone-400 dark:text-slate-500 pb-0.5 border-b border-theme">
-              <span>L</span><span>M</span><span>X</span><span>J</span><span>V</span><span>S</span><span>D</span>
-            </div>
-            <!-- Grid de días del mes -->
-            <div id="miniCalendarGrid" class="grid grid-cols-7 gap-1 text-center font-mono text-[11px]"></div>
-            <!-- Lista de notas del día seleccionado -->
-            <div id="miniCalendarSelectedDrawer" class="hidden pt-2 border-t border-theme space-y-1"></div>
           </div>
         </div>
         </div>
@@ -7776,9 +7792,13 @@
         const heroBanner = document.getElementById('featuredMilestoneBanner');
         const overdueBanner = document.getElementById('overdueMilestonesAlertBanner');
 
-        // 1. BANNER SEPARADO DE ENTREGAS ATRASADAS (ALERTA ROJA INDEPENDIENTE)
+        const p = state.uiPreferences || {};
+        const allowOverdue = (p.showOverdueAlert !== false);
+        const allowUpcoming = (p.showUpcomingMilestone !== false);
+
+        // 1. BANNER SEPARADO DE ENTREGAS ATRASADAS (ALERTA ROJA INDEPENDIENTE CON CIERRE)
         if (overdueBanner) {
-          if (overdueMilestones.length > 0) {
+          if (overdueMilestones.length > 0 && allowOverdue && !app.isBannerDismissed('overdueMilestonesAlertBanner')) {
             overdueBanner.classList.remove('hidden');
             const oCount = overdueMilestones.length;
             const oItemsList = overdueMilestones.slice(0, 3).map(o => `
@@ -7803,10 +7823,13 @@
                     </div>
                   </div>
                 </div>
-                <button type="button" onclick="app.openOverdueMilestonesModal()" class="w-full sm:w-auto px-2.5 py-1 rounded-lg bg-theme-accent hover:opacity-90 text-white font-bold text-[11px] border border-theme-accent transition shrink-0 flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
-                  <span>Revisar Atrasadas</span>
-                </button>
+                <div class="flex items-center gap-1.5 shrink-0 w-full sm:w-auto">
+                  <button type="button" onclick="app.openOverdueMilestonesModal()" class="flex-1 sm:flex-initial px-2.5 py-1 rounded-lg bg-theme-accent hover:opacity-90 text-white font-bold text-[11px] border border-theme-accent transition flex items-center justify-center gap-1.5 shadow-sm active:translate-y-0.5">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 12h6"/><path d="M12 9v6"/></svg>
+                    <span>Revisar Atrasadas</span>
+                  </button>
+                  <button type="button" onclick="app.dismissBanner('overdueMilestonesAlertBanner')" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-theme text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold text-xs transition shrink-0" title="Cerrar aviso durante esta sesión">✕</button>
+                </div>
               </div>
             `;
           } else {
@@ -7815,8 +7838,8 @@
           }
         }
 
-        // 2. BANNER DE PRÓXIMO HITO FUTURO (SOLO EVENTOS DESDE HOY EN ADELANTE)
-        if (upcomingMilestones.length === 0) {
+        // 2. BANNER DE PRÓXIMO HITO FUTURO (CON BOTÓN DE CIERRE Y RECORDATORIO)
+        if (upcomingMilestones.length === 0 || !allowUpcoming || app.isBannerDismissed('featuredMilestoneBanner')) {
           if (heroBanner) {
             heroBanner.classList.add('hidden');
             heroBanner.innerHTML = '';
@@ -7831,11 +7854,9 @@
 
         const dayNames = ['Dom', 'Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb'];
         const monthNames = ['ene', 'feb', 'mar', 'abr', 'may', 'jun', 'jul', 'ago', 'sep', 'oct', 'nov', 'dic'];
-
         const urgentUpcoming = upcomingMilestones.filter(m => m.diffDays <= 7);
 
         if (urgentUpcoming.length > 0) {
-          // Hay hitos próximos (<= 7 días): Protagonismo en Banner Hero
           if (nextDeadlineEl) {
             nextDeadlineEl.innerHTML = '';
             nextDeadlineEl.classList.add('hidden');
@@ -7869,9 +7890,6 @@
           }
 
           const hasMultiple = uCount > 1;
-
-          // Agrupación visual por fecha de los círculos/indicadores de avance
-          // Si dos o más hitos comparten la misma fecha (m.date), se agrupan dentro de una "píldora" unida
           let paginationDots = '';
           if (hasMultiple) {
             const dateGroups = [];
@@ -7889,20 +7907,13 @@
                 ${dateGroups.map(grp => {
                   const isMultipleInDate = grp.indices.length > 1;
                   const hasActive = grp.indices.includes(uIdx);
-
                   const dotsHtml = grp.indices.map(i => {
                     const isActive = (i === uIdx);
-                    return `
-                      <button type="button" onclick="app.setMilestoneIdx(${i})" class="h-2 rounded-full transition-all duration-200 cursor-pointer ${isActive ? 'bg-theme-main w-4 shadow-xs' : 'bg-stone-400/80 dark:bg-slate-600 hover:bg-stone-600 dark:hover:bg-slate-400 w-2'}" title="Ver hito ${i + 1} de ${uCount} (${grp.date})"></button>
-                    `;
+                    return `<button type="button" onclick="app.setMilestoneIdx(${i})" class="h-2 rounded-full transition-all duration-200 cursor-pointer ${isActive ? 'bg-theme-main w-4 shadow-xs' : 'bg-stone-400/80 dark:bg-slate-600 hover:bg-stone-600 dark:hover:bg-slate-400 w-2'}" title="Ver hito ${i + 1} de ${uCount} (${grp.date})"></button>`;
                   }).join('');
 
                   if (isMultipleInDate) {
-                    return `
-                      <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-stone-200/80 dark:bg-slate-800/90 border ${hasActive ? 'border-theme-main/50 ring-1 ring-theme-main/30' : 'border-stone-300 dark:border-slate-700/80'}" title="${grp.indices.length} eventos el mismo día (${grp.date})">
-                        ${dotsHtml}
-                      </div>
-                    `;
+                    return `<div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded-full bg-stone-200/80 dark:bg-slate-800/90 border ${hasActive ? 'border-theme-main/50 ring-1 ring-theme-main/30' : 'border-stone-300 dark:border-slate-700/80'}" title="${grp.indices.length} eventos el mismo día (${grp.date})">${dotsHtml}</div>`;
                   } else {
                     return dotsHtml;
                   }
@@ -7962,13 +7973,13 @@
                       <svg class="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2"/><rect x="9" y="3" width="6" height="4" rx="2"/></svg>
                       <span>Ver Lista</span>
                     </button>
+                    <button type="button" onclick="app.dismissBanner('featuredMilestoneBanner')" class="p-1.5 sm:p-2 rounded-xl subpanel-bg border hover:border-theme text-stone-500 hover:text-stone-900 dark:hover:text-white font-bold text-xs transition flex items-center justify-center shrink-0" title="Cerrar aviso durante esta sesión">✕</button>
                   </div>
                 </div>
               </div>
             `;
           }
         } else {
-          // No hay hitos a <= 7 días -> Mostrar en Cabecera
           if (heroBanner) {
             heroBanner.classList.add('hidden');
             heroBanner.innerHTML = '';
@@ -8259,11 +8270,13 @@
           document.getElementById('tab1').classList.remove('readonly-locked');
         }
 
-        // Banner Permanente de Cierre de Semana Vencida
+        // Banner Permanente de Cierre de Semana Vencida (Con comprobación de cierre por sesión y preferencias)
         const pendingCloseBanner = document.getElementById('pendingWeekCloseBanner');
         const overdue = isWeekOverdue(state.currentWeek);
+        const pPref = state.uiPreferences || {};
+        const allowSysBanners = (pPref.showSystemBanners !== false);
         if (pendingCloseBanner) {
-          if (overdue && (!state.weeks[state.currentWeek] || !state.weeks[state.currentWeek].isClosed)) {
+          if (overdue && (!state.weeks[state.currentWeek] || !state.weeks[state.currentWeek].isClosed) && allowSysBanners && !app.isBannerDismissed('pendingWeekCloseBanner')) {
             pendingCloseBanner.classList.remove('hidden');
             const pendingText = document.getElementById('pendingWeekCloseBannerText');
             if (pendingText) {
@@ -11892,6 +11905,25 @@
 
       // APP ACCIONES Y MÉTODOS PÚBLICOS
       const app = {
+        dismissBanner(bannerId) {
+          if (!state.ui) state.ui = {};
+          if (!state.ui.dismissedBanners) state.ui.dismissedBanners = {};
+          state.ui.dismissedBanners[bannerId] = true;
+          try {
+            sessionStorage.setItem('dismissedBanner_' + bannerId, 'true');
+          } catch (e) {}
+          const el = document.getElementById(bannerId);
+          if (el) el.classList.add('hidden');
+          this.showToast('Aviso cerrado durante esta sesión.', 'info', 1400);
+        },
+
+        isBannerDismissed(bannerId) {
+          try {
+            if (sessionStorage.getItem('dismissedBanner_' + bannerId) === 'true') return true;
+          } catch (e) {}
+          return !!(state.ui && state.ui.dismissedBanners && state.ui.dismissedBanners[bannerId]);
+        },
+
         showToast(message, type = 'info', duration = 3000) {
           const container = document.getElementById('toastContainer');
           if (!container) return;
@@ -17639,7 +17671,10 @@
             return el ? el.checked : true;
           };
 
-          state.uiPreferences.showBanners = getVal('prefShowBanners');
+          state.uiPreferences.showSystemBanners = getVal('prefShowSystemBanners');
+          state.uiPreferences.showOverdueAlert = getVal('prefShowOverdueAlert');
+          state.uiPreferences.showUpcomingMilestone = getVal('prefShowUpcomingMilestone');
+
           state.uiPreferences.showKpis = getVal('prefShowKpis');
           state.uiPreferences.showDailyCards = getVal('prefShowDailyCards');
           state.uiPreferences.showWeekMatrix = getVal('prefShowWeekMatrix');
@@ -17667,6 +17702,7 @@
           state.uiPreferences.activePreset = null; // Modo personalizado
           this.applyUiPreferences();
           renderDailyHabits();
+          renderMilestoneWidget();
           saveState();
         },
 
@@ -17679,6 +17715,10 @@
 
         resetUiPreferences() {
           state.uiPreferences = null;
+          try {
+            sessionStorage.clear();
+          } catch(e) {}
+          if (state.ui) state.ui.dismissedBanners = {};
           this.applyPreset('balanced');
           this.showToast('Preferencias restablecidas al modo Equilibrado.', 'info', 1500);
         },
@@ -17688,7 +17728,10 @@
           state.uiPreferences.activePreset = presetKey;
 
           if (presetKey === 'focus') {
-            state.uiPreferences.showBanners = false;
+            state.uiPreferences.showSystemBanners = false;
+            state.uiPreferences.showOverdueAlert = false;
+            state.uiPreferences.showUpcomingMilestone = false;
+
             state.uiPreferences.showKpis = false;
             state.uiPreferences.showDailyCards = true;
             state.uiPreferences.showWeekMatrix = false;
@@ -17718,7 +17761,10 @@
             state.ui.weekTableCollapsed = true;
             this.showToast('🎯 Modo Enfoque activado: Máxima concentración en lo de hoy.', 'info', 1800);
           } else if (presetKey === 'balanced') {
-            state.uiPreferences.showBanners = true;
+            state.uiPreferences.showSystemBanners = true;
+            state.uiPreferences.showOverdueAlert = true;
+            state.uiPreferences.showUpcomingMilestone = true;
+
             state.uiPreferences.showKpis = true;
             state.uiPreferences.showDailyCards = true;
             state.uiPreferences.showWeekMatrix = true;
@@ -17748,7 +17794,10 @@
             state.ui.weekTableCollapsed = false;
             this.showToast('⚖️ Modo Equilibrado activado: Hoy y Matriz lado a lado.', 'info', 1800);
           } else if (presetKey === 'pro') {
-            state.uiPreferences.showBanners = true;
+            state.uiPreferences.showSystemBanners = true;
+            state.uiPreferences.showOverdueAlert = true;
+            state.uiPreferences.showUpcomingMilestone = true;
+
             state.uiPreferences.showKpis = true;
             state.uiPreferences.showDailyCards = true;
             state.uiPreferences.showWeekMatrix = true;
@@ -17780,6 +17829,7 @@
           }
           this.applyUiPreferences();
           renderDailyHabits();
+          renderMilestoneWidget();
           saveState();
         },
 
@@ -17802,7 +17852,9 @@
           if (!state.uiPreferences) {
             state.uiPreferences = {
               activePreset: 'balanced',
-              showBanners: true,
+              showSystemBanners: true,
+              showOverdueAlert: true,
+              showUpcomingMilestone: true,
               showKpis: true,
               showDailyCards: true,
               showWeekMatrix: true,
@@ -17830,13 +17882,57 @@
           }
           const p = state.uiPreferences;
 
-          // TAB 1: Banners superiores
-          const bannersWrap = document.getElementById('topBannersWrapper');
-          if (bannersWrap) {
-            bannersWrap.classList.toggle('hidden', p.showBanners === false);
+          // ---------------------------------------------------------
+          // BANNERS SUPERIORES CON COMPROBACIÓN DE SESIÓN Y PREFERENCIAS
+          // ---------------------------------------------------------
+          const allowSysBanners = (p.showSystemBanners !== false);
+          const histBanner = document.getElementById('historicalBanner');
+          if (histBanner) {
+            if (!allowSysBanners || app.isBannerDismissed('historicalBanner') || !state.isHistoricalMode) {
+              histBanner.classList.add('hidden');
+            }
           }
 
-          // TAB 1: KPIs Superiores & Barra fina
+          const pendBanner = document.getElementById('pendingWeekCloseBanner');
+          if (pendBanner) {
+            if (!allowSysBanners || app.isBannerDismissed('pendingWeekCloseBanner')) {
+              pendBanner.classList.add('hidden');
+            }
+          }
+
+          const welcBanner = document.getElementById('welcomeNewUserBanner');
+          if (welcBanner) {
+            if (!allowSysBanners || p.welcomeDismissed === true || app.isBannerDismissed('welcomeNewUserBanner')) {
+              welcBanner.classList.add('hidden');
+            }
+          }
+
+          const overdueBanner = document.getElementById('overdueMilestonesAlertBanner');
+          if (overdueBanner) {
+            if (p.showOverdueAlert === false || app.isBannerDismissed('overdueMilestonesAlertBanner')) {
+              overdueBanner.classList.add('hidden');
+            }
+          }
+
+          const featBanner = document.getElementById('featuredMilestoneBanner');
+          if (featBanner) {
+            if (p.showUpcomingMilestone === false || app.isBannerDismissed('featuredMilestoneBanner')) {
+              featBanner.classList.add('hidden');
+            }
+          }
+
+          const bannersWrap = document.getElementById('topBannersWrapper');
+          if (bannersWrap) {
+            if (!allowSysBanners && p.showOverdueAlert === false && p.showUpcomingMilestone === false) {
+              bannersWrap.classList.add('hidden');
+            } else {
+              bannersWrap.classList.remove('hidden');
+            }
+          }
+
+          // ---------------------------------------------------------
+          // TAB 1: KPIS SUPERIORES & BARRA FINA
+          // ---------------------------------------------------------
           const kpisWrap = document.getElementById('topKpisWrapper');
           if (kpisWrap) {
             kpisWrap.classList.toggle('hidden', p.showKpis === false);
@@ -17851,47 +17947,73 @@
             if (kpisArrow) kpisArrow.textContent = isColl ? '▼' : '▲';
           }
 
-          // TAB 1: Enfoque de Hoy & Matriz Semanal (Lado a lado)
+          // ---------------------------------------------------------
+          // TAB 1: FILA SUPERIOR (HOY + MATRIZ CON AUTO-EXPANSIÓN 100%)
+          // ---------------------------------------------------------
           const todayWrap = document.getElementById('todayFocusContainer');
           const matrixWrap = document.getElementById('weekTableContainer');
           const toggleBtn = document.getElementById('toggleWeekTableBtn');
+
+          const todayVisible = (p.showDailyCards !== false);
+          const matrixVisible = (p.showWeekMatrix !== false && state.ui.weekTableCollapsed !== true);
+
           if (todayWrap) {
-            todayWrap.classList.toggle('hidden', p.showDailyCards === false);
+            todayWrap.classList.toggle('hidden', !todayVisible);
+            todayWrap.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            todayWrap.classList.add(!matrixVisible ? 'lg:col-span-12' : 'lg:col-span-6');
           }
-          if (matrixWrap && todayWrap) {
-            const hideMatrix = (p.showWeekMatrix === false || state.ui.weekTableCollapsed === true);
-            matrixWrap.classList.toggle('hidden', hideMatrix);
-            if (hideMatrix) {
-              todayWrap.classList.remove('lg:col-span-6');
-              todayWrap.classList.add('lg:col-span-12');
-            } else {
-              todayWrap.classList.remove('lg:col-span-12');
-              todayWrap.classList.add('lg:col-span-6');
-              matrixWrap.classList.add('lg:col-span-6');
-            }
+          if (matrixWrap) {
+            matrixWrap.classList.toggle('hidden', !matrixVisible);
+            matrixWrap.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            matrixWrap.classList.add(!todayVisible ? 'lg:col-span-12' : 'lg:col-span-6');
           }
           if (toggleBtn) {
             toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
           }
 
-          // TAB 1: Gastos Recientes, Listas y Mini-Calendario
+          // ---------------------------------------------------------
+          // TAB 1: FILA SECUNDARIA (GASTOS + CALENDARIO VS LISTAS CON AUTO-EXPANSIÓN)
+          // ---------------------------------------------------------
           const recExp = document.getElementById('tab1RecentExpensesBar');
-          if (recExp) recExp.classList.toggle('hidden', p.showRecentExpenses === false);
-
-          const listsP = document.getElementById('interactiveListsPanel');
-          if (listsP) listsP.classList.toggle('hidden', p.showListsPanel === false);
-
           const miniCal = document.getElementById('notesMiniCalendarPanel');
-          if (miniCal) miniCal.classList.toggle('hidden', p.showMiniCalendar === false);
+          const listsP = document.getElementById('interactiveListsPanel');
+          const leftCol = document.getElementById('tab1LeftCol');
+          const rightCol = document.getElementById('tab1RightCol');
 
-          // TAB 1 / Global: Docks Flotantes
+          const recExpVisible = (p.showRecentExpenses !== false);
+          const miniCalVisible = (p.showMiniCalendar !== false);
+          const listsVisible = (p.showListsPanel !== false);
+
+          if (recExp) recExp.classList.toggle('hidden', !recExpVisible);
+          if (miniCal) miniCal.classList.toggle('hidden', !miniCalVisible);
+          if (listsP) listsP.classList.toggle('hidden', !listsVisible);
+
+          const leftColHasVisible = recExpVisible || miniCalVisible;
+          const rightColHasVisible = listsVisible;
+
+          if (leftCol) {
+            leftCol.classList.toggle('hidden', !leftColHasVisible);
+            leftCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-12');
+            leftCol.classList.add(!rightColHasVisible ? 'lg:col-span-12' : 'lg:col-span-5');
+          }
+          if (rightCol) {
+            rightCol.classList.toggle('hidden', !rightColHasVisible);
+            rightCol.classList.remove('lg:col-span-7', 'lg:col-span-6', 'lg:col-span-12');
+            rightCol.classList.add(!leftColHasVisible ? 'lg:col-span-12' : 'lg:col-span-7');
+          }
+
+          // ---------------------------------------------------------
+          // TAB 1 / GLOBAL: DOCKS FLOTANTES
+          // ---------------------------------------------------------
           const floatingDock = document.getElementById('floatingDock');
           if (floatingDock) {
             floatingDock.classList.toggle('hidden', p.showDocks === false);
             floatingDock.style.display = (p.showDocks === false) ? 'none' : '';
           }
 
-          // TAB 2: Secciones de Metas y Horario
+          // ---------------------------------------------------------
+          // TAB 2: SECCIONES DE METAS Y HORARIO (100% ANCHO FLUIDO)
+          // ---------------------------------------------------------
           const t2Goals = document.getElementById('tab2ModularHabitsSection');
           if (t2Goals) t2Goals.classList.toggle('hidden', p.tab2ShowGoals === false);
 
@@ -17901,26 +18023,52 @@
           const t2Att = document.getElementById('tab2AttendanceRulesSection');
           if (t2Att) t2Att.classList.toggle('hidden', p.tab2ShowAttendance === false);
 
-          // TAB 3: Secciones de Finanzas
+          // ---------------------------------------------------------
+          // TAB 3: SECCIONES DE FINANZAS CON AUTO-EXPANSIÓN 100% (SIN HUECOS BLANCOS)
+          // ---------------------------------------------------------
           const t3Budget = document.getElementById('tab3BudgetConfigCard');
-          if (t3Budget) t3Budget.classList.toggle('hidden', p.tab3ShowBudget === false);
-
           const t3Savings = document.getElementById('tab3SavingsGoalsCard');
-          if (t3Savings) t3Savings.classList.toggle('hidden', p.tab3ShowSavingsGoals === false);
+
+          const bVisible = (p.tab3ShowBudget !== false);
+          const sVisible = (p.tab3ShowSavingsGoals !== false);
+
+          if (t3Budget) {
+            t3Budget.classList.toggle('hidden', !bVisible);
+            t3Budget.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            t3Budget.classList.add(!sVisible ? 'lg:col-span-12' : 'lg:col-span-6');
+          }
+          if (t3Savings) {
+            t3Savings.classList.toggle('hidden', !sVisible);
+            t3Savings.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            t3Savings.classList.add(!bVisible ? 'lg:col-span-12' : 'lg:col-span-6');
+          }
+
+          const t3Fixed = document.getElementById('tab3FixedExpensesCard');
+          const t3Table = document.getElementById('tab3ExpensesTableCard');
+
+          const fVisible = (p.tab3ShowFixedExpenses !== false);
+          const expTVisible = (p.tab3ShowExpensesTable !== false);
+
+          if (t3Fixed) {
+            t3Fixed.classList.toggle('hidden', !fVisible);
+            t3Fixed.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            t3Fixed.classList.add(!expTVisible ? 'lg:col-span-12' : 'lg:col-span-6');
+          }
+          if (t3Table) {
+            t3Table.classList.toggle('hidden', !expTVisible);
+            t3Table.classList.remove('lg:col-span-6', 'lg:col-span-12');
+            t3Table.classList.add(!fVisible ? 'lg:col-span-12' : 'lg:col-span-6');
+          }
 
           const t3Piggy = document.getElementById('tab3PiggyCard');
           if (t3Piggy) t3Piggy.classList.toggle('hidden', p.tab3ShowPiggy === false);
 
-          const t3Fixed = document.getElementById('tab3FixedExpensesCard');
-          if (t3Fixed) t3Fixed.classList.toggle('hidden', p.tab3ShowFixedExpenses === false);
-
-          const t3Table = document.getElementById('tab3ExpensesTableCard');
-          if (t3Table) t3Table.classList.toggle('hidden', p.tab3ShowExpensesTable === false);
-
           const t3Charts = document.getElementById('tab3ExpenseChartsSection');
           if (t3Charts) t3Charts.classList.toggle('hidden', p.tab3ShowExpenseCharts === false);
 
-          // TAB 4: Secciones de Estadísticas
+          // ---------------------------------------------------------
+          // TAB 4: SECCIONES DE ESTADÍSTICAS
+          // ---------------------------------------------------------
           const t4Study = document.getElementById('tab4StudyAuditSection');
           if (t4Study) t4Study.classList.toggle('hidden', p.tab4ShowStudyAudit === false);
 
@@ -17933,7 +18081,9 @@
           const t4Evol = document.getElementById('tab4EvolutionSection');
           if (t4Evol) t4Evol.classList.toggle('hidden', p.tab4ShowEvolution === false);
 
-          // Densidad Visual
+          // ---------------------------------------------------------
+          // DENSIDAD VISUAL
+          // ---------------------------------------------------------
           if (p.density === 'compact') {
             document.documentElement.classList.add('density-compact');
           } else {
@@ -17964,18 +18114,17 @@
             }
           });
 
-          // Welcome banner dismiss
-          const welcomeBanner = document.getElementById('welcomeNewUserBanner');
-          if (welcomeBanner) {
-            welcomeBanner.classList.toggle('hidden', p.welcomeDismissed === true || p.showBanners === false);
-          }
-
-          // Sincronizar checkboxes
+          // ---------------------------------------------------------
+          // SINCRONIZAR CHECKBOXES DEL MODAL
+          // ---------------------------------------------------------
           const syncCheck = (id, val) => {
             const chk = document.getElementById(id);
             if (chk) chk.checked = (val !== false);
           };
-          syncCheck('prefShowBanners', p.showBanners);
+          syncCheck('prefShowSystemBanners', p.showSystemBanners);
+          syncCheck('prefShowOverdueAlert', p.showOverdueAlert);
+          syncCheck('prefShowUpcomingMilestone', p.showUpcomingMilestone);
+
           syncCheck('prefShowKpis', p.showKpis);
           syncCheck('prefShowDailyCards', p.showDailyCards);
           syncCheck('prefShowWeekMatrix', p.showWeekMatrix);
