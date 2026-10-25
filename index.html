@@ -8728,7 +8728,11 @@
         if (todayBox) {
           todayBox.classList.remove('hidden');
           const activeFocusDay = (state.ui.selectedFocusDay !== undefined && state.ui.selectedFocusDay !== null) ? state.ui.selectedFocusDay : todayIdx;
-          renderTodayFocusCard(activeFocusDay);
+          try {
+            renderTodayFocusCard(activeFocusDay);
+          } catch (errFocus) {
+            console.error('Error al renderizar tarjeta de enfoque de hoy:', errFocus);
+          }
         }
 
         // Matriz Semanal Completa Colapsable (Lado a lado con Hoy)
@@ -8756,13 +8760,22 @@
               toggleBtn.classList.remove('hidden');
             }
             const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
-            renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
+            try {
+              renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
+            } catch (errTable) {
+              console.error('Error al renderizar matriz semanal:', errTable);
+            }
           }
         }
       }
 
       function renderTodayFocusCard(dIdx) {
+        if (dIdx === undefined || dIdx === null || dIdx < 0 || dIdx > 6) {
+          dIdx = (new Date().getDay() + 6) % 7;
+        }
         const w = getActiveWeek();
+        if (!w || !w.days || !w.days[dIdx]) return;
+        const m = calculateWeekMetrics(w);
         const day = w.days[dIdx];
         const dateRange = getWeekDateRange(w.weekNum);
         const todayDateStr = dateRange.daysDates ? dateRange.daysDates[dIdx] : '';
@@ -9270,16 +9283,16 @@
           } else if (h.type === 'target_range') {
             const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
             const c = Number(h.targetCenter) || 0;
-            const m = Number(h.targetMargin) || 0;
-            const inRange = curVal !== null && curVal >= (c - m) && curVal <= (c + m);
+            const margin = Number(h.targetMargin) || 0;
+            const inRange = curVal !== null && curVal >= (c - margin) && curVal <= (c + margin);
             const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
-            const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + m) ? 'Por encima' : 'Por debajo'));
+            const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + margin) ? 'Por encima' : 'Por debajo'));
 
             bodyHtml = `
               <div class="flex items-center justify-between gap-2 pt-1">
                 <div class="flex items-center gap-2 flex-1">
                   <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                  <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${m} ${h.unit || ''}</span>
+                  <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
                 </div>
                 <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
               </div>
@@ -9369,6 +9382,9 @@
 
       function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
         const w = getActiveWeek();
+        if (!w || !w.days) return;
+        if (!m) m = calculateWeekMetrics(w);
+        if (!streaks) streaks = calculateStreaks(w.weekNum);
         const dateRange = getWeekDateRange(w.weekNum);
         const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
@@ -12443,19 +12459,19 @@
       }
 
       function renderApp() {
-        renderHeaderAndKPIs();
-        renderDockExpenseUI();
-        renderPomodoroUI();
+        try { renderHeaderAndKPIs(); } catch (e) { console.error('Error in renderHeaderAndKPIs:', e); }
+        try { renderDockExpenseUI(); } catch (e) { console.error('Error in renderDockExpenseUI:', e); }
+        try { renderPomodoroUI(); } catch (e) { console.error('Error in renderPomodoroUI:', e); }
         if (state.activeTab === 1) {
-          renderDailyHabits();
-          renderQuickExpensesUI();
-          renderListsTree();
+          try { renderDailyHabits(); } catch (e) { console.error('Error in renderDailyHabits:', e); }
+          try { renderQuickExpensesUI(); } catch (e) { console.error('Error in renderQuickExpensesUI:', e); }
+          try { renderListsTree(); } catch (e) { console.error('Error in renderListsTree:', e); }
         } else if (state.activeTab === 2) {
-          renderTab2();
+          try { renderTab2(); } catch (e) { console.error('Error in renderTab2:', e); }
         } else if (state.activeTab === 3) {
-          renderTab3();
+          try { renderTab3(); } catch (e) { console.error('Error in renderTab3:', e); }
         } else if (state.activeTab === 4) {
-          renderTab4();
+          try { renderTab4(); } catch (e) { console.error('Error in renderTab4:', e); }
         }
       }
 
