@@ -3490,28 +3490,32 @@
 
   <!-- MENÚ CONTEXTUAL FLOTANTE (••• / CLIC DERECHO) PARA ELEMENTOS DE LISTAS -->
   <div id="listActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-52 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button id="listActionMenuRestoreBtn" type="button" onclick="app.triggerMenuAction('restore')" class="hidden w-full text-left px-3 py-2 rounded-xl subpanel-hover text-emerald-600 dark:text-emerald-400 hover:text-emerald-500 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+      <span>Restaurar tarea</span>
+    </button>
     <button type="button" onclick="app.triggerMenuAction('edit')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
       <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
       <span>Editar detalles</span>
     </button>
-    <button type="button" onclick="app.triggerMenuAction('addSubtaskSeries')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-accent flex items-center gap-2.5 transition font-medium">
+    <button type="button" onclick="app.triggerMenuAction('addSubtaskSeries')" class="list-action-non-completed w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-accent flex items-center gap-2.5 transition font-medium">
       <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       <span>Generar serie subnotas...</span>
     </button>
-    <button type="button" onclick="app.triggerMenuAction('duplicate')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+    <button type="button" onclick="app.triggerMenuAction('duplicate')" class="list-action-non-completed w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
       <svg class="w-3.5 h-3.5 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
       <span>Duplicar</span>
     </button>
-    <button type="button" onclick="app.triggerMenuAction('move')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+    <button type="button" onclick="app.triggerMenuAction('move')" class="list-action-non-completed w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
       <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
       <span>Mover de carpeta...</span>
     </button>
-    <button type="button" onclick="app.triggerMenuAction('pin')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-amber-500 flex items-center gap-2.5 transition font-medium">
+    <button type="button" onclick="app.triggerMenuAction('pin')" class="list-action-non-completed w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-amber-500 flex items-center gap-2.5 transition font-medium">
       <svg class="w-3.5 h-3.5 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14v-2l-3-3V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v7l-3 3v2z"/></svg>
       <span id="listActionMenuPinText">Fijar arriba</span>
     </button>
-    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
-    <div class="flex items-center gap-1.5 px-1">
+    <div class="list-action-non-completed border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <div class="list-action-non-completed flex items-center gap-1.5 px-1">
       <button type="button" onclick="app.triggerMenuAction('moveUp')" class="flex-1 py-1.5 rounded-xl subpanel-bg border border-stone-200 dark:border-slate-800 text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center gap-1 transition text-[11px] font-semibold">
         <span>▲</span> Subir
       </button>
@@ -3523,6 +3527,66 @@
     <button type="button" onclick="app.triggerMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
       <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
       <span>Eliminar</span>
+    </button>
+  </div>
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE (••• / CLIC DERECHO) PARA GASTOS -->
+  <div id="expenseActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-48 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button type="button" onclick="app.triggerExpenseMenuAction('edit')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span>Editar gasto</span>
+    </button>
+    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <button type="button" onclick="app.triggerExpenseMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span>Eliminar gasto</span>
+    </button>
+  </div>
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE (••• / CLIC DERECHO) PARA HÁBITOS PERSONALIZADOS -->
+  <div id="habitActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-48 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button type="button" onclick="app.triggerHabitMenuAction('edit')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span>Editar hábito</span>
+    </button>
+    <button type="button" onclick="app.triggerHabitMenuAction('toggle')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-emerald-500 flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+      <span id="habitActionMenuToggleText">Pausar / Activar</span>
+    </button>
+    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <button type="button" onclick="app.triggerHabitMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span>Eliminar hábito</span>
+    </button>
+  </div>
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE (••• / CLIC DERECHO) PARA CLASES DEL HORARIO -->
+  <div id="classActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-48 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button type="button" onclick="app.triggerClassMenuAction('edit')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+      <span>Editar clase</span>
+    </button>
+    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <button type="button" onclick="app.triggerClassMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span>Eliminar clase</span>
+    </button>
+  </div>
+
+  <!-- MENÚ CONTEXTUAL FLOTANTE (••• / CLIC DERECHO) PARA ASIGNATURAS -->
+  <div id="subjectActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-52 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button type="button" onclick="app.triggerSubjectMenuAction('hours')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      <span>Ajustar horas de estudio</span>
+    </button>
+    <button type="button" onclick="app.triggerSubjectMenuAction('stats')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-accent flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 20V10M12 20V4M6 20v-6"/></svg>
+      <span>Ver estadísticas</span>
+    </button>
+    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <button type="button" onclick="app.triggerSubjectMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span>Eliminar asignatura</span>
     </button>
   </div>
 
@@ -6157,6 +6221,10 @@
       let activeMoveContext = null; // { cat, id, sourceNode }
       let moveModalExpandedIds = new Set();
       let activeActionsMenuContext = null; // { cat, id, node, isContainer, pinned }
+      let activeExpenseMenuContext = null; // { expenseId }
+      let activeHabitMenuContext = null; // { habitId }
+      let activeClassMenuContext = null; // { dIdx, cIdx }
+      let activeSubjectMenuContext = null; // { subjectName }
       let piggyModalCurrentType = 'deposit'; // 'deposit' | 'withdraw'
       let piggyModalCalculatedValue = 0;
       let customConfirmResolve = null;
@@ -6769,6 +6837,7 @@
           welcomeDismissed: false
         }, (loaded && loaded.uiPreferences) || s.uiPreferences || {});
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
+        if (s.ui && s.ui.dismissedBanners) delete s.ui.dismissedBanners;
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
         s.financeSettings = Object.assign({}, DEFAULT_STATE.financeSettings, s.financeSettings);
         if (!Array.isArray(s.financeSettings.customCategories) || s.financeSettings.customCategories.length === 0) {
@@ -8861,11 +8930,11 @@
           </div>
         `;
 
-        let leftColHtml = '';
+        let gymCardHtml = '';
         if (enabled.gym) {
-          leftColHtml += `
+          gymCardHtml = `
             <!-- Gimnasio -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
@@ -8876,52 +8945,55 @@
                     <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.gymSessions} ses/sem</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-1">
-                  <button onclick="app.cycleGymSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
-                    ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : `${day.gym.sessions} Sesiones`)}
-                  </button>
-                  ${day.gym.sessions >= 2 ? `
-                    <button onclick="app.addExtraGymSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
-                  ` : ''}
-                </div>
               </div>
-              ${day.gym.sessions >= 1 ? `
-                <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
-                  <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
-                    ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
-                  </select>
-                  ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === '✏️ Otro...') ? `
-                    <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
-                  ` : ''}
-                </div>
-              ` : ''}
-              ${(() => {
-                if (day.gym.sessions < 2) return '';
-                let extraHtml = '';
-                for (let sIdx = 2; sIdx <= day.gym.sessions; sIdx++) {
-                  const sObj = day.gym[`s${sIdx}`] || {};
-                  extraHtml += `
-                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                      <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
-                      <select onchange="app.handleGymTypeSelection(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
-                        ${GYM_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
-                      </select>
-                      ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
-                        <button onclick="app.openCustomMuscleModal(${dIdx}, ${sIdx}, 'gym')" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}${sObj.cardio?.enabled ? ' (+Cardio)' : ''}</button>
-                      ` : ''}
-                    </div>
-                  `;
-                }
-                return extraHtml;
-              })()}
+              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
+                ${day.gym.sessions >= 1 ? `
+                  <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
+                    <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
+                      ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
+                    </select>
+                    ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === '✏️ Otro...') ? `
+                      <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
+                    ` : ''}
+                  </div>
+                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin entrenamiento registrado hoy</div>'}
+                ${(() => {
+                  if (day.gym.sessions < 2) return '';
+                  let extraHtml = '';
+                  for (let sIdx = 2; sIdx <= day.gym.sessions; sIdx++) {
+                    const sObj = day.gym[`s${sIdx}`] || {};
+                    extraHtml += `
+                      <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
+                        <select onchange="app.handleGymTypeSelection(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
+                          ${GYM_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
+                        </select>
+                        ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                          <button onclick="app.openCustomMuscleModal(${dIdx}, ${sIdx}, 'gym')" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}${sObj.cardio?.enabled ? ' (+Cardio)' : ''}</button>
+                        ` : ''}
+                      </div>
+                    `;
+                  }
+                  return extraHtml;
+                })()}
+              </div>
+              <div class="mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
+                <button onclick="app.cycleGymSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
+                  ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : `${day.gym.sessions} Sesiones`)}
+                </button>
+                ${day.gym.sessions >= 2 ? `
+                  <button onclick="app.addExtraGymSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
+                ` : ''}
+              </div>
             </div>
           `;
         }
 
+        let runCardHtml = '';
         if (enabled.run) {
-          leftColHtml += `
+          runCardHtml = `
             <!-- Running -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
@@ -8932,57 +9004,60 @@
                     <span class="text-[10px] text-stone-500 dark:text-slate-400">Meta: ${w.goals.runKm} km/sem</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-1">
-                  <button onclick="app.cycleRunSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
-                    ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : `${day.run.sessions} Sesiones`)}
-                  </button>
-                  ${day.run.sessions >= 2 ? `
-                    <button onclick="app.addExtraRunSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
-                  ` : ''}
-                </div>
               </div>
-              ${day.run.sessions >= 1 ? `
-                <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
-                  <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
-                  <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
-                    ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
-                  </select>
-                  ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === '✏️ Otro...') ? `
-                    <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
-                  ` : ''}
-                </div>
-              ` : ''}
-              ${(() => {
-                if (day.run.sessions < 2) return '';
-                let extraRun = '';
-                let totalDayKm = Number(day.run.s1?.km) || 0;
-                for (let sIdx = 2; sIdx <= day.run.sessions; sIdx++) {
-                  const sObj = day.run[`s${sIdx}`] || {};
-                  totalDayKm += Number(sObj.km) || 0;
-                  extraRun += `
-                    <div class="flex flex-wrap items-center gap-1.5 pt-1">
-                      <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
-                      <input type="number" step="0.5" placeholder="Km ${sIdx}" value="${sObj.km !== undefined ? sObj.km : ''}" onchange="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km ${sIdx}ª sesión" autocomplete="off" />
-                      <select onchange="app.setRunType(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
-                        ${RUN_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
-                      </select>
-                      ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
-                        <button onclick="app.openCustomRunModal(${dIdx}, ${sIdx})" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}</button>
-                      ` : ''}
-                    </div>
-                  `;
-                }
-                extraRun += `<div class="text-[10px] font-mono font-bold text-theme-main pt-0.5">Total hoy: ${totalDayKm.toFixed(1)} km</div>`;
-                return extraRun;
-              })()}
+              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
+                ${day.run.sessions >= 1 ? `
+                  <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
+                    <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
+                    <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
+                      ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
+                    </select>
+                    ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === '✏️ Otro...') ? `
+                      <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
+                    ` : ''}
+                  </div>
+                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin carrera registrada hoy</div>'}
+                ${(() => {
+                  if (day.run.sessions < 2) return '';
+                  let extraRun = '';
+                  let totalDayKm = Number(day.run.s1?.km) || 0;
+                  for (let sIdx = 2; sIdx <= day.run.sessions; sIdx++) {
+                    const sObj = day.run[`s${sIdx}`] || {};
+                    totalDayKm += Number(sObj.km) || 0;
+                    extraRun += `
+                      <div class="flex flex-wrap items-center gap-1.5 pt-1">
+                        <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
+                        <input type="number" step="0.5" placeholder="Km ${sIdx}" value="${sObj.km !== undefined ? sObj.km : ''}" onchange="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km ${sIdx}ª sesión" autocomplete="off" />
+                        <select onchange="app.setRunType(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
+                          ${RUN_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
+                        </select>
+                        ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                          <button onclick="app.openCustomRunModal(${dIdx}, ${sIdx})" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}</button>
+                        ` : ''}
+                      </div>
+                    `;
+                  }
+                  extraRun += `<div class="text-[10px] font-mono font-bold text-theme-main pt-0.5">Total hoy: ${totalDayKm.toFixed(1)} km</div>`;
+                  return extraRun;
+                })()}
+              </div>
+              <div class="mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
+                <button onclick="app.cycleRunSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
+                  ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : `${day.run.sessions} Sesiones`)}
+                </button>
+                ${day.run.sessions >= 2 ? `
+                  <button onclick="app.addExtraRunSession(${dIdx})" class="px-2 py-1.5 rounded-lg subpanel-bg border border-theme-accent text-theme-accent font-bold text-xs hover:bg-theme-accent-soft active:translate-y-0.5 transition" title="Añadir otra sesión">+</button>
+                ` : ''}
+              </div>
             </div>
           `;
         }
 
+        let nutriCardHtml = '';
         if (enabled.nutri) {
-          leftColHtml += `
+          nutriCardHtml = `
             <!-- Nutrición y Calorías -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
@@ -8993,29 +9068,30 @@
                     <span class="text-[10px] text-stone-500 dark:text-slate-400 capitalize">Fase <strong>${w.goals.nutri?.phase || 'volumen'}</strong> • Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
                   </div>
                 </div>
-                <button onclick="app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center gap-1.5" title="Alternar estado manual">
-                  ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
-                </button>
               </div>
-
-              <div class="flex flex-wrap items-center gap-2 pt-0.5">
-                <div class="relative flex items-center flex-1 min-w-[120px]">
+              <div class="flex flex-wrap items-center gap-2 flex-1 pt-0.5">
+                <div class="relative flex items-center flex-1 min-w-[100px]">
                   <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
                   <span class="absolute right-2 text-[10px] text-slate-400 font-bold pointer-events-none">kcal</span>
                 </div>
-                <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass}">
+                <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass} shrink-0">
                   ${nutriEval.label}
                 </span>
+              </div>
+              <div class="mt-auto pt-2 flex justify-end border-t border-stone-200/50 dark:border-slate-800/50">
+                <button onclick="app.cycleNutrition(${dIdx})" class="w-full sm:w-auto px-3 py-1.5 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center justify-center gap-1.5" title="Alternar estado manual">
+                  ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
+                </button>
               </div>
             </div>
           `;
         }
 
-        let rightColHtml = '';
+        let academicCardHtml = '';
         if (enabled.academic) {
-          rightColHtml += `
+          academicCardHtml = `
             <!-- Asistencia Clases Hoy -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
@@ -9025,7 +9101,7 @@
                 </div>
                 <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${(day.attendance || []).length} asignaturas</span>
               </div>
-              <div class="space-y-1.5">
+              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
                 ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center">— Sin clases programadas para hoy —</div>` : ''}
                 ${(day.attendance || []).map((c, cIdx) => {
                   let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
@@ -9041,21 +9117,27 @@
                     btnBg = 'bg-theme-soft border-theme font-bold'; 
                   }
                   return `
-                    <button onclick="app.cycleAttendance(${dIdx}, ${cIdx})" class="w-full p-2.5 rounded-xl ${btnBg} flex items-center justify-between text-xs transition active:translate-y-0.5 hover:border-theme">
-                      <span class="font-bold">${c.subject} <span class="text-[10px] opacity-75 font-mono">[${c.type || 'T'}]</span></span>
-                      <span>${badge}</span>
+                    <button onclick="app.cycleAttendance(${dIdx}, ${cIdx})" class="w-full p-2 rounded-xl ${btnBg} flex items-center justify-between text-xs transition active:translate-y-0.5 hover:border-theme">
+                      <span class="font-bold truncate">${c.subject} <span class="text-[10px] opacity-75 font-mono">[${c.type || 'T'}]</span></span>
+                      <span class="shrink-0">${badge}</span>
                     </button>
                   `;
                 }).join('')}
+              </div>
+              <div class="mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
+                <span>Asistencia requerida: ${w.goals.academic?.attMinPercent || 85}%</span>
+                <span class="font-mono font-bold text-theme-main">${Math.round(m.attPct)}% global</span>
               </div>
             </div>
           `;
         }
 
+        let studyCardHtml = '';
         if (enabled.study) {
-          rightColHtml += `
+          const subs = Object.entries(w.studyBySubject || {}).filter(([k, v]) => Number(v) > 0);
+          studyCardHtml = `
             <!-- Horas de Estudio de Hoy -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
@@ -9063,41 +9145,32 @@
                   </div>
                   <div>
                     <span class="font-bold block text-xs">Estudio de Hoy</span>
-                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan hoy: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-sm font-extrabold font-mono text-theme-main">${studyDone.toFixed(1)}h</span>
-                  <span class="text-[10px] font-mono font-bold text-stone-500 dark:text-slate-400">(${studyPct}%)</span>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <span class="text-xs font-extrabold font-mono text-theme-main">${studyDone.toFixed(1)}h</span>
+                  <span class="text-[9.5px] font-mono font-bold text-stone-400">(${studyPct}%)</span>
                 </div>
               </div>
-              <div class="h-2 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
+              <div class="h-1.5 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
                 <div class="h-full bg-theme-main transition-all duration-300" style="width: ${studyPct}%"></div>
               </div>
-              ${(() => {
-                const subs = Object.entries(w.studyBySubject || {}).filter(([k, v]) => Number(v) > 0);
-                if (subs.length === 0) return '';
-                return `
-                  <div class="pt-1.5 border-t border-stone-200 dark:border-slate-800">
-                    <div class="text-[9.5px] font-bold text-stone-500 dark:text-slate-400 mb-1 flex items-center justify-between">
-                      <span>Por asignatura (semana):</span>
-                      <span class="font-mono text-theme-main">${subs.reduce((acc, [, v]) => acc + Number(v), 0).toFixed(1)}h</span>
-                    </div>
-                    <div class="flex flex-wrap gap-1">
-                      ${subs.map(([subName, hrs]) => `
-                        <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
-                          <span class="truncate max-w-[85px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
-                          <span class="font-mono font-bold text-theme-main">${Number(hrs).toFixed(1)}h</span>
-                        </span>
-                      `).join('')}
-                    </div>
-                  </div>
-                `;
-              })()}
-              <div class="flex items-center justify-between gap-1.5 pt-1 text-xs">
-                <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30 min</button>
-                <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1 hora</button>
-                <button onclick="app.toggleZen(true)" class="flex-1 py-1 rounded-lg bg-theme-accent hover:bg-theme-accent text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-theme-accent shadow-xs active:translate-y-0.5 transition"><span>▶</span> Pomodoro</button>
+              ${subs.length > 0 ? `
+                <div class="flex flex-wrap gap-1 py-0.5">
+                  ${subs.slice(0, 3).map(([subName, hrs]) => `
+                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+                      <span class="truncate max-w-[75px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
+                      <span class="font-mono font-bold text-theme-main">${Number(hrs).toFixed(1)}h</span>
+                    </span>
+                  `).join('')}
+                  ${subs.length > 3 ? `<span class="text-[9px] text-stone-400 self-center">+${subs.length - 3}</span>` : ''}
+                </div>
+              ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin asignaturas registradas hoy</div>'}
+              <div class="mt-auto pt-2 flex items-center justify-between gap-1.5 text-xs border-t border-stone-200/50 dark:border-slate-800/50">
+                <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30m</button>
+                <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1h</button>
+                <button onclick="app.toggleZen(true)" class="flex-1 py-1 rounded-lg bg-theme-accent hover:bg-theme-accent text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-theme-accent shadow-xs active:translate-y-0.5 transition"><span>▶</span> Pomo</button>
               </div>
             </div>
           `;
@@ -9219,7 +9292,7 @@
           const iconColor = isReminder ? 'text-amber-500' : 'text-theme-main';
 
           const cardHtml = `
-            <div class="p-3 rounded-xl subpanel-bg border ${cardBorderColor} space-y-1.5">
+            <div class="p-3 rounded-xl subpanel-bg border ${cardBorderColor} space-y-2 flex flex-col justify-between h-full shadow-2xs">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="w-6 h-6 rounded-lg subpanel-bg border ${iconBorderColor} flex items-center justify-center ${iconColor} shrink-0 shadow-2xs">
@@ -9229,7 +9302,13 @@
                 </div>
                 ${isReminder ? '<span class="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30 font-mono shrink-0">Recordatorio</span>' : '<span class="text-[8.5px] font-mono text-stone-400 font-bold uppercase shrink-0">Hábito</span>'}
               </div>
-              ${bodyHtml}
+              <div class="flex-1 flex flex-col justify-center py-0.5">
+                ${bodyHtml}
+              </div>
+              <div class="mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
+                <span>Meta: ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}</span>
+                <span class="font-mono font-bold ${isReminder ? 'text-amber-500' : 'text-theme-main'}">${isReminder ? 'Rutina' : (Math.round(m.customHabitsPct?.[h.id] || 0) + '%')}</span>
+              </div>
             </div>
           `;
 
@@ -9240,45 +9319,51 @@
           }
         });
 
-        // Los hábitos que aportan a estadísticas van juntos en las columnas de módulos base
-        metricCustomCards.forEach((cHtml, idx) => {
-          if (idx % 2 === 0) {
-            leftColHtml += cHtml;
-          } else {
-            rightColHtml += cHtml;
-          }
-        });
+        // Agrupar todas las tarjetas métricas activas en una cuadrícula Bento Box adaptativa
+        const todayMetricCards = [];
+        if (gymCardHtml) todayMetricCards.push(gymCardHtml);
+        if (runCardHtml) todayMetricCards.push(runCardHtml);
+        if (academicCardHtml) todayMetricCards.push(academicCardHtml);
+        if (studyCardHtml) todayMetricCards.push(studyCardHtml);
+        if (nutriCardHtml) todayMetricCards.push(nutriCardHtml);
+        metricCustomCards.forEach(c => todayMetricCards.push(c));
+
+        const gridCardsHtml = todayMetricCards.map((cHtml, idx) => {
+          // Si el número de tarjetas es impar, la última se estira al 100% (2 columnas) para un cierre perfecto sin huecos
+          const isLastAndOdd = (idx === todayMetricCards.length - 1 && todayMetricCards.length % 2 !== 0);
+          const colSpanClass = isLastAndOdd ? 'col-span-1 md:col-span-2' : '';
+          return `<div class="${colSpanClass} h-full">${cHtml}</div>`;
+        }).join('');
+
+        const remindersGridHtml = reminderCustomCards.map((cHtml, rIdx) => {
+          const isLastOddReminder = (rIdx === reminderCustomCards.length - 1 && reminderCustomCards.length % 2 !== 0);
+          const spanCls = isLastOddReminder ? 'col-span-1 md:col-span-2' : '';
+          return `<div class="${spanCls} h-full">${cHtml}</div>`;
+        }).join('');
 
         container.innerHTML = `
           ${urgentHtml}
 
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Columna Izquierda: Pilares Físicos + Hábitos Métricos -->
-            <div class="space-y-3">
-              ${leftColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
-            </div>
-
-            <!-- Columna Derecha: Pilares Intelectuales / Formativos + Hábitos Métricos -->
-            <div class="space-y-3">
-              ${rightColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
-            </div>
-
-            <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SIN IMPACTO EN SCORE) -->
-            ${reminderCustomCards.length > 0 ? `
-              <div class="col-span-1 md:col-span-2 pt-2 border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 space-y-2">
-                <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-slate-300 px-1">
-                  <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                    <span class="uppercase tracking-wider text-[10.5px] text-amber-500 font-mono">Recordatorios & Rutinas (Sin impacto en Score)</span>
-                  </div>
-                  <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  ${reminderCustomCards.join('')}
-                </div>
-              </div>
-            ` : ''}
+          <!-- CUADRÍCULA BENTO BOX ADAPTATIVA DE HOY (2 COLUMNAS) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+            ${gridCardsHtml || '<div class="col-span-1 md:col-span-2 p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>'}
           </div>
+
+          <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SIN IMPACTO EN SCORE) -->
+          ${reminderCustomCards.length > 0 ? `
+            <div class="pt-3 border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 space-y-2.5 mt-3">
+              <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-slate-300 px-1">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                  <span class="uppercase tracking-wider text-[10.5px] text-amber-500 font-mono">Recordatorios & Rutinas (Sin impacto en Score)</span>
+                </div>
+                <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
+              </div>
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+                ${remindersGridHtml}
+              </div>
+            </div>
+          ` : ''}
         `;
       }
 
@@ -9752,7 +9837,7 @@
               const emoji = (e.category || '📦').split(' ')[0] || '📦';
               const cleanCategory = (e.category || '').replace(/^[^\s]+\s*/, '');
               return `
-                <div class="hairline-row flex items-center justify-between text-xs py-1.5 px-1 hover:bg-stone-200/40 dark:hover:bg-slate-800/40 rounded-lg transition">
+                <div data-expense-id="${e.id}" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="hairline-row flex items-center justify-between text-xs py-1.5 px-1 hover:bg-stone-200/40 dark:hover:bg-slate-800/40 rounded-lg transition cursor-pointer">
                   <div class="flex items-center gap-2 truncate min-w-0">
                     <span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-slate-300 border border-stone-300 dark:border-slate-700 shrink-0">${DAYS[e.dayIndex] || 'LUN'}</span>
                     <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
@@ -9766,6 +9851,7 @@
                         <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                       </button>
                       <button onclick="app.deleteExpense('${e.id}')" class="p-1 rounded text-stone-400 hover:text-rose-400 transition" title="Eliminar gasto">✕</button>
+                      <button type="button" onclick="app.openExpenseActionsMenu(event, '${e.id}')" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                     </div>
                   </div>
                 </div>
@@ -10255,7 +10341,7 @@
 
               return `
                 <div class="pl-3 sm:pl-4 ${threadBorderClass} space-y-1 transition-colors">
-                  <div id="list-item-${sub.id}" data-item-id="${sub.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${sub.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${sub.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${sub.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${sub.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${sub.id}', event); }" class="p-1.5 rounded-xl panel-bg border border-stone-200/60 dark:border-slate-800/80 hover:border-theme flex items-center justify-between gap-2 text-[11px] transition shadow-xs draggable-card cursor-pointer ${selectClass}">
+                  <div id="list-item-${sub.id}" data-item-id="${sub.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${sub.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${sub.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${sub.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${sub.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}'); return false;" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${sub.id}', event); }" class="p-1.5 rounded-xl panel-bg border border-stone-200/60 dark:border-slate-800/80 hover:border-theme flex items-center justify-between gap-2 text-[11px] transition shadow-xs draggable-card cursor-pointer ${selectClass}">
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
                       <label class="cursor-pointer flex items-center pr-0.5 shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
                         <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="app.handleItemCheckboxToggle('${sub.id}', event)" class="rounded accent-theme-main w-3 h-3 cursor-pointer">
@@ -10281,7 +10367,7 @@
                     <!-- Acciones Descongestionadas Atenuadas -->
                     <div class="flex items-center gap-1 shrink-0 opacity-60 hover:opacity-100 transition">
                       <button type="button" onclick="app.openAddSubtaskModal('${cat}', '${sub.id}')" class="px-2 py-0.5 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-semibold text-[9px] flex items-center gap-0.5 transition" title="Añadir subnota dentro de '${sub.title.replace(/'/g, "\\'")}'"><span>+</span> Subnota</button>
-                      <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+                      <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${sub.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${sub.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                     </div>
                   </div>
 
@@ -10391,7 +10477,7 @@
               const isCollapsed = !!item.collapsed;
 
               return `
-                <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs shadow-sm draggable-card cursor-pointer ${selectClass}">
+                <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs shadow-sm draggable-card cursor-pointer ${selectClass}">
                   <!-- Cabecera de la Carpeta Permanente (Título Máxima Prioridad + •••) -->
                   <div class="flex items-center justify-between gap-2 border-b border-stone-200/70 dark:border-slate-800/80 pb-1.5">
                     <div class="flex items-center gap-1.5 flex-1 min-w-0">
@@ -10415,7 +10501,7 @@
                     <!-- Acciones Carpeta Descongestionadas con ••• -->
                     <div class="flex items-center gap-1 shrink-0 opacity-80 hover:opacity-100 transition">
                       <button type="button" onclick="app.openAddSubtaskModal('${cat}', '${item.id}')" class="px-2 py-0.5 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-bold text-[10px] transition" title="Añadir subnota o entrega a este paquete">+ Subnota</button>
-                      <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${item.id}')" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+                      <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${item.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                     </div>
                   </div>
 
@@ -10451,7 +10537,7 @@
             const allDone = hasChildren && stats.total > 0 && stats.done === stats.total;
 
             return `
-              <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}')" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs transition shadow-sm draggable-card cursor-pointer ${selectClass}">
+              <div id="list-item-${item.id}" data-item-id="${item.id}" draggable="true" ondragstart="app.handleListDragStart(event, '${cat}', '${item.id}')" ondragend="app.handleListDragEnd(event)" ondragover="app.handleListDragOver(event, '${cat}', '${item.id}')" ondragleave="app.handleListDragLeave(event)" ondrop="app.handleListDrop(event, '${cat}', '${item.id}')" ontouchstart="app.handleListTouchStart(event, '${cat}', '${item.id}')" ontouchmove="app.handleListTouchMove(event)" ontouchend="app.handleListTouchEnd(event)" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-2.5 rounded-xl subpanel-bg border ${pinClass} space-y-2 text-xs transition shadow-sm draggable-card cursor-pointer ${selectClass}">
                 <div class="flex items-start justify-between gap-2">
                   <div class="flex items-start gap-1.5 flex-1 min-w-0">
                     <label class="cursor-pointer flex items-center pr-0.5 pt-0.5 shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
@@ -10482,7 +10568,7 @@
                   <!-- Acciones Tarea con ••• -->
                   <div class="flex items-center gap-1 shrink-0 opacity-80 hover:opacity-100 transition">
                     <button type="button" onclick="app.openAddSubtaskModal('${cat}', '${item.id}')" class="px-1.5 py-0.5 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-semibold text-[10px] flex items-center gap-0.5 transition" title="Añadir subnota"><span>+</span> Subnota</button>
-                    <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${item.id}')" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+                    <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${item.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                   </div>
                 </div>
 
@@ -10516,7 +10602,7 @@
               const isSelected = selectedListItemIds.has(item.id);
               const selectClass = isSelected ? 'ring-2 ring-theme-main bg-theme-soft border-theme-main' : '';
               return `
-                <div onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-1.5 rounded-lg subpanel-bg border border-slate-800/80 flex items-center justify-between gap-2 text-xs opacity-75 hover:opacity-100 transition cursor-pointer ${selectClass}">
+                <div data-item-id="${item.id}" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" onclick="if(event.target.tagName !== 'BUTTON' && event.target.tagName !== 'INPUT' && (event.ctrlKey || event.metaKey || event.shiftKey || app.isSelectionModeActive())) { app.handleItemCheckboxToggle('${item.id}', event); }" class="p-1.5 rounded-lg subpanel-bg border border-slate-800/80 flex items-center justify-between gap-2 text-xs opacity-75 hover:opacity-100 transition cursor-pointer ${selectClass}">
                   <div class="flex items-center gap-2 flex-1 min-w-0">
                     <label class="cursor-pointer flex items-center shrink-0 ${selectionModeActive || selectedListItemIds.size > 0 ? '' : 'hidden'}" onclick="event.stopPropagation()">
                       <input type="checkbox" ${isSelected ? 'checked' : ''} onchange="app.handleItemCheckboxToggle('${item.id}', event)" class="rounded accent-theme-main w-3 h-3 cursor-pointer">
@@ -10531,6 +10617,7 @@
                   </div>
                   <div class="flex items-center gap-1">
                     <button onclick="app.deleteListItem('${cat}', '${item.id}')" class="text-slate-500 hover:text-theme-accent px-1 font-bold text-xs" title="Borrar definitivamente">✕</button>
+                    <button type="button" onclick="app.openItemActionsMenu(event, '${cat}', '${item.id}')" oncontextmenu="app.openItemActionsMenu(event, '${cat}', '${item.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                   </div>
                 </div>
               `;
@@ -10638,7 +10725,7 @@
               <div class="space-y-1.5 min-h-[90px]">
                 ${classes.length === 0 ? `<div class="text-slate-500 text-[10px] py-4 text-center">— Libre —</div>` : ''}
                 ${classes.map((c, cIdx) => `
-                  <div class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0">
+                  <div data-class-id="${dIdx}_${cIdx}" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0 cursor-pointer">
                     <div class="flex items-center justify-between gap-1 min-w-0">
                       <div class="min-w-0 flex-1 cursor-pointer hover:text-theme-main transition-colors flex items-center gap-1.5" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" title="Editar clase: ${c.subject}">
                         <span class="font-bold text-stone-900 dark:text-white truncate flex-1 min-w-0" title="${c.subject}">${c.subject}</span>
@@ -10649,6 +10736,7 @@
                           <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                         </button>
                         <button onclick="app.deleteClassFromSchedule(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-accent font-bold px-0.5 text-xs" title="Eliminar clase">✕</button>
+                        <button type="button" onclick="app.openClassActionsMenu(event, ${dIdx}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="text-slate-400 hover:text-stone-900 dark:hover:text-white p-0.5 font-bold text-xs" title="Más opciones">•••</button>
                       </div>
                     </div>
                     ${c.time ? `
@@ -10693,17 +10781,19 @@
             trafficBadge = `<span class="inline-flex items-center gap-1.5 px-2 py-0.5 rounded font-bold font-mono text-[10px] bg-theme-accent text-white font-bold animate-pulse"><span class="w-2 h-2 rounded-full bg-white inline-block shrink-0 animate-ping"></span><span>Pérdida Eval. (${info.cushion})</span></span>`;
           }
 
+          const subArg = sub.replace(/'/g, "\\'");
           return `
-            <div class="p-3.5 rounded-xl subpanel-bg border space-y-2.5">
+            <div data-subject-id="${subArg}" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="p-3.5 rounded-xl subpanel-bg border space-y-2.5 cursor-pointer">
               <div class="flex justify-between items-center border-b pb-1.5">
                 <div class="flex items-center gap-1.5">
                   <span class="font-extrabold text-sm text-white">${sub}</span>
-                  <button onclick="app.renameSubjectPrompt('${sub.replace(/'/g, "\\'")}')" class="text-slate-400 hover:text-theme-main p-1 transition" title="Renombrar asignatura en toda la app">
+                  <button onclick="app.renameSubjectPrompt('${subArg}')" class="text-slate-400 hover:text-theme-main p-1 transition" title="Renombrar asignatura en toda la app">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                   </button>
-                  <button onclick="app.deleteSubjectPrompt('${sub.replace(/'/g, "\\'")}')" class="text-slate-400 hover:text-theme-accent p-1 transition" title="Eliminar asignatura y todas sus clases de la plantilla">
+                  <button onclick="app.deleteSubjectPrompt('${subArg}')" class="text-slate-400 hover:text-theme-accent p-1 transition" title="Eliminar asignatura y todas sus clases de la plantilla">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
+                  <button type="button" onclick="app.openSubjectActionsMenu(event, '${subArg}')" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                 </div>
                 ${trafficBadge}
               </div>
@@ -10817,10 +10907,13 @@
           const subArg = sub.replace(/'/g, "\\'");
 
           return `
-            <div class="p-3 rounded-xl subpanel-bg border border-stone-200/80 dark:border-slate-800/80 space-y-2 text-xs hover:border-blue-500/50 transition shadow-xs">
+            <div data-subject-id="${subArg}" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="p-3 rounded-xl subpanel-bg border border-stone-200/80 dark:border-slate-800/80 space-y-2 text-xs hover:border-blue-500/50 transition shadow-xs cursor-pointer">
               <div class="flex items-center justify-between gap-1">
                 <span class="font-bold text-stone-900 dark:text-white truncate text-xs" title="${safeSub}">${safeSub}</span>
-                <button type="button" onclick="app.promptSetSubjectStudyHours('${subArg}')" class="font-mono font-black text-sm text-theme-main dark:text-blue-400 shrink-0 hover:underline cursor-pointer" title="Editar cifra exacta manualmente">${formatHoursToHMin(displayedHrs)}</button>
+                <div class="flex items-center gap-1.5 shrink-0">
+                  <button type="button" onclick="app.promptSetSubjectStudyHours('${subArg}')" class="font-mono font-black text-sm text-theme-main dark:text-blue-400 hover:underline cursor-pointer" title="Editar cifra exacta manualmente">${formatHoursToHMin(displayedHrs)}</button>
+                  <button type="button" onclick="app.openSubjectActionsMenu(event, '${subArg}')" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="w-5 h-5 rounded subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-[10px] transition shadow-xs" title="Más opciones">•••</button>
+                </div>
               </div>
               <div class="flex items-center justify-between text-[10px] text-stone-500 dark:text-slate-400">
                 <span>Semana: <strong class="text-stone-800 dark:text-slate-200 font-mono">${formatHoursToHMin(curWeekHrs)}</strong></span>
@@ -11603,7 +11696,7 @@
           expContainer.innerHTML = [...w.expenses].reverse().map(e => {
             const emoji = (e.category || '📦').split(' ')[0] || '📦';
             return `
-              <div class="hairline-row flex items-center justify-between text-xs py-2 px-1">
+              <div data-expense-id="${e.id}" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer">
                 <div class="flex items-center gap-2 truncate">
                   <span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-cyan-300 border border-stone-300 dark:border-slate-700 shrink-0">${DAYS[e.dayIndex] || 'LUN'}</span>
                   <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
@@ -11617,6 +11710,7 @@
                       <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                     </button>
                     <button onclick="app.deleteExpense('${e.id}')" class="p-1 rounded text-stone-400 hover:text-rose-400 transition" title="Eliminar gasto">✕</button>
+                    <button type="button" onclick="app.openExpenseActionsMenu(event, '${e.id}')" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                   </div>
                 </div>
               </div>
@@ -12378,22 +12472,21 @@
         },
 
         dismissBanner(bannerId) {
-          if (!state.ui) state.ui = {};
-          if (!state.ui.dismissedBanners) state.ui.dismissedBanners = {};
-          state.ui.dismissedBanners[bannerId] = true;
+          if (!this.dismissedBannersInMemory) this.dismissedBannersInMemory = new Set();
+          this.dismissedBannersInMemory.add(bannerId);
+          if (state.ui && state.ui.dismissedBanners) {
+            delete state.ui.dismissedBanners[bannerId];
+          }
           try {
-            sessionStorage.setItem('dismissedBanner_' + bannerId, 'true');
+            sessionStorage.removeItem('dismissedBanner_' + bannerId);
           } catch (e) {}
           const el = document.getElementById(bannerId);
           if (el) el.classList.add('hidden');
-          this.showToast('Aviso cerrado durante esta sesión.', 'info', 1400);
+          this.showToast('Aviso cerrado. Volverá a mostrarse al recargar si hay tareas pendientes.', 'info', 1600);
         },
 
         isBannerDismissed(bannerId) {
-          try {
-            if (sessionStorage.getItem('dismissedBanner_' + bannerId) === 'true') return true;
-          } catch (e) {}
-          return !!(state.ui && state.ui.dismissedBanners && state.ui.dismissedBanners[bannerId]);
+          return !!(this.dismissedBannersInMemory && this.dismissedBannersInMemory.has(bannerId));
         },
 
         showToast(message, type = 'info', duration = 3000) {
@@ -14870,23 +14963,9 @@
           saveState();
         },
 
-        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO)
-        openItemActionsMenu(event, cat, id) {
-          if (event) {
-            event.stopPropagation();
-            if (event.type === 'contextmenu') event.preventDefault();
-          }
-          const found = findNodeAndParentInTree(state.lists[cat] || [], id);
-          if (!found) return;
-          activeActionsMenuContext = { cat, id, node: found.node, isContainer: found.node.isContainer, pinned: !!found.node.pinned };
-
-          const pinTextEl = document.getElementById('listActionMenuPinText');
-          if (pinTextEl) pinTextEl.textContent = found.node.pinned ? 'Desfijar' : 'Fijar arriba';
-
-          const popover = document.getElementById('listActionMenuPopover');
+        // FUNCIONES DE APOYO Y POSICIONAMIENTO UNIVERSAL PARA MENÚS CONTEXTUALES (••• Y CLIC DERECHO)
+        positionPopoverMenu(popover, event) {
           if (!popover) return;
-
-          // Renderizar momentáneamente fuera para medir dimensiones reales
           popover.style.visibility = 'hidden';
           popover.classList.remove('hidden');
           const popWidth = popover.offsetWidth || 208;
@@ -14918,10 +14997,68 @@
           popover.style.visibility = 'visible';
         },
 
-        closeItemActionsMenu() {
-          const popover = document.getElementById('listActionMenuPopover');
-          if (popover) popover.classList.add('hidden');
+        closeAllContextMenus() {
+          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.classList.add('hidden');
+          });
           activeActionsMenuContext = null;
+          activeExpenseMenuContext = null;
+          activeHabitMenuContext = null;
+          activeClassMenuContext = null;
+          activeSubjectMenuContext = null;
+        },
+
+        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ELEMENTOS DE LISTAS
+        openItemActionsMenu(event, cat, id) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+
+          const popover = document.getElementById('listActionMenuPopover');
+          if (!popover) return false;
+
+          // Toggle: si ya está abierto para este mismo elemento y fue un clic normal, cerrarlo
+          if (!popover.classList.contains('hidden') && activeActionsMenuContext && activeActionsMenuContext.id === id && event && event.type === 'click') {
+            this.closeItemActionsMenu();
+            return false;
+          }
+
+          let targetCat = cat || state.ui.listTab || 'entregas';
+          let found = findNodeAndParentInTree(state.lists[targetCat] || [], id);
+          let actualCat = targetCat;
+          if (!found) {
+            for (const c of Object.keys(state.lists || {})) {
+              found = findNodeAndParentInTree(state.lists[c] || [], id);
+              if (found) { actualCat = c; break; }
+            }
+          }
+          if (!found) return false;
+
+          this.closeAllContextMenus();
+          activeActionsMenuContext = { cat: actualCat, id, node: found.node, isContainer: found.node.isContainer, pinned: !!found.node.pinned };
+
+          const isCompleted = !!(found.node.done || found.node.status === 'done');
+          const pinTextEl = document.getElementById('listActionMenuPinText');
+          if (pinTextEl) pinTextEl.textContent = found.node.pinned ? 'Desfijar' : 'Fijar arriba';
+
+          const restoreBtn = document.getElementById('listActionMenuRestoreBtn');
+          const nonCompletedRows = document.querySelectorAll('.list-action-non-completed');
+          if (isCompleted) {
+            if (restoreBtn) restoreBtn.classList.remove('hidden');
+            nonCompletedRows.forEach(el => el.classList.add('hidden'));
+          } else {
+            if (restoreBtn) restoreBtn.classList.add('hidden');
+            nonCompletedRows.forEach(el => el.classList.remove('hidden'));
+          }
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeItemActionsMenu() {
+          this.closeAllContextMenus();
         },
 
         triggerMenuAction(action) {
@@ -14929,7 +15066,9 @@
           const { cat, id } = activeActionsMenuContext;
           this.closeItemActionsMenu();
 
-          if (action === 'edit') {
+          if (action === 'restore') {
+            this.toggleListItemStatus(cat, id);
+          } else if (action === 'edit') {
             this.openEditListItemModal(cat, id);
           } else if (action === 'addSubtaskSeries') {
             this.openSubtaskSeriesModal(cat, id);
@@ -14945,6 +15084,161 @@
             this.moveListItem(cat, id, 1);
           } else if (action === 'delete') {
             this.deleteListItem(cat, id);
+          }
+        },
+
+        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA GASTOS
+        openExpenseActionsMenu(event, expenseId) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('expenseActionMenuPopover');
+          if (!popover) return false;
+
+          // Toggle si se hace clic repetido en el mismo botón
+          if (!popover.classList.contains('hidden') && activeExpenseMenuContext && activeExpenseMenuContext.expenseId === expenseId && event && event.type === 'click') {
+            this.closeExpenseActionsMenu();
+            return false;
+          }
+
+          this.closeAllContextMenus();
+          activeExpenseMenuContext = { expenseId };
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeExpenseActionsMenu() {
+          this.closeAllContextMenus();
+        },
+
+        triggerExpenseMenuAction(action) {
+          if (!activeExpenseMenuContext) return;
+          const { expenseId } = activeExpenseMenuContext;
+          this.closeExpenseActionsMenu();
+          if (action === 'edit') {
+            this.openEditExpenseModal(expenseId);
+          } else if (action === 'delete') {
+            this.deleteExpense(expenseId);
+          }
+        },
+
+        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA HÁBITOS PERSONALIZADOS
+        openCustomHabitActionsMenu(event, habitId) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('habitActionMenuPopover');
+          if (!popover) return false;
+
+          if (!popover.classList.contains('hidden') && activeHabitMenuContext && activeHabitMenuContext.habitId === habitId && event && event.type === 'click') {
+            this.closeCustomHabitActionsMenu();
+            return false;
+          }
+
+          this.closeAllContextMenus();
+          activeHabitMenuContext = { habitId };
+
+          const h = (state.customHabits || []).find(item => item.id === habitId);
+          const toggleTextEl = document.getElementById('habitActionMenuToggleText');
+          if (toggleTextEl && h) {
+            toggleTextEl.textContent = (h.active !== false) ? 'Pausar hábito' : 'Activar hábito';
+          }
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeCustomHabitActionsMenu() {
+          this.closeAllContextMenus();
+        },
+
+        triggerHabitMenuAction(action) {
+          if (!activeHabitMenuContext) return;
+          const { habitId } = activeHabitMenuContext;
+          this.closeCustomHabitActionsMenu();
+          if (action === 'edit') {
+            this.editCustomHabit(habitId);
+          } else if (action === 'toggle') {
+            this.toggleCustomHabit(habitId);
+          } else if (action === 'delete') {
+            this.deleteCustomHabit(habitId);
+          }
+        },
+
+        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA CLASES DEL HORARIO
+        openClassActionsMenu(event, dIdx, cIdx) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('classActionMenuPopover');
+          if (!popover) return false;
+
+          if (!popover.classList.contains('hidden') && activeClassMenuContext && activeClassMenuContext.dIdx === dIdx && activeClassMenuContext.cIdx === cIdx && event && event.type === 'click') {
+            this.closeClassActionsMenu();
+            return false;
+          }
+
+          this.closeAllContextMenus();
+          activeClassMenuContext = { dIdx, cIdx };
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeClassActionsMenu() {
+          this.closeAllContextMenus();
+        },
+
+        triggerClassMenuAction(action) {
+          if (!activeClassMenuContext) return;
+          const { dIdx, cIdx } = activeClassMenuContext;
+          this.closeClassActionsMenu();
+          if (action === 'edit') {
+            this.openEditClassScheduleModal(dIdx, cIdx);
+          } else if (action === 'delete') {
+            this.deleteClassFromSchedule(dIdx, cIdx);
+          }
+        },
+
+        // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ASIGNATURAS
+        openSubjectActionsMenu(event, subjectName) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('subjectActionMenuPopover');
+          if (!popover) return false;
+
+          if (!popover.classList.contains('hidden') && activeSubjectMenuContext && activeSubjectMenuContext.subjectName === subjectName && event && event.type === 'click') {
+            this.closeSubjectActionsMenu();
+            return false;
+          }
+
+          this.closeAllContextMenus();
+          activeSubjectMenuContext = { subjectName };
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeSubjectActionsMenu() {
+          this.closeAllContextMenus();
+        },
+
+        triggerSubjectMenuAction(action) {
+          if (!activeSubjectMenuContext) return;
+          const { subjectName } = activeSubjectMenuContext;
+          this.closeSubjectActionsMenu();
+          if (action === 'hours') {
+            this.promptSetSubjectStudyHours(subjectName);
+          } else if (action === 'stats') {
+            this.openSubjectStudyStatsModal(subjectName);
+          } else if (action === 'delete') {
+            this.deleteSubjectPrompt(subjectName);
           }
         },
 
@@ -19038,7 +19332,7 @@
             }
 
             return `
-              <div class="flex items-center justify-between p-2 rounded-xl subpanel-bg border ${isActive ? 'border-stone-300 dark:border-slate-700' : 'opacity-60 border-dashed'}">
+              <div data-habit-id="${h.id}" oncontextmenu="app.openCustomHabitActionsMenu(event, '${h.id}'); return false;" class="flex items-center justify-between p-2 rounded-xl subpanel-bg border ${isActive ? 'border-stone-300 dark:border-slate-700' : 'opacity-60 border-dashed'} cursor-pointer">
                 <div class="flex items-center gap-2.5 truncate min-w-0">
                   <span class="w-8 h-8 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
                     ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-4 h-4 text-theme-main')}
@@ -19058,6 +19352,7 @@
                   <button type="button" onclick="app.deleteCustomHabit('${h.id}')" class="p-1 rounded-lg hover:bg-stone-200 dark:hover:bg-slate-800 text-rose-500" title="Eliminar">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
                   </button>
+                  <button type="button" onclick="app.openCustomHabitActionsMenu(event, '${h.id}')" oncontextmenu="app.openCustomHabitActionsMenu(event, '${h.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                 </div>
               </div>
             `;
@@ -19232,7 +19527,7 @@
           if (selectedListItemIds.size > 0 || selectionModeActive) {
             app.clearListSelection();
           }
-          app.closeItemActionsMenu();
+          app.closeAllContextMenus();
           app.closePiggyModal();
           app.closeModal('modalShortcuts');
           app.closeModal('modalAddFixedItem');
@@ -19265,11 +19560,10 @@
 
       // CERRAR MENÚ CONTEXTUAL AL HACER CLIC FUERA
       document.addEventListener('click', (e) => {
-        const popover = document.getElementById('listActionMenuPopover');
-        if (popover && !popover.classList.contains('hidden')) {
-          if (!popover.contains(e.target) && !e.target.closest('[title="Más opciones"]')) {
-            app.closeItemActionsMenu();
-          }
+        const isActionBtn = e.target.closest('[title="Más opciones"]');
+        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover');
+        if (!isActionBtn && !isAnyMenu) {
+          app.closeAllContextMenus();
         }
 
         const palettePopover = document.getElementById('palettePickerPopover');
@@ -19277,6 +19571,14 @@
           if (!palettePopover.contains(e.target) && !e.target.closest('#palettePickerBtn')) {
             app.closePalettePicker();
           }
+        }
+      });
+
+      // CERRAR MENÚS CONTEXTUALES AL HACER CLICK DERECHO FUERA DE ELEMENTOS CONTEXTUALES
+      document.addEventListener('contextmenu', (e) => {
+        const isContextCard = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover');
+        if (!isContextCard) {
+          app.closeAllContextMenus();
         }
       });
 
@@ -19300,6 +19602,14 @@
 
       function boot() {
         loadState();
+        // Limpieza de banners cerrados persistidos en sesiones previas para que reaparezcan al recargar si hay tareas pendientes
+        if (state && state.ui && state.ui.dismissedBanners) {
+          delete state.ui.dismissedBanners;
+        }
+        try {
+          sessionStorage.removeItem('dismissedBanner_overdueMilestonesAlertBanner');
+          sessionStorage.removeItem('dismissedBanner_featuredMilestoneBanner');
+        } catch(e) {}
         // Migración de iconos vectoriales SVG para hábitos personalizados
         if (state && Array.isArray(state.customHabits)) {
           state.customHabits.forEach(h => {
