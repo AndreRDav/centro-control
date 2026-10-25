@@ -5736,7 +5736,11 @@
       const SVG_ICON_LIBRARY = {
         // --- 1. FITNESS & DEPORTE ---
         'dumbbell': { name: 'Pesas / Gym', cat: 'fitness', tags: 'pesas gym fitness entrenamiento fuerza gimnasio musculacion', svg: '<path d="M6 5v14M18 5v14M6 12h12M3 8v8M21 8v8"/>' },
-        'run': { name: 'Running / Carrera', cat: 'fitness', tags: 'correr run running cardio trotar sprint zapatilla', svg: '<path d="M19 14l-4-4M15 10l-3 3 2 4M10 13l-4 4M12 4a2 2 0 1 0 0-4 2 2 0 0 0 0 4zM7 10l4-3 4 3"/>' },
+        'run': { name: 'Running / Carrera', cat: 'fitness', tags: 'correr run running cardio trotar sprint zapatilla km maraton', svg: '<circle cx="17" cy="4" r="2"/><path d="M15 8h-3l-2.5 4.5 3 2.5v5"/><path d="m9 13.5-3 3.5v4"/><path d="M11 8 8 5 4 7"/>' },
+        'bike': { name: 'Bicicleta / Ciclo', cat: 'fitness', tags: 'bici bicicleta ciclismo spinning cardio ruta paseo', svg: '<circle cx="5.5" cy="17.5" r="3.5"/><circle cx="18.5" cy="17.5" r="3.5"/><path d="M15 6a1 1 0 1 0 0-2 1 1 0 0 0 0 2zm-3 11.5L9 11l3-5 4 4h3M5.5 17.5l4-6.5"/>' },
+        'waves': { name: 'Natación / Surf', cat: 'fitness', tags: 'nadar natacion olas mar piscina surf agua', svg: '<path d="M2 6c.6.5 1.2 1 2.5 1C7 7 7 5 9.5 5c2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 12c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1M2 18c.6.5 1.2 1 2.5 1 2.5 0 2.5-2 5-2 2.6 0 2.4 2 5 2 2.5 0 2.5-2 5-2 1.3 0 1.9.5 2.5 1"/>' },
+        'shield': { name: 'Escudo / Disciplina', cat: 'fitness', tags: 'escudo defensa artes marciales seguridad proteccion disciplina', svg: '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>' },
+        'medal': { name: 'Medalla / Logro', cat: 'fitness', tags: 'medalla premio victoria podio honor merito record', svg: '<path d="M7.21 15 2.66 7.14a2 2 0 0 1 .13-2.2L4.4 2.8A2 2 0 0 1 6 2h12a2 2 0 0 1 1.6.8l1.6 2.14a2 2 0 0 1 .14 2.2L16.79 15"/><circle cx="12" cy="17" r="5"/>' },
         'flame': { name: 'Fuego / Calorías', cat: 'fitness', tags: 'fuego calorias quema energia intensidad racha', svg: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>' },
         'heart': { name: 'Corazón / Cardio', cat: 'fitness', tags: 'corazon cardio salud pulso vida esfuerzo', svg: '<path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>' },
         'activity': { name: 'Pulso / Actividad', cat: 'fitness', tags: 'pulso actividad frecuencia cardio electrocardiograma', svg: '<path d="M22 12h-4l-3 9L9 3l-3 9H2"/>' },
@@ -5770,7 +5774,18 @@
         // --- 4. FINANZAS & CONSUMO ---
         'cart': { name: 'Supermercado / Compra', cat: 'finance', tags: 'compra carrito super supermercado mercadona viveres comida', svg: '<circle cx="9" cy="21" r="1"/><circle cx="20" cy="21" r="1"/><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"/>' },
         'wallet': { name: 'Cartera / Efectivo', cat: 'finance', tags: 'cartera dinero billetes efectivo sueldo pagos presupuesto', svg: '<path d="M21 12V7H5a2 2 0 0 1 0-4h14v4M3 5v14a2 2 0 0 0 2 2h16v-5M18 12a2 2 0 0 0 0 4h4v-4Z"/>' },
-        'piggy': { name: 'Hucha / Ahorro', cat: 'finance', tags: 'hucha cerdito ahorro sobrante guardar futuro', svg: '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-2.5 1-3.5-.5-8.5-1-8.5Z"/><circle cx="8" cy="11" r="1"/>' },
+        'piggy': { name: 'Hucha / Ahorro', cat: 'finance', tags: 'hucha cerdito ahorro sobrante guardar futuro cerdito monedas', svg: '<path d="M19 5c-1.5 0-2.8 1.4-3 2-3.5-1.5-11-.3-11 5 0 1.8 0 3 2 4.5V20h4v-2h3v2h4v-4c1-.5 1.5-1 2-2.5 1-3.5-.5-8.5-1-8.5Z"/><path d="M2 9v1c0 1.1.9 2 2 2h1"/><path d="M16 11h.01"/><path d="M10 5v2"/>' },
+        'coins': { name: 'Monedas / Dinero', cat: 'finance', tags: 'monedas suelto cash dinero cambio ahorro', svg: '<circle cx="8" cy="8" r="6"/><path d="M18.09 10.37A6 6 0 1 1 10.34 18M7 6h1v4M17 12h1v4"/>' },
+        'trending-up': { name: 'Inversión / Subida', cat: 'finance', tags: 'inversion bolsa finanzas grafico subida mejora rendimiento rentabilidad', svg: '<polyline points="22 7 13.5 15.5 8.5 10.5 2 17"/><polyline points="16 7 22 7 22 13"/>' },
+        'brain': { name: 'Cerebro / Mente', cat: 'health', tags: 'cerebro mente foco mental meditacion memoria concentracion salud', svg: '<path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 4.44-5.04zM14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-4.44-5.04z"/>' },
+        'bed': { name: 'Cama / Sueño', cat: 'health', tags: 'cama dormir siesta descanso noche hotel relajacion 8h', svg: '<path d="M2 4v16M2 8h18a2 2 0 0 1 2 2v10M2 17h20M6 8v9"/>' },
+        'smile': { name: 'Sonrisa / Ánimo', cat: 'health', tags: 'sonrisa animo humor felicidad psicologia positivo bienestar', svg: '<circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2M9 9h.01M15 9h.01"/>' },
+        'sparkles': { name: 'Brillo / Rutina', cat: 'lifestyle', tags: 'brillo magia habitos rutina exito inspiracion estrellas', svg: '<path d="m12 3-1.9 5.8a2 2 0 0 1-1.3 1.3L3 12l5.8 1.9a2 2 0 0 1 1.3 1.3L12 21l1.9-5.8a2 2 0 0 1 1.3-1.3L21 12l-5.8-1.9a2 2 0 0 1-1.3-1.3Z"/>' },
+        'calendar': { name: 'Calendario / Agenda', cat: 'study', tags: 'calendario fecha dia evento plan organizacion agenda', svg: '<rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/>' },
+        'bookmark': { name: 'Marcador / Lectura', cat: 'study', tags: 'marcador guardar pagina libro capitulo lectura', svg: '<path d="m19 21-7-4-7 4V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2v16z"/>' },
+        'headphones': { name: 'Auriculares / Audio', cat: 'lifestyle', tags: 'auriculares musica podcast audio concentracion estudio canciones sonido', svg: '<path d="M3 14h3a2 2 0 0 1 2 2v3a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-7a9 9 0 0 1 18 0v7a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3"/>' },
+        'camera': { name: 'Cámara / Fotos', cat: 'lifestyle', tags: 'camara fotos recuerdos fotografia contenido video redes', svg: '<path d="M14.5 4h-5L7 7H4a2 2 0 0 0-2 2v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V9a2 2 0 0 0-2-2h-3l-2.5-3z"/><circle cx="12" cy="13" r="3"/>' },
+        'users': { name: 'Gente / Social', cat: 'lifestyle', tags: 'amigos familia grupo personas comunidad reunion social amigos', svg: '<path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87M16 3.13a4 4 0 0 1 0 7.75"/>' },
         'credit-card': { name: 'Tarjeta / Banco', cat: 'finance', tags: 'tarjeta credito debito banco cuenta visa mastercard pago', svg: '<rect width="20" height="14" x="2" y="5" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/>' },
         'receipt': { name: 'Ticket / Factura', cat: 'finance', tags: 'ticket recibo factura cuenta gasto desglose', svg: '<path d="M4 2v20l2-1 2 1 2-1 2 1 2-1 2 1 2-1 2 1V2l-2 1-2-1-2 1-2-1-2 1-2-1-2 1-2-1Z"/><path d="M8 7h8M8 11h8M8 15h5"/>' },
         'fuel': { name: 'Gasolina / Transporte', cat: 'finance', tags: 'gasolina combustible coche moto repostar transporte diesel', svg: '<path d="M3 22h12M4 9h10M14 22V4a2 2 0 0 0-2-2H6a2 2 0 0 0-2 2v18M14 13h2a2 2 0 0 1 2 2v2a2 2 0 0 0 2 2 2 2 0 0 0 2-2V9.83a2 2 0 0 0-.59-1.42L18 5"/>' },
@@ -7346,6 +7361,7 @@
       }
 
       function renderProgressCell(pct, realStr, streakSem) {
+        const streakPart = (streakSem !== null && streakSem !== undefined && Number(streakSem) > 0) ? ` • ${streakSem}s` : '';
         if (pct >= 120) {
           return `
             <div class="inline-flex flex-col items-center justify-center gap-0.5 px-1.5 py-1 rounded-xl bg-theme-accent-soft border border-theme-accent/60 shadow-2xs text-center w-full mx-auto">
@@ -7354,7 +7370,7 @@
                 <span>RÉCORD</span>
               </span>
               <span class="font-black font-mono text-[12px] text-theme-accent leading-tight">${realStr}</span>
-              <div class="text-[8px] text-theme-accent font-mono font-bold opacity-90 leading-tight">${Math.round(pct)}% • ${streakSem}s</div>
+              <div class="text-[8px] text-theme-accent font-mono font-bold opacity-90 leading-tight">${Math.round(pct)}%${streakPart}</div>
             </div>
           `;
         }
@@ -7366,14 +7382,14 @@
                 <span>META</span>
               </span>
               <span class="font-black font-mono text-[12px] text-theme-main leading-tight">${realStr}</span>
-              <div class="text-[8px] text-theme-main font-mono font-bold opacity-90 leading-tight">${Math.round(pct)}% • ${streakSem}s</div>
+              <div class="text-[8px] text-theme-main font-mono font-bold opacity-90 leading-tight">${Math.round(pct)}%${streakPart}</div>
             </div>
           `;
         }
         return `
           <div class="text-center space-y-0.5 py-0.5">
             <div class="font-extrabold font-mono text-[11.5px] text-theme-main leading-tight">${realStr}</div>
-            <div class="text-[8.5px] text-stone-500 dark:text-slate-400 font-mono font-medium leading-tight">${Math.round(pct)}% • ${streakSem}s</div>
+            <div class="text-[8.5px] text-stone-500 dark:text-slate-400 font-mono font-medium leading-tight">${Math.round(pct)}%${streakPart}</div>
           </div>
         `;
       }
@@ -9014,6 +9030,15 @@
 
         // Generar tarjetas para hábitos personalizados activos
         const customCards = activeHabits.map(h => {
+          // Si el hábito es de tipo check diario y hoy no está programado, no mostrarlo en la lista activa de hoy
+          const isScheduledToday = (h.dailySlots && Array.isArray(h.dailySlots))
+            ? (Number(h.dailySlots[dIdx]) > 0)
+            : (Array.isArray(h.activeDays) ? h.activeDays.includes(dIdx) : true);
+
+          if (h.type === 'binary_check' && !isScheduledToday) {
+            return '';
+          }
+
           const dayVal = (habitsData[h.id] || [])[dIdx];
           let bodyHtml = '';
 
@@ -9048,15 +9073,49 @@
               </div>
             `;
           } else if (h.type === 'binary_check') {
-            const isChecked = dayVal === true || dayVal === 1 || dayVal === 'true';
-            bodyHtml = `
-              <div class="pt-1 flex items-center justify-between">
-                <span class="text-[10px] text-stone-500">Completado hoy:</span>
-                <button onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="px-3 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg text-stone-500'}">
-                  ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>'}
-                </button>
-              </div>
-            `;
+            const daySlots = (h.dailySlots && Array.isArray(h.dailySlots) && h.dailySlots[dIdx] !== undefined)
+              ? Number(h.dailySlots[dIdx])
+              : (Number(h.slotsCount) || 1);
+
+            const now = new Date();
+            const currentHourStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+            const isRealToday = isActuallyToday;
+
+            if (daySlots <= 1) {
+              const isChecked = (dayVal === true || dayVal === 1 || dayVal === 'true' || (Array.isArray(dayVal) && dayVal[0]));
+              const slotHour = (h.slotLabels && h.slotLabels[0]) || h.fixedHour || '';
+              const isLate = (isRealToday && slotHour && currentHourStr > slotHour && !isChecked);
+
+              bodyHtml = `
+                <div class="pt-1 flex items-center justify-between gap-2">
+                  <div class="flex items-center gap-1.5 text-[10px] font-mono ${isLate ? 'text-amber-500 font-bold' : 'text-stone-400'}">
+                    ${slotHour ? `<span>${isLate ? '⚠️ Atrasado (' + slotHour + ')' : '⏰ ' + slotHour}</span>` : '<span>Estado:</span>'}
+                  </div>
+                  <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-2.5 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg text-stone-500 hover:border-theme')}">
+                    ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (isLate ? '<span class="text-[10px] font-black">!</span> <span>Pendiente</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>')}
+                  </button>
+                </div>
+              `;
+            } else {
+              bodyHtml = `
+                <div class="pt-1.5 space-y-1">
+                  <div class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Tomas de hoy (${daySlots}):</div>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${Array.from({length: daySlots}).map((_, sIdx) => {
+                      const isSlotChk = Array.isArray(dayVal) ? !!dayVal[sIdx] : (sIdx === 0 && (dayVal === true || dayVal === 1));
+                      const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
+                      const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
+                      return `
+                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[70px] py-1 px-2 rounded-lg border text-[11px] font-bold transition flex items-center justify-center gap-1 ${isSlotChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}">
+                          ${isSlotChk ? '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                          <span>${slotHour || ('Toma ' + (sIdx + 1))}</span>
+                        </button>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
           } else if (h.type === 'target_range') {
             const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
             const c = Number(h.targetCenter) || 0;
@@ -9080,7 +9139,7 @@
             <div class="p-3 rounded-xl subpanel-bg border space-y-1.5">
               <div class="flex items-center gap-2">
                 <span class="w-6 h-6 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
-                  ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                  ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
                 </span>
                 <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
               </div>
@@ -9090,7 +9149,7 @@
         });
 
         // Repartir armónicamente los hábitos personalizados entre la columna izquierda y derecha para un flujo unificado y natural
-        customCards.forEach((cardHtml, idx) => {
+        customCards.filter(Boolean).forEach((cardHtml, idx) => {
           if (idx % 2 === 0) {
             leftColHtml += cardHtml;
           } else {
@@ -9385,7 +9444,7 @@
           let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]">
             <div class="flex items-center gap-1">
               <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center text-theme-main shrink-0">
-                ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3 h-3 text-theme-main')}
+                ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3 h-3 text-theme-main')}
               </span>
               <span class="text-[11px] truncate">${escapeHtml(h.name)}</span>
             </div>
@@ -9417,14 +9476,56 @@
                 </td>
               `;
             } else if (h.type === 'binary_check') {
-              const isChk = val === true || val === 1 || val === 'true';
-              hRow += `
-                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
-                  <button type="button" onclick="app.toggleHabitDayCheck(${dIdx}, '${h.id}')" class="w-6 h-6 mx-auto rounded border flex items-center justify-center transition ${isChk ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400'}">
-                    ${isChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
-                  </button>
-                </td>
-              `;
+              const isScheduledDay = (h.dailySlots && Array.isArray(h.dailySlots))
+                ? (Number(h.dailySlots[dIdx]) > 0)
+                : (Array.isArray(h.activeDays) ? h.activeDays.includes(dIdx) : true);
+
+              if (!isScheduledDay) {
+                hRow += `
+                  <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                    <span class="text-stone-300 dark:text-slate-600 text-xs font-mono select-none opacity-40">—</span>
+                  </td>
+                `;
+              } else {
+                const daySlots = (h.dailySlots && Array.isArray(h.dailySlots) && h.dailySlots[dIdx] !== undefined)
+                  ? Number(h.dailySlots[dIdx])
+                  : (Number(h.slotsCount) || 1);
+
+                const now = new Date();
+                const currentHourStr = String(now.getHours()).padStart(2, '0') + ':' + String(now.getMinutes()).padStart(2, '0');
+                const isRealToday = isToday && !isWeekOverdue(w.weekNum);
+
+                if (daySlots <= 1) {
+                  const isChk = (val === true || val === 1 || val === 'true' || (Array.isArray(val) && val[0]));
+                  const slotHour = (h.slotLabels && h.slotLabels[0]) || h.fixedHour || '';
+                  const isLate = (isRealToday && slotHour && currentHourStr > slotHour && !isChk);
+
+                  hRow += `
+                    <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                      <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-5.5 h-5.5 mx-auto rounded-lg border flex items-center justify-center transition active:scale-95 ${isChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1.5 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
+                        ${isChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[9px] font-black">!</span>' : '')}
+                      </button>
+                    </td>
+                  `;
+                } else {
+                  hRow += `
+                    <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                      <div class="flex items-center justify-center gap-1 flex-wrap">
+                        ${Array.from({length: daySlots}).map((_, sIdx) => {
+                          const isSlotChk = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1));
+                          const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
+                          const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
+                          return `
+                            <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="w-4.5 h-4.5 rounded border flex items-center justify-center transition active:scale-95 ${isSlotChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}" title="${slotHour ? 'Hora: ' + slotHour + (isSlotLate ? ' (Atrasado)' : '') : 'Toma ' + (sIdx+1)}">
+                              ${isSlotChk ? '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : (isSlotLate ? '<span class="text-[8px] font-black">!</span>' : '')}
+                            </button>
+                          `;
+                        }).join('')}
+                      </div>
+                    </td>
+                  `;
+                }
+              }
             } else if (h.type === 'target_range') {
               const cur = val !== null && val !== undefined ? Number(val) : '';
               const inRange = cur !== '' && Math.abs(Number(cur) - Number(h.targetCenter)) <= Number(h.targetMargin);
@@ -10318,7 +10419,7 @@
           const customHabitsList = (state.customHabits || []).map(h => ({
             key: h.id,
             label: h.name,
-            iconId: h.iconId || h.emoji || 'star',
+            iconId: h.iconId || h.icon || h.emoji || 'star',
             isBase: false,
             active: h.active !== false
           }));
@@ -18386,6 +18487,31 @@
 
 
 
+        toggleDailySlotsCustom(isChecked) {
+          const row = document.getElementById('habitDailySlotsInputsRow');
+          const actDaysBox = document.getElementById('habitActiveDaysStandardBox');
+          const hourBox = document.getElementById('habitSingleHourBox');
+          const modeLabel = document.getElementById('habitSlotsModeLabel');
+
+          if (row) row.classList.toggle('hidden', !isChecked);
+          if (actDaysBox) actDaysBox.classList.toggle('hidden', isChecked);
+          if (hourBox) hourBox.classList.toggle('hidden', isChecked);
+
+          if (modeLabel) {
+            modeLabel.textContent = isChecked ? 'Casillas Variables por Día (L – D)' : 'Check Tradicional (1 toma)';
+          }
+
+          if (isChecked) {
+            const slotsCount = Math.max(1, parseInt(document.getElementById('habitSlotsCount')?.value, 10) || 1);
+            for (let d = 0; d < 7; d++) {
+              const inp = document.getElementById('habitDailySlot_' + d);
+              if (inp && (!inp.value || inp.value === '0')) {
+                inp.value = slotsCount;
+              }
+            }
+          }
+        },
+
         onHabitTypeChange(type, currentValues = {}) {
           const box = document.getElementById('habitParamsBox');
           if (!box) return;
@@ -18551,6 +18677,7 @@
             name,
             type,
             icon,
+            iconId: icon,
             emoji,
             active: true,
             isReminderOnly
@@ -18619,6 +18746,7 @@
           this.resetHabitForm();
           this.renderCustomHabitsList();
           renderDailyHabits();
+          renderTab2();
           renderHeaderAndKPIs();
           updateHeaderDailyProgress();
           saveState();
@@ -18998,6 +19126,13 @@
 
       function boot() {
         loadState();
+        // Migración de iconos vectoriales SVG para hábitos personalizados
+        if (state && Array.isArray(state.customHabits)) {
+          state.customHabits.forEach(h => {
+            if (!h.iconId && h.icon) h.iconId = h.icon;
+            if (!h.icon && h.iconId) h.icon = h.iconId;
+          });
+        }
         applyAccentPalette(state.themePalette || 'emerald');
         app.switchTab(state.activeTab || 1);
         renderApp();
