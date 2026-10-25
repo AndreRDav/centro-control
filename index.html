@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es" class="dark">
 <head>
   <meta charset="UTF-8" />
@@ -8269,12 +8269,47 @@
 
         grid.innerHTML = html;
 
-        // Drawer informativo con las notas del día seleccionado
+        // Drawer informativo con las notas y hábitos del día seleccionado
         if (drawer) {
           if (miniCalendarState.selectedDateStr && dateNotesMap[miniCalendarState.selectedDateStr]) {
             const list = dateNotesMap[miniCalendarState.selectedDateStr];
             const parts = miniCalendarState.selectedDateStr.split('-');
             const selFormatted = `${parseInt(parts[2], 10)} de ${monthNames[parseInt(parts[1], 10) - 1]}`;
+
+            // Hábitos activos para el día seleccionado de la semana
+            let selectedHabitsHtml = '';
+            const selDateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            const selDayOfWeek = (selDateObj.getDay() + 6) % 7; // Lunes=0..Domingo=6
+            const dayHabits = (state?.customHabits || []).filter(h => {
+              if (h.active === false) return false;
+              if (h.dailySlots && Array.isArray(h.dailySlots)) return Number(h.dailySlots[selDayOfWeek]) > 0;
+              const aDays = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
+              return aDays.includes(selDayOfWeek);
+            });
+            if (dayHabits.length > 0) {
+              selectedHabitsHtml = `
+                <div class="p-2 rounded-xl subpanel-bg border border-theme/30 space-y-1.5 my-1.5">
+                  <div class="text-[9.5px] font-bold text-theme-main uppercase tracking-wider flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-theme-main"></span>
+                    <span>Rutinas & Hábitos del día (${dayHabits.length}):</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${dayHabits.map(h => {
+                      const hSlots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[selDayOfWeek]) : (Number(h.slotsCount) || 1);
+                      const hHour = (h.slotLabels && h.slotLabels[0]) || h.fixedHour || '';
+                      return `
+                        <div class="px-2 py-1 rounded-lg panel-bg border border-stone-200 dark:border-slate-700/80 text-[10px] flex items-center gap-1.5 shadow-2xs">
+                          <span class="w-3.5 h-3.5 text-theme-main flex items-center justify-center">${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3 h-3')}</span>
+                          <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[110px]">${escapeHtml(h.name)}</span>
+                          ${hHour ? `<span class="font-mono text-[9px] text-amber-500 font-bold bg-amber-500/10 px-1 rounded">${hHour}</span>` : ''}
+                          ${hSlots > 1 ? `<span class="font-mono text-[8.5px] text-stone-400">×${hSlots}</span>` : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
 
             drawer.classList.remove('hidden');
             drawer.innerHTML = `
@@ -8309,11 +8344,51 @@
           } else if (miniCalendarState.selectedDateStr) {
             const parts = miniCalendarState.selectedDateStr.split('-');
             const selFormatted = `${parseInt(parts[2], 10)} de ${monthNames[parseInt(parts[1], 10) - 1]}`;
+
+            // Hábitos activos para el día seleccionado de la semana
+            let emptyHabitsHtml = '';
+            const selDateObj = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+            const selDayOfWeek = (selDateObj.getDay() + 6) % 7;
+            const dayHabits = (state?.customHabits || []).filter(h => {
+              if (h.active === false) return false;
+              if (h.dailySlots && Array.isArray(h.dailySlots)) return Number(h.dailySlots[selDayOfWeek]) > 0;
+              const aDays = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
+              return aDays.includes(selDayOfWeek);
+            });
+            if (dayHabits.length > 0) {
+              emptyHabitsHtml = `
+                <div class="p-2 rounded-xl subpanel-bg border border-theme/30 space-y-1.5 my-1.5">
+                  <div class="text-[9.5px] font-bold text-theme-main uppercase tracking-wider flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full bg-theme-main"></span>
+                    <span>Rutinas & Hábitos del día (${dayHabits.length}):</span>
+                  </div>
+                  <div class="flex flex-wrap gap-1.5">
+                    ${dayHabits.map(h => {
+                      const hSlots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[selDayOfWeek]) : (Number(h.slotsCount) || 1);
+                      const hHour = (h.slotLabels && h.slotLabels[0]) || h.fixedHour || '';
+                      return `
+                        <div class="px-2 py-1 rounded-lg panel-bg border border-stone-200 dark:border-slate-700/80 text-[10px] flex items-center gap-1.5 shadow-2xs">
+                          <span class="w-3.5 h-3.5 text-theme-main flex items-center justify-center">${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3 h-3')}</span>
+                          <span class="font-bold text-stone-800 dark:text-stone-200 truncate max-w-[110px]">${escapeHtml(h.name)}</span>
+                          ${hHour ? `<span class="font-mono text-[9px] text-amber-500 font-bold bg-amber-500/10 px-1 rounded">${hHour}</span>` : ''}
+                          ${hSlots > 1 ? `<span class="font-mono text-[8.5px] text-stone-400">×${hSlots}</span>` : ''}
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              `;
+            }
+
             drawer.classList.remove('hidden');
             drawer.innerHTML = `
-              <div class="flex items-center justify-between text-stone-500 dark:text-slate-400 text-[10px]">
-                <span>No hay notas ni entregas para el ${selFormatted}.</span>
-                <button type="button" onclick="app.selectCalendarDate(null)" class="text-[10px] text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 font-bold">✕</button>
+              <div class="flex items-center justify-between pb-1">
+                <span class="font-bold text-[10px] uppercase tracking-wider text-theme-main font-mono">${selFormatted}</span>
+                <button type="button" onclick="app.selectCalendarDate(null)" class="text-[10px] text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 font-bold">✕ Cerrar</button>
+              </div>
+              ${emptyHabitsHtml}
+              <div class="text-stone-500 dark:text-slate-400 text-[10px] italic pt-0.5">
+                Sin notas ni entregas asignadas a esta fecha.
               </div>
             `;
           } else {
@@ -8419,7 +8494,7 @@
           batteryData.push({
             id: h.id,
             name: h.name,
-            icon: h.iconId || h.emoji || 'star',
+            icon: h.iconId || h.icon || h.emoji || 'star',
             pct: m.customHabitsPct[h.id] || 0
           });
         });
@@ -9028,15 +9103,18 @@
           `;
         }
 
-        // Generar tarjetas para hábitos personalizados activos
-        const customCards = activeHabits.map(h => {
+        // Generar tarjetas para hábitos personalizados activos (separando métricos y recordatorios)
+        const metricCustomCards = [];
+        const reminderCustomCards = [];
+
+        activeHabits.forEach(h => {
           // Si el hábito es de tipo check diario y hoy no está programado, no mostrarlo en la lista activa de hoy
           const isScheduledToday = (h.dailySlots && Array.isArray(h.dailySlots))
             ? (Number(h.dailySlots[dIdx]) > 0)
             : (Array.isArray(h.activeDays) ? h.activeDays.includes(dIdx) : true);
 
           if (h.type === 'binary_check' && !isScheduledToday) {
-            return '';
+            return;
           }
 
           const dayVal = (habitsData[h.id] || [])[dIdx];
@@ -9091,23 +9169,23 @@
                   <div class="flex items-center gap-1.5 text-[10px] font-mono ${isLate ? 'text-amber-500 font-bold' : 'text-stone-400'}">
                     ${slotHour ? `<span>${isLate ? '⚠️ Atrasado (' + slotHour + ')' : '⏰ ' + slotHour}</span>` : '<span>Estado:</span>'}
                   </div>
-                  <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-2.5 py-1 rounded-lg border text-xs font-bold transition flex items-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg text-stone-500 hover:border-theme')}">
-                    ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (isLate ? '<span class="text-[10px] font-black">!</span> <span>Pendiente</span>' : '<span class="w-3 h-3 rounded-xs border border-stone-400 inline-block"></span> <span>Pendiente</span>')}
+                  <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition flex items-center gap-2 cursor-pointer ${isChecked ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs')}">
+                    ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span> <span>Pendiente</span>' : '<span class="w-3.5 h-3.5 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span> <span>Pendiente</span>')}
                   </button>
                 </div>
               `;
             } else {
               bodyHtml = `
-                <div class="pt-1.5 space-y-1">
+                <div class="pt-1.5 space-y-1.5">
                   <div class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Tomas de hoy (${daySlots}):</div>
-                  <div class="flex flex-wrap gap-1.5">
+                  <div class="flex flex-wrap gap-2">
                     ${Array.from({length: daySlots}).map((_, sIdx) => {
                       const isSlotChk = Array.isArray(dayVal) ? !!dayVal[sIdx] : (sIdx === 0 && (dayVal === true || dayVal === 1));
                       const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
                       const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
                       return `
-                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[70px] py-1 px-2 rounded-lg border text-[11px] font-bold transition flex items-center justify-center gap-1 ${isSlotChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}">
-                          ${isSlotChk ? '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
+                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[75px] py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs')}">
+                          ${isSlotChk ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<span class="w-3 h-3 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span>'}
                           <span>${slotHour || ('Toma ' + (sIdx + 1))}</span>
                         </button>
                       `;
@@ -9135,50 +9213,68 @@
             `;
           }
 
-          return `
-            <div class="p-3 rounded-xl subpanel-bg border border-l-3 border-l-theme-main bg-theme-main/[0.025] dark:bg-theme-main/[0.035] space-y-1.5">
+          const isReminder = !!h.isReminderOnly;
+          const cardBorderColor = isReminder ? 'border-l-3 border-l-amber-500 bg-amber-500/[0.02] dark:bg-amber-500/[0.03]' : 'border-l-3 border-l-theme-main bg-theme-main/[0.025] dark:bg-theme-main/[0.035]';
+          const iconBorderColor = isReminder ? 'border-amber-500/30 text-amber-500' : 'border-theme/30 text-theme-main';
+          const iconColor = isReminder ? 'text-amber-500' : 'text-theme-main';
+
+          const cardHtml = `
+            <div class="p-3 rounded-xl subpanel-bg border ${cardBorderColor} space-y-1.5">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <span class="w-6 h-6 rounded-lg subpanel-bg border border-theme/30 flex items-center justify-center text-theme-main shrink-0 shadow-2xs">
-                    ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                  <span class="w-6 h-6 rounded-lg subpanel-bg border ${iconBorderColor} flex items-center justify-center ${iconColor} shrink-0 shadow-2xs">
+                    ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3.5 h-3.5 ${iconColor}`)}
                   </span>
                   <span class="font-bold text-xs truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
                 </div>
-                ${h.isReminderOnly ? '<span class="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30 font-mono shrink-0">Recordatorio</span>' : '<span class="text-[8.5px] font-mono text-stone-400 font-bold uppercase shrink-0">Hábito</span>'}
+                ${isReminder ? '<span class="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30 font-mono shrink-0">Recordatorio</span>' : '<span class="text-[8.5px] font-mono text-stone-400 font-bold uppercase shrink-0">Hábito</span>'}
               </div>
               ${bodyHtml}
             </div>
           `;
+
+          if (isReminder) {
+            reminderCustomCards.push(cardHtml);
+          } else {
+            metricCustomCards.push(cardHtml);
+          }
         });
 
-        const validCustomCards = customCards.filter(Boolean);
+        // Los hábitos que aportan a estadísticas van juntos en las columnas de módulos base
+        metricCustomCards.forEach((cHtml, idx) => {
+          if (idx % 2 === 0) {
+            leftColHtml += cHtml;
+          } else {
+            rightColHtml += cHtml;
+          }
+        });
 
         container.innerHTML = `
           ${urgentHtml}
 
           <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
-            <!-- Columna Izquierda: Pilares Físicos Base -->
+            <!-- Columna Izquierda: Pilares Físicos + Hábitos Métricos -->
             <div class="space-y-3">
               ${leftColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
             </div>
 
-            <!-- Columna Derecha: Pilares Intelectuales / Formativos Base -->
+            <!-- Columna Derecha: Pilares Intelectuales / Formativos + Hábitos Métricos -->
             <div class="space-y-3">
               ${rightColHtml || '<div class="p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos activos en esta columna</div>'}
             </div>
 
-            <!-- SECCIÓN EXCLUSIVA Y DISTINTIVA DE HÁBITOS & RUTINAS -->
-            ${validCustomCards.length > 0 ? `
+            <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SIN IMPACTO EN SCORE) -->
+            ${reminderCustomCards.length > 0 ? `
               <div class="col-span-1 md:col-span-2 pt-2 border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 space-y-2">
                 <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-slate-300 px-1">
                   <div class="flex items-center gap-1.5">
-                    <span class="w-2 h-2 rounded-full bg-theme-main"></span>
-                    <span class="uppercase tracking-wider text-[10.5px] text-theme-main font-mono">Hábitos Personales & Rutinas</span>
+                    <span class="w-2 h-2 rounded-full bg-amber-500"></span>
+                    <span class="uppercase tracking-wider text-[10.5px] text-amber-500 font-mono">Recordatorios & Rutinas (Sin impacto en Score)</span>
                   </div>
-                  <span class="text-[9.5px] text-stone-400 font-mono">${validCustomCards.length} activos hoy</span>
+                  <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
                 </div>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-2.5">
-                  ${validCustomCards.join('')}
+                  ${reminderCustomCards.join('')}
                 </div>
               </div>
             ` : ''}
@@ -9451,30 +9547,24 @@
         if (enabled.nutri) rowsHtml += `<tr>${nutriHtml}</tr>`;
         if (enabled.budget) rowsHtml += `<tr>${spendHtml}</tr>`;
 
-        // Filas para Hábitos Personalizados en la Matriz Semanal (con divisor y estilo distintivo)
-        if (activeHabits.length > 0) {
-          rowsHtml += `
-            <tr class="border-t-2 border-stone-300 dark:border-slate-700/80 bg-stone-100/70 dark:bg-slate-800/60">
-              <td colspan="9" class="py-1 px-2.5 text-left font-bold text-[9px] tracking-wider text-theme-main uppercase">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-1.5 h-1.5 rounded-full bg-theme-main"></span>
-                  <span>Hábitos Personales & Rutinas</span>
-                </div>
-              </td>
-            </tr>
-          `;
-        }
+        const metricHabits = activeHabits.filter(h => !h.isReminderOnly);
+        const reminderHabits = activeHabits.filter(h => !!h.isReminderOnly);
 
-        activeHabits.forEach(h => {
-          let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%] border-l-3 border-l-theme-main pl-1.5">
+        function buildHabitRowHtml(h) {
+          const isReminder = !!h.isReminderOnly;
+          const borderLClass = isReminder ? 'border-l-3 border-l-amber-500 pl-1.5' : 'border-l-3 border-l-theme-main pl-1.5';
+          const iconColorClass = isReminder ? 'text-amber-500' : 'text-theme-main';
+
+          let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%] ${borderLClass}">
             <div class="flex items-center gap-1">
-              <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center text-theme-main shrink-0">
-                ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3 h-3 text-theme-main')}
+              <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center ${iconColorClass} shrink-0">
+                ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3 h-3 ${iconColorClass}`)}
               </span>
               <span class="text-[11px] truncate">${escapeHtml(h.name)}</span>
             </div>
-            <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">
-              ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}
+            <div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate flex items-center gap-1">
+              <span>${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}</span>
+              ${isReminder ? '<span class="text-[7.5px] text-amber-500 font-mono font-bold">(rec)</span>' : ''}
             </div>
           </td>`;
 
@@ -9508,7 +9598,7 @@
               if (!isScheduledDay) {
                 hRow += `
                   <td class="py-1 px-0.5 ${colClass} align-middle text-center">
-                    <span class="text-stone-300 dark:text-slate-600 text-xs font-mono select-none opacity-40">—</span>
+                    <span class="text-stone-400 dark:text-slate-500 font-mono text-xs font-semibold select-none">—</span>
                   </td>
                 `;
               } else {
@@ -9527,22 +9617,26 @@
 
                   hRow += `
                     <td class="py-1 px-0.5 ${colClass} align-middle text-center">
-                      <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-5.5 h-5.5 mx-auto rounded-lg border flex items-center justify-center transition active:scale-95 ${isChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1.5 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
-                        ${isChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[9px] font-black">!</span>' : '')}
+                      <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-6 h-6 min-w-[24px] min-h-[24px] max-w-[24px] max-h-[24px] mx-auto rounded-md border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
+                        ${isChk ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span>' : '')}
                       </button>
                     </td>
                   `;
                 } else {
+                  const slotBtnSize = daySlots > 2 
+                    ? 'w-[18px] h-[18px] min-w-[18px] min-h-[18px] max-w-[18px] max-h-[18px] rounded-xs' 
+                    : 'w-[20px] h-[20px] min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px] rounded';
+
                   hRow += `
                     <td class="py-1 px-0.5 ${colClass} align-middle text-center">
-                      <div class="flex items-center justify-center gap-1 flex-wrap">
+                      <div class="flex items-center justify-center gap-1.5 flex-nowrap py-0.5">
                         ${Array.from({length: daySlots}).map((_, sIdx) => {
                           const isSlotChk = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1));
                           const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
                           const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
                           return `
-                            <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="w-4.5 h-4.5 rounded border flex items-center justify-center transition active:scale-95 ${isSlotChk ? 'bg-theme-main text-white border-theme shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1 ring-amber-500/50' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 hover:border-theme')}" title="${slotHour ? 'Hora: ' + slotHour + (isSlotLate ? ' (Atrasado)' : '') : 'Toma ' + (sIdx+1)}">
-                              ${isSlotChk ? '<svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : (isSlotLate ? '<span class="text-[8px] font-black">!</span>' : '')}
+                            <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="${slotBtnSize} border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isSlotLate ? ' (Atrasado)' : '') : 'Toma ' + (sIdx+1)}">
+                              ${isSlotChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isSlotLate ? '<span class="text-[9px] font-black leading-none">!</span>' : '')}
                             </button>
                           `;
                         }).join('')}
@@ -9562,7 +9656,7 @@
             }
           });
 
-          // Celda de progreso semanal del hábito
+          // Celda de progreso semanal
           const hPct = m.customHabitsPct ? (m.customHabitsPct[h.id] || 0) : 0;
           let summaryLabel = `${Math.round(hPct)}%`;
           if (h.type === 'max_limit') {
@@ -9580,14 +9674,47 @@
             summaryLabel = `${cnt}/${h.targetWeeklyDays}d`;
           }
 
-          hRow += `
-            <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
-              ${renderProgressCell(hPct, summaryLabel, null)}
-            </td>
-          `;
+          if (isReminder) {
+            hRow += `
+              <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+                <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-stone-200/60 dark:bg-slate-800/80 text-stone-600 dark:text-stone-300 border border-stone-300/80 dark:border-slate-700">
+                  <span>${summaryLabel}</span>
+                </div>
+                <div class="text-[7.5px] text-amber-500 font-bold uppercase tracking-wider mt-0.5">Recordatorio</div>
+              </td>
+            `;
+          } else {
+            hRow += `
+              <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+                ${renderProgressCell(hPct, summaryLabel, null)}
+              </td>
+            `;
+          }
 
-          rowsHtml += `<tr class="border-b border-black/5 dark:border-white/5 bg-theme-main/[0.015] hover:bg-theme-main/[0.04] transition-colors">${hRow}</tr>`;
+          return `<tr class="border-b border-black/5 dark:border-white/5 ${isReminder ? 'bg-amber-500/[0.015] hover:bg-amber-500/[0.035]' : 'bg-theme-main/[0.015] hover:bg-theme-main/[0.04]'} transition-colors">${hRow}</tr>`;
+        }
+
+        // 1. Hábitos métricos: juntos directamente con los módulos base sin cabecera separadora
+        metricHabits.forEach(h => {
+          rowsHtml += buildHabitRowHtml(h);
         });
+
+        // 2. Solo los recordatorios (que no aportan a estadísticas) se separan con su propia fila divisoria
+        if (reminderHabits.length > 0) {
+          rowsHtml += `
+            <tr class="border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 bg-stone-100/60 dark:bg-slate-800/50">
+              <td colspan="9" class="py-1.5 px-2.5 text-left font-bold text-[9px] tracking-wider text-amber-500 uppercase">
+                <div class="flex items-center gap-1.5">
+                  <span class="w-1.5 h-1.5 rounded-full bg-amber-500"></span>
+                  <span>Recordatorios & Tareas Rutinarias (Sin impacto en Score)</span>
+                </div>
+              </td>
+            </tr>
+          `;
+          reminderHabits.forEach(h => {
+            rowsHtml += buildHabitRowHtml(h);
+          });
+        }
 
         tbody.innerHTML = rowsHtml || `<tr><td colspan="9" class="py-4 text-center text-xs text-stone-400 italic">No hay módulos ni hábitos activos. Activa alguno en Metas y Horario.</td></tr>`;
       }
@@ -10794,7 +10921,7 @@
                 <div class="flex items-center justify-between gap-1">
                   <span class="font-bold text-stone-900 dark:text-white truncate flex items-center gap-1.5" title="${escapeHtml(h.name)}">
                     <span class="w-5 h-5 rounded subpanel-bg flex items-center justify-center text-theme-main shrink-0">
-                      ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
+                      ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3.5 h-3.5 text-theme-main')}
                     </span>
                     <span class="truncate">${escapeHtml(h.name)}</span>
                   </span>
@@ -11004,7 +11131,7 @@
           allPillars.push({
             id: h.id,
             name: h.name,
-            iconSvg: `<span class="w-6 h-6 rounded flex items-center justify-center text-theme-main shrink-0">${renderItemIcon(h.iconId || h.emoji || 'star', 'w-4 h-4 text-theme-main')}</span>`,
+            iconSvg: `<span class="w-6 h-6 rounded flex items-center justify-center text-theme-main shrink-0">${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-4 h-4 text-theme-main')}</span>`,
             current: currentStr,
             target: targetStr,
             pct: p,
@@ -12100,7 +12227,7 @@
           const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
           habitsEvolBox.innerHTML = activeHabits.map(h => {
             const isSel = metric === `habit_${h.id}`;
-            return `<button onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${isSel ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white'}"><span>${renderItemIcon(h.iconId || h.emoji || 'star', 'w-3 h-3')}</span><span class="truncate max-w-[80px]">${escapeHtml(h.name)}</span></button>`;
+            return `<button onclick="app.setEvolMetric('habit_${h.id}')" class="px-2 py-1 rounded-lg font-bold text-xs transition flex items-center gap-1.5 ${isSel ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 dark:text-slate-400 hover:text-stone-900 dark:hover:text-white'}"><span>${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-3 h-3')}</span><span class="truncate max-w-[80px]">${escapeHtml(h.name)}</span></button>`;
           }).join('');
         }
 
@@ -18914,7 +19041,7 @@
               <div class="flex items-center justify-between p-2 rounded-xl subpanel-bg border ${isActive ? 'border-stone-300 dark:border-slate-700' : 'opacity-60 border-dashed'}">
                 <div class="flex items-center gap-2.5 truncate min-w-0">
                   <span class="w-8 h-8 rounded-lg subpanel-bg border border-theme/20 flex items-center justify-center text-theme-main shrink-0">
-                    ${renderItemIcon(h.iconId || h.emoji || 'star', 'w-4 h-4 text-theme-main')}
+                    ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', 'w-4 h-4 text-theme-main')}
                   </span>
                   <div class="truncate">
                     <span class="font-bold block truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
