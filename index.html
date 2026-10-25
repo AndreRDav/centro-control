@@ -803,7 +803,12 @@
       }
       /* Espacio superior para el contenido cuando el header es fixed en móvil */
       .mobile-header-spacing {
-        padding-top: 8.75rem !important;
+        padding-top: 0.25rem !important;
+      }
+      @media (max-width: 639px) {
+        #headerDailyProgressPill {
+          display: none !important;
+        }
       }
       .no-scrollbar::-webkit-scrollbar {
         display: none;
@@ -3729,12 +3734,12 @@
   <!-- ========================================================
        CONTENIDO PRINCIPAL DE LA APLICACIÓN
        ======================================================== -->
-  <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4 mobile-header-spacing">
+  <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4">
 
     <!-- CABECERA PRINCIPAL -->
     <header id="mainAppHeader" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-2 z-40 backdrop-blur-md">
       <!-- Logo + Título + Navegación Semanas + Candado -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-3 w-full sm:w-auto">
         <div id="appHeaderLogo" class="w-10 h-10 rounded-xl flex items-center justify-center text-white shadow-md transition-all duration-300 shrink-0">
           <svg class="w-5 h-5 drop-shadow-xs" viewBox="0 0 24 24" fill="#ffffff"><polygon points="13 2 4 14 11 14 9 22 20 10 13 10 13 2"></polygon></svg>
         </div>
@@ -3780,7 +3785,7 @@
       </nav>
 
       <!-- Botones de Acción + Tema + Paleta + Sincronizar + Cerrar Semana + Copias -->
-      <div class="flex items-center gap-1.5 sm:gap-2">
+      <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 shrink-0">
         <button onclick="app.openShortcutsModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-300 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
           <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
           <span class="hidden md:inline">Atajos</span>
@@ -3792,11 +3797,7 @@
           <span id="themeToggleText" class="hidden sm:inline">Tema</span>
         </button>
         <!-- Botón Personalizar Vista Dashboard -->
-        <button onclick="app.enterWidgetMode()" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95" title="Abrir Modo Mini-Widget a 1 toque">
-            <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/></svg>
-            <span class="hidden md:inline">Widget</span>
-          </button>
-          <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
+        <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
           <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
           <span class="hidden sm:inline">Vista</span>
         </button>
@@ -5951,6 +5952,13 @@
 
       // AUDIO API
       let audioCtx = null;
+
+      // Helper de compatibilidad para iconos vectoriales
+      function renderIcon(iconId, className, fallback) {
+        return typeof renderItemIcon === 'function' ? renderItemIcon(iconId, className, fallback) : '';
+      }
+      window.renderIcon = renderIcon;
+
       function getAudioContext() {
         if (!audioCtx) audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         if (audioCtx.state === 'suspended') audioCtx.resume();
@@ -12107,186 +12115,13 @@
       // APP ACCIONES Y MÉTODOS PÚBLICOS
       const app = {
         enterWidgetMode() {
-          document.body.classList.add('mode-mini-widget');
-          let widgetContainer = document.getElementById('miniWidgetContainer');
-          if (!widgetContainer) {
-            widgetContainer = document.createElement('div');
-            widgetContainer.id = 'miniWidgetContainer';
-            widgetContainer.className = 'fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 panel-bg flex flex-col items-center';
-            document.body.appendChild(widgetContainer);
-          }
-          widgetContainer.classList.remove('hidden');
-          this.renderMiniWidgetView();
+          // Deprecated
         },
 
         exitWidgetMode() {
+          const c = document.getElementById('miniWidgetContainer');
+          if (c) c.remove();
           document.body.classList.remove('mode-mini-widget');
-          const widgetContainer = document.getElementById('miniWidgetContainer');
-          if (widgetContainer) widgetContainer.classList.add('hidden');
-          try {
-            const url = new URL(window.location.href);
-            url.searchParams.delete('view');
-            window.history.replaceState({}, '', url.toString());
-          } catch(e) {}
-        },
-
-        renderMiniWidgetView() {
-          const container = document.getElementById('miniWidgetContainer');
-          if (!container) return;
-          const w = getActiveWeek();
-          if (!w) return;
-          const todayIdx = (new Date().getDay() + 6) % 7;
-          const day = (w.days && w.days[todayIdx]) || {};
-          const enabled = getWeekEnabledModules(w);
-          const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
-          const habitsData = w.customHabitsData || {};
-          const todayIso = new Date().toISOString().split('T')[0];
-          const dayNameFull = DAY_FULL[todayIdx];
-
-          // Compute progress
-          let totalT = 0, doneT = 0;
-          if (enabled.gym) { totalT++; if (day.gym?.sessions > 0) doneT++; }
-          if (enabled.run) { totalT++; if (day.run?.km > 0) doneT++; }
-          if (enabled.study) {
-            const sp = Number(w.studyHoursPlan?.[todayIdx] || 0);
-            const sr = Number(w.studyRealHours?.[todayIdx] || 0);
-            if (sp > 0) { totalT++; if (sr >= sp) doneT++; }
-          }
-          if (enabled.nutri) {
-            const ne = evalNutritionStatus(day.nutritionKcal, w.goals?.nutri?.kcal, w.goals?.nutri?.phase);
-            if (ne) { totalT++; if (ne.status === 'ok') doneT++; }
-          }
-
-          activeHabits.forEach(h => {
-            if (h.isReminderOnly) return;
-            const slots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[todayIdx] || 0) : Number(h.slotsCount || 1);
-            if (h.type === 'binary_check' && slots === 0) return;
-            const val = (habitsData[h.id] || [])[todayIdx];
-            if (h.type === 'binary_check' && slots > 1) {
-              totalT += slots;
-              if (Array.isArray(val)) doneT += val.filter(Boolean).length;
-              else if (val) doneT += slots;
-            } else if (h.type === 'binary_check') {
-              totalT++;
-              if (val === true || val === 1 || val === 'true') doneT++;
-            }
-          });
-
-          const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
-
-          // Next upcoming milestone
-          const allMilestones = getAllUpcomingMilestones().filter(m => m.diffDays >= 0 && m.diffDays <= 7);
-          const nextMilestone = allMilestones[0] || null;
-
-          container.innerHTML = `
-            <div class="w-full max-w-md mx-auto space-y-4 pb-8">
-              <!-- Encabezado del Widget -->
-              <div class="flex items-center justify-between pt-1">
-                <div class="flex items-center gap-2">
-                  <div class="w-8 h-8 rounded-xl bg-theme-main text-white flex items-center justify-center font-bold text-xs shadow-md">CC</div>
-                  <div>
-                    <h1 class="font-serif font-black text-base text-stone-900 dark:text-white leading-tight">${dayNameFull}</h1>
-                    <span class="text-[10px] text-stone-500 font-mono">${todayIso}</span>
-                  </div>
-                </div>
-                <button type="button" onclick="app.exitWidgetMode()" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme text-theme-main font-bold text-xs flex items-center gap-1 shadow-xs transition active:scale-95">
-                  <span>Panel Completo</span>
-                  <span>↗</span>
-                </button>
-              </div>
-
-              <!-- Tarjeta de Progreso Principal -->
-              <div class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-lg space-y-2.5">
-                <div class="flex items-center justify-between">
-                  <span class="font-extrabold text-xs text-stone-900 dark:text-white">Avance de Hoy</span>
-                  <span class="text-sm font-mono font-black text-theme-main">${pct}% (${doneT}/${totalT})</span>
-                </div>
-                <div class="w-full h-3 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
-                  <div class="h-full bg-theme-main rounded-full transition-all duration-300" style="width: ${pct}%"></div>
-                </div>
-              </div>
-
-              <!-- Próximo Hito / Entrega (si hay en <= 7 días) -->
-              ${nextMilestone ? `
-                <div class="p-3 rounded-2xl bg-theme-accent-soft border border-theme-accent text-theme-accent flex items-center justify-between gap-2 text-xs shadow-sm">
-                  <div class="flex items-center gap-2 min-w-0">
-                    <span class="w-6 h-6 rounded-lg bg-theme-accent text-white flex items-center justify-center shrink-0">${nextMilestone.categoryIcon}</span>
-                    <div class="min-w-0">
-                      <span class="font-bold block truncate">${escapeHtml(nextMilestone.title)}</span>
-                      <span class="text-[10px] opacity-80 font-mono">${nextMilestone.diffDays === 0 ? '¡VENCE HOY!' : 'Vence en ' + nextMilestone.diffDays + ' días'}</span>
-                    </div>
-                  </div>
-                </div>
-              ` : ''}
-
-              <!-- Lista Interactiva de Tomas y Hábitos de Hoy -->
-              <div class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-lg space-y-3">
-                <div class="flex items-center justify-between border-b pb-2">
-                  <span class="font-serif font-bold text-sm text-stone-900 dark:text-white">Tus Objetivos & Tomas de Hoy</span>
-                  <span class="text-[10px] text-stone-400 font-mono">Toca para marcar</span>
-                </div>
-
-                <div class="space-y-2">
-                  ${enabled.gym ? `
-                    <div class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs">🏋️</span>
-                        <span class="font-bold text-xs">Gimnasio</span>
-                      </div>
-                      <button type="button" onclick="app.cycleGymSessionCount(${todayIdx}); app.renderMiniWidgetView();" class="px-3 py-1 rounded-lg text-xs font-bold font-mono ${day.gym?.sessions > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500'}">
-                        ${day.gym?.sessions > 0 ? '✓ Hecho' : '+ Marcar'}
-                      </button>
-                    </div>
-                  ` : ''}
-
-                  ${enabled.run ? `
-                    <div class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between gap-2">
-                      <div class="flex items-center gap-2">
-                        <span class="text-xs">🏃</span>
-                        <span class="font-bold text-xs">Carrera</span>
-                      </div>
-                      <span class="text-xs font-mono font-bold ${day.run?.km > 0 ? 'text-theme-main' : 'text-stone-400'}">
-                        ${day.run?.km > 0 ? day.run.km + ' km ✓' : '0 km'}
-                      </span>
-                    </div>
-                  ` : ''}
-
-                  ${activeHabits.map(h => {
-                    if (h.type !== 'binary_check') return '';
-                    const slots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[todayIdx] || 0) : Number(h.slotsCount || 1);
-                    if (slots === 0) return '';
-                    const val = (habitsData[h.id] || [])[todayIdx];
-                    const hour = h.fixedHour ? `<span class="text-[9.5px] font-mono text-stone-400">(${escapeHtml(h.fixedHour)})</span>` : '';
-
-                    return `
-                      <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
-                        <div class="flex items-center justify-between gap-2">
-                          <div class="flex items-center gap-2 min-w-0">
-                            <span class="w-4 h-4 text-theme-main shrink-0 flex items-center justify-center">${renderIcon(h.icon || 'star', 'w-3.5 h-3.5')}</span>
-                            <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
-                            ${hour}
-                          </div>
-                          ${h.isReminderOnly ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 font-bold">Recordatorio</span>' : ''}
-                        </div>
-                        <div class="flex items-center gap-1.5 pt-1">
-                          ${Array.from({ length: slots }).map((_, sIdx) => {
-                            const isChecked = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1 || val === 'true'));
-                            const sLabel = (h.slotLabels && h.slotLabels[sIdx]) ? h.slotLabels[sIdx] : '#' + (sIdx + 1);
-                            return `
-                              <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${todayIdx}, ${sIdx}); app.renderMiniWidgetView();" class="flex-1 py-1.5 px-2 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300'}">
-                                <span>${isChecked ? '✓' : '○'}</span>
-                                <span class="text-[10px] truncate">${sLabel}</span>
-                              </button>
-                            `;
-                          }).join('')}
-                        </div>
-                      </div>
-                    `;
-                  }).join('')}
-                </div>
-              </div>
-            </div>
-          `;
         },
 
         dismissBanner(bannerId) {
@@ -18549,30 +18384,7 @@
           this.openModal('modalManageHabits');
         },
 
-        resetHabitForm() {
-          const editIdEl = document.getElementById('habitEditId');
-          const titleEl = document.getElementById('habitModalTitle');
-          const submitBtn = document.getElementById('habitSubmitBtn');
-          const cancelBtn = document.getElementById('habitCancelEditBtn');
-          const nameInp = document.getElementById('habitNameInput');
-          const iconInp = document.getElementById('habitIconInput');
-          const preview = document.getElementById('habitIconPreview');
-          const emojiInp = document.getElementById('habitEmojiInput');
-          const typeSel = document.getElementById('habitTypeSelect');
 
-          if (editIdEl) editIdEl.value = '';
-          if (titleEl) titleEl.textContent = 'Nuevo Hábito Personalizado';
-          if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
-          if (cancelBtn) cancelBtn.classList.add('hidden');
-          if (nameInp) nameInp.value = '';
-          if (iconInp) iconInp.value = 'star';
-          if (preview) preview.innerHTML = renderItemIcon('star', 'w-5 h-5 text-theme-main');
-          if (emojiInp) emojiInp.value = '⭐';
-          if (typeSel) {
-            typeSel.value = 'max_limit';
-            this.onHabitTypeChange('max_limit');
-          }
-        },
 
         onHabitTypeChange(type, currentValues = {}) {
           const box = document.getElementById('habitParamsBox');
@@ -18805,7 +18617,7 @@
           }
 
           this.resetHabitForm();
-          this.renderManageHabitsList();
+          this.renderCustomHabitsList();
           renderDailyHabits();
           renderHeaderAndKPIs();
           updateHeaderDailyProgress();
@@ -18834,7 +18646,7 @@
           const previewEl = document.getElementById('habitIconPreview');
           if (iconInput) iconInput.value = h.icon || 'star';
           if (emojiInput) emojiInput.value = h.emoji || '⭐';
-          if (previewEl) previewEl.innerHTML = renderIcon(h.icon || 'star', 'w-5 h-5');
+          if (previewEl) previewEl.innerHTML = typeof renderItemIcon === 'function' ? renderItemIcon(h.icon || 'star', 'w-5 h-5 text-theme-main') : (h.emoji || '⭐');
 
           this.onHabitTypeChange(h.type, h);
           const form = document.getElementById('customHabitForm');
@@ -18845,20 +18657,24 @@
           const form = document.getElementById('customHabitForm');
           if (form) form.reset();
           const editIdEl = document.getElementById('habitEditId');
+          const titleEl = document.getElementById('habitModalTitle');
           const cancelBtn = document.getElementById('habitCancelEditBtn');
           const submitBtn = document.getElementById('habitSubmitBtn');
           const remChk = document.getElementById('habitIsReminderOnly');
+          const nameInp = document.getElementById('habitNameInput');
           if (editIdEl) editIdEl.value = '';
+          if (titleEl) titleEl.textContent = 'Nuevo Hábito Personalizado';
           if (cancelBtn) cancelBtn.classList.add('hidden');
           if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
           if (remChk) remChk.checked = false;
+          if (nameInp) nameInp.value = '';
 
           const iconInput = document.getElementById('habitIconInput');
           const emojiInput = document.getElementById('habitEmojiInput');
           const previewEl = document.getElementById('habitIconPreview');
           if (iconInput) iconInput.value = 'star';
           if (emojiInput) emojiInput.value = '⭐';
-          if (previewEl) previewEl.innerHTML = renderIcon('star', 'w-5 h-5');
+          if (previewEl) previewEl.innerHTML = typeof renderItemIcon === 'function' ? renderItemIcon('star', 'w-5 h-5 text-theme-main') : '⭐';
 
           const typeEl = document.getElementById('habitTypeSelect');
           if (typeEl) {
@@ -18889,6 +18705,10 @@
           renderHeaderAndKPIs();
           saveState();
           this.showToast(`Hábito "${habit.name}" eliminado.`, 'info');
+        },
+
+        renderManageHabitsList() {
+          return this.renderCustomHabitsList();
         },
 
         renderCustomHabitsList() {
@@ -19173,7 +18993,8 @@
             }
           }, 450);
         }
-      }
+      };
+      window.app = app;
 
       function boot() {
         loadState();
@@ -19199,15 +19020,7 @@
         registerServiceWorker();
         checkWeekRollover();
 
-        // Comprobación de arranque en Modo Mini-Widget a 1 Toque
-        try {
-          const urlParams = new URLSearchParams(window.location.search);
-          if (urlParams.get('view') === 'widget') {
-            setTimeout(() => {
-              app.enterWidgetMode();
-            }, 50);
-          }
-        } catch(e) {}
+        // Widget mode removed
 
         // Mostrar introducción interactiva / onboarding si es un usuario o dispositivo nuevo
         const onboardingShown = localStorage.getItem('centro_onboarding_shown');
