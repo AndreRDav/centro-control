@@ -1974,7 +1974,7 @@
   </div>
 
   <!-- MODAL: GESTIÓN Y CREACIÓN DE HÁBITOS PERSONALIZADOS -->
-  <div id="modalManageHabits" class="fixed inset-0 z-[9999] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalManageHabits" class="fixed inset-0 z-[9990] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border border-theme rounded-2xl max-w-lg w-full p-5 space-y-4 shadow-2xl text-xs max-h-[90vh] flex flex-col">
       <div class="flex justify-between items-center border-b pb-2.5 shrink-0">
         <div class="flex items-center gap-2">
@@ -2024,6 +2024,17 @@
           <!-- Renderizado dinámicamente según habitTypeSelect -->
         </div>
 
+        <!-- Checkbox de Solo Recordatorio (No computable) -->
+        <label class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between cursor-pointer hover:border-theme transition">
+          <div class="space-y-0.5 pr-2">
+            <div class="font-bold text-[11px] text-stone-900 dark:text-white flex items-center gap-1.5">
+              <span>🔔 Solo Recordatorio (No computable en métricas/Score)</span>
+            </div>
+            <div class="text-[10px] text-stone-500 dark:text-slate-400">Aparece en Hoy y en la Matriz para marcarse, pero no penaliza ni suma al Score semanal (0-100) ni a las métricas.</div>
+          </div>
+          <input type="checkbox" id="habitIsReminderOnly" class="w-4 h-4 accent-theme cursor-pointer" />
+        </label>
+
         <div class="flex items-center justify-between pt-2 border-t">
           <button type="button" id="habitCancelEditBtn" onclick="app.resetHabitForm()" class="hidden px-3 py-1 rounded-lg text-slate-400 hover:text-white text-xs">Cancelar Edición</button>
           <div class="flex-1"></div>
@@ -2044,7 +2055,7 @@
   </div>
 
   <!-- MODAL SELECTOR DE ICONOS VECTORIALES SVG -->
-  <div id="modalIconPicker" class="fixed inset-0 z-[60] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
+  <div id="modalIconPicker" class="fixed inset-0 z-[10002] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-3 sm:p-4">
     <div class="panel-bg border rounded-2xl max-w-lg w-full p-4 sm:p-5 space-y-3.5 shadow-2xl text-xs max-h-[85vh] flex flex-col">
       <div class="flex justify-between items-center border-b pb-2 shrink-0">
         <div class="flex items-center gap-2">
@@ -3272,7 +3283,7 @@
   </div>
 
   <!-- MODAL DE CONFIRMACIÓN PERSONALIZADO (CERO CONFIRM NATIVO) -->
-  <div id="modalCustomConfirm" class="fixed inset-0 z-[9998] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalCustomConfirm" class="fixed inset-0 z-[10005] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-start gap-3">
         <div id="customConfirmIconBox" class="w-10 h-10 rounded-xl bg-amber-950/80 border border-amber-600/60 text-amber-400 flex items-center justify-center shrink-0">
@@ -3291,7 +3302,7 @@
   </div>
 
   <!-- MODAL DE PROMPT PERSONALIZADO (CERO PROMPT NATIVO) -->
-  <div id="modalCustomPrompt" class="fixed inset-0 z-[9998] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
+  <div id="modalCustomPrompt" class="fixed inset-0 z-[10005] hidden bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
     <div class="panel-bg border rounded-2xl max-w-sm w-full p-5 space-y-4 shadow-2xl text-xs">
       <div class="flex items-start gap-3">
         <div id="customPromptIconBox" class="w-10 h-10 rounded-xl bg-blue-950/80 border border-blue-600/60 text-blue-400 flex items-center justify-center shrink-0">
@@ -3746,8 +3757,8 @@
             <!-- Mini Progreso Diario en Cabecera -->
             <div id="headerDailyProgressPill" class="hidden sm:flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-[10px] font-bold text-theme-main cursor-pointer" onclick="app.scrollToToday()" title="Progreso de hábitos de hoy (clic para ir a hoy)">
               <span id="headerDailyProgressText">Hoy: 0/0 (0%)</span>
-              <div class="w-10 h-1.5 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden">
-                <div id="headerDailyProgressBar" class="h-full bg-theme-main transition-all duration-300" style="width: 0%"></div>
+              <div class="w-16 sm:w-24 h-2 sm:h-2.5 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+                <div id="headerDailyProgressBar" class="h-full bg-theme-main transition-all duration-300 rounded-full" style="width: 0%"></div>
               </div>
             </div>
           </div>
@@ -3781,7 +3792,11 @@
           <span id="themeToggleText" class="hidden sm:inline">Tema</span>
         </button>
         <!-- Botón Personalizar Vista Dashboard -->
-        <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
+        <button onclick="app.enterWidgetMode()" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1.5 shadow-xs transition active:scale-95" title="Abrir Modo Mini-Widget a 1 toque">
+            <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18"/><path d="M15 9h6"/></svg>
+            <span class="hidden md:inline">Widget</span>
+          </button>
+          <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
           <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
           <span class="hidden sm:inline">Vista</span>
         </button>
@@ -5794,6 +5809,35 @@
       }
 
       const DEFAULT_STATE = {
+        uiPreferences: {
+          activePreset: 'balanced',
+          showSystemBanners: true,
+          showOverdueAlert: true,
+          showUpcomingMilestone: true,
+          showKpis: true,
+          showDailyCards: true,
+          showWeekMatrix: true,
+          showRecentExpenses: true,
+          showListsPanel: true,
+          showMiniCalendar: true,
+          showDocks: true,
+          tab2ShowGoals: true,
+          tab2ShowSchedule: true,
+          tab2ShowAttendance: true,
+          tab3ShowBudget: true,
+          tab3ShowSavingsGoals: true,
+          tab3ShowPiggy: true,
+          tab3ShowFixedExpenses: true,
+          tab3ShowExpensesTable: true,
+          tab3ShowExpenseCharts: true,
+          tab4ShowStudyAudit: true,
+          tab4ShowCustomHabits: true,
+          tab4ShowBiometrics: true,
+          tab4ShowEvolution: true,
+          density: 'cozy',
+          kpisCollapsed: true,
+          welcomeDismissed: false
+        },
         version: 4,
         theme: 'dark',
         themePalette: 'emerald',
@@ -6672,6 +6716,35 @@
         }, s.enabledModules);
         if (!Array.isArray(s.deletedBaseModules)) s.deletedBaseModules = [];
         if (!Array.isArray(s.customHabits)) s.customHabits = [];
+        s.uiPreferences = Object.assign({
+          activePreset: 'balanced',
+          showSystemBanners: true,
+          showOverdueAlert: true,
+          showUpcomingMilestone: true,
+          showKpis: true,
+          showDailyCards: true,
+          showWeekMatrix: true,
+          showRecentExpenses: true,
+          showListsPanel: true,
+          showMiniCalendar: true,
+          showDocks: true,
+          tab2ShowGoals: true,
+          tab2ShowSchedule: true,
+          tab2ShowAttendance: true,
+          tab3ShowBudget: true,
+          tab3ShowSavingsGoals: true,
+          tab3ShowPiggy: true,
+          tab3ShowFixedExpenses: true,
+          tab3ShowExpensesTable: true,
+          tab3ShowExpenseCharts: true,
+          tab4ShowStudyAudit: true,
+          tab4ShowCustomHabits: true,
+          tab4ShowBiometrics: true,
+          tab4ShowEvolution: true,
+          density: 'cozy',
+          kpisCollapsed: true,
+          welcomeDismissed: false
+        }, (loaded && loaded.uiPreferences) || s.uiPreferences || {});
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
         s.financeSettings = Object.assign({}, DEFAULT_STATE.financeSettings, s.financeSettings);
@@ -7015,6 +7088,7 @@
         const wHabitsData = w.customHabitsData || {};
 
         activeHabits.forEach(h => {
+          if (h.isReminderOnly) return; // Hábitos configurados como solo recordatorio se omiten del Score y de las métricas
           const rawDays = wHabitsData[h.id] || [null, null, null, null, null, null, null];
           if (h.type === 'max_limit') {
             // Tipo A: Límite Máximo ("Menos es mejor"). Meta diaria y semanal
@@ -8102,6 +8176,16 @@
           }
 
           let dotBadge = '';
+          const calDayOfWeek = (new Date(yr, mo, d).getDay() + 6) % 7;
+          const activeHabitsOnDate = (state?.customHabits || []).filter(h => {
+            if (h.active === false) return false;
+            if (h.dailySlots && Array.isArray(h.dailySlots)) return Number(h.dailySlots[calDayOfWeek]) > 0;
+            const aDays = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
+            return aDays.includes(calDayOfWeek);
+          });
+          if (activeHabitsOnDate.length > 0) {
+            dotBadge += `<span class="w-1.5 h-1.5 rounded-full bg-theme-main/90 inline-block shrink-0 mt-0.5" title="${activeHabitsOnDate.length} hábitos programados"></span>`;
+          }
           if (hasNotes) {
             if (notesOnDate.length > 2) {
               const pendingOnDate = notesOnDate.filter(n => !n.done).length;
@@ -8177,6 +8261,7 @@
                 </span>
                 <button type="button" onclick="app.selectCalendarDate(null)" class="text-[10px] text-stone-400 hover:text-stone-700 dark:hover:text-slate-200 font-bold">✕ Cerrar</button>
               </div>
+              ${selectedHabitsHtml}
               <div class="space-y-1 max-h-36 overflow-y-auto pr-1">
                 ${list.map(n => {
                   const catLabel = n.cat === 'entregas' ? 'Entrega' : (n.cat === 'compras' ? 'Compra' : (n.cat === 'objetivos' ? 'Objetivo' : 'Nota'));
@@ -8457,6 +8542,7 @@
       }
 
       function renderDailyHabits() {
+        updateHeaderDailyProgress();
         const w = getActiveWeek();
         const m = calculateWeekMetrics(w);
         const streaks = calculateStreaks(w.weekNum);
@@ -8589,6 +8675,92 @@
         const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
         const habitsData = w.customHabitsData || {};
+
+        
+        // Barra de progreso destacada de Hoy
+        const activeHabitsList = (state.customHabits || []).filter(h => h.active !== false);
+        let todayTotalTasks = 0;
+        let todayDoneTasks = 0;
+
+        if (enabled.gym) {
+          todayTotalTasks += 1;
+          if (day.gym && day.gym.sessions > 0) todayDoneTasks += 1;
+        }
+        if (enabled.run) {
+          todayTotalTasks += 1;
+          if (day.run && day.run.km > 0) todayDoneTasks += 1;
+        }
+        if (enabled.study) {
+          const sPlan = Number((w.studyHoursPlan && w.studyHoursPlan[dIdx]) || 0);
+          const sReal = Number((w.studyRealHours && w.studyRealHours[dIdx]) || 0);
+          if (sPlan > 0) {
+            todayTotalTasks += 1;
+            if (sReal >= sPlan) todayDoneTasks += 1;
+          }
+        }
+        if (enabled.nutri) {
+          const nEval = evalNutritionStatus(day.nutritionKcal, w.goals?.nutri?.kcal, w.goals?.nutri?.phase);
+          if (nEval) {
+            todayTotalTasks += 1;
+            if (nEval.status === 'ok') todayDoneTasks += 1;
+          }
+        }
+
+        activeHabitsList.forEach(h => {
+          if (h.isReminderOnly) return;
+          const daySlotsCount = (h.dailySlots && Array.isArray(h.dailySlots)) ? (Number(h.dailySlots[dIdx]) || 0) : (Number(h.slotsCount) || 1);
+          const activeDaysArr = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
+          if (h.type === 'binary_check' && !h.dailySlots && !activeDaysArr.includes(dIdx)) return;
+          if (h.type === 'binary_check' && h.dailySlots && daySlotsCount === 0) return;
+
+          const val = (habitsData[h.id] || [])[dIdx];
+          if (h.type === 'binary_check' && daySlotsCount > 1) {
+            todayTotalTasks += daySlotsCount;
+            if (Array.isArray(val)) {
+              todayDoneTasks += val.filter(Boolean).length;
+            } else if (val) {
+              todayDoneTasks += daySlotsCount;
+            }
+          } else if (h.type === 'binary_check') {
+            todayTotalTasks += 1;
+            if (val === true || val === 1 || val === 'true') todayDoneTasks += 1;
+          } else if (h.type === 'max_limit') {
+            todayTotalTasks += 1;
+            if (val !== null && val !== undefined && Number(val) <= Number(h.targetDaily)) todayDoneTasks += 1;
+          } else if (h.type === 'min_accum') {
+            todayTotalTasks += 1;
+            if (val !== null && val !== undefined && Number(val) >= (Number(h.targetDaily) || 1)) todayDoneTasks += 1;
+          } else if (h.type === 'target_range') {
+            todayTotalTasks += 1;
+            const c = Number(h.targetCenter) || 0, mg = Number(h.targetMargin) || 0;
+            if (val !== null && val !== undefined && Number(val) >= (c - mg) && Number(val) <= (c + mg)) todayDoneTasks += 1;
+          }
+        });
+
+        const todayProgressPct = todayTotalTasks > 0 ? Math.round((todayDoneTasks / todayTotalTasks) * 100) : 0;
+
+        const prominentProgressBarHtml = `
+          <div class="p-3.5 rounded-2xl subpanel-bg border border-theme shadow-sm space-y-2.5">
+            <div class="flex items-center justify-between gap-2">
+              <div class="flex items-center gap-2.5 min-w-0">
+                <div class="vector-seal bg-theme-main text-white w-7 h-7 shadow-xs shrink-0 flex items-center justify-center font-bold text-xs">
+                  <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
+                </div>
+                <div class="min-w-0">
+                  <span class="font-bold text-xs text-stone-900 dark:text-white block truncate">Progreso de Objetivos y Hábitos de Hoy</span>
+                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${todayDoneTasks} de ${todayTotalTasks} completados</span>
+                </div>
+              </div>
+              <div class="flex items-center gap-1.5 shrink-0">
+                <span class="text-xs font-mono font-black text-theme-main px-2 py-0.5 rounded-lg bg-theme-soft border border-theme">${todayProgressPct}%</span>
+                ${todayProgressPct === 100 && todayTotalTasks > 0 ? '<span class="text-sm animate-bounce" title="¡Día completado al 100%!">🎉</span>' : ''}
+              </div>
+            </div>
+            <div class="w-full h-2.5 sm:h-3 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+              <div class="h-full bg-theme-main rounded-full transition-all duration-500" style="width: ${todayProgressPct}%"></div>
+            </div>
+          </div>
+        `;
 
         let leftColHtml = '';
         if (enabled.gym) {
@@ -11843,13 +12015,42 @@
         const w = getActiveWeek();
         if (!w) return;
         const todayIdx = (new Date().getDay() + 6) % 7;
+        const day = (w.days && w.days[todayIdx]) || {};
+        const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
         const habitsData = w.customHabitsData || {};
         
         let totalTasks = 0;
         let doneTasks = 0;
-        
+
+        // 1. Pilares base de hoy (si están habilitados)
+        if (enabled.gym) {
+          totalTasks += 1;
+          if (day.gym && day.gym.sessions > 0) doneTasks += 1;
+        }
+        if (enabled.run) {
+          totalTasks += 1;
+          if (day.run && day.run.km > 0) doneTasks += 1;
+        }
+        if (enabled.study) {
+          const sPlan = Number((w.studyHoursPlan && w.studyHoursPlan[todayIdx]) || 0);
+          const sReal = Number((w.studyRealHours && w.studyRealHours[todayIdx]) || 0);
+          if (sPlan > 0) {
+            totalTasks += 1;
+            if (sReal >= sPlan) doneTasks += 1;
+          }
+        }
+        if (enabled.nutri) {
+          const nEval = evalNutritionStatus(day.nutritionKcal, w.goals?.nutri?.kcal, w.goals?.nutri?.phase);
+          if (nEval) {
+            totalTasks += 1;
+            if (nEval.status === 'ok') doneTasks += 1;
+          }
+        }
+
+        // 2. Hábitos personalizados de hoy
         activeHabits.forEach(h => {
+          if (h.isReminderOnly) return; // Hábitos configurados como solo recordatorio no computan
           const activeDays = Array.isArray(h.activeDays) ? h.activeDays : [0, 1, 2, 3, 4, 5, 6];
           if (h.type === 'binary_check' && !activeDays.includes(todayIdx)) return;
           const val = (habitsData[h.id] || [])[todayIdx];
@@ -11905,6 +12106,189 @@
 
       // APP ACCIONES Y MÉTODOS PÚBLICOS
       const app = {
+        enterWidgetMode() {
+          document.body.classList.add('mode-mini-widget');
+          let widgetContainer = document.getElementById('miniWidgetContainer');
+          if (!widgetContainer) {
+            widgetContainer = document.createElement('div');
+            widgetContainer.id = 'miniWidgetContainer';
+            widgetContainer.className = 'fixed inset-0 z-50 overflow-y-auto p-4 sm:p-6 panel-bg flex flex-col items-center';
+            document.body.appendChild(widgetContainer);
+          }
+          widgetContainer.classList.remove('hidden');
+          this.renderMiniWidgetView();
+        },
+
+        exitWidgetMode() {
+          document.body.classList.remove('mode-mini-widget');
+          const widgetContainer = document.getElementById('miniWidgetContainer');
+          if (widgetContainer) widgetContainer.classList.add('hidden');
+          try {
+            const url = new URL(window.location.href);
+            url.searchParams.delete('view');
+            window.history.replaceState({}, '', url.toString());
+          } catch(e) {}
+        },
+
+        renderMiniWidgetView() {
+          const container = document.getElementById('miniWidgetContainer');
+          if (!container) return;
+          const w = getActiveWeek();
+          if (!w) return;
+          const todayIdx = (new Date().getDay() + 6) % 7;
+          const day = (w.days && w.days[todayIdx]) || {};
+          const enabled = getWeekEnabledModules(w);
+          const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
+          const habitsData = w.customHabitsData || {};
+          const todayIso = new Date().toISOString().split('T')[0];
+          const dayNameFull = DAY_FULL[todayIdx];
+
+          // Compute progress
+          let totalT = 0, doneT = 0;
+          if (enabled.gym) { totalT++; if (day.gym?.sessions > 0) doneT++; }
+          if (enabled.run) { totalT++; if (day.run?.km > 0) doneT++; }
+          if (enabled.study) {
+            const sp = Number(w.studyHoursPlan?.[todayIdx] || 0);
+            const sr = Number(w.studyRealHours?.[todayIdx] || 0);
+            if (sp > 0) { totalT++; if (sr >= sp) doneT++; }
+          }
+          if (enabled.nutri) {
+            const ne = evalNutritionStatus(day.nutritionKcal, w.goals?.nutri?.kcal, w.goals?.nutri?.phase);
+            if (ne) { totalT++; if (ne.status === 'ok') doneT++; }
+          }
+
+          activeHabits.forEach(h => {
+            if (h.isReminderOnly) return;
+            const slots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[todayIdx] || 0) : Number(h.slotsCount || 1);
+            if (h.type === 'binary_check' && slots === 0) return;
+            const val = (habitsData[h.id] || [])[todayIdx];
+            if (h.type === 'binary_check' && slots > 1) {
+              totalT += slots;
+              if (Array.isArray(val)) doneT += val.filter(Boolean).length;
+              else if (val) doneT += slots;
+            } else if (h.type === 'binary_check') {
+              totalT++;
+              if (val === true || val === 1 || val === 'true') doneT++;
+            }
+          });
+
+          const pct = totalT > 0 ? Math.round((doneT / totalT) * 100) : 0;
+
+          // Next upcoming milestone
+          const allMilestones = getAllUpcomingMilestones().filter(m => m.diffDays >= 0 && m.diffDays <= 7);
+          const nextMilestone = allMilestones[0] || null;
+
+          container.innerHTML = `
+            <div class="w-full max-w-md mx-auto space-y-4 pb-8">
+              <!-- Encabezado del Widget -->
+              <div class="flex items-center justify-between pt-1">
+                <div class="flex items-center gap-2">
+                  <div class="w-8 h-8 rounded-xl bg-theme-main text-white flex items-center justify-center font-bold text-xs shadow-md">CC</div>
+                  <div>
+                    <h1 class="font-serif font-black text-base text-stone-900 dark:text-white leading-tight">${dayNameFull}</h1>
+                    <span class="text-[10px] text-stone-500 font-mono">${todayIso}</span>
+                  </div>
+                </div>
+                <button type="button" onclick="app.exitWidgetMode()" class="px-3 py-1.5 rounded-xl subpanel-bg border hover:border-theme text-theme-main font-bold text-xs flex items-center gap-1 shadow-xs transition active:scale-95">
+                  <span>Panel Completo</span>
+                  <span>↗</span>
+                </button>
+              </div>
+
+              <!-- Tarjeta de Progreso Principal -->
+              <div class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-lg space-y-2.5">
+                <div class="flex items-center justify-between">
+                  <span class="font-extrabold text-xs text-stone-900 dark:text-white">Avance de Hoy</span>
+                  <span class="text-sm font-mono font-black text-theme-main">${pct}% (${doneT}/${totalT})</span>
+                </div>
+                <div class="w-full h-3 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
+                  <div class="h-full bg-theme-main rounded-full transition-all duration-300" style="width: ${pct}%"></div>
+                </div>
+              </div>
+
+              <!-- Próximo Hito / Entrega (si hay en <= 7 días) -->
+              ${nextMilestone ? `
+                <div class="p-3 rounded-2xl bg-theme-accent-soft border border-theme-accent text-theme-accent flex items-center justify-between gap-2 text-xs shadow-sm">
+                  <div class="flex items-center gap-2 min-w-0">
+                    <span class="w-6 h-6 rounded-lg bg-theme-accent text-white flex items-center justify-center shrink-0">${nextMilestone.categoryIcon}</span>
+                    <div class="min-w-0">
+                      <span class="font-bold block truncate">${escapeHtml(nextMilestone.title)}</span>
+                      <span class="text-[10px] opacity-80 font-mono">${nextMilestone.diffDays === 0 ? '¡VENCE HOY!' : 'Vence en ' + nextMilestone.diffDays + ' días'}</span>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+
+              <!-- Lista Interactiva de Tomas y Hábitos de Hoy -->
+              <div class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-lg space-y-3">
+                <div class="flex items-center justify-between border-b pb-2">
+                  <span class="font-serif font-bold text-sm text-stone-900 dark:text-white">Tus Objetivos & Tomas de Hoy</span>
+                  <span class="text-[10px] text-stone-400 font-mono">Toca para marcar</span>
+                </div>
+
+                <div class="space-y-2">
+                  ${enabled.gym ? `
+                    <div class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs">🏋️</span>
+                        <span class="font-bold text-xs">Gimnasio</span>
+                      </div>
+                      <button type="button" onclick="app.cycleGymSessionCount(${todayIdx}); app.renderMiniWidgetView();" class="px-3 py-1 rounded-lg text-xs font-bold font-mono ${day.gym?.sessions > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500'}">
+                        ${day.gym?.sessions > 0 ? '✓ Hecho' : '+ Marcar'}
+                      </button>
+                    </div>
+                  ` : ''}
+
+                  ${enabled.run ? `
+                    <div class="p-2.5 rounded-xl subpanel-bg border flex items-center justify-between gap-2">
+                      <div class="flex items-center gap-2">
+                        <span class="text-xs">🏃</span>
+                        <span class="font-bold text-xs">Carrera</span>
+                      </div>
+                      <span class="text-xs font-mono font-bold ${day.run?.km > 0 ? 'text-theme-main' : 'text-stone-400'}">
+                        ${day.run?.km > 0 ? day.run.km + ' km ✓' : '0 km'}
+                      </span>
+                    </div>
+                  ` : ''}
+
+                  ${activeHabits.map(h => {
+                    if (h.type !== 'binary_check') return '';
+                    const slots = (h.dailySlots && Array.isArray(h.dailySlots)) ? Number(h.dailySlots[todayIdx] || 0) : Number(h.slotsCount || 1);
+                    if (slots === 0) return '';
+                    const val = (habitsData[h.id] || [])[todayIdx];
+                    const hour = h.fixedHour ? `<span class="text-[9.5px] font-mono text-stone-400">(${escapeHtml(h.fixedHour)})</span>` : '';
+
+                    return `
+                      <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
+                        <div class="flex items-center justify-between gap-2">
+                          <div class="flex items-center gap-2 min-w-0">
+                            <span class="w-4 h-4 text-theme-main shrink-0 flex items-center justify-center">${renderIcon(h.icon || 'star', 'w-3.5 h-3.5')}</span>
+                            <span class="font-bold text-xs truncate">${escapeHtml(h.name)}</span>
+                            ${hour}
+                          </div>
+                          ${h.isReminderOnly ? '<span class="text-[9px] px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-500 font-bold">Recordatorio</span>' : ''}
+                        </div>
+                        <div class="flex items-center gap-1.5 pt-1">
+                          ${Array.from({ length: slots }).map((_, sIdx) => {
+                            const isChecked = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1 || val === 'true'));
+                            const sLabel = (h.slotLabels && h.slotLabels[sIdx]) ? h.slotLabels[sIdx] : '#' + (sIdx + 1);
+                            return `
+                              <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${todayIdx}, ${sIdx}); app.renderMiniWidgetView();" class="flex-1 py-1.5 px-2 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${isChecked ? 'bg-theme-main text-white border-theme shadow-xs' : 'subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300'}">
+                                <span>${isChecked ? '✓' : '○'}</span>
+                                <span class="text-[10px] truncate">${sLabel}</span>
+                              </button>
+                            `;
+                          }).join('')}
+                        </div>
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
+            </div>
+          `;
+        },
+
         dismissBanner(bannerId) {
           if (!state.ui) state.ui = {};
           if (!state.ui.dismissedBanners) state.ui.dismissedBanners = {};
@@ -12139,6 +12523,7 @@
         switchTab(tabNum) {
           if (state && state.activeTab === 2) this.autoSaveGoalSetting();
           state.activeTab = tabNum;
+          this.applyUiPreferences();
           for (let i = 1; i <= 4; i++) {
             const sec = document.getElementById(`tab${i}`);
             const btn = document.getElementById(`tabNav${i}`);
@@ -18229,9 +18614,13 @@
             const currentHour = currentValues.fixedHour || (currentValues.slotLabels && currentValues.slotLabels[0]) || '';
             const activeDays = Array.isArray(currentValues.activeDays) ? currentValues.activeDays : [0, 1, 2, 3, 4, 5, 6];
             const daysLetters = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+            const daysNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+            const hasCustomDaily = !!(currentValues.dailySlots && Array.isArray(currentValues.dailySlots));
+            const rawDailySlots = hasCustomDaily ? currentValues.dailySlots : [currentSlots, currentSlots, currentSlots, currentSlots, currentSlots, currentSlots, currentSlots];
+
             box.innerHTML = `
               <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tomas / Checks al día:</label>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tomas habituales / día:</label>
                 <input id="habitSlotsCount" type="number" min="1" step="1" value="${currentSlots}" oninput="app.onHabitSlotsCountChange(this.value)" onchange="app.onHabitSlotsCountChange(this.value)" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" placeholder="1 = Sí/No tradicional" />
               </div>
               <div class="space-y-1">
@@ -18243,8 +18632,34 @@
                 <div id="habitSlotsModeLabel" class="py-2 text-[11px] font-semibold text-theme-main">${currentSlots > 1 ? `Multi-casillas (${currentSlots} tomas)` : 'Check Tradicional (1 toma)'}</div>
               </div>
 
+              <!-- Selector de Casillas Personalizadas por Día (L, M, X, J, V, S, D) -->
+              <div class="col-span-1 sm:col-span-3 p-3 rounded-xl bg-theme-soft/30 border border-theme space-y-2">
+                <div class="flex items-center justify-between">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs">💊</span>
+                    <span class="text-[11px] font-bold text-stone-900 dark:text-white">Casillas Variables por Día (L - D):</span>
+                  </div>
+                  <label class="inline-flex items-center gap-1.5 text-[10px] text-stone-600 dark:text-slate-300 font-bold cursor-pointer">
+                    <input type="checkbox" id="habitUseDailySlots" onchange="app.toggleDailySlotsCustom(this.checked)" ${hasCustomDaily ? 'checked' : ''} class="w-3.5 h-3.5 accent-theme" />
+                    <span>Personalizar por día</span>
+                  </label>
+                </div>
+                
+                <div id="habitDailySlotsInputsRow" class="${hasCustomDaily ? '' : 'hidden'} pt-1">
+                  <div class="grid grid-cols-7 gap-1 text-center">
+                    ${daysLetters.map((d, dIdx) => `
+                      <div class="p-1 rounded-lg subpanel-bg border space-y-1">
+                        <span class="block text-[10px] font-bold text-stone-500 font-mono">${d}</span>
+                        <input type="number" min="0" max="20" id="habitDailySlot_${dIdx}" value="${rawDailySlots[dIdx] !== undefined ? rawDailySlots[dIdx] : currentSlots}" class="w-full py-1 text-center font-mono font-bold text-xs input-bg border rounded-lg focus:border-theme outline-none" title="${daysNames[dIdx]}" />
+                      </div>
+                    `).join('')}
+                  </div>
+                  <span class="block text-[9.5px] text-stone-500 dark:text-slate-400 mt-1.5 italic">Define cuántas casillas tendrá cada día (0 = día de descanso sin tomas).</span>
+                </div>
+              </div>
+
               <!-- Días de la Semana Activos -->
-              <div class="col-span-1 sm:col-span-3 p-2.5 rounded-xl bg-theme-soft/40 border border-theme space-y-1.5">
+              <div id="habitActiveDaysStandardBox" class="${hasCustomDaily ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl bg-theme-soft/40 border border-theme space-y-1.5">
                 <div class="flex items-center justify-between text-[10px] font-bold text-stone-700 dark:text-slate-200">
                   <span>📅 Días de la semana en que aplica:</span>
                   <span id="habitActiveDaysSummary" class="text-[9.5px] font-mono text-theme-main font-bold">${activeDays.length === 7 ? 'Todos los días (7/7)' : activeDays.length + ' días seleccionados'}</span>
@@ -18263,17 +18678,33 @@
               </div>
 
               <!-- Hora / Aviso Fijo para Check Tradicional (si slotsCount === 1) -->
-              <div id="habitSingleHourBox" class="${currentSlots > 1 ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <div id="habitSingleHourBox" class="${currentSlots > 1 || hasCustomDaily ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-1">
                 <div class="flex items-center justify-between">
                   <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">⏰ Hora o Aviso Fijo (Opcional):</label>
                   <span class="text-[9.5px] text-stone-400">Visible fijo en la matriz cada día</span>
                 </div>
-                <input type="text" id="habitFixedHour" value="${escapeHtml(currentHour)}" placeholder="ej: 09:00, 21:30 o Antes de dormir" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-mono font-bold text-xs focus:border-theme outline-none" />
+                <input type="text" id="habitFixedHour" value="${currentHour}" placeholder="ej: 08:30 o En ayunas" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold text-xs focus:border-theme outline-none" />
               </div>
 
-              <div id="habitSlotLabelsContainer" class="col-span-1 sm:col-span-3 space-y-1.5 pt-1"></div>
+              <!-- Etiquetas / Horas individuales por Casilla (si slotsCount > 1) -->
+              <div id="habitMultiSlotLabelsBox" class="${currentSlots > 1 ? '' : 'hidden'} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-2">
+                <div class="flex items-center justify-between">
+                  <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">⏰ Horas o Notas fijas por casilla:</label>
+                  <span class="text-[9.5px] text-stone-400">Fijas cada día en cada casilla</span>
+                </div>
+                <div id="habitSlotsLabelsInputs" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                  ${Array.from({ length: currentSlots }).map((_, sIdx) => {
+                    const labelVal = (currentValues.slotLabels && currentValues.slotLabels[sIdx]) || '';
+                    return `
+                      <div class="space-y-0.5">
+                        <label class="block text-[9px] font-mono text-stone-500 dark:text-slate-400 uppercase">Casilla #${sIdx + 1}:</label>
+                        <input type="text" id="habitSlotLabel_${sIdx}" value="${labelVal}" placeholder="ej: ${sIdx === 0 ? '08:00' : (sIdx === 1 ? '14:00' : '21:00')}" class="w-full px-2 py-1 input-bg border rounded-lg font-bold text-xs focus:border-theme outline-none" />
+                      </div>
+                    `;
+                  }).join('')}
+                </div>
+              </div>
             `;
-            setTimeout(() => app.onHabitSlotsCountChange(currentSlots, currentValues.slotLabels || []), 10);
           } else if (type === 'target_range') {
             box.innerHTML = `
               <div class="space-y-1">
@@ -18294,120 +18725,145 @@
 
         saveCustomHabit() {
           const editId = document.getElementById('habitEditId')?.value || '';
-          const name = (document.getElementById('habitNameInput')?.value || '').trim();
-          const iconId = (document.getElementById('habitIconInput')?.value || 'star').trim();
-          const emoji = (document.getElementById('habitEmojiInput')?.value || '⭐').trim() || '⭐';
+          const name = document.getElementById('habitNameInput')?.value.trim();
+          if (!name) return;
           const type = document.getElementById('habitTypeSelect')?.value || 'max_limit';
+          const icon = document.getElementById('habitIconInput')?.value || 'star';
+          const emoji = document.getElementById('habitEmojiInput')?.value || '⭐';
+          const isReminderOnly = !!document.getElementById('habitIsReminderOnly')?.checked;
 
-          if (!name) return this.showToast('Por favor escribe un nombre para el hábito.', 'error');
-
-          if (!Array.isArray(state.customHabits)) state.customHabits = [];
+          if (!state.customHabits) state.customHabits = [];
 
           let habitData = {
-            id: editId || ('habit_' + Date.now()),
+            id: editId || 'h_' + Date.now() + '_' + Math.random().toString(36).substr(2, 5),
             name,
-            iconId,
-            emoji: emoji || '⭐',
             type,
-            active: true
+            icon,
+            emoji,
+            active: true,
+            isReminderOnly
           };
 
           if (type === 'max_limit') {
-            habitData.targetDaily = parseFloat(document.getElementById('habitTargetDaily')?.value || '1.0');
-            habitData.targetWeekly = parseFloat(document.getElementById('habitTargetWeekly')?.value || '7.0');
-            habitData.unit = (document.getElementById('habitUnit')?.value || 'h').trim();
+            habitData.targetDaily = Number(document.getElementById('habitTargetDaily')?.value) || 1.0;
+            habitData.targetWeekly = Number(document.getElementById('habitTargetWeekly')?.value) || 7.0;
+            habitData.unit = document.getElementById('habitUnit')?.value.trim() || 'h';
           } else if (type === 'min_accum') {
-            habitData.targetWeekly = parseFloat(document.getElementById('habitTargetWeekly')?.value || '10');
-            habitData.targetDaily = parseFloat(document.getElementById('habitTargetDaily')?.value || '1');
-            habitData.unit = (document.getElementById('habitUnit')?.value || 'u').trim();
+            habitData.targetWeekly = Number(document.getElementById('habitTargetWeekly')?.value) || 10;
+            habitData.targetDaily = Number(document.getElementById('habitTargetDaily')?.value) || 1.0;
+            habitData.unit = document.getElementById('habitUnit')?.value.trim() || 'u';
           } else if (type === 'binary_check') {
-            const slotsCount = Math.max(1, parseInt(document.getElementById('habitSlotsCount')?.value || '1', 10));
-            habitData.slotsCount = slotsCount;
-            habitData.targetWeeklyDays = parseInt(document.getElementById('habitTargetWeeklyDays')?.value || '7', 10);
-            
-            const activeDaysInp = document.getElementById('habitActiveDaysInput');
-            if (activeDaysInp) {
-              try { habitData.activeDays = JSON.parse(activeDaysInp.value); } catch (_) { habitData.activeDays = [0, 1, 2, 3, 4, 5, 6]; }
-            } else {
-              habitData.activeDays = [0, 1, 2, 3, 4, 5, 6];
-            }
-
-            if (slotsCount > 1) {
-              habitData.slotLabels = [];
-              for (let s = 0; s < slotsCount; s++) {
-                const inp = document.getElementById('habitSlotLabel_' + s);
-                const lbl = inp ? (inp.value || '').trim() : '';
-                habitData.slotLabels.push(lbl || ('Toma ' + (s + 1)));
+            const useDailySlots = !!document.getElementById('habitUseDailySlots')?.checked;
+            if (useDailySlots) {
+              const dSlots = [];
+              for (let d = 0; d < 7; d++) {
+                const el = document.getElementById('habitDailySlot_' + d);
+                dSlots.push(el ? Math.max(0, parseInt(el.value, 10) || 0) : 1);
               }
-              habitData.fixedHour = habitData.slotLabels[0] || '';
+              habitData.dailySlots = dSlots;
+              habitData.slotsCount = Math.max(...dSlots, 1);
+              habitData.activeDays = dSlots.map((s, idx) => s > 0 ? idx : -1).filter(idx => idx !== -1);
             } else {
-              const fixedHourVal = (document.getElementById('habitFixedHour')?.value || '').trim();
-              habitData.fixedHour = fixedHourVal;
-              habitData.slotLabels = fixedHourVal ? [fixedHourVal] : [];
+              habitData.slotsCount = Math.max(1, parseInt(document.getElementById('habitSlotsCount')?.value, 10) || 1);
+              try {
+                const activeDaysStr = document.getElementById('habitActiveDaysInput')?.value;
+                habitData.activeDays = activeDaysStr ? JSON.parse(activeDaysStr) : [0, 1, 2, 3, 4, 5, 6];
+              } catch (e) {
+                habitData.activeDays = [0, 1, 2, 3, 4, 5, 6];
+              }
+            }
+            habitData.targetWeeklyDays = Math.max(1, parseInt(document.getElementById('habitTargetWeeklyDays')?.value, 10) || 7);
+            
+            if (habitData.slotsCount > 1) {
+              const labels = [];
+              for (let i = 0; i < habitData.slotsCount; i++) {
+                const lEl = document.getElementById('habitSlotLabel_' + i);
+                labels.push(lEl ? lEl.value.trim() : '');
+              }
+              habitData.slotLabels = labels;
+              habitData.fixedHour = labels[0] || '';
+            } else {
+              habitData.fixedHour = document.getElementById('habitFixedHour')?.value.trim() || '';
+              habitData.slotLabels = [habitData.fixedHour];
             }
           } else if (type === 'target_range') {
-            habitData.targetCenter = parseFloat(document.getElementById('habitTargetCenter')?.value || '8');
-            habitData.targetMargin = parseFloat(document.getElementById('habitTargetMargin')?.value || '0.5');
-            habitData.targetWeeklyDays = parseInt(document.getElementById('habitTargetWeeklyDays')?.value || '6', 10);
-            habitData.unit = (document.getElementById('habitUnit')?.value || '').trim();
+            habitData.targetCenter = Number(document.getElementById('habitTargetCenter')?.value) || 8.0;
+            habitData.targetMargin = Number(document.getElementById('habitTargetMargin')?.value) || 1.0;
+            habitData.targetWeeklyDays = Math.max(1, parseInt(document.getElementById('habitTargetWeeklyDays')?.value, 10) || 6);
+            habitData.unit = document.getElementById('habitUnit')?.value.trim() || 'h';
           }
-
-          pushUndo(editId ? 'Editar hábito personalizado' : 'Crear hábito personalizado');
 
           if (editId) {
             const idx = state.customHabits.findIndex(h => h.id === editId);
-            if (idx >= 0) {
-              habitData.active = state.customHabits[idx].active !== false;
-              state.customHabits[idx] = habitData;
+            if (idx !== -1) {
+              state.customHabits[idx] = Object.assign({}, state.customHabits[idx], habitData);
             }
-            this.showToast(`Hábito "${name}" actualizado.`, 'success');
+            this.showToast('Hábito actualizado correctamente.', 'success', 1500);
           } else {
             state.customHabits.push(habitData);
-            this.showToast(`Hábito "${name}" añadido a la plantilla.`, 'success');
+            this.showToast('Nuevo hábito creado correctamente.', 'success', 1500);
           }
 
           this.resetHabitForm();
-          this.renderCustomHabitsList();
-          renderTab2();
+          this.renderManageHabitsList();
           renderDailyHabits();
           renderHeaderAndKPIs();
+          updateHeaderDailyProgress();
           saveState();
         },
 
         editCustomHabit(id) {
-          const habit = (state.customHabits || []).find(h => h.id === id);
-          if (!habit) return;
+          const h = (state.customHabits || []).find(item => item.id === id);
+          if (!h) return;
+          const editIdEl = document.getElementById('habitEditId');
+          const nameEl = document.getElementById('habitNameInput');
+          const typeEl = document.getElementById('habitTypeSelect');
+          const cancelBtn = document.getElementById('habitCancelEditBtn');
+          const submitBtn = document.getElementById('habitSubmitBtn');
+          const remChk = document.getElementById('habitIsReminderOnly');
 
-          document.getElementById('habitEditId').value = habit.id;
-          document.getElementById('habitModalTitle').textContent = `Editar: ${habit.name}`;
-          document.getElementById('habitSubmitBtn').textContent = 'Guardar Cambios';
-          document.getElementById('habitCancelEditBtn').classList.remove('hidden');
+          if (editIdEl) editIdEl.value = h.id;
+          if (nameEl) nameEl.value = h.name;
+          if (typeEl) typeEl.value = h.type;
+          if (cancelBtn) cancelBtn.classList.remove('hidden');
+          if (submitBtn) submitBtn.textContent = 'Actualizar Hábito';
+          if (remChk) remChk.checked = !!h.isReminderOnly;
 
-          document.getElementById('habitNameInput').value = habit.name;
-          const iconId = habit.iconId || (SVG_ICON_LIBRARY[habit.emoji] ? habit.emoji : 'star');
-          const iconInp = document.getElementById('habitIconInput');
-          if (iconInp) iconInp.value = iconId;
-          const preview = document.getElementById('habitIconPreview');
-          if (preview) {
-            preview.innerHTML = renderItemIcon(habit.iconId || habit.emoji || 'star', 'w-5 h-5 text-theme-main');
-          }
-          document.getElementById('habitEmojiInput').value = habit.emoji || '⭐';
-          document.getElementById('habitTypeSelect').value = habit.type;
+          const iconInput = document.getElementById('habitIconInput');
+          const emojiInput = document.getElementById('habitEmojiInput');
+          const previewEl = document.getElementById('habitIconPreview');
+          if (iconInput) iconInput.value = h.icon || 'star';
+          if (emojiInput) emojiInput.value = h.emoji || '⭐';
+          if (previewEl) previewEl.innerHTML = renderIcon(h.icon || 'star', 'w-5 h-5');
 
-          this.onHabitTypeChange(habit.type, habit);
+          this.onHabitTypeChange(h.type, h);
+          const form = document.getElementById('customHabitForm');
+          if (form) form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         },
 
-        toggleCustomHabit(id) {
-          pushUndo('Alternar hábito personalizado');
-          const habit = (state.customHabits || []).find(h => h.id === id);
-          if (habit) {
-            habit.active = habit.active === false ? true : false;
-            this.renderCustomHabitsList();
-            renderTab2();
-            renderDailyHabits();
-            renderHeaderAndKPIs();
-            saveState();
-            this.showToast(`Hábito "${habit.name}" ${habit.active ? 'activado' : 'pausado'}.`, 'info');
+        resetHabitForm() {
+          const form = document.getElementById('customHabitForm');
+          if (form) form.reset();
+          const editIdEl = document.getElementById('habitEditId');
+          const cancelBtn = document.getElementById('habitCancelEditBtn');
+          const submitBtn = document.getElementById('habitSubmitBtn');
+          const remChk = document.getElementById('habitIsReminderOnly');
+          if (editIdEl) editIdEl.value = '';
+          if (cancelBtn) cancelBtn.classList.add('hidden');
+          if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
+          if (remChk) remChk.checked = false;
+
+          const iconInput = document.getElementById('habitIconInput');
+          const emojiInput = document.getElementById('habitEmojiInput');
+          const previewEl = document.getElementById('habitIconPreview');
+          if (iconInput) iconInput.value = 'star';
+          if (emojiInput) emojiInput.value = '⭐';
+          if (previewEl) previewEl.innerHTML = renderIcon('star', 'w-5 h-5');
+
+          const typeEl = document.getElementById('habitTypeSelect');
+          if (typeEl) {
+            typeEl.value = 'max_limit';
+            this.onHabitTypeChange('max_limit');
           }
         },
 
@@ -18724,6 +19180,10 @@
         applyAccentPalette(state.themePalette || 'emerald');
         app.switchTab(state.activeTab || 1);
         renderApp();
+        app.applyUiPreferences();
+        updateHeaderDailyProgress();
+        app.applyUiPreferences();
+        updateHeaderDailyProgress();
         initAutoSaveDrive();
         updateGdriveUI();
         if (gdriveUserEmail) {
@@ -18738,6 +19198,16 @@
         }
         registerServiceWorker();
         checkWeekRollover();
+
+        // Comprobación de arranque en Modo Mini-Widget a 1 Toque
+        try {
+          const urlParams = new URLSearchParams(window.location.search);
+          if (urlParams.get('view') === 'widget') {
+            setTimeout(() => {
+              app.enterWidgetMode();
+            }, 50);
+          }
+        } catch(e) {}
 
         // Mostrar introducción interactiva / onboarding si es un usuario o dispositivo nuevo
         const onboardingShown = localStorage.getItem('centro_onboarding_shown');
