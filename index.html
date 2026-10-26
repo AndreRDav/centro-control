@@ -18770,31 +18770,60 @@
         // ========================================================
         // GESTIÓN DE CUADRÍCULA TETRIS 12xH Y EDICIÓN DE TABLERO
         // ========================================================
+        getCardRequiredRowSpan(cardId) {
+          const el = document.getElementById(cardId);
+          if (!el) {
+            const fallbackSpans = {
+              todayFocusContainer: 24,
+              tab1RecentExpensesBar: 4,
+              notesMiniCalendarPanel: 8,
+              interactiveListsPanel: 15,
+              weekTableContainer: 9,
+              tab2ModularHabitsSection: 8,
+              tab2ScheduleSection: 14,
+              tab2AttendanceRulesSection: 14,
+              tab3BudgetConfigCard: 8,
+              tab3SavingsGoalsCard: 8,
+              tab3FixedExpensesCard: 10,
+              tab3ExpensesTableCard: 10,
+              tab4StudyAuditSection: 8,
+              tab4CustomHabitsSection: 8,
+              tab4BiometricsSection: 8,
+              tab4EvolutionSection: 12
+            };
+            return fallbackSpans[cardId] || 6;
+          }
+          // Medir la altura real del contenido sin solapamientos
+          const h = Math.max(el.scrollHeight || 0, el.offsetHeight || 0, 120);
+          const rowPitch = 52; // 40px celda + 12px gap
+          return Math.max(2, Math.ceil((h + 12) / rowPitch));
+        },
+
         getDefaultGridLayout(tabKey) {
           const DEFAULTS = {
             tab1: {
-              todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 9, name: 'Hoy y Hábitos' },
-              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 10, rowSpan: 3, name: 'Movimientos Recientes' },
-              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 5, name: 'Calendario' },
-              interactiveListsPanel: { col: 7, colSpan: 6, row: 6, rowSpan: 7, name: 'Listas y Tareas' },
-              weekTableContainer: { col: 1, colSpan: 12, row: 13, rowSpan: 6, name: 'Matriz Semanal' }
+              todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 24, name: 'Hoy y Hábitos' },
+              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Calendario' },
+              interactiveListsPanel: { col: 7, colSpan: 6, row: 9, rowSpan: 15, name: 'Listas y Tareas' },
+              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 25, rowSpan: 4, name: 'Movimientos Recientes' },
+              weekTableContainer: { col: 1, colSpan: 12, row: 29, rowSpan: 9, name: 'Matriz Semanal' }
             },
             tab2: {
-              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 6, name: 'Plantilla de Metas' },
-              tab2ScheduleSection: { col: 1, colSpan: 8, row: 7, rowSpan: 8, name: 'Horario Semanal' },
-              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 7, rowSpan: 8, name: 'Reglas de Asistencia' }
+              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Plantilla de Metas' },
+              tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, rowSpan: 14, name: 'Horario Semanal' },
+              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, rowSpan: 14, name: 'Reglas de Asistencia' }
             },
             tab3: {
-              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 5, name: 'Presupuesto Semanal' },
-              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 5, name: 'Metas de Ahorro' },
-              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 6, rowSpan: 6, name: 'Gastos Fijos' },
-              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 6, rowSpan: 6, name: 'Tabla de Gastos' }
+              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 8, name: 'Presupuesto Semanal' },
+              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Metas de Ahorro' },
+              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 9, rowSpan: 10, name: 'Gastos Fijos' },
+              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 9, rowSpan: 10, name: 'Tabla de Gastos' }
             },
             tab4: {
-              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 6, name: 'Auditoría de Estudio' },
-              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 7, rowSpan: 5, name: 'Hábitos Personalizados' },
-              tab4BiometricsSection: { col: 7, colSpan: 6, row: 7, rowSpan: 5, name: 'Biometría y Salud' },
-              tab4EvolutionSection: { col: 1, colSpan: 12, row: 12, rowSpan: 7, name: 'Histórico y Gráficos' }
+              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Auditoría de Estudio' },
+              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, rowSpan: 8, name: 'Hábitos Personalizados' },
+              tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, rowSpan: 8, name: 'Biometría y Salud' },
+              tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, rowSpan: 12, name: 'Histórico y Gráficos' }
             }
           };
           return JSON.parse(JSON.stringify(DEFAULTS[tabKey] || DEFAULTS.tab1));
@@ -18824,41 +18853,49 @@
             state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
           }
 
-          // MIGRACIÓN AUTOMÁTICA DE DISEÑOS GUARDADOS PREVIAMENTE SIN ROWSPAN (40PX SYSTEM)
+          // MIGRACIÓN AUTOMÁTICA DE DISEÑOS GUARDADOS PREVIAMENTE CON SOLAPAMIENTOS O ROWSPAN ESCASO
           const current = state.uiPreferences.gridLayouts.desktop[tabKey];
           const defaults = this.getDefaultGridLayout(tabKey);
-          let needsMigration = false;
+          let needsCleanReset = false;
+
+          if (tabKey === 'tab1') {
+            if (current.todayFocusContainer && (current.todayFocusContainer.rowSpan < 16 || !current.todayFocusContainer.rowSpan)) needsCleanReset = true;
+            if (current.weekTableContainer && current.weekTableContainer.row < 20) needsCleanReset = true;
+            if (current.interactiveListsPanel && current.interactiveListsPanel.row < 8) needsCleanReset = true;
+          }
+
+          if (needsCleanReset) {
+            state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
+            return state.uiPreferences.gridLayouts.desktop[tabKey];
+          }
+
+          // Asegurar que cada módulo existente tenga nombre y rowSpan adecuado
           Object.keys(defaults).forEach(id => {
             if (!current[id]) {
               current[id] = Object.assign({}, defaults[id]);
-              needsMigration = true;
-            } else if (!current[id].rowSpan || current[id].rowSpan < 2 || (current.weekTableContainer && current.weekTableContainer.row <= 3)) {
-              needsMigration = true;
+            } else {
+              if (!current[id].name) current[id].name = defaults[id].name;
+              if (!current[id].rowSpan || current[id].rowSpan < defaults[id].rowSpan) {
+                current[id].rowSpan = defaults[id].rowSpan;
+              }
             }
           });
-
-          if (needsMigration) {
-            Object.keys(defaults).forEach(id => {
-              if (!current[id]) {
-                current[id] = Object.assign({}, defaults[id]);
-              } else {
-                current[id].rowSpan = defaults[id].rowSpan;
-                if (current[id].row <= 3 && defaults[id].row > 3) {
-                  current[id].row = defaults[id].row;
-                }
-              }
-            });
-          }
 
           return current;
         },
 
-        // COMPACTACIÓN VERTICAL PURA (GRAVEDAD HACIA ARRIBA SIN CAMBIAR DE COLUMNA Y SIN HUECOS)
+        // COMPACTACIÓN VERTICAL PURA (GRAVEDAD HACIA ARRIBA CALCULANDO ALTURAS REALES DEL DOM)
         compactGrid(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
+
+          // 1. Sincronizar rowSpan de cada cuadro con su altura real en el DOM para evitar que se monten
+          Object.keys(layout).forEach(id => {
+            const realNeeded = this.getCardRequiredRowSpan(id);
+            layout[id].rowSpan = Math.max(layout[id].rowSpan || 2, realNeeded);
+          });
+
           const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
-          // Ordenar por fila actual ascendente, luego columna
           cards.sort((a, b) => a.row - b.row || a.col - b.col);
 
           const placed = [];
@@ -18869,8 +18906,8 @@
                 const cRight = c.col + c.colSpan - 1;
                 const pRight = p.col + p.colSpan - 1;
                 const colsOverlap = (c.col <= pRight && p.col <= cRight);
-                const pBottom = p.row + (p.rowSpan || 2) - 1;
-                const cBottom = testRow + (c.rowSpan || 2) - 1;
+                const pBottom = p.row + p.rowSpan - 1;
+                const cBottom = testRow + c.rowSpan - 1;
                 const rowsOverlap = (testRow <= pBottom && p.row <= cBottom);
                 return colsOverlap && rowsOverlap;
               });
@@ -18885,12 +18922,13 @@
 
           cards.forEach(c => {
             layout[c.id].row = c.row;
+            layout[c.id].rowSpan = c.rowSpan;
           });
 
           this.applyGridLayout(tabKey);
           if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
           if (typeof saveState === 'function') saveState();
-          this.showToast('⚡ Tablero compactado hacia arriba (0 huecos vacíos).', 'emerald');
+          this.showToast('⚡ Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
         },
 
         autoFlowGrid(tabKey) {
@@ -18903,10 +18941,32 @@
 
         applyDefaultPreset(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
-          this.applyGridLayout(tabKey);
-          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
-          if (typeof saveState === 'function') saveState();
+          const layout = this.getGridLayout(tabKey);
+
+          if (tabKey === 'tab1') {
+            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, name: 'Hoy y Hábitos' };
+            layout.notesMiniCalendarPanel = { col: 7, colSpan: 6, row: 1, name: 'Calendario' };
+            layout.tab1RecentExpensesBar = { col: 1, colSpan: 6, row: 100, name: 'Movimientos Recientes' };
+            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 100, name: 'Listas y Tareas' };
+            layout.weekTableContainer = { col: 1, colSpan: 12, row: 200, name: 'Matriz Semanal' };
+          } else if (tabKey === 'tab2') {
+            layout.tab2ModularHabitsSection = { col: 1, colSpan: 12, row: 1, name: 'Plantilla de Metas' };
+            layout.tab2ScheduleSection = { col: 1, colSpan: 8, row: 100, name: 'Horario Semanal' };
+            layout.tab2AttendanceRulesSection = { col: 9, colSpan: 4, row: 100, name: 'Reglas de Asistencia' };
+          } else if (tabKey === 'tab3') {
+            layout.tab3BudgetConfigCard = { col: 1, colSpan: 6, row: 1, name: 'Presupuesto Semanal' };
+            layout.tab3SavingsGoalsCard = { col: 7, colSpan: 6, row: 1, name: 'Metas de Ahorro' };
+            layout.tab3FixedExpensesCard = { col: 1, colSpan: 5, row: 100, name: 'Gastos Fijos' };
+            layout.tab3ExpensesTableCard = { col: 6, colSpan: 7, row: 100, name: 'Tabla de Gastos' };
+          } else if (tabKey === 'tab4') {
+            layout.tab4StudyAuditSection = { col: 1, colSpan: 12, row: 1, name: 'Auditoría de Estudio' };
+            layout.tab4CustomHabitsSection = { col: 1, colSpan: 6, row: 100, name: 'Hábitos Personalizados' };
+            layout.tab4BiometricsSection = { col: 7, colSpan: 6, row: 100, name: 'Biometría y Salud' };
+            layout.tab4EvolutionSection = { col: 1, colSpan: 12, row: 200, name: 'Histórico y Gráficos' };
+          }
+
+          // Compactar midiendo alturas reales para garantizar que ningún cuadro se monte sobre otro
+          this.compactGrid(tabKey);
           this.showToast('📐 Diseño predeterminado restaurado con éxito.', 'emerald');
         },
 
@@ -18918,19 +18978,19 @@
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
           if (tabKey === 'tab1') {
-            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, rowSpan: 9, name: 'Hoy y Hábitos' };
-            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, rowSpan: 5, name: 'Calendario' };
-            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, rowSpan: 5, name: 'Movimientos Recientes' };
-            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 6, rowSpan: 7, name: 'Listas y Tareas' };
-            layout.weekTableContainer = { col: 1, colSpan: 12, row: 13, rowSpan: 6, name: 'Matriz Semanal' };
+            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, name: 'Hoy y Hábitos' };
+            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, name: 'Calendario' };
+            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, name: 'Movimientos Recientes' };
+            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 100, name: 'Listas y Tareas' };
+            layout.weekTableContainer = { col: 1, colSpan: 12, row: 200, name: 'Matriz Semanal' };
           } else {
             const ids = Object.keys(layout);
             if (ids.length >= 3) {
-              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1; layout[ids[0]].rowSpan = 6;
-              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1; layout[ids[1]].rowSpan = 6;
-              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1; layout[ids[2]].rowSpan = 6;
+              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1;
+              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1;
+              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1;
               for (let i = 3; i < ids.length; i++) {
-                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 7 + (i - 3) * 6; layout[ids[i]].rowSpan = 6;
+                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 100 + i * 20;
               }
             }
           }
@@ -18946,8 +19006,7 @@
             const isLeft = (i % 2 === 0);
             layout[id].col = isLeft ? 1 : 7;
             layout[id].colSpan = 6;
-            layout[id].row = Math.floor(i / 2) * 6 + 1;
-            layout[id].rowSpan = 6;
+            layout[id].row = 100 + i * 20;
           });
           this.compactGrid(tabKey);
           this.showToast('⚖️ Preset 50% / 50% aplicado.', 'emerald');
@@ -18957,13 +19016,10 @@
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
           const ids = Object.keys(layout);
-          let r = 1;
-          ids.forEach(id => {
+          ids.forEach((id, i) => {
             layout[id].col = 1;
             layout[id].colSpan = 12;
-            layout[id].row = r;
-            layout[id].rowSpan = 6;
-            r += 6;
+            layout[id].row = 100 + i * 20;
           });
           this.compactGrid(tabKey);
           this.showToast('⬛ Todos los módulos en 100% de anchura.', 'emerald');
@@ -18979,8 +19035,11 @@
               const el = document.getElementById(id);
               if (el) {
                 const cfg = layout[id];
+                const realSpan = this.getCardRequiredRowSpan(id);
+                const finalSpan = Math.max(cfg.rowSpan || 2, realSpan);
+                cfg.rowSpan = finalSpan;
                 el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
-                el.style.gridRow = cfg.row + ' / span ' + (cfg.rowSpan || 2);
+                el.style.gridRow = cfg.row + ' / span ' + finalSpan;
                 el.style.width = '100%';
               }
             });
@@ -19020,8 +19079,29 @@
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             const titleEl = document.getElementById('boardEditTitle');
             if (titleEl) titleEl.textContent = 'Modo Edición: Cuadrícula 12×H (Pestaña ' + tabNum + ')';
-            this.renderBoardEditHandles(tabKey);
-            this.showToast('🛠️ Modo edición: 12 columnas × casillas 40px con imantado.', 'emerald');
+
+            // Al entrar al modo edición, compactar automáticamente si hay solapamientos para que se vea limpio
+            const layout = this.getGridLayout(tabKey);
+            let hasOverlap = false;
+            const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
+            for (let i = 0; i < cards.length; i++) {
+              for (let j = i + 1; j < cards.length; j++) {
+                const a = cards[i], b = cards[j];
+                const colsOverlap = (a.col <= (b.col + b.colSpan - 1) && b.col <= (a.col + a.colSpan - 1));
+                const aBottom = a.row + (a.rowSpan || 2) - 1;
+                const bBottom = b.row + (b.rowSpan || 2) - 1;
+                const rowsOverlap = (a.row <= bBottom && b.row <= aBottom);
+                if (colsOverlap && rowsOverlap) hasOverlap = true;
+              }
+            }
+            if (hasOverlap) {
+              this.compactGrid(tabKey);
+            } else {
+              this.applyGridLayout(tabKey);
+              this.renderBoardEditHandles(tabKey);
+            }
+
+            this.showToast('🛠️ Modo edición: Cuadrícula limpia y sin solapamientos.', 'emerald');
           } else {
             if (toolbar) toolbar.classList.add('hidden');
             if (toggleBtn) {
@@ -19216,7 +19296,7 @@
             cfg.col = targetCol;
             cfg.row = targetRow;
 
-            // Se queda exactamente donde el usuario lo suelta, sin mover los demás cuadros
+            // Se queda exactamente donde el usuario lo suelta
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
@@ -19250,6 +19330,7 @@
           const origColSpan = cfg.colSpan;
           const origRow = cfg.row;
           const origRowSpan = cfg.rowSpan || 2;
+          const minNeededSpan = this.getCardRequiredRowSpan(cardId);
 
           const gap = 12;
           const colWidth = (containerRect.width - 11 * gap) / 12;
@@ -19295,10 +19376,10 @@
 
             if (direction.includes('t')) {
               const origBottom = origRow + origRowSpan;
-              r = Math.max(1, Math.min(origBottom - 2, origRow + deltaRows));
+              r = Math.max(1, Math.min(origBottom - minNeededSpan, origRow + deltaRows));
               rSpan = origBottom - r;
             } else if (direction.includes('b')) {
-              rSpan = Math.max(2, origRowSpan + deltaRows);
+              rSpan = Math.max(minNeededSpan, origRowSpan + deltaRows);
             }
 
             finalCol = c;
