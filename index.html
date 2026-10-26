@@ -831,6 +831,16 @@
     /* ========================================================
        SISTEMA DE CUADRÍCULA TETRIS 12×H Y MODO EDICIÓN DIRECTA
        ======================================================== */
+    
+    .grid-drop-placeholder {
+      position: relative;
+      background: rgba(16, 185, 129, 0.12) !important;
+      border: 2px dashed rgba(16, 185, 129, 0.7) !important;
+      border-radius: 18px !important;
+      pointer-events: none !important;
+      z-index: 20 !important;
+      transition: all 0.12s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
     .dashboard-grid-12 {
       display: grid;
       grid-template-columns: repeat(12, minmax(0, 1fr));
@@ -4929,65 +4939,7 @@
         
       </div>
 
-      <!-- HUCHA GLOBAL (ANCHURA COMPLETA COMPACTA O CON SUS CONTROLES) -->
-      <div id="tab3PiggyCard" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs relative overflow-hidden">
-        <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
-        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-3">
-          <div class="flex items-center gap-2">
-            <div class="vector-seal bg-theme-main text-white shadow-xs">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v12M8 10h8"></path></svg>
-            </div>
-            <div>
-              <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Hucha de Ahorro <span class="italic font-normal">Global</span></h3>
-              <span class="text-[10px] text-slate-400 font-mono">Fondo Acumulado de Reserva</span>
-            </div>
-          </div>
-
-          <div class="flex items-baseline gap-2">
-            <span class="text-xs text-slate-400 font-semibold">Saldo Disponible:</span>
-            <div id="tab3PiggyBalanceDisplay" class="text-2xl sm:text-3xl font-extrabold text-theme-main font-mono">0.00 €</div>
-          </div>
-
-          <div class="flex items-center gap-2">
-            <button onclick="app.openPiggyModal('deposit')" class="px-4 py-2 rounded-xl bg-theme-main hover:opacity-95 text-white font-bold shadow-md border border-theme active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Ingresar</span>
-            </button>
-            <button onclick="app.openPiggyModal('withdraw')" class="px-4 py-2 rounded-xl bg-theme-accent hover:opacity-95 text-white font-bold shadow-md border border-theme-accent/60 active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
-              <span>Retirar</span>
-            </button>
-          </div>
-        </div>
-
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
-          <!-- Progreso Meta Mensual de Ahorro -->
-          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
-            <div class="flex justify-between items-center text-[11px]">
-              <span class="text-slate-400 font-semibold">Meta Mensual de Ahorro:</span>
-              <span id="tab3PiggyGoalPct" class="font-bold text-theme-main font-mono">0%</span>
-            </div>
-            <div class="h-2 w-full bg-slate-900 border border-slate-700/60 rounded-full overflow-hidden flex">
-              <div id="tab3PiggyProgressBar" class="bg-theme-main h-full rounded-full transition-all duration-500" style="width: 0%"></div>
-            </div>
-            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
-              <span id="tab3PiggyMonthSavings">0.00 € acumulados</span>
-              <span id="tab3PiggyGoalTarget">Meta: 0.00 €</span>
-            </div>
-          </div>
-
-          <!-- Mini Sparkline / Histórico de Balance Reciente -->
-          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
-            <div class="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
-              <span class="font-semibold">Evolución del Fondo:</span>
-              <span id="tab3PiggyHistoryCount" class="font-mono">0 movimientos</span>
-            </div>
-            <div id="tab3PiggySparkline" class="h-9 w-full rounded-lg subpanel-bg border flex items-center justify-center overflow-hidden p-1">
-              <span class="text-[10px] text-slate-500 italic">Sin transacciones registradas</span>
-            </div>
-          </div>
-        </div>
-      </div>
+      
 
       <!-- GASTOS FIJOS MENSUALES + REGISTRO RÁPIDO EN PESTAÑA FINANZAS -->
       <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
@@ -18770,119 +18722,184 @@
         // ========================================================
         // GESTIÓN DE CUADRÍCULA TETRIS 12xH Y EDICIÓN DE TABLERO
         // ========================================================
-        getIntrinsicMinRowSpan(cardId) {
-          const INTRINSIC_MINS = {
-            // Pestaña 1
-            todayFocusContainer: 24,       // Hoy y Hábitos (~1180px para ver hábitos y recordatorios sin scroll)
-            notesMiniCalendarPanel: 8,     // Calendario mensual completo (~400px)
-            interactiveListsPanel: 15,     // Listas y tareas (~750px)
-            tab1RecentExpensesBar: 4,      // Movimientos recientes (~180px)
-            weekTableContainer: 9,         // Matriz semanal (~420px)
+        // 1. MEDICIÓN INTRÍNSECA SÍNCRONA ("A MÁS ANCHO, MENOS ALTO", CERO PARPADEO)
+        measureNaturalRows(cardEl) {
+          if (!cardEl || cardEl.classList.contains('hidden') || cardEl.style.display === 'none') {
+            return 0;
+          }
+          if (cardEl.offsetParent === null) {
+            const fallbackMins = {
+              todayFocusContainer: 18,
+              notesMiniCalendarPanel: 8,
+              interactiveListsPanel: 14,
+              tab1RecentExpensesBar: 4,
+              weekTableContainer: 8,
+              tab2ModularHabitsSection: 8,
+              tab2ScheduleSection: 14,
+              tab2AttendanceRulesSection: 14,
+              tab3BudgetConfigCard: 8,
+              tab3SavingsGoalsCard: 8,
+              tab3PiggyCard: 8,
+              tab3FixedExpensesCard: 8,
+              tab3ExpensesTableCard: 8,
+              tab4StudyAuditSection: 8,
+              tab4CustomHabitsSection: 8,
+              tab4BiometricsSection: 8,
+              tab4EvolutionSection: 12
+            };
+            return fallbackMins[cardEl.id] || 4;
+          }
 
-            // Pestaña 2
-            tab2ModularHabitsSection: 8,   // Plantilla de Metas
-            tab2ScheduleSection: 14,       // Horario Semanal
-            tab2AttendanceRulesSection: 14,// Reglas de Asistencia
+          // Guardar temporalmente estilos inline
+          const prevAlignSelf = cardEl.style.alignSelf;
+          const prevHeight = cardEl.style.height;
+          const prevMinHeight = cardEl.style.minHeight;
 
-            // Pestaña 3
-            tab3BudgetConfigCard: 8,       // Presupuesto Semanal
-            tab3SavingsGoalsCard: 8,       // Metas de Ahorro
-            tab3FixedExpensesCard: 10,     // Gastos Fijos
-            tab3ExpensesTableCard: 10,     // Tabla de Gastos
+          // Ocultar temporalmente controles y tiradores para no inflar la medición
+          const overlays = cardEl.querySelectorAll('.card-resize-handle, .card-drag-shield, .board-edit-ctrl-overlay');
+          overlays.forEach(el => { el.style.display = 'none'; });
 
-            // Pestaña 4
-            tab4StudyAuditSection: 8,      // Auditoría de Estudio
-            tab4CustomHabitsSection: 8,    // Hábitos Personalizados
-            tab4BiometricsSection: 8,      // Biometría y Salud
-            tab4EvolutionSection: 12       // Histórico y Gráficos
-          };
-          return INTRINSIC_MINS[cardId] || 4;
+          // Aplicar síncronamente sin alterar gridColumn para respetar el ancho exacto
+          cardEl.style.alignSelf = 'start';
+          cardEl.style.height = 'auto';
+          cardEl.style.minHeight = '0px';
+
+          // Leer altura natural del contenido vivo
+          const naturalHeightPx = cardEl.getBoundingClientRect().height;
+
+          // Restaurar inmediatamente en la línea siguiente (mismo tick síncrono de JS, cero parpadeo)
+          cardEl.style.alignSelf = prevAlignSelf;
+          cardEl.style.height = prevHeight;
+          cardEl.style.minHeight = prevMinHeight;
+          overlays.forEach(el => { el.style.display = ''; });
+
+          const requiredRows = Math.ceil((naturalHeightPx + 12) / 52);
+          return Math.max(2, requiredRows);
         },
 
-        // RESOLUCIÓN DE COLISIONES EN CASCADA (CASCADE PUSH)
-        // Si el usuario suelta un cuadro sobre otro, el cuadro desplazado se empuja limpiamente hacia abajo.
-        resolveCollisions(tabKey, activeCardId) {
+        // 2. RESOLUCIÓN DE COLISIONES 2D EN CASCADA (CASCADE PUSH)
+        resolveGridCollisions(tabKey, priorityId) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
           const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
 
-          let hasCollisions = true;
+          let hasCollision = true;
           let iterations = 0;
           const maxIterations = 50;
 
-          while (hasCollisions && iterations < maxIterations) {
-            hasCollisions = false;
+          while (hasCollision && iterations < maxIterations) {
+            hasCollision = false;
             iterations++;
 
+            // Ordenar por fila ascendente, priorizando la tarjeta movida/redimensionada
+            cards.sort((a, b) => {
+              if (a.id === priorityId) return -1;
+              if (b.id === priorityId) return 1;
+              return a.row - b.row || a.col - b.col;
+            });
+
             for (let i = 0; i < cards.length; i++) {
-              for (let j = 0; j < cards.length; j++) {
-                if (i === j) continue;
+              for (let j = i + 1; j < cards.length; j++) {
                 const a = cards[i];
                 const b = cards[j];
 
-                // Comprobar solapamiento en columnas
-                const aRight = a.col + a.colSpan - 1;
-                const bRight = b.col + b.colSpan - 1;
-                const colsOverlap = (a.col <= bRight && b.col <= aRight);
-
-                // Comprobar solapamiento en filas
-                const aBottom = a.row + (a.rowSpan || 2) - 1;
-                const bBottom = b.row + (b.rowSpan || 2) - 1;
-                const rowsOverlap = (a.row <= bBottom && b.row <= aBottom);
+                // Condición 2D de solapamiento estricto
+                const colsOverlap = Math.max(a.col, b.col) < Math.min(a.col + a.colSpan, b.col + b.colSpan);
+                const rowsOverlap = Math.max(a.row, b.row) < Math.min(a.row + a.rowSpan, b.row + b.rowSpan);
 
                 if (colsOverlap && rowsOverlap) {
-                  hasCollisions = true;
-                  let pusher = a;
-                  let pushee = b;
-
-                  if (b.id === activeCardId) {
-                    pusher = b;
-                    pushee = a;
-                  } else if (a.id === activeCardId) {
-                    pusher = a;
-                    pushee = b;
-                  } else if (a.row > b.row) {
-                    pusher = b;
-                    pushee = a;
-                  }
-
-                  // Empujar el cuadro colisionado justo debajo del que empuja
-                  pushee.row = pusher.row + (pusher.rowSpan || 2);
+                  hasCollision = true;
+                  // La tarjeta superior/prioritaria empuja a la inferior justo debajo
+                  b.row = a.row + a.rowSpan;
                 }
               }
             }
           }
 
-          // Guardar nuevas filas calculadas en el layout
           cards.forEach(c => {
             layout[c.id].row = c.row;
           });
         },
 
+        // 3. GRAVEDAD Y COMPACTACIÓN SKYLINE DE 12 COLUMNAS (0 HUECOS Y 0 SOLAPAMIENTOS)
+        compactGrid(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+
+          // 1. Recalcular minRows para todas las tarjetas visibles
+          Object.keys(layout).forEach(id => {
+            const el = document.getElementById(id);
+            if (el) {
+              const minReq = this.measureNaturalRows(el);
+              if (minReq > 0) layout[id].minRows = minReq;
+            }
+            // Alto efectivo: respeta manualRows solo si es mayor que minRows
+            layout[id].rowSpan = (layout[id].manualRows && layout[id].manualRows > (layout[id].minRows || 2))
+              ? layout[id].manualRows
+              : (layout[id].minRows || 2);
+          });
+
+          // 2. Algoritmo Skyline de 12 columnas (horizonte de filas libres)
+          const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
+          cards.sort((a, b) => a.row - b.row || a.col - b.col);
+
+          const skyline = new Array(13).fill(1); // Columnas 1 a 12
+
+          cards.forEach(item => {
+            const slice = skyline.slice(item.col, item.col + item.colSpan);
+            const newRow = Math.max(...slice);
+            item.row = newRow;
+
+            const newTop = item.row + item.rowSpan;
+            for (let c = item.col; c < item.col + item.colSpan; c++) {
+              skyline[c] = newTop;
+            }
+          });
+
+          cards.forEach(c => {
+            layout[c.id].row = c.row;
+          });
+
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          if (typeof saveState === 'function') saveState();
+          this.showToast('⚡ Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
+        },
+
+        autoFlowGrid(tabKey) {
+          // No altera posiciones a menos que se invoque compactGrid explícitamente
+        },
+
+        autoLevelGrid(tabKey) {
+          this.compactGrid(tabKey);
+        },
+
         getDefaultGridLayout(tabKey) {
           const DEFAULTS = {
             tab1: {
-              todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 24, name: 'Hoy y Hábitos' },
-              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Calendario' },
-              interactiveListsPanel: { col: 7, colSpan: 6, row: 9, rowSpan: 15, name: 'Listas y Tareas' },
-              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 25, rowSpan: 4, name: 'Movimientos Recientes' },
-              weekTableContainer: { col: 1, colSpan: 12, row: 29, rowSpan: 9, name: 'Matriz Semanal' }
+              todayFocusContainer: { col: 1, colSpan: 6, row: 1, minRows: 18, manualRows: null, rowSpan: 18, name: 'Hoy y Hábitos' },
+              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
+              interactiveListsPanel: { col: 7, colSpan: 6, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
+              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' },
+              weekTableContainer: { col: 1, colSpan: 12, row: 23, minRows: 8, manualRows: null, rowSpan: 8, name: 'Matriz Semanal' }
             },
             tab2: {
-              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Plantilla de Metas' },
-              tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, rowSpan: 14, name: 'Horario Semanal' },
-              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, rowSpan: 14, name: 'Reglas de Asistencia' }
+              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
+              tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
+              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
             },
             tab3: {
-              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 8, name: 'Presupuesto Semanal' },
-              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Metas de Ahorro' },
-              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 9, rowSpan: 10, name: 'Gastos Fijos' },
-              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 9, rowSpan: 10, name: 'Tabla de Gastos' }
+              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
+              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
+              tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
+              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
+              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' }
             },
             tab4: {
-              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Auditoría de Estudio' },
-              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, rowSpan: 8, name: 'Hábitos Personalizados' },
-              tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, rowSpan: 8, name: 'Biometría y Salud' },
-              tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, rowSpan: 12, name: 'Histórico y Gráficos' }
+              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
+              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+              tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Biometría y Salud' },
+              tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
             }
           };
           return JSON.parse(JSON.stringify(DEFAULTS[tabKey] || DEFAULTS.tab1));
@@ -18902,7 +18919,7 @@
               mobile: {
                 tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
                 tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
-                tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
+                tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
                 tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
               }
             };
@@ -18914,114 +18931,28 @@
 
           const current = state.uiPreferences.gridLayouts.desktop[tabKey];
           const defaults = this.getDefaultGridLayout(tabKey);
-          let needsCleanReset = false;
-
-          if (tabKey === 'tab1') {
-            if (current.todayFocusContainer && (current.todayFocusContainer.rowSpan < 16 || !current.todayFocusContainer.rowSpan)) needsCleanReset = true;
-            if (current.weekTableContainer && current.weekTableContainer.row < 20) needsCleanReset = true;
-            if (current.interactiveListsPanel && current.interactiveListsPanel.row < 8) needsCleanReset = true;
-          }
-
-          if (needsCleanReset) {
-            state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
-            return state.uiPreferences.gridLayouts.desktop[tabKey];
-          }
 
           Object.keys(defaults).forEach(id => {
             if (!current[id]) {
               current[id] = Object.assign({}, defaults[id]);
             } else {
               if (!current[id].name) current[id].name = defaults[id].name;
-              const minSpan = this.getIntrinsicMinRowSpan(id);
-              if (!current[id].rowSpan || current[id].rowSpan < minSpan) {
-                current[id].rowSpan = minSpan;
-              }
+              if (current[id].manualRows === undefined) current[id].manualRows = null;
+              if (current[id].minRows === undefined) current[id].minRows = defaults[id].minRows || 4;
             }
           });
 
           return current;
         },
 
-        // COMPACTACIÓN VERTICAL PURA (GRAVEDAD HACIA ARRIBA SIN CAMBIAR DE COLUMNA Y SIN HUECOS)
-        compactGrid(tabKey) {
-          tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          const layout = this.getGridLayout(tabKey);
-
-          Object.keys(layout).forEach(id => {
-            const minSpan = this.getIntrinsicMinRowSpan(id);
-            layout[id].rowSpan = Math.max(layout[id].rowSpan || minSpan, minSpan);
-          });
-
-          const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
-          cards.sort((a, b) => a.row - b.row || a.col - b.col);
-
-          const placed = [];
-          cards.forEach(c => {
-            let testRow = 1;
-            while (true) {
-              const collides = placed.some(p => {
-                const cRight = c.col + c.colSpan - 1;
-                const pRight = p.col + p.colSpan - 1;
-                const colsOverlap = (c.col <= pRight && p.col <= cRight);
-                const pBottom = p.row + p.rowSpan - 1;
-                const cBottom = testRow + c.rowSpan - 1;
-                const rowsOverlap = (testRow <= pBottom && p.row <= cBottom);
-                return colsOverlap && rowsOverlap;
-              });
-              if (!collides) {
-                c.row = testRow;
-                placed.push(c);
-                break;
-              }
-              testRow++;
-            }
-          });
-
-          cards.forEach(c => {
-            layout[c.id].row = c.row;
-            layout[c.id].rowSpan = c.rowSpan;
-          });
-
-          this.applyGridLayout(tabKey);
-          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
-          if (typeof saveState === 'function') saveState();
-          this.showToast('⚡ Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
-        },
-
-        autoFlowGrid(tabKey) {
-          // No perturba la posición a menos que el usuario pulse Compactar explícitamente
-        },
-
-        autoLevelGrid(tabKey) {
-          this.compactGrid(tabKey);
-        },
-
         applyDefaultPreset(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          const layout = this.getGridLayout(tabKey);
-
-          if (tabKey === 'tab1') {
-            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, rowSpan: 24, name: 'Hoy y Hábitos' };
-            layout.notesMiniCalendarPanel = { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Calendario' };
-            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 9, rowSpan: 15, name: 'Listas y Tareas' };
-            layout.tab1RecentExpensesBar = { col: 1, colSpan: 6, row: 25, rowSpan: 4, name: 'Movimientos Recientes' };
-            layout.weekTableContainer = { col: 1, colSpan: 12, row: 29, rowSpan: 9, name: 'Matriz Semanal' };
-          } else if (tabKey === 'tab2') {
-            layout.tab2ModularHabitsSection = { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Plantilla de Metas' };
-            layout.tab2ScheduleSection = { col: 1, colSpan: 8, row: 9, rowSpan: 14, name: 'Horario Semanal' };
-            layout.tab2AttendanceRulesSection = { col: 9, colSpan: 4, row: 9, rowSpan: 14, name: 'Reglas de Asistencia' };
-          } else if (tabKey === 'tab3') {
-            layout.tab3BudgetConfigCard = { col: 1, colSpan: 6, row: 1, rowSpan: 8, name: 'Presupuesto Semanal' };
-            layout.tab3SavingsGoalsCard = { col: 7, colSpan: 6, row: 1, rowSpan: 8, name: 'Metas de Ahorro' };
-            layout.tab3FixedExpensesCard = { col: 1, colSpan: 5, row: 9, rowSpan: 10, name: 'Gastos Fijos' };
-            layout.tab3ExpensesTableCard = { col: 6, colSpan: 7, row: 9, rowSpan: 10, name: 'Tabla de Gastos' };
-          } else if (tabKey === 'tab4') {
-            layout.tab4StudyAuditSection = { col: 1, colSpan: 12, row: 1, rowSpan: 8, name: 'Auditoría de Estudio' };
-            layout.tab4CustomHabitsSection = { col: 1, colSpan: 6, row: 9, rowSpan: 8, name: 'Hábitos Personalizados' };
-            layout.tab4BiometricsSection = { col: 7, colSpan: 6, row: 9, rowSpan: 8, name: 'Biometría y Salud' };
-            layout.tab4EvolutionSection = { col: 1, colSpan: 12, row: 17, rowSpan: 12, name: 'Histórico y Gráficos' };
-          }
-
+          state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
+          // Al aplicar predeterminado, resetear manualRows a null para auto-ceñido óptimo
+          const layout = state.uiPreferences.gridLayouts.desktop[tabKey];
+          Object.keys(layout).forEach(id => {
+            layout[id].manualRows = null;
+          });
           this.compactGrid(tabKey);
           this.showToast('📐 Diseño predeterminado restaurado con éxito.', 'emerald');
         },
@@ -19034,19 +18965,19 @@
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
           if (tabKey === 'tab1') {
-            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, rowSpan: 24, name: 'Hoy y Hábitos' };
-            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, rowSpan: 8, name: 'Calendario' };
-            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, rowSpan: 4, name: 'Movimientos Recientes' };
-            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 9, rowSpan: 15, name: 'Listas y Tareas' };
-            layout.weekTableContainer = { col: 1, colSpan: 12, row: 29, rowSpan: 9, name: 'Matriz Semanal' };
+            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, manualRows: null, name: 'Hoy y Hábitos' };
+            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, manualRows: null, name: 'Calendario' };
+            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, manualRows: null, name: 'Movimientos Recientes' };
+            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 9, manualRows: null, name: 'Listas y Tareas' };
+            layout.weekTableContainer = { col: 1, colSpan: 12, row: 20, manualRows: null, name: 'Matriz Semanal' };
           } else {
             const ids = Object.keys(layout);
             if (ids.length >= 3) {
-              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1;
-              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1;
-              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1;
+              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1; layout[ids[0]].manualRows = null;
+              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1; layout[ids[1]].manualRows = null;
+              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1; layout[ids[2]].manualRows = null;
               for (let i = 3; i < ids.length; i++) {
-                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 100 + i * 20;
+                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 20 + i * 10; layout[ids[i]].manualRows = null;
               }
             }
           }
@@ -19062,7 +18993,8 @@
             const isLeft = (i % 2 === 0);
             layout[id].col = isLeft ? 1 : 7;
             layout[id].colSpan = 6;
-            layout[id].row = 100 + i * 20;
+            layout[id].row = 1 + Math.floor(i / 2) * 15;
+            layout[id].manualRows = null;
           });
           this.compactGrid(tabKey);
           this.showToast('⚖️ Preset 50% / 50% aplicado.', 'emerald');
@@ -19075,12 +19007,14 @@
           ids.forEach((id, i) => {
             layout[id].col = 1;
             layout[id].colSpan = 12;
-            layout[id].row = 100 + i * 20;
+            layout[id].row = 1 + i * 12;
+            layout[id].manualRows = null;
           });
           this.compactGrid(tabKey);
           this.showToast('⬛ Todos los módulos en 100% de anchura.', 'emerald');
         },
 
+        // APLICACIÓN DE LAYOUT (DESKTOP: CUADRÍCULA 12xH / MÓVIL: APILADO VERTICAL LIMPIO)
         applyGridLayout(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 1024);
@@ -19091,23 +19025,28 @@
               const el = document.getElementById(id);
               if (el) {
                 const cfg = layout[id];
-                const minSpan = this.getIntrinsicMinRowSpan(id);
-                const finalSpan = Math.max(cfg.rowSpan || minSpan, minSpan);
+                // Calcular filas mínimas según contenido vivo
+                const minReq = this.measureNaturalRows(el);
+                if (minReq > 0) cfg.minRows = minReq;
+                const finalSpan = (cfg.manualRows && cfg.manualRows > cfg.minRows) ? cfg.manualRows : cfg.minRows;
                 cfg.rowSpan = finalSpan;
+
                 el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
                 el.style.gridRow = cfg.row + ' / span ' + finalSpan;
                 el.style.width = '100%';
               }
             });
           } else {
+            // MÓVIL (<1024px): desactivar posicionamiento por celdas y permitir apilado vertical limpio
             const mobList = (state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.mobile && state.uiPreferences.gridLayouts.mobile[tabKey]) || Object.keys(layout);
             mobList.forEach((id, idx) => {
               const el = document.getElementById(id);
               if (el) {
-                el.style.gridColumn = '1 / -1';
-                el.style.gridRow = 'auto';
-                el.style.order = String(idx);
+                el.style.gridColumn = '';
+                el.style.gridRow = '';
+                el.style.height = '';
                 el.style.width = '100%';
+                el.style.order = String(idx);
               }
             });
           }
@@ -19136,11 +19075,10 @@
             const titleEl = document.getElementById('boardEditTitle');
             if (titleEl) titleEl.textContent = 'Modo Edición: Cuadrícula 12×H (Pestaña ' + tabNum + ')';
 
-            // Al entrar al modo edición, verificar colisiones y resolverlas limpiamente
-            this.resolveCollisions(tabKey, null);
+            this.resolveGridCollisions(tabKey, null);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
-            this.showToast('🛠️ Modo edición: Cuadrícula limpia y sin solapamientos.', 'emerald');
+            this.showToast('🛠️ Modo edición: Cuadrícula 12×H sin solapamientos.', 'emerald');
           } else {
             if (toolbar) toolbar.classList.add('hidden');
             if (toggleBtn) {
@@ -19191,16 +19129,25 @@
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', 1)" title="Mover columna a la derecha" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▶</button>
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', -1)" title="Subir fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▲</button>
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', 1)" title="Bajar fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▼</button>
+                <button type="button" onclick="event.stopPropagation(); app.resetCardManualHeight('${id}')" title="Auto-ceñir a contenido (resetear hueco extra)" class="px-1.5 h-5 rounded bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 font-bold text-[10px] cursor-pointer">⟲</button>
               </div>
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Tiradores en bordes y esquinas (8 direcciones con imantado completo a casillas 12x40px)
+            // Tiradores en bordes y esquinas (8 direcciones con snap completo a casillas 12x40px)
             ['t', 'b', 'l', 'r', 'tl', 'tr', 'bl', 'br'].forEach(dir => {
               const handle = document.createElement('div');
               handle.className = 'card-resize-handle resize-' + dir + ' board-edit-ctrl-overlay';
-              handle.title = 'Arrastra para cambiar tamaño (' + dir.toUpperCase() + ')';
+              handle.title = (dir === 't' || dir === 'b') 
+                ? 'Arrastra para redimensionar (Doble clic para auto-ceñir a contenido)'
+                : 'Arrastra para cambiar ancho (' + dir.toUpperCase() + ')';
               handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
+              if (dir === 't' || dir === 'b') {
+                handle.ondblclick = (e) => {
+                  e.stopPropagation();
+                  this.resetCardManualHeight(id);
+                };
+              }
               el.appendChild(handle);
             });
           });
@@ -19209,17 +19156,38 @@
         removeBoardEditHandles() {
           document.querySelectorAll('.board-edit-ctrl-overlay').forEach(el => el.remove());
           document.querySelectorAll('.card-edit-mode').forEach(el => el.classList.remove('card-edit-mode'));
+          const placeholder = document.getElementById('gridDropPlaceholder');
+          if (placeholder) placeholder.style.display = 'none';
         },
 
+        resetCardManualHeight(cardId) {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          if (!layout[cardId]) return;
+          layout[cardId].manualRows = null;
+          this.compactGrid(tabKey);
+          this.showToast('⟲ Tarjeta auto-ceñida a su contenido.', 'emerald');
+        },
+
+        // REGLA "A MÁS ANCHO, MENOS ALTO": AL CAMBIAR COLSPAN, RECALCULA MINROWS AUTOMÁTICAMENTE
         adjustCardSpan(cardId, delta) {
           const tabKey = 'tab' + (state.activeTab || 1);
           const layout = this.getGridLayout(tabKey);
           const cfg = layout[cardId];
-          if (!cfg) return;
+          const el = document.getElementById(cardId);
+          if (!cfg || !el) return;
+
           const newSpan = cfg.colSpan + delta;
           if (newSpan >= 1 && cfg.col + newSpan - 1 <= 12) {
             cfg.colSpan = newSpan;
-            this.resolveCollisions(tabKey, cardId);
+            cfg.manualRows = null; // Resetear altura manual para que se ciña a la nueva anchura
+
+            // Aplicar nuevo gridColumn síncronamente para que los hijos hagan reflow
+            el.style.gridColumn = cfg.col + ' / span ' + newSpan;
+            cfg.minRows = this.measureNaturalRows(el);
+            cfg.rowSpan = cfg.minRows;
+
+            this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
@@ -19234,7 +19202,7 @@
           const newCol = cfg.col + delta;
           if (newCol >= 1 && newCol + cfg.colSpan - 1 <= 12) {
             cfg.col = newCol;
-            this.resolveCollisions(tabKey, cardId);
+            this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
@@ -19249,14 +19217,14 @@
           const newRow = cfg.row + delta;
           if (newRow >= 1) {
             cfg.row = newRow;
-            this.resolveCollisions(tabKey, cardId);
+            this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
           }
         },
 
-        // ARRASTRE FLUIDO CON IMANTADO A CASILLAS 12x40PX Y RESOLUCIÓN DE COLISIÓN AL SOLTAR
+        // ARRASTRE FLUIDO CON RECUADRO FANTASMA Y SOMBRA VERDE (.grid-drop-placeholder)
         startCardDrag(e, cardId) {
           if (e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
@@ -19282,6 +19250,14 @@
 
           const ghost = document.getElementById('boardGridDragGhost');
           const badge = document.getElementById('boardGridGhostBadge');
+          let placeholder = document.getElementById('gridDropPlaceholder');
+          if (!placeholder && container) {
+            placeholder = document.createElement('div');
+            placeholder.id = 'gridDropPlaceholder';
+            placeholder.className = 'grid-drop-placeholder';
+            container.appendChild(placeholder);
+          }
+
           if (ghost) {
             ghost.style.width = cardRect.width + 'px';
             ghost.style.height = cardRect.height + 'px';
@@ -19289,6 +19265,11 @@
             ghost.style.top = cardRect.top + 'px';
             ghost.style.display = 'flex';
             if (badge) badge.textContent = 'Moviendo: ' + (cfg.name || cardId);
+          }
+          if (placeholder) {
+            placeholder.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+            placeholder.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
+            placeholder.style.display = 'block';
           }
           el.style.opacity = '0.35';
 
@@ -19312,7 +19293,7 @@
             targetCol = c;
             targetRow = r;
 
-            // El recuadro fantasma se imanta a la cuadrícula de 12x40px
+            // Recuadro fantasma sigue el cursor y sombra verde en cuadrícula
             if (ghost) {
               const snapLeft = containerRect.left + (c - 1) * colPitch;
               const snapTop = containerRect.top + (r - 1) * rowPitch;
@@ -19320,6 +19301,10 @@
               ghost.style.top = snapTop + 'px';
               ghost.style.width = (cfg.colSpan * colPitch - gap) + 'px';
               ghost.style.height = ((cfg.rowSpan || 2) * rowPitch - gap) + 'px';
+            }
+            if (placeholder) {
+              placeholder.style.gridColumn = targetCol + ' / span ' + cfg.colSpan;
+              placeholder.style.gridRow = targetRow + ' / span ' + (cfg.rowSpan || 2);
             }
 
             if (badge) {
@@ -19333,13 +19318,14 @@
             window.removeEventListener('pointercancel', onPointerUp);
 
             if (ghost) ghost.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
 
             cfg.col = targetCol;
             cfg.row = targetRow;
 
-            // Resolver colisiones en cascada: el cuadro desplazado se empuja limpiamente hacia abajo
-            this.resolveCollisions(tabKey, cardId);
+            // Resolver colisiones 2D en cascada
+            this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
@@ -19350,7 +19336,7 @@
           window.addEventListener('pointercancel', onPointerUp);
         },
 
-        // REDIMENSIÓN EN 8 DIRECCIONES CON TAMAÑOS MÍNIMOS INTRÍNSECOS CONSTANTES
+        // REDIMENSIÓN MANUAL LIBRE CON TOPE EN EL CONTENIDO VIVO (SIN RATCHET BUG)
         startCardResize(e, cardId, direction) {
           if (e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
@@ -19373,8 +19359,10 @@
           const origColSpan = cfg.colSpan;
           const origRow = cfg.row;
           const origRowSpan = cfg.rowSpan || 2;
-          // Tamaño mínimo intrínseco fijo que no varía al agrandar
-          const minSpan = this.getIntrinsicMinRowSpan(cardId);
+
+          // Medir altura mínima requerida viva en este instante
+          const liveMinRows = this.measureNaturalRows(el);
+          cfg.minRows = liveMinRows;
 
           const gap = 12;
           const colWidth = (containerRect.width - 11 * gap) / 12;
@@ -19383,12 +19371,25 @@
 
           const ghost = document.getElementById('boardGridDragGhost');
           const badge = document.getElementById('boardGridGhostBadge');
+          let placeholder = document.getElementById('gridDropPlaceholder');
+          if (!placeholder && container) {
+            placeholder = document.createElement('div');
+            placeholder.id = 'gridDropPlaceholder';
+            placeholder.className = 'grid-drop-placeholder';
+            container.appendChild(placeholder);
+          }
+
           if (ghost) {
             ghost.style.left = cardRect.left + 'px';
             ghost.style.top = cardRect.top + 'px';
             ghost.style.width = cardRect.width + 'px';
             ghost.style.height = cardRect.height + 'px';
             ghost.style.display = 'flex';
+          }
+          if (placeholder) {
+            placeholder.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+            placeholder.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
+            placeholder.style.display = 'block';
           }
           el.style.opacity = '0.35';
 
@@ -19420,10 +19421,11 @@
 
             if (direction.includes('t')) {
               const origBottom = origRow + origRowSpan;
-              r = Math.max(1, Math.min(origBottom - minSpan, origRow + deltaRows));
+              r = Math.max(1, Math.min(origBottom - liveMinRows, origRow + deltaRows));
               rSpan = origBottom - r;
             } else if (direction.includes('b')) {
-              rSpan = Math.max(minSpan, origRowSpan + deltaRows);
+              // Estirar hacia abajo libremente o encoger hacia arriba con tope en liveMinRows
+              rSpan = Math.max(liveMinRows, origRowSpan + deltaRows);
             }
 
             finalCol = c;
@@ -19431,7 +19433,6 @@
             finalRow = r;
             finalRowSpan = rSpan;
 
-            // Recuadro fantasma imantado a las casillas resultantes
             if (ghost) {
               const snapLeft = containerRect.left + (c - 1) * colPitch;
               const snapTop = containerRect.top + (r - 1) * rowPitch;
@@ -19439,6 +19440,10 @@
               ghost.style.top = snapTop + 'px';
               ghost.style.width = (cSpan * colPitch - gap) + 'px';
               ghost.style.height = (rSpan * rowPitch - gap) + 'px';
+            }
+            if (placeholder) {
+              placeholder.style.gridColumn = c + ' / span ' + cSpan;
+              placeholder.style.gridRow = r + ' / span ' + rSpan;
             }
 
             const pct = Math.round((finalColSpan / 12) * 100);
@@ -19453,15 +19458,31 @@
             window.removeEventListener('pointercancel', onPointerUp);
 
             if (ghost) ghost.style.display = 'none';
+            if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
 
             cfg.col = finalCol;
-            cfg.colSpan = finalColSpan;
             cfg.row = finalRow;
-            cfg.rowSpan = finalRowSpan;
 
-            // Si se agrandó y colisiona con módulos abajo, empujarlos limpiamente
-            this.resolveCollisions(tabKey, cardId);
+            // Si cambió el ancho, resetear manualRows para que se ciña a la nueva anchura
+            if (finalColSpan !== origColSpan) {
+              cfg.colSpan = finalColSpan;
+              cfg.manualRows = null;
+              el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+              cfg.minRows = this.measureNaturalRows(el);
+              cfg.rowSpan = cfg.minRows;
+            } else {
+              // Si cambió la altura vertical
+              cfg.colSpan = finalColSpan;
+              if (finalRowSpan > liveMinRows) {
+                cfg.manualRows = finalRowSpan;
+              } else {
+                cfg.manualRows = null; // En el tope natural queda en modo Auto-Ceñido
+              }
+              cfg.rowSpan = finalRowSpan;
+            }
+
+            this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
@@ -19470,6 +19491,51 @@
           window.addEventListener('pointermove', onPointerMove);
           window.addEventListener('pointerup', onPointerUp);
           window.addEventListener('pointercancel', onPointerUp);
+        },
+
+        // OBSERVADOR REACTIVO AUTOMÁTICO (RESIZEOBSERVER) PARA CONTENIDO VIVO
+        initGridAutoObservers() {
+          if (typeof ResizeObserver === 'undefined') return;
+          if (this._gridAutoObserver) return;
+
+          let debounceTimer = null;
+          this._gridAutoObserver = new ResizeObserver(() => {
+            if (this.isBoardEditMode()) return;
+            if (typeof window !== 'undefined' && window.innerWidth < 1024) return;
+
+            if (debounceTimer) clearTimeout(debounceTimer);
+            debounceTimer = setTimeout(() => {
+              const tabKey = 'tab' + (state.activeTab || 1);
+              const layout = this.getGridLayout(tabKey);
+              let changed = false;
+
+              Object.keys(layout).forEach(id => {
+                const el = document.getElementById(id);
+                if (el) {
+                  const natural = this.measureNaturalRows(el);
+                  if (natural > 0 && layout[id].minRows !== natural) {
+                    layout[id].minRows = natural;
+                    if (!layout[id].manualRows || layout[id].manualRows < natural) {
+                      layout[id].rowSpan = natural;
+                      changed = true;
+                    }
+                  }
+                }
+              });
+
+              if (changed) {
+                this.compactGrid(tabKey);
+              }
+            }, 80);
+          });
+
+          ['todayFocusContainer', 'notesMiniCalendarPanel', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'weekTableContainer',
+           'tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection',
+           'tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3FixedExpensesCard', 'tab3ExpensesTableCard',
+           'tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) this._gridAutoObserver.observe(el);
+          });
         },
 
         saveBoardDesign() {
@@ -19892,6 +19958,7 @@
           // APLICAR CUADRÍCULA TETRIS 12×H AL TABLERO ACTIVO
           // ---------------------------------------------------------
           this.applyGridLayout('tab' + (state.activeTab || 1));
+          this.initGridAutoObservers();
 
           // ---------------------------------------------------------
           // DENSIDAD VISUAL
