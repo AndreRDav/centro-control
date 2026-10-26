@@ -893,69 +893,98 @@
       outline-color: #10b981 !important;
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 0 18px rgba(16, 185, 129, 0.3) !important;
     }
-    .card-resize-r {
+    /* BLOQUEO DE INTERACCIÓN INTERNA EN MODO EDICIÓN */
+    .board-edit-active .card-edit-mode > *:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle) {
+      pointer-events: none !important;
+      user-select: none !important;
+    }
+    .card-drag-shield {
       position: absolute;
-      top: 0;
-      right: -8px;
-      width: 16px;
-      bottom: 0;
-      cursor: ew-resize;
-      z-index: 45;
-      touch-action: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-    }
-    .card-resize-r::after {
-      content: '';
-      width: 5px;
-      height: 38px;
-      background: rgba(16, 185, 129, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 5px;
-      transition: transform 0.15s, background 0.15s;
-    }
-    .card-resize-r:hover::after, .card-resize-r:active::after {
-      background: #10b981;
-      transform: scaleX(1.8);
-      box-shadow: 0 0 10px #10b981;
-    }
-    .card-resize-b {
-      position: absolute;
-      left: 0;
-      right: 0;
-      bottom: -8px;
-      height: 16px;
-      cursor: ns-resize;
-      z-index: 45;
-      touch-action: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      user-select: none;
-    }
-    .card-resize-b::after {
-      content: '';
-      height: 5px;
-      width: 38px;
-      background: rgba(16, 185, 129, 0.7);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 5px;
-      transition: transform 0.15s, background 0.15s;
-    }
-    .card-resize-b:hover::after, .card-resize-b:active::after {
-      background: #10b981;
-      transform: scaleY(1.8);
-      box-shadow: 0 0 10px #10b981;
-    }
-    .card-drag-bar {
+      inset: 0;
       cursor: grab;
+      z-index: 35;
+      background: rgba(16, 185, 129, 0.02);
+      border-radius: 16px;
+      touch-action: none;
+    }
+    .card-drag-shield:active {
+      cursor: grabbing;
+    }
+    /* TIRADORES DE REDIMENSIONAMIENTO (8 PUNTOS: 4 BORDES + 4 ESQUINAS) */
+    .card-resize-handle {
+      position: absolute;
+      z-index: 50;
       touch-action: none;
       user-select: none;
+      box-sizing: border-box;
     }
-    .card-drag-bar:active {
-      cursor: grabbing;
+    .card-resize-handle.resize-t {
+      top: -7px; left: 18px; right: 18px; height: 15px; cursor: ns-resize;
+    }
+    .card-resize-handle.resize-b {
+      bottom: -7px; left: 18px; right: 18px; height: 15px; cursor: ns-resize;
+    }
+    .card-resize-handle.resize-l {
+      left: -7px; top: 18px; bottom: 18px; width: 15px; cursor: ew-resize;
+    }
+    .card-resize-handle.resize-r {
+      right: -7px; top: 18px; bottom: 18px; width: 15px; cursor: ew-resize;
+    }
+    .card-resize-handle.resize-tl {
+      top: -9px; left: -9px; width: 22px; height: 22px; cursor: nwse-resize;
+    }
+    .card-resize-handle.resize-tr {
+      top: -9px; right: -9px; width: 22px; height: 22px; cursor: nesw-resize;
+    }
+    .card-resize-handle.resize-bl {
+      bottom: -9px; left: -9px; width: 22px; height: 22px; cursor: nesw-resize;
+    }
+    .card-resize-handle.resize-br {
+      bottom: -9px; right: -9px; width: 22px; height: 22px; cursor: nwse-resize;
+    }
+
+    .card-resize-handle.resize-t::after, .card-resize-handle.resize-b::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 48px;
+      height: 5px;
+      background: rgba(16, 185, 129, 0.8);
+      border-radius: 4px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .card-resize-handle.resize-l::after, .card-resize-handle.resize-r::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 5px;
+      height: 48px;
+      background: rgba(16, 185, 129, 0.8);
+      border-radius: 4px;
+      transition: background 0.15s, transform 0.15s;
+    }
+    .card-resize-handle.resize-tl::after, .card-resize-handle.resize-tr::after,
+    .card-resize-handle.resize-bl::after, .card-resize-handle.resize-br::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 13px;
+      height: 13px;
+      background: #10b981;
+      border: 2px solid #ffffff;
+      border-radius: 50%;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.9);
+      transition: transform 0.15s, background 0.15s;
+    }
+    .card-resize-handle:hover::after {
+      background: #34d399;
+      transform: translate(-50%, -50%) scale(1.35);
     }
     #boardEditToolbar {
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
@@ -970,6 +999,14 @@
       <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
         📐
       </div>
+
+  <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->
+  <div id="boardGridDragGhost" style="position: fixed; display: none; pointer-events: none; z-index: 10000; border: 2.5px dashed #10b981; background: rgba(16, 185, 129, 0.22); border-radius: 18px; backdrop-filter: blur(4px); box-shadow: 0 14px 44px rgba(0,0,0,0.55), 0 0 24px rgba(16, 185, 129, 0.4); align-items: center; justify-content: center; box-sizing: border-box;">
+    <span id="boardGridGhostBadge" style="background: rgba(15, 23, 42, 0.95); color: #34d399; border: 1.5px solid #10b981; padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; font-family: monospace; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(0,0,0,0.4); white-space: nowrap;">
+      Moviendo...
+    </span>
+  </div>
+
       <div>
         <span class="font-bold text-emerald-400 block text-xs" id="boardEditTitle">Modo Edición: Cuadrícula 12×H</span>
         <span class="text-[10px] text-stone-400 dark:text-slate-400 hidden sm:inline">Estira bordes [↔ / ↕] o usa presets para organizar</span>
@@ -19028,40 +19065,44 @@
             const cfg = layout[id];
             const pct = Math.round((cfg.colSpan / 12) * 100);
 
-            // Create top control bar inside card
+            // 1. Escudo protector de interacción interna (bloquea clics en botones/hábitos)
+            // y permite arrastrar la tarjeta entera pinchando en cualquier parte
+            const shield = document.createElement('div');
+            shield.className = 'card-drag-shield board-edit-ctrl-overlay';
+            shield.title = 'Arrastra para mover este cuadro por la cuadrícula';
+            shield.onpointerdown = (e) => this.startCardDrag(e, id);
+            el.appendChild(shield);
+
+            // 2. Barra de cabecera con badge de información y botones rápidos
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-20 relative select-none';
+            bar.className = 'board-edit-ctrl-overlay bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
             bar.innerHTML = `
-              <div class="flex items-center gap-1.5 min-w-0">
-                <span class="cursor-grab text-emerald-400 font-black">⠿</span>
+              <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
+                <span class="text-emerald-400 font-black text-sm">⠿</span>
                 <span class="font-bold text-white text-[11px] truncate">${cfg.name || id}</span>
                 <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${pct}% (${cfg.colSpan}/12)</span>
                 <span class="text-stone-400 text-[10px] font-mono hidden sm:inline">c${cfg.col}..r${cfg.row}</span>
               </div>
-              <div class="flex items-center gap-1 shrink-0">
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">-</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs">+</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', -1)" title="Mover a la izquierda" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">◀</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', 1)" title="Mover a la derecha" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▶</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', -1)" title="Subir fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▲</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', 1)" title="Bajar fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▼</button>
+              <div class="flex items-center gap-1 shrink-0 z-50">
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">-</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', -1)" title="Mover a la izquierda" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">◀</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', 1)" title="Mover a la derecha" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▶</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', -1)" title="Subir fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▲</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', 1)" title="Bajar fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▼</button>
               </div>
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Right resize handle
-            const handleR = document.createElement('div');
-            handleR.className = 'card-resize-r board-edit-ctrl-overlay';
-            handleR.title = 'Arrastra para ensanchar o estrechar columnas (1..12)';
-            handleR.onpointerdown = (e) => this.startCardResize(e, id, 'r');
-            el.appendChild(handleR);
-
-            // Bottom resize handle
-            const handleB = document.createElement('div');
-            handleB.className = 'card-resize-b board-edit-ctrl-overlay';
-            handleB.title = 'Arrastra para cambiar altura de filas';
-            handleB.onpointerdown = (e) => this.startCardResize(e, id, 'b');
-            el.appendChild(handleB);
+            // 3. Tiradores en los 4 bordes + 4 esquinas
+            const directions = ['t', 'b', 'l', 'r', 'tl', 'tr', 'bl', 'br'];
+            directions.forEach(dir => {
+              const handle = document.createElement('div');
+              handle.className = 'card-resize-handle resize-' + dir + ' board-edit-ctrl-overlay';
+              handle.title = 'Arrastra para cambiar tamaño (' + dir.toUpperCase() + ')';
+              handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
+              el.appendChild(handle);
+            });
           });
         },
 
@@ -19076,7 +19117,7 @@
           const cfg = layout[cardId];
           if (!cfg) return;
           const newSpan = cfg.colSpan + delta;
-          if (newSpan >= 2 && cfg.col + newSpan - 1 <= 12) {
+          if (newSpan >= 1 && cfg.col + newSpan - 1 <= 12) {
             cfg.colSpan = newSpan;
             this.autoFlowGrid(tabKey);
             this.applyGridLayout(tabKey);
@@ -19112,38 +19153,219 @@
           }
         },
 
-        startCardResize(e, cardId, direction) {
+        // ARRASTRE FLUIDO DE LA TARJETA COMPLETA CON RECUADRO FANTASMA
+        startCardDrag(e, cardId) {
+          if (e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
           e.stopPropagation();
+
           const tabKey = 'tab' + (state.activeTab || 1);
           const layout = this.getGridLayout(tabKey);
           const cfg = layout[cardId];
           const el = document.getElementById(cardId);
           if (!cfg || !el) return;
 
-          const container = el.parentElement;
-          const containerRect = container.getBoundingClientRect();
-          const colWidth = (containerRect.width - 11 * 12) / 12;
+          const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
+          const containerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
           const cardRect = el.getBoundingClientRect();
 
+          const grabOffsetX = e.clientX - cardRect.left;
+          const grabOffsetY = e.clientY - cardRect.top;
+
+          const gap = 12;
+          const colWidth = (containerRect.width - 11 * gap) / 12;
+          const rowHeight = 55;
+
+          const ghost = document.getElementById('boardGridDragGhost');
+          const badge = document.getElementById('boardGridGhostBadge');
+          if (ghost) {
+            ghost.style.width = cardRect.width + 'px';
+            ghost.style.height = cardRect.height + 'px';
+            ghost.style.left = cardRect.left + 'px';
+            ghost.style.top = cardRect.top + 'px';
+            ghost.style.display = 'flex';
+            if (badge) badge.textContent = 'Moviendo: ' + (cfg.name || cardId);
+          }
+          el.style.opacity = '0.35';
+
+          let targetCol = cfg.col;
+          let targetRow = cfg.row;
+
           const onPointerMove = (moveEvent) => {
-            if (direction === 'r') {
-              const currentW = moveEvent.clientX - cardRect.left;
-              let calculatedSpan = Math.round(currentW / (colWidth + 12));
-              calculatedSpan = Math.max(2, Math.min(13 - cfg.col, calculatedSpan));
-              cfg.colSpan = calculatedSpan;
-              el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
-            } else if (direction === 'b') {
-              const currentH = moveEvent.clientY - cardRect.top;
-              let calculatedRows = Math.max(1, Math.min(8, Math.round(currentH / 60)));
-              cfg.rowSpan = calculatedRows;
-              el.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
+            const curX = moveEvent.clientX;
+            const curY = moveEvent.clientY;
+
+            if (ghost) {
+              ghost.style.left = (curX - grabOffsetX) + 'px';
+              ghost.style.top = (curY - grabOffsetY) + 'px';
+            }
+
+            // Calcular columna y fila objetivo de forma continua
+            const relX = curX - grabOffsetX - containerRect.left;
+            const relY = curY - grabOffsetY - containerRect.top;
+
+            let c = Math.round(relX / (colWidth + gap)) + 1;
+            let r = Math.round(relY / (rowHeight + gap)) + 1;
+
+            c = Math.max(1, Math.min(13 - cfg.colSpan, c));
+            r = Math.max(1, r);
+
+            targetCol = c;
+            targetRow = r;
+
+            if (badge) {
+              badge.textContent = (cfg.name || cardId) + ' → c' + targetCol + '..r' + targetRow;
             }
           };
 
           const onPointerUp = () => {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
+
+            if (ghost) ghost.style.display = 'none';
+            el.style.opacity = '1';
+
+            cfg.col = targetCol;
+            cfg.row = targetRow;
+
+            this.autoFlowGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+          };
+
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+        },
+
+        // REDIMENSIÓN EN 8 PUNTOS CON RECUADRO FANTASMA EN TIEMPO REAL
+        startCardResize(e, cardId, direction) {
+          if (e.button !== 0 && e.pointerType === 'mouse') return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          const cfg = layout[cardId];
+          const el = document.getElementById(cardId);
+          if (!cfg || !el) return;
+
+          const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
+          const containerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
+          const cardRect = el.getBoundingClientRect();
+
+          const startX = e.clientX;
+          const startY = e.clientY;
+
+          const origCol = cfg.col;
+          const origColSpan = cfg.colSpan;
+          const origRow = cfg.row;
+          const origRowSpan = cfg.rowSpan || 2;
+
+          const gap = 12;
+          const colWidth = (containerRect.width - 11 * gap) / 12;
+          const rowHeight = 55;
+
+          const ghost = document.getElementById('boardGridDragGhost');
+          const badge = document.getElementById('boardGridGhostBadge');
+          if (ghost) {
+            ghost.style.left = cardRect.left + 'px';
+            ghost.style.top = cardRect.top + 'px';
+            ghost.style.width = cardRect.width + 'px';
+            ghost.style.height = cardRect.height + 'px';
+            ghost.style.display = 'flex';
+          }
+          el.style.opacity = '0.35';
+
+          let finalCol = origCol;
+          let finalColSpan = origColSpan;
+          let finalRow = origRow;
+          let finalRowSpan = origRowSpan;
+
+          const onPointerMove = (moveEvent) => {
+            const dx = moveEvent.clientX - startX;
+            const dy = moveEvent.clientY - startY;
+
+            let curLeft = cardRect.left;
+            let curTop = cardRect.top;
+            let curWidth = cardRect.width;
+            let curHeight = cardRect.height;
+
+            // Actualizar dimensiones visuales continuas del recuadro fantasma
+            if (direction.includes('r')) curWidth = Math.max(colWidth, cardRect.width + dx);
+            if (direction.includes('b')) curHeight = Math.max(rowHeight, cardRect.height + dy);
+            if (direction.includes('l')) {
+              const maxLeft = cardRect.right - colWidth;
+              const newLeft = Math.min(maxLeft, cardRect.left + dx);
+              curWidth = cardRect.right - newLeft;
+              curLeft = newLeft;
+            }
+            if (direction.includes('t')) {
+              const maxTop = cardRect.bottom - rowHeight;
+              const newTop = Math.min(maxTop, cardRect.top + dy);
+              curHeight = cardRect.bottom - newTop;
+              curTop = newTop;
+            }
+
+            if (ghost) {
+              ghost.style.left = curLeft + 'px';
+              ghost.style.top = curTop + 'px';
+              ghost.style.width = curWidth + 'px';
+              ghost.style.height = curHeight + 'px';
+            }
+
+            // Calcular deltas de columnas y filas discretas
+            const deltaCols = Math.round(dx / (colWidth + gap));
+            const deltaRows = Math.round(dy / (rowHeight + gap));
+
+            let c = origCol;
+            let cSpan = origColSpan;
+            let r = origRow;
+            let rSpan = origRowSpan;
+
+            if (direction.includes('l')) {
+              const origRight = origCol + origColSpan;
+              const targetCol = Math.max(1, Math.min(origRight - 1, origCol + deltaCols));
+              c = targetCol;
+              cSpan = origRight - c;
+            }
+            if (direction.includes('r')) {
+              const targetSpan = Math.max(1, Math.min(13 - c, origColSpan + deltaCols));
+              cSpan = targetSpan;
+            }
+            if (direction.includes('t')) {
+              const origBottom = origRow + origRowSpan;
+              const targetRow = Math.max(1, Math.min(origBottom - 1, origRow + deltaRows));
+              r = targetRow;
+              rSpan = origBottom - r;
+            }
+            if (direction.includes('b')) {
+              const targetSpan = Math.max(1, Math.min(10, origRowSpan + deltaRows));
+              rSpan = targetSpan;
+            }
+
+            finalCol = c;
+            finalColSpan = cSpan;
+            finalRow = r;
+            finalRowSpan = rSpan;
+
+            const pct = Math.round((finalColSpan / 12) * 100);
+            if (badge) {
+              badge.textContent = (cfg.name || cardId) + ' → ' + pct + '% (' + finalColSpan + '/12 cols) · ' + finalRowSpan + ' filas';
+            }
+          };
+
+          const onPointerUp = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+
+            if (ghost) ghost.style.display = 'none';
+            el.style.opacity = '1';
+
+            cfg.col = finalCol;
+            cfg.colSpan = finalColSpan;
+            cfg.row = finalRow;
+            cfg.rowSpan = finalRowSpan;
+
             this.autoFlowGrid(tabKey);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
