@@ -882,6 +882,11 @@
       color: #10b981;
       pointer-events: none;
     }
+    
+    .board-edit-active .card-edit-mode {
+      overflow: visible !important;
+    }
+
     .card-edit-mode {
       position: relative !important;
       outline: 2px dashed rgba(16, 185, 129, 0.6) !important;
@@ -1000,12 +1005,7 @@
         📐
       </div>
 
-  <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->
-  <div id="boardGridDragGhost" style="position: fixed; display: none; pointer-events: none; z-index: 10000; border: 2.5px dashed #10b981; background: rgba(16, 185, 129, 0.22); border-radius: 18px; backdrop-filter: blur(4px); box-shadow: 0 14px 44px rgba(0,0,0,0.55), 0 0 24px rgba(16, 185, 129, 0.4); align-items: center; justify-content: center; box-sizing: border-box;">
-    <span id="boardGridGhostBadge" style="background: rgba(15, 23, 42, 0.95); color: #34d399; border: 1.5px solid #10b981; padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; font-family: monospace; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(0,0,0,0.4); white-space: nowrap;">
-      Moviendo...
-    </span>
-  </div>
+  
 
       <div>
         <span class="font-bold text-emerald-400 block text-xs" id="boardEditTitle">Modo Edición: Cuadrícula 12×H</span>
@@ -19221,6 +19221,7 @@
           const onPointerUp = () => {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
 
             if (ghost) ghost.style.display = 'none';
             el.style.opacity = '1';
@@ -19235,6 +19236,7 @@
 
           window.addEventListener('pointermove', onPointerMove);
           window.addEventListener('pointerup', onPointerUp);
+          window.addEventListener('pointercancel', onPointerUp);
         },
 
         // REDIMENSIÓN EN 8 PUNTOS CON RECUADRO FANTASMA EN TIEMPO REAL
@@ -19290,18 +19292,23 @@
             let curWidth = cardRect.width;
             let curHeight = cardRect.height;
 
-            // Actualizar dimensiones visuales continuas del recuadro fantasma
-            if (direction.includes('r')) curWidth = Math.max(colWidth, cardRect.width + dx);
-            if (direction.includes('b')) curHeight = Math.max(rowHeight, cardRect.height + dy);
+            // 1. Ajustes visuales continuos para el recuadro fantasma (siguiendo cursor sin offsets extraños)
+            if (direction.includes('r')) {
+              const maxAllowedW = containerRect.right - cardRect.left;
+              curWidth = Math.max(colWidth, Math.min(maxAllowedW, cardRect.width + dx));
+            }
+            if (direction.includes('b')) {
+              curHeight = Math.max(rowHeight, cardRect.height + dy);
+            }
             if (direction.includes('l')) {
               const maxLeft = cardRect.right - colWidth;
-              const newLeft = Math.min(maxLeft, cardRect.left + dx);
+              const newLeft = Math.max(containerRect.left, Math.min(maxLeft, cardRect.left + dx));
               curWidth = cardRect.right - newLeft;
               curLeft = newLeft;
             }
             if (direction.includes('t')) {
               const maxTop = cardRect.bottom - rowHeight;
-              const newTop = Math.min(maxTop, cardRect.top + dy);
+              const newTop = Math.max(containerRect.top, Math.min(maxTop, cardRect.top + dy));
               curHeight = cardRect.bottom - newTop;
               curTop = newTop;
             }
@@ -19313,7 +19320,7 @@
               ghost.style.height = curHeight + 'px';
             }
 
-            // Calcular deltas de columnas y filas discretas
+            // 2. Calcular deltas discretos de columnas y filas
             const deltaCols = Math.round(dx / (colWidth + gap));
             const deltaRows = Math.round(dy / (rowHeight + gap));
 
@@ -19329,7 +19336,8 @@
               cSpan = origRight - c;
             }
             if (direction.includes('r')) {
-              const targetSpan = Math.max(1, Math.min(13 - c, origColSpan + deltaCols));
+              const maxSpan = 13 - c;
+              const targetSpan = Math.max(1, Math.min(maxSpan, origColSpan + deltaCols));
               cSpan = targetSpan;
             }
             if (direction.includes('t')) {
@@ -19357,6 +19365,7 @@
           const onPointerUp = () => {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
 
             if (ghost) ghost.style.display = 'none';
             el.style.opacity = '1';
@@ -19373,6 +19382,7 @@
 
           window.addEventListener('pointermove', onPointerMove);
           window.addEventListener('pointerup', onPointerUp);
+          window.addEventListener('pointercancel', onPointerUp);
         },
 
         saveBoardDesign() {
@@ -20667,5 +20677,13 @@
 
     })();
   </script>
+
+  <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->
+  <div id="boardGridDragGhost" style="position: fixed; display: none; pointer-events: none; z-index: 10000; border: 2.5px dashed #10b981; background: rgba(16, 185, 129, 0.22); border-radius: 18px; backdrop-filter: blur(4px); box-shadow: 0 14px 44px rgba(0,0,0,0.55), 0 0 24px rgba(16, 185, 129, 0.4); align-items: center; justify-content: center; box-sizing: border-box;">
+    <span id="boardGridGhostBadge" style="background: rgba(15, 23, 42, 0.95); color: #34d399; border: 1.5px solid #10b981; padding: 5px 12px; border-radius: 9999px; font-size: 11px; font-weight: 800; font-family: monospace; letter-spacing: 0.05em; box-shadow: 0 4px 14px rgba(0,0,0,0.4); white-space: nowrap;">
+      Moviendo...
+    </span>
+  </div>
+
 </body>
 </html>
