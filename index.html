@@ -4116,11 +4116,12 @@
          ======================================================== -->
     <main id="tab1" class="space-y-3">
       
-      <!-- FILA SUPERIOR DE HÁBITOS: HOY + MATRIZ SEMANAL (LADO A LADO) -->
-      <div id="tab1HabitsRow" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
+      <!-- CUADRÍCULA CONTINUA 50% / 50% (COLUMNA IZQUIERDA Y DERECHA) -->
+      <div id="tab1MainGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
         
-        <!-- ENFOQUE DE HOY: HERO CARD PROTAGONISTA -->
-        <div id="todayFocusContainer" class="lg:col-span-6 editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
+        <!-- COLUMNA IZQUIERDA CONTINUA (50% en desktop: lg:col-span-6) -->
+        <div id="tab1LeftCol" class="lg:col-span-6 space-y-3 transition-all duration-300">
+          <div id="todayFocusContainer" class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 relative z-10">
             <div class="flex items-center gap-2">
@@ -4151,58 +4152,7 @@
           <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
         </div>
 
-        <!-- CONTENEDOR COLAPSABLE: MATRIZ SEMANAL COMPLETA (LUNES A DOMINGO) -->
-
-        <!-- CONTENEDOR DE MATRIZ SEMANAL COMPLETA (LADO A LADO CON HOY) -->
-        <div id="weekTableContainer" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
-          <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
-          <div class="flex items-center justify-between pb-1 border-b relative z-10">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
-            <button onclick="app.toggleWeekTable()" class="text-xs text-theme-main hover:opacity-80 font-bold flex items-center gap-1">
-              <span>▲</span> Plegar matriz
-            </button>
-          </div>
-          <div class="w-full overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
-            <table class="w-full table-fixed border-collapse text-center relative z-10 text-[9.5px]">
-              <thead>
-                <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
-              </thead>
-              <tbody id="dailyTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- LISTA EDITORIAL DE ÚLTIMOS GASTOS Y MOVIMIENTOS (PESTAÑA 1) -->
-
-      </div>
-
-      <!-- FILA SECUNDARIA: BALANCEADA A LA MISMA ALTURA (SIN HUECOS) -->
-      <div id="tab1SecondaryRow" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
-        
-        <!-- COLUMNA IZQUIERDA: MOVIMIENTOS RECIENTES + CALENDARIO DE NOTAS -->
-        <div id="tab1LeftCol" class="lg:col-span-5 space-y-3 transition-all duration-300">
-          <div id="tab1RecentExpensesBar" class="editorial-card panel-bg border rounded-2xl p-3.5 space-y-2.5 shadow-md text-xs">
-          <div class="flex items-center justify-between border-b pb-2">
-            <div class="flex items-center gap-2">
-              <div class="vector-seal bg-theme-main text-white shrink-0">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-              </div>
-              <div>
-                <span class="font-bold text-stone-900 dark:text-white text-xs block">Movimientos Recientes</span>
-                <span class="text-[10px] text-stone-500 dark:text-slate-400">Últimos gastos registrados esta semana</span>
-              </div>
-            </div>
-            <div class="flex items-center gap-2">
-              <span id="quickSpendAvailable" class="px-2.5 py-1 rounded-xl bg-theme-soft border border-theme text-theme-main font-mono font-bold text-xs">Disp: 60.00 €</span>
-              <button onclick="app.toggleDockExpense(true)" class="px-3 py-1.5 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-sm flex items-center gap-1 transition active:scale-95" title="Registrar gasto rápido (Tecla N)">
-                <span>+ Gasto</span>
-                <span class="text-[10px] opacity-75 font-mono hidden sm:inline">[N]</span>
-              </button>
-            </div>
-          </div>
-          <div id="quickRecentExpenses" class="space-y-1"></div>
-        </div>
-          <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all mt-3">
+          <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all">
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2 cursor-pointer select-none" onclick="app.toggleMiniCalendarCollapse()" title="Plegar / desplegar calendario">
               <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs flex items-center justify-center">
@@ -4229,10 +4179,50 @@
             <div id="miniCalendarSelectedDrawer" class="hidden pt-2 border-t border-theme space-y-1"></div>
           </div>
         </div>
+
+          <div id="tab1RecentExpensesBar" class="editorial-card panel-bg border rounded-2xl p-3.5 space-y-2.5 shadow-md text-xs">
+          <div class="flex items-center justify-between border-b pb-2">
+            <div class="flex items-center gap-2">
+              <div class="vector-seal bg-theme-main text-white shrink-0">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+              </div>
+              <div>
+                <span class="font-bold text-stone-900 dark:text-white text-xs block">Movimientos Recientes</span>
+                <span class="text-[10px] text-stone-500 dark:text-slate-400">Últimos gastos registrados esta semana</span>
+              </div>
+            </div>
+            <div class="flex items-center gap-2">
+              <span id="quickSpendAvailable" class="px-2.5 py-1 rounded-xl bg-theme-soft border border-theme text-theme-main font-mono font-bold text-xs">Disp: 60.00 €</span>
+              <button onclick="app.toggleDockExpense(true)" class="px-3 py-1.5 rounded-xl bg-theme-main hover:opacity-90 text-white font-bold text-xs shadow-sm flex items-center gap-1 transition active:scale-95" title="Registrar gasto rápido (Tecla N)">
+                <span>+ Gasto</span>
+                <span class="text-[10px] opacity-75 font-mono hidden sm:inline">[N]</span>
+              </button>
+            </div>
+          </div>
+          <div id="quickRecentExpenses" class="space-y-1"></div>
+        </div>
         </div>
 
-        <!-- COLUMNA DERECHA: LISTAS, TAREAS Y ENTREGAS -->
-        <div id="tab1RightCol" class="lg:col-span-7 space-y-3 transition-all duration-300">
+        <!-- COLUMNA DERECHA CONTINUA (50% en desktop: lg:col-span-6) -->
+        <div id="tab1RightCol" class="lg:col-span-6 space-y-3 transition-all duration-300">
+          <div id="weekTableContainer" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
+          <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
+          <div class="flex items-center justify-between pb-1 border-b relative z-10">
+            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
+            <button onclick="app.toggleWeekTable()" class="text-xs text-theme-main hover:opacity-80 font-bold flex items-center gap-1">
+              <span>▲</span> Plegar matriz
+            </button>
+          </div>
+          <div class="w-full overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
+            <table class="w-full table-fixed border-collapse text-center relative z-10 text-[9.5px]">
+              <thead>
+                <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
+              </thead>
+              <tbody id="dailyTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
+            </table>
+          </div>
+        </div>
+
           <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
@@ -8735,15 +8725,11 @@
           }
         }
 
-        // Matriz Semanal Completa Colapsable (Lado a lado con Hoy)
+        // Matriz Semanal Completa Colapsable (Columna derecha)
         if (weekBox) {
           const isHiddenByPref = state.uiPreferences && state.uiPreferences.showWeekMatrix === false;
           if (isCollapsed || isHiddenByPref) {
             weekBox.classList.add('hidden');
-            if (todayBox) {
-              todayBox.classList.remove('lg:col-span-6');
-              todayBox.classList.add('lg:col-span-12');
-            }
             if (toggleBtn) {
               toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>`;
               if (isHiddenByPref) toggleBtn.classList.add('hidden');
@@ -8751,10 +8737,6 @@
             }
           } else {
             weekBox.classList.remove('hidden');
-            if (todayBox) {
-              todayBox.classList.remove('lg:col-span-12');
-              todayBox.classList.add('lg:col-span-6');
-            }
             if (toggleBtn) {
               toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
               toggleBtn.classList.remove('hidden');
@@ -9078,7 +9060,7 @@
                   </div>
                   <div>
                     <span class="font-bold block text-xs">Nutrición y Calorías</span>
-                    <span class="text-[10px] text-stone-500 dark:text-slate-400 capitalize">Fase <strong>${w.goals.nutri?.phase || 'volumen'}</strong> • Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400 capitalize">Fase <strong>${w.goals.nutri?.phase || 'volumen'}</strong></span>
                   </div>
                 </div>
               </div>
@@ -9091,8 +9073,9 @@
                   ${nutriEval.label}
                 </span>
               </div>
-              <div class="mt-auto pt-2 flex justify-end border-t border-stone-200/50 dark:border-slate-800/50">
-                <button onclick="app.cycleNutrition(${dIdx})" class="w-full sm:w-auto px-3 py-1.5 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center justify-center gap-1.5" title="Alternar estado manual">
+              <div class="mt-auto pt-2 flex items-center justify-between border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400">
+                <span>Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
+                <button onclick="app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center justify-center gap-1.5" title="Alternar estado manual">
                   ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
                 </button>
               </div>
@@ -9300,7 +9283,7 @@
           }
 
           const isReminder = !!h.isReminderOnly;
-          const cardBorderColor = isReminder ? 'border-l-3 border-l-amber-500 bg-amber-500/[0.02] dark:bg-amber-500/[0.03]' : 'border-l-3 border-l-theme-main bg-theme-main/[0.025] dark:bg-theme-main/[0.035]';
+          const cardBorderColor = isReminder ? 'border-l-[3px] border-l-amber-500 bg-amber-500/[0.02] dark:bg-amber-500/[0.03]' : 'border-l-[3px] border-l-theme-main bg-theme-main/[0.025] dark:bg-theme-main/[0.035]';
           const iconBorderColor = isReminder ? 'border-amber-500/30 text-amber-500' : 'border-theme/30 text-theme-main';
           const iconColor = isReminder ? 'text-amber-500' : 'text-theme-main';
 
@@ -9341,25 +9324,21 @@
         if (nutriCardHtml) todayMetricCards.push(nutriCardHtml);
         metricCustomCards.forEach(c => todayMetricCards.push(c));
 
-        const gridCardsHtml = todayMetricCards.map((cHtml, idx) => {
-          // Si el número de tarjetas es impar, la última se estira al 100% (2 columnas) para un cierre perfecto sin huecos
-          const isLastAndOdd = (idx === todayMetricCards.length - 1 && todayMetricCards.length % 2 !== 0);
-          const colSpanClass = isLastAndOdd ? 'col-span-1 md:col-span-2' : '';
-          return `<div class="${colSpanClass} h-full">${cHtml}</div>`;
+        const gridCardsHtml = todayMetricCards.map((cHtml) => {
+          return `<div class="h-full flex flex-col">${cHtml}</div>`;
         }).join('');
 
-        const remindersGridHtml = reminderCustomCards.map((cHtml, rIdx) => {
-          const isLastOddReminder = (rIdx === reminderCustomCards.length - 1 && reminderCustomCards.length % 2 !== 0);
-          const spanCls = isLastOddReminder ? 'col-span-1 md:col-span-2' : '';
-          return `<div class="${spanCls} h-full">${cHtml}</div>`;
+        const remindersGridHtml = reminderCustomCards.map((cHtml) => {
+          return `<div class="h-full flex flex-col">${cHtml}</div>`;
         }).join('');
 
         container.innerHTML = `
           ${urgentHtml}
+          ${prominentProgressBarHtml}
 
-          <!-- CUADRÍCULA BENTO BOX ADAPTATIVA DE HOY (2 COLUMNAS) -->
-          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
-            ${gridCardsHtml || '<div class="col-span-1 md:col-span-2 p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>'}
+          <!-- CUADRÍCULA UNIFORME DE HÁBITOS DE HOY (2 COLUMNAS ESTRICTAS) -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
+            ${gridCardsHtml || '<div class="col-span-1 sm:col-span-2 p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>'}
           </div>
 
           <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SIN IMPACTO EN SCORE) -->
@@ -9372,7 +9351,7 @@
                 </div>
                 <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
               </div>
-              <div class="grid grid-cols-1 md:grid-cols-2 gap-3 items-stretch">
+              <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 items-stretch">
                 ${remindersGridHtml}
               </div>
             </div>
@@ -18753,58 +18732,42 @@
           }
 
           // ---------------------------------------------------------
-          // TAB 1: FILA SUPERIOR (HOY + MATRIZ CON AUTO-EXPANSIÓN 100%)
+          // TAB 1: COLUMNAS CONTINUAS (50% / 50% CON AUTO-EXPANSIÓN 100%)
           // ---------------------------------------------------------
           const todayWrap = document.getElementById('todayFocusContainer');
           const matrixWrap = document.getElementById('weekTableContainer');
           const toggleBtn = document.getElementById('toggleWeekTableBtn');
-
-          const todayVisible = (p.showDailyCards !== false);
-          const matrixVisible = (p.showWeekMatrix !== false && state.ui.weekTableCollapsed !== true);
-
-          if (todayWrap) {
-            todayWrap.classList.toggle('hidden', !todayVisible);
-            todayWrap.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            todayWrap.classList.add(!matrixVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-          if (matrixWrap) {
-            matrixWrap.classList.toggle('hidden', !matrixVisible);
-            matrixWrap.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            matrixWrap.classList.add(!todayVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-          if (toggleBtn) {
-            toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
-          }
-
-          // ---------------------------------------------------------
-          // TAB 1: FILA SECUNDARIA (GASTOS + CALENDARIO VS LISTAS CON AUTO-EXPANSIÓN)
-          // ---------------------------------------------------------
           const recExp = document.getElementById('tab1RecentExpensesBar');
           const miniCal = document.getElementById('notesMiniCalendarPanel');
           const listsP = document.getElementById('interactiveListsPanel');
           const leftCol = document.getElementById('tab1LeftCol');
           const rightCol = document.getElementById('tab1RightCol');
 
+          const todayVisible = (p.showDailyCards !== false);
+          const matrixVisible = (p.showWeekMatrix !== false && state.ui.weekTableCollapsed !== true);
           const recExpVisible = (p.showRecentExpenses !== false);
           const miniCalVisible = (p.showMiniCalendar !== false);
           const listsVisible = (p.showListsPanel !== false);
 
-          if (recExp) recExp.classList.toggle('hidden', !recExpVisible);
+          if (todayWrap) todayWrap.classList.toggle('hidden', !todayVisible);
+          if (matrixWrap) matrixWrap.classList.toggle('hidden', !matrixVisible);
+          if (toggleBtn) toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
           if (miniCal) miniCal.classList.toggle('hidden', !miniCalVisible);
+          if (recExp) recExp.classList.toggle('hidden', !recExpVisible);
           if (listsP) listsP.classList.toggle('hidden', !listsVisible);
 
-          const leftColHasVisible = recExpVisible || miniCalVisible;
-          const rightColHasVisible = listsVisible;
+          const leftColHasVisible = todayVisible || miniCalVisible || recExpVisible;
+          const rightColHasVisible = matrixVisible || listsVisible;
 
           if (leftCol) {
             leftCol.classList.toggle('hidden', !leftColHasVisible);
-            leftCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-12');
-            leftCol.classList.add(!rightColHasVisible ? 'lg:col-span-12' : 'lg:col-span-5');
+            leftCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-7', 'lg:col-span-12');
+            leftCol.classList.add(!rightColHasVisible ? 'lg:col-span-12' : 'lg:col-span-6');
           }
           if (rightCol) {
             rightCol.classList.toggle('hidden', !rightColHasVisible);
-            rightCol.classList.remove('lg:col-span-7', 'lg:col-span-6', 'lg:col-span-12');
-            rightCol.classList.add(!leftColHasVisible ? 'lg:col-span-12' : 'lg:col-span-7');
+            rightCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-7', 'lg:col-span-12');
+            rightCol.classList.add(!leftColHasVisible ? 'lg:col-span-12' : 'lg:col-span-6');
           }
 
           // ---------------------------------------------------------
