@@ -6135,34 +6135,35 @@
           gridLayouts: {
             desktop: {
               tab1: {
-                todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 9, name: 'Hoy y Hábitos' },
-                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 10, rowSpan: 3, name: 'Movimientos Recientes' },
-                notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 5, name: 'Calendario' },
-                interactiveListsPanel: { col: 7, colSpan: 6, row: 6, rowSpan: 7, name: 'Listas y Tareas' },
-                weekTableContainer: { col: 1, colSpan: 12, row: 13, rowSpan: 6, name: 'Matriz Semanal' }
+                todayFocusContainer: { col: 1, colSpan: 6, row: 1, minRows: 18, manualRows: null, rowSpan: 18, name: 'Hoy y Hábitos' },
+                notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
+                interactiveListsPanel: { col: 7, colSpan: 6, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
+                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' },
+                weekTableContainer: { col: 1, colSpan: 12, row: 23, minRows: 8, manualRows: null, rowSpan: 8, name: 'Matriz Semanal' }
               },
               tab2: {
-                tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 2, name: 'Plantilla de Metas' },
-                tab2ScheduleSection: { col: 1, colSpan: 8, row: 3, rowSpan: 3, name: 'Horario Semanal' },
-                tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 3, rowSpan: 3, name: 'Reglas de Asistencia' }
+                tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
+                tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
+                tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
               },
               tab3: {
-                tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 2, name: 'Presupuesto Semanal' },
-                tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Metas de Ahorro' },
-                tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 3, rowSpan: 3, name: 'Gastos Fijos' },
-                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 3, rowSpan: 3, name: 'Tabla de Gastos' }
+                tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
+                tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
+                tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
+                tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
+                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' }
               },
               tab4: {
-                tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 3, name: 'Auditoría de Estudio' },
-                tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 4, rowSpan: 2, name: 'Hábitos Personalizados' },
-                tab4BiometricsSection: { col: 7, colSpan: 6, row: 4, rowSpan: 2, name: 'Biometría y Salud' },
-                tab4EvolutionSection: { col: 1, colSpan: 12, row: 6, rowSpan: 3, name: 'Histórico y Gráficos' }
+                tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
+                tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+                tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Biometría y Salud' },
+                tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
               }
             },
             mobile: {
               tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
               tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
-              tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
+              tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
               tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
             }
           }
@@ -19237,16 +19238,13 @@
           if (!cfg || !el) return;
 
           const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
-          const containerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
           const cardRect = el.getBoundingClientRect();
 
+          // Offset exacto del cursor respecto a la esquina superior izquierda de la tarjeta
           const grabOffsetX = e.clientX - cardRect.left;
           const grabOffsetY = e.clientY - cardRect.top;
 
           const gap = 12;
-          const colWidth = (containerRect.width - 11 * gap) / 12;
-          const colPitch = colWidth + gap;
-          const rowPitch = 40 + gap; // 52px
 
           const ghost = document.getElementById('boardGridDragGhost');
           const badge = document.getElementById('boardGridGhostBadge');
@@ -19275,14 +19273,36 @@
 
           let targetCol = cfg.col;
           let targetRow = cfg.row;
+          let lastMoveEvent = e;
 
-          const onPointerMove = (moveEvent) => {
-            const curX = moveEvent.clientX;
-            const curY = moveEvent.clientY;
+          const updateDragPosition = (moveEvent) => {
+            if (moveEvent) lastMoveEvent = moveEvent;
+            const evt = moveEvent || lastMoveEvent;
+            if (!evt) return;
 
-            // Calcular casillas imantadas
-            const relX = curX - grabOffsetX - containerRect.left;
-            const relY = curY - grabOffsetY - containerRect.top;
+            // Medición DINÁMICA en vivo de la posición del contenedor en el viewport actual (inmune a scroll)
+            const curContainerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
+            const colWidth = (curContainerRect.width - 11 * gap) / 12;
+            const colPitch = colWidth + gap;
+            const rowPitch = 40 + gap; // 52px
+
+            const curX = evt.clientX;
+            const curY = evt.clientY;
+
+            // Auto-scroll suave si el usuario arrastra cerca de los bordes del viewport
+            const edgeZone = 65;
+            const scrollSpeed = 15;
+            if (curY > window.innerHeight - edgeZone) {
+              window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
+            } else if (curY < edgeZone && window.scrollY > 0) {
+              window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
+            }
+
+            // Coordenadas exactas relativas al contenedor en tiempo real
+            const cardLeft = curX - grabOffsetX;
+            const cardTop = curY - grabOffsetY;
+            const relX = cardLeft - curContainerRect.left;
+            const relY = cardTop - curContainerRect.top;
 
             let c = Math.round(relX / colPitch) + 1;
             let r = Math.round(relY / rowPitch) + 1;
@@ -19293,14 +19313,17 @@
             targetCol = c;
             targetRow = r;
 
-            // Recuadro fantasma sigue el cursor y sombra verde en cuadrícula
+            // Recuadro fantasma y placeholder imantados exactamente a la misma celda física
+            const snapLeft = curContainerRect.left + (c - 1) * colPitch;
+            const snapTop = curContainerRect.top + (r - 1) * rowPitch;
+            const snapWidth = cfg.colSpan * colPitch - gap;
+            const snapHeight = ((cfg.rowSpan || 2) * rowPitch) - gap;
+
             if (ghost) {
-              const snapLeft = containerRect.left + (c - 1) * colPitch;
-              const snapTop = containerRect.top + (r - 1) * rowPitch;
               ghost.style.left = snapLeft + 'px';
               ghost.style.top = snapTop + 'px';
-              ghost.style.width = (cfg.colSpan * colPitch - gap) + 'px';
-              ghost.style.height = ((cfg.rowSpan || 2) * rowPitch - gap) + 'px';
+              ghost.style.width = snapWidth + 'px';
+              ghost.style.height = snapHeight + 'px';
             }
             if (placeholder) {
               placeholder.style.gridColumn = targetCol + ' / span ' + cfg.colSpan;
@@ -19312,10 +19335,19 @@
             }
           };
 
+          const onPointerMove = (moveEvent) => {
+            updateDragPosition(moveEvent);
+          };
+
+          const onScroll = () => {
+            updateDragPosition(lastMoveEvent);
+          };
+
           const onPointerUp = () => {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
+            window.removeEventListener('scroll', onScroll);
 
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
@@ -19334,6 +19366,7 @@
           window.addEventListener('pointermove', onPointerMove);
           window.addEventListener('pointerup', onPointerUp);
           window.addEventListener('pointercancel', onPointerUp);
+          window.addEventListener('scroll', onScroll, { passive: true });
         },
 
         // REDIMENSIÓN MANUAL LIBRE CON TOPE EN EL CONTENIDO VIVO (SIN RATCHET BUG)
@@ -19349,11 +19382,11 @@
           if (!cfg || !el) return;
 
           const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
-          const containerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
           const cardRect = el.getBoundingClientRect();
 
-          const startX = e.clientX;
-          const startY = e.clientY;
+          // Puntos iniciales absolutos inmunes al scroll
+          const startX = e.clientX + window.scrollX;
+          const startY = e.clientY + window.scrollY;
 
           const origCol = cfg.col;
           const origColSpan = cfg.colSpan;
@@ -19365,9 +19398,6 @@
           cfg.minRows = liveMinRows;
 
           const gap = 12;
-          const colWidth = (containerRect.width - 11 * gap) / 12;
-          const colPitch = colWidth + gap;
-          const rowPitch = 40 + gap; // 52px
 
           const ghost = document.getElementById('boardGridDragGhost');
           const badge = document.getElementById('boardGridGhostBadge');
@@ -19397,10 +19427,23 @@
           let finalColSpan = origColSpan;
           let finalRow = origRow;
           let finalRowSpan = origRowSpan;
+          let lastResizeEvent = e;
 
-          const onPointerMove = (moveEvent) => {
-            const dx = moveEvent.clientX - startX;
-            const dy = moveEvent.clientY - startY;
+          const updateResizePosition = (moveEvent) => {
+            if (moveEvent) lastResizeEvent = moveEvent;
+            const evt = moveEvent || lastResizeEvent;
+            if (!evt) return;
+
+            // Medición DINÁMICA en vivo del contenedor
+            const curContainerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
+            const colWidth = (curContainerRect.width - 11 * gap) / 12;
+            const colPitch = colWidth + gap;
+            const rowPitch = 40 + gap; // 52px
+
+            const curPageX = evt.clientX + window.scrollX;
+            const curPageY = evt.clientY + window.scrollY;
+            const dx = curPageX - startX;
+            const dy = curPageY - startY;
 
             const deltaCols = Math.round(dx / colPitch);
             const deltaRows = Math.round(dy / rowPitch);
@@ -19433,13 +19476,16 @@
             finalRow = r;
             finalRowSpan = rSpan;
 
+            const snapLeft = curContainerRect.left + (c - 1) * colPitch;
+            const snapTop = curContainerRect.top + (r - 1) * rowPitch;
+            const snapWidth = cSpan * colPitch - gap;
+            const snapHeight = rSpan * rowPitch - gap;
+
             if (ghost) {
-              const snapLeft = containerRect.left + (c - 1) * colPitch;
-              const snapTop = containerRect.top + (r - 1) * rowPitch;
               ghost.style.left = snapLeft + 'px';
               ghost.style.top = snapTop + 'px';
-              ghost.style.width = (cSpan * colPitch - gap) + 'px';
-              ghost.style.height = (rSpan * rowPitch - gap) + 'px';
+              ghost.style.width = snapWidth + 'px';
+              ghost.style.height = snapHeight + 'px';
             }
             if (placeholder) {
               placeholder.style.gridColumn = c + ' / span ' + cSpan;
@@ -19452,10 +19498,19 @@
             }
           };
 
+          const onPointerMove = (moveEvent) => {
+            updateResizePosition(moveEvent);
+          };
+
+          const onScroll = () => {
+            updateResizePosition(lastResizeEvent);
+          };
+
           const onPointerUp = () => {
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
+            window.removeEventListener('scroll', onScroll);
 
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
@@ -19491,6 +19546,7 @@
           window.addEventListener('pointermove', onPointerMove);
           window.addEventListener('pointerup', onPointerUp);
           window.addEventListener('pointercancel', onPointerUp);
+          window.addEventListener('scroll', onScroll, { passive: true });
         },
 
         // OBSERVADOR REACTIVO AUTOMÁTICO (RESIZEOBSERVER) PARA CONTENIDO VIVO
