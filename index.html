@@ -827,9 +827,180 @@
     .density-compact .space-y-3 > * + * { margin-top: 0.45rem !important; }
     .density-compact .space-y-4 > * + * { margin-top: 0.6rem !important; }
     .density-compact .p-3, .density-compact .p-4, .density-compact .p-5 { padding: 0.65rem !important; }
+
+    /* ========================================================
+       SISTEMA DE CUADRÍCULA TETRIS 12×H Y MODO EDICIÓN DIRECTA
+       ======================================================== */
+    .dashboard-grid-12 {
+      display: grid;
+      grid-template-columns: repeat(12, minmax(0, 1fr));
+      grid-auto-rows: minmax(46px, auto);
+      gap: 12px;
+      align-items: stretch;
+      position: relative;
+      transition: all 0.25s ease-out;
+    }
+    @media (max-width: 1023px) {
+      .dashboard-grid-12 {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 12px !important;
+      }
+      .dashboard-grid-12 > * {
+        width: 100% !important;
+        grid-column: 1 / -1 !important;
+        grid-row: auto !important;
+      }
+    }
+    .board-edit-active {
+      position: relative !important;
+      outline: 2px dashed rgba(16, 185, 129, 0.45) !important;
+      outline-offset: 8px;
+      border-radius: 18px;
+      background-image: repeating-linear-gradient(
+        to right,
+        rgba(16, 185, 129, 0.04) 0px,
+        rgba(16, 185, 129, 0.04) calc((100% - 132px) / 12),
+        transparent calc((100% - 132px) / 12),
+        transparent calc((100% - 132px) / 12 + 12px)
+      );
+    }
+    .board-edit-active::before {
+      content: '📐 CUADRÍCULA 12 COLUMNAS (MODO EDICIÓN ACTIVO)';
+      display: block;
+      grid-column: 1 / -1;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 6px 12px;
+      margin-bottom: 4px;
+      border-radius: 10px;
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px dashed rgba(16, 185, 129, 0.4);
+      color: #10b981;
+      pointer-events: none;
+    }
+    .card-edit-mode {
+      position: relative !important;
+      outline: 2px dashed rgba(16, 185, 129, 0.6) !important;
+      outline-offset: 3px !important;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25), 0 0 12px rgba(16, 185, 129, 0.15) !important;
+      transition: outline 0.15s, box-shadow 0.15s;
+    }
+    .card-edit-mode:hover {
+      outline-color: #10b981 !important;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 0 18px rgba(16, 185, 129, 0.3) !important;
+    }
+    .card-resize-r {
+      position: absolute;
+      top: 0;
+      right: -8px;
+      width: 16px;
+      bottom: 0;
+      cursor: ew-resize;
+      z-index: 45;
+      touch-action: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .card-resize-r::after {
+      content: '';
+      width: 5px;
+      height: 38px;
+      background: rgba(16, 185, 129, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .card-resize-r:hover::after, .card-resize-r:active::after {
+      background: #10b981;
+      transform: scaleX(1.8);
+      box-shadow: 0 0 10px #10b981;
+    }
+    .card-resize-b {
+      position: absolute;
+      left: 0;
+      right: 0;
+      bottom: -8px;
+      height: 16px;
+      cursor: ns-resize;
+      z-index: 45;
+      touch-action: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      user-select: none;
+    }
+    .card-resize-b::after {
+      content: '';
+      height: 5px;
+      width: 38px;
+      background: rgba(16, 185, 129, 0.7);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 5px;
+      transition: transform 0.15s, background 0.15s;
+    }
+    .card-resize-b:hover::after, .card-resize-b:active::after {
+      background: #10b981;
+      transform: scaleY(1.8);
+      box-shadow: 0 0 10px #10b981;
+    }
+    .card-drag-bar {
+      cursor: grab;
+      touch-action: none;
+      user-select: none;
+    }
+    .card-drag-bar:active {
+      cursor: grabbing;
+    }
+    #boardEditToolbar {
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out;
+    }
+
 </style>
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-24 sm:pb-16 transition-colors duration-200">
+  <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
+  <div id="boardEditToolbar" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[9999] max-w-4xl w-[96%] sm:w-auto bg-stone-900/95 dark:bg-slate-900/95 border-2 border-emerald-500 rounded-2xl shadow-2xl p-2 sm:px-4 sm:py-2.5 flex flex-wrap items-center justify-between gap-2.5 backdrop-blur-md text-white text-xs">
+    <div class="flex items-center gap-2">
+      <div class="w-6 h-6 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center font-bold text-xs">
+        📐
+      </div>
+      <div>
+        <span class="font-bold text-emerald-400 block text-xs" id="boardEditTitle">Modo Edición: Cuadrícula 12×H</span>
+        <span class="text-[10px] text-stone-400 dark:text-slate-400 hidden sm:inline">Estira bordes [↔ / ↕] o usa presets para organizar</span>
+      </div>
+    </div>
+    
+    <div class="flex items-center gap-1.5 flex-wrap">
+      <button type="button" onclick="app.applyDrawingPreset()" class="px-2.5 py-1 rounded-lg bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 font-bold text-[11px] hover:bg-emerald-500/30 transition flex items-center gap-1" title="Cargar el diseño exacto de tu dibujo a mano">
+        <span>📐</span> <span class="hidden md:inline">Tu dibujo</span>
+      </button>
+      <button type="button" onclick="app.autoLevelGrid()" class="px-2.5 py-1 rounded-lg bg-indigo-500/20 border border-indigo-500/50 text-indigo-300 font-bold text-[11px] hover:bg-indigo-500/30 transition flex items-center gap-1" title="Equilibrar alturas automáticamente entre columnas">
+        <span>⚡</span> <span class="hidden md:inline">Auto-Nivelar</span>
+      </button>
+      <button type="button" onclick="app.applyThreeInRowPreset()" class="px-2.5 py-1 rounded-lg bg-amber-500/20 border border-amber-500/50 text-amber-300 font-bold text-[11px] hover:bg-amber-500/30 transition flex items-center gap-1" title="Poner 3 módulos en una misma fila">
+        <span>3️⃣</span> <span class="hidden md:inline">3 en fila</span>
+      </button>
+      <button type="button" onclick="app.applyFiftyFiftyPreset()" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold text-[11px] hover:bg-slate-700 transition" title="Restablecer 50% / 50%">
+        50/50
+      </button>
+      <button type="button" onclick="app.applyFullWidthPreset()" class="px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-slate-300 font-bold text-[11px] hover:bg-slate-700 transition" title="Todos ancho completo">
+        100%
+      </button>
+      <button type="button" onclick="app.saveBoardDesign()" class="px-3 py-1 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-[11px] shadow-sm transition active:scale-95">
+        ✓ Guardar
+      </button>
+      <button type="button" onclick="app.cancelBoardDesign()" class="px-2 py-1 rounded-lg bg-stone-800 hover:bg-stone-700 text-stone-300 font-bold text-[11px] transition">
+        ✕ Salir
+      </button>
+    </div>
+  </div>
+
   <!-- Capa de Textura Litográfica Fija (Tactile Noise) -->
   <div class="tactile-noise-layer"></div>
 
@@ -2915,6 +3086,12 @@
         </div>
       </div>
 
+      <!-- Botón acceso directo Editor de Cuadrícula 12×H -->
+      <button type="button" onclick="app.closeModal('modalViewCustomizer'); app.toggleBoardEdit();" class="w-full py-2 px-3 rounded-xl bg-theme-main text-white font-bold flex items-center justify-center gap-2 shadow-sm hover:opacity-95 active:scale-[0.99] transition shrink-0">
+        <svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+        <span>Editar Cuadrícula 12×H en Pantalla (Arrastrar y Estirar)</span>
+      </button>
+
       <!-- PESTAÑAS DE VENTANA DENTRO DEL MODAL -->
       <div class="flex items-center gap-1 p-1 rounded-xl subpanel-bg border shrink-0 text-center font-bold text-[11px]">
         <button type="button" onclick="app.switchViewCustomizerTab('tab1')" id="viewCustomizerTabBtn_tab1" class="flex-1 py-1.5 px-1 rounded-lg transition bg-theme-main text-white shadow-xs">01 Diario</button>
@@ -3861,6 +4038,10 @@
           <span id="themeToggleText" class="hidden sm:inline">Tema</span>
         </button>
         <!-- Botón Personalizar Vista Dashboard -->
+        <button onclick="app.toggleBoardEdit()" id="boardEditToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Editar cuadrícula 12×H directamente en el tablero">
+          <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span class="hidden sm:inline">Diseño</span>
+        </button>
         <button onclick="app.openViewCustomizerModal()" id="viewCustomizerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar qué bloques ver en el Dashboard">
           <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21v-7M4 10V3M12 21v-9M12 8V3M20 21v-5M20 12V3M1 14h6M9 8h6M17 16h6"/></svg>
           <span class="hidden sm:inline">Vista</span>
@@ -4116,8 +4297,8 @@
          ======================================================== -->
     <main id="tab1" class="space-y-3">
       
-      <!-- CONTENEDOR SUPERIOR DE ANCHO COMPLETO (Para Hoy cuando la matriz semanal está plegada) -->
-      <div id="tab1FullWidthTop" class="space-y-3">
+      <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO DIARIO) -->
+      <div id="tab1MainGrid" class="dashboard-grid-12">
         <div id="todayFocusContainer" class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 relative z-10">
@@ -4148,14 +4329,8 @@
 
           <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
         </div>
-      </div>
 
-      <!-- CUADRÍCULA CONTINUA 50% / 50% (COLUMNA IZQUIERDA Y DERECHA) -->
-      <div id="tab1MainGrid" class="grid grid-cols-1 lg:grid-cols-12 gap-3 items-start">
-        
-        <!-- COLUMNA IZQUIERDA CONTINUA (50% en desktop: lg:col-span-6) -->
-        <div id="tab1LeftCol" class="lg:col-span-6 space-y-3 transition-all duration-300">
-          <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
+        <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
           <div class="flex items-center justify-between border-b pb-2">
             <div class="flex items-center gap-2">
               <div class="vector-seal bg-theme-main text-white shadow-xs">
@@ -4309,11 +4484,8 @@
             </div>
           </div>
         </div>
-        </div>
 
-        <!-- COLUMNA DERECHA CONTINUA (50% en desktop: lg:col-span-6) -->
-        <div id="tab1RightCol" class="lg:col-span-6 space-y-3 transition-all duration-300">
-          <div id="weekTableContainer" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
+        <div id="weekTableContainer" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex items-center justify-between pb-1 border-b relative z-10">
             <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
@@ -4378,8 +4550,6 @@
           </div>
           <div id="quickRecentExpenses" class="space-y-1"></div>
         </div>
-        </div>
-
       </div>
 
     </main>
@@ -4388,8 +4558,9 @@
          PESTAÑA 2: METAS Y HORARIO
          ======================================================== -->
     <section id="tab2" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
-      
-      <!-- CONFIGURACIÓN DE METAS SEMANALES -->
+      <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO METAS Y HORARIO) -->
+      <div id="tab2MainGrid" class="dashboard-grid-12">
+        <!-- CONFIGURACIÓN DE METAS SEMANALES -->
       <div id="tab2ModularHabitsSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-4">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-3">
           <div class="flex items-center gap-2">
@@ -4568,7 +4739,7 @@
 
         <div id="subjectRulesCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 text-xs"></div>
       </div>
-
+      </div>
     </section>
 
     <!-- ========================================================
@@ -4577,7 +4748,8 @@
     <section id="tab3" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
       
       <!-- FILA SUPERIOR: CONFIGURACIÓN DEL PRESUPUESTO + METAS DE AHORRO INDIVIDUALES (LADO A LADO) -->
-      <div class="grid grid-cols-1 lg:grid-cols-12 gap-3">
+      <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO FINANZAS) -->
+      <div id="tab3MainGrid" class="dashboard-grid-12">
         <!-- Modo Presupuesto -->
         <div id="tab3BudgetConfigCard" class="lg:col-span-6 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs flex flex-col justify-between">
           <div class="space-y-3">
@@ -4658,6 +4830,68 @@
             <div id="tab3SavingsGoalsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 max-h-56 overflow-y-auto pr-0.5"></div>
           </div>
         </div>
+      </div>
+
+      <!-- HUCHA GLOBAL (ANCHURA COMPLETA COMPACTA O CON SUS CONTROLES) -->
+      <div id="tab3PiggyCard" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs relative overflow-hidden">
+        <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
+        <div class="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4 border-b pb-3">
+          <div class="flex items-center gap-2">
+            <div class="vector-seal bg-theme-main text-white shadow-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"></circle><path d="M12 6v12M8 10h8"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Hucha de Ahorro <span class="italic font-normal">Global</span></h3>
+              <span class="text-[10px] text-slate-400 font-mono">Fondo Acumulado de Reserva</span>
+            </div>
+          </div>
+
+          <div class="flex items-baseline gap-2">
+            <span class="text-xs text-slate-400 font-semibold">Saldo Disponible:</span>
+            <div id="tab3PiggyBalanceDisplay" class="text-2xl sm:text-3xl font-extrabold text-theme-main font-mono">0.00 €</div>
+          </div>
+
+          <div class="flex items-center gap-2">
+            <button onclick="app.openPiggyModal('deposit')" class="px-4 py-2 rounded-xl bg-theme-main hover:opacity-95 text-white font-bold shadow-md border border-theme active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Ingresar</span>
+            </button>
+            <button onclick="app.openPiggyModal('withdraw')" class="px-4 py-2 rounded-xl bg-theme-accent hover:opacity-95 text-white font-bold shadow-md border border-theme-accent/60 active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+              <span>Retirar</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1">
+          <!-- Progreso Meta Mensual de Ahorro -->
+          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1.5">
+            <div class="flex justify-between items-center text-[11px]">
+              <span class="text-slate-400 font-semibold">Meta Mensual de Ahorro:</span>
+              <span id="tab3PiggyGoalPct" class="font-bold text-theme-main font-mono">0%</span>
+            </div>
+            <div class="h-2 w-full bg-slate-900 border border-slate-700/60 rounded-full overflow-hidden flex">
+              <div id="tab3PiggyProgressBar" class="bg-theme-main h-full rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <div class="flex justify-between text-[10px] text-slate-400 font-mono">
+              <span id="tab3PiggyMonthSavings">0.00 € acumulados</span>
+              <span id="tab3PiggyGoalTarget">Meta: 0.00 €</span>
+            </div>
+          </div>
+
+          <!-- Mini Sparkline / Histórico de Balance Reciente -->
+          <div class="p-2.5 rounded-xl subpanel-bg border space-y-1">
+            <div class="flex justify-between items-center text-[10px] text-slate-400 px-0.5">
+              <span class="font-semibold">Evolución del Fondo:</span>
+              <span id="tab3PiggyHistoryCount" class="font-mono">0 movimientos</span>
+            </div>
+            <div id="tab3PiggySparkline" class="h-9 w-full rounded-lg subpanel-bg border flex items-center justify-center overflow-hidden p-1">
+              <span class="text-[10px] text-slate-500 italic">Sin transacciones registradas</span>
+            </div>
+          </div>
+        </div>
+
+        
       </div>
 
       <!-- HUCHA GLOBAL (ANCHURA COMPLETA COMPACTA O CON SUS CONTROLES) -->
@@ -4896,7 +5130,9 @@
         </div>
       </div>
 
-      <!-- AUDITORÍA Y ESTADÍSTICAS DE ESTUDIO POR ASIGNATURA (NUEVO PANEL) -->
+      <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO MÉTRICAS Y LAB) -->
+      <div id="tab4MainGrid" class="dashboard-grid-12">
+        <!-- AUDITORÍA Y ESTADÍSTICAS DE ESTUDIO POR ASIGNATURA (NUEVO PANEL) -->
       <div id="tab4StudyAuditSection" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
         <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2">
           <div class="flex items-center gap-2">
@@ -5061,6 +5297,7 @@
           </div>
           <div id="historyWeeksList" class="space-y-1"></div>
         </div>
+      </div>
       </div>
     </section>
 
@@ -5907,7 +6144,41 @@
           tab4ShowEvolution: true,
           density: 'cozy',
           kpisCollapsed: true,
-          welcomeDismissed: false
+          welcomeDismissed: false,
+          gridLayouts: {
+            desktop: {
+              tab1: {
+                todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 3, name: 'Hoy y Hábitos' },
+                notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Calendario' },
+                interactiveListsPanel: { col: 7, colSpan: 6, row: 3, rowSpan: 2, name: 'Listas y Tareas' },
+                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 4, rowSpan: 1, name: 'Movimientos Recientes' },
+                weekTableContainer: { col: 1, colSpan: 12, row: 5, rowSpan: 3, name: 'Matriz Semanal' }
+              },
+              tab2: {
+                tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 2, name: 'Plantilla de Metas' },
+                tab2ScheduleSection: { col: 1, colSpan: 8, row: 3, rowSpan: 3, name: 'Horario Semanal' },
+                tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 3, rowSpan: 3, name: 'Reglas de Asistencia' }
+              },
+              tab3: {
+                tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 2, name: 'Presupuesto Semanal' },
+                tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Metas de Ahorro' },
+                tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 3, rowSpan: 3, name: 'Gastos Fijos' },
+                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 3, rowSpan: 3, name: 'Tabla de Gastos' }
+              },
+              tab4: {
+                tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 3, name: 'Auditoría de Estudio' },
+                tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 4, rowSpan: 2, name: 'Hábitos Personalizados' },
+                tab4BiometricsSection: { col: 7, colSpan: 6, row: 4, rowSpan: 2, name: 'Biometría y Salud' },
+                tab4EvolutionSection: { col: 1, colSpan: 12, row: 6, rowSpan: 3, name: 'Histórico y Gráficos' }
+              }
+            },
+            mobile: {
+              tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
+              tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
+              tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
+              tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
+            }
+          }
         },
         version: 4,
         theme: 'dark',
@@ -12707,6 +12978,12 @@
           if (state && state.activeTab === 2) this.autoSaveGoalSetting();
           state.activeTab = tabNum;
           this.applyUiPreferences();
+          this.applyGridLayout('tab' + tabNum);
+          if (state.ui && state.ui.isBoardEditMode) {
+            const titleEl = document.getElementById('boardEditTitle');
+            if (titleEl) titleEl.textContent = 'Modo Edición: Cuadrícula 12×H (Pestaña ' + tabNum + ')';
+            this.renderBoardEditHandles('tab' + tabNum);
+          }
           for (let i = 1; i <= 4; i++) {
             const sec = document.getElementById(`tab${i}`);
             const btn = document.getElementById(`tabNav${i}`);
@@ -18455,6 +18732,443 @@
           });
         },
 
+        // ========================================================
+        // GESTIÓN DE CUADRÍCULA TETRIS 12xH Y EDICIÓN DE TABLERO
+        // ========================================================
+        getDefaultGridLayout(tabKey) {
+          const DEFAULTS = {
+            tab1: {
+              todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 3, name: 'Hoy y Hábitos' },
+              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Calendario' },
+              interactiveListsPanel: { col: 7, colSpan: 6, row: 3, rowSpan: 2, name: 'Listas y Tareas' },
+              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 4, rowSpan: 1, name: 'Movimientos Recientes' },
+              weekTableContainer: { col: 1, colSpan: 12, row: 5, rowSpan: 3, name: 'Matriz Semanal' }
+            },
+            tab2: {
+              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 2, name: 'Plantilla de Metas' },
+              tab2ScheduleSection: { col: 1, colSpan: 8, row: 3, rowSpan: 3, name: 'Horario Semanal' },
+              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 3, rowSpan: 3, name: 'Reglas de Asistencia' }
+            },
+            tab3: {
+              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 2, name: 'Presupuesto Semanal' },
+              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Metas de Ahorro' },
+              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 3, rowSpan: 3, name: 'Gastos Fijos' },
+              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 3, rowSpan: 3, name: 'Tabla de Gastos' }
+            },
+            tab4: {
+              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 3, name: 'Auditoría de Estudio' },
+              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 4, rowSpan: 2, name: 'Hábitos Personalizados' },
+              tab4BiometricsSection: { col: 7, colSpan: 6, row: 4, rowSpan: 2, name: 'Biometría y Salud' },
+              tab4EvolutionSection: { col: 1, colSpan: 12, row: 6, rowSpan: 3, name: 'Histórico y Gráficos' }
+            }
+          };
+          return JSON.parse(JSON.stringify(DEFAULTS[tabKey] || DEFAULTS.tab1));
+        },
+
+        getGridLayout(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          if (!state.uiPreferences) state.uiPreferences = {};
+          if (!state.uiPreferences.gridLayouts) {
+            state.uiPreferences.gridLayouts = {
+              desktop: {
+                tab1: this.getDefaultGridLayout('tab1'),
+                tab2: this.getDefaultGridLayout('tab2'),
+                tab3: this.getDefaultGridLayout('tab3'),
+                tab4: this.getDefaultGridLayout('tab4')
+              },
+              mobile: {
+                tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
+                tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
+                tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
+                tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
+              }
+            };
+          }
+          if (!state.uiPreferences.gridLayouts.desktop) state.uiPreferences.gridLayouts.desktop = {};
+          if (!state.uiPreferences.gridLayouts.desktop[tabKey]) {
+            state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
+          }
+          return state.uiPreferences.gridLayouts.desktop[tabKey];
+        },
+
+        autoFlowGrid(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          const items = Object.keys(layout).map(id => ({ id, ...layout[id] }));
+          items.sort((a, b) => a.row - b.row || a.col - b.col);
+
+          let changed = true;
+          let iterations = 0;
+          while (changed && iterations < 35) {
+            changed = false;
+            iterations++;
+            for (let i = 0; i < items.length; i++) {
+              for (let j = 0; j < items.length; j++) {
+                if (i === j) continue;
+                const a = items[i];
+                const b = items[j];
+                const aColEnd = a.col + a.colSpan - 1;
+                const bColEnd = b.col + b.colSpan - 1;
+                const colsOverlap = (a.col <= bColEnd && b.col <= aColEnd);
+                if (!colsOverlap) continue;
+
+                const aRowEnd = a.row + a.rowSpan - 1;
+                const bRowEnd = b.row + b.rowSpan - 1;
+                const rowsOverlap = (a.row <= bRowEnd && b.row <= aRowEnd);
+
+                if (colsOverlap && rowsOverlap) {
+                  if (a.row < b.row || (a.row === b.row && a.col <= b.col)) {
+                    b.row = a.row + a.rowSpan;
+                    changed = true;
+                  }
+                }
+              }
+            }
+          }
+
+          items.forEach(it => {
+            layout[it.id].row = it.row;
+            layout[it.id].col = it.col;
+          });
+        },
+
+        applyGridLayout(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const isDesktop = (typeof window !== 'undefined' && window.innerWidth >= 1024);
+          const layout = this.getGridLayout(tabKey);
+
+          if (isDesktop) {
+            Object.keys(layout).forEach(id => {
+              const el = document.getElementById(id);
+              if (el) {
+                const cfg = layout[id];
+                el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+                el.style.gridRow = cfg.row + ' / span ' + (cfg.rowSpan || 2);
+                el.style.width = '100%';
+              }
+            });
+          } else {
+            const mobList = (state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.mobile && state.uiPreferences.gridLayouts.mobile[tabKey]) || Object.keys(layout);
+            mobList.forEach((id, idx) => {
+              const el = document.getElementById(id);
+              if (el) {
+                el.style.gridColumn = '1 / -1';
+                el.style.gridRow = 'auto';
+                el.style.order = String(idx);
+                el.style.width = '100%';
+              }
+            });
+          }
+        },
+
+        autoLevelGrid(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          const cardIds = Object.keys(layout);
+
+          const multiColCards = cardIds.filter(id => (layout[id].colSpan || 6) < 12);
+          const fullWidthCards = cardIds.filter(id => (layout[id].colSpan || 6) >= 12);
+
+          multiColCards.sort((a, b) => (layout[b].rowSpan || 2) - (layout[a].rowSpan || 2));
+
+          let leftHeight = 1;
+          let rightHeight = 1;
+
+          multiColCards.forEach(id => {
+            const span = layout[id].rowSpan || 2;
+            layout[id].colSpan = 6;
+            if (leftHeight <= rightHeight) {
+              layout[id].col = 1;
+              layout[id].row = leftHeight;
+              leftHeight += span;
+            } else {
+              layout[id].col = 7;
+              layout[id].row = rightHeight;
+              rightHeight += span;
+            }
+          });
+
+          let bottomRow = Math.max(leftHeight, rightHeight);
+          fullWidthCards.forEach(id => {
+            layout[id].col = 1;
+            layout[id].colSpan = 12;
+            layout[id].row = bottomRow;
+            bottomRow += (layout[id].rowSpan || 2);
+          });
+
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          this.showToast('⚡ Tablero equilibrado automáticamente con 0 huecos.', 'emerald');
+        },
+
+        applyDrawingPreset(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          if (tabKey === 'tab1') {
+            const layout = this.getGridLayout('tab1');
+            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, rowSpan: 3, name: 'Hoy y Hábitos' };
+            layout.tab1RecentExpensesBar = { col: 1, colSpan: 6, row: 4, rowSpan: 1, name: 'Movimientos Recientes' };
+            layout.notesMiniCalendarPanel = { col: 7, colSpan: 6, row: 1, rowSpan: 2, name: 'Calendario' };
+            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 3, rowSpan: 2, name: 'Listas y Tareas' };
+            layout.weekTableContainer = { col: 1, colSpan: 12, row: 5, rowSpan: 3, name: 'Matriz Semanal' };
+          } else {
+            this.autoLevelGrid(tabKey);
+            return;
+          }
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          this.showToast('📐 Diseño de tu dibujo cargado: Izq (4 filas) + Der (4 filas) + Matriz (100%).', 'emerald');
+        },
+
+        applyThreeInRowPreset(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          if (tabKey === 'tab1') {
+            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, rowSpan: 3, name: 'Hoy y Hábitos' };
+            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, rowSpan: 2, name: 'Calendario' };
+            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, rowSpan: 2, name: 'Movimientos Recientes' };
+            layout.interactiveListsPanel = { col: 1, colSpan: 12, row: 4, rowSpan: 2, name: 'Listas y Tareas' };
+            layout.weekTableContainer = { col: 1, colSpan: 12, row: 6, rowSpan: 3, name: 'Matriz Semanal' };
+          } else {
+            const ids = Object.keys(layout);
+            if (ids.length >= 3) {
+              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1;
+              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1;
+              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1;
+              for (let i = 3; i < ids.length; i++) {
+                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 3 + (i - 3) * 2;
+              }
+            }
+          }
+          this.autoFlowGrid(tabKey);
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          this.showToast('3️⃣ Preset 3 en fila aplicado (4 cols + 4 cols + 4 cols).', 'indigo');
+        },
+
+        applyFiftyFiftyPreset(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          const ids = Object.keys(layout);
+          ids.forEach((id, i) => {
+            const isLeft = (i % 2 === 0);
+            layout[id].col = isLeft ? 1 : 7;
+            layout[id].colSpan = 6;
+            layout[id].row = Math.floor(i / 2) * 2 + 1;
+            layout[id].rowSpan = 2;
+          });
+          this.autoFlowGrid(tabKey);
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          this.showToast('⚖️ Preset 50% / 50% aplicado.', 'emerald');
+        },
+
+        applyFullWidthPreset(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          const ids = Object.keys(layout);
+          let r = 1;
+          ids.forEach(id => {
+            layout[id].col = 1;
+            layout[id].colSpan = 12;
+            layout[id].row = r;
+            r += (layout[id].rowSpan || 2);
+          });
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          this.showToast('⬛ Todos los módulos en 100% de anchura.', 'emerald');
+        },
+
+        isBoardEditMode() {
+          return !!(state.ui && state.ui.isBoardEditMode);
+        },
+
+        toggleBoardEdit(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          if (!state.ui) state.ui = {};
+          state.ui.isBoardEditMode = !state.ui.isBoardEditMode;
+          const toolbar = document.getElementById('boardEditToolbar');
+          const toggleBtn = document.getElementById('boardEditToggleBtn');
+          const tabNum = state.activeTab || 1;
+          const mainGrid = document.getElementById('tab' + tabNum + 'MainGrid');
+
+          if (state.ui.isBoardEditMode) {
+            if (toolbar) toolbar.classList.remove('hidden');
+            if (toggleBtn) {
+              toggleBtn.classList.add('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
+              toggleBtn.classList.remove('subpanel-bg');
+            }
+            if (mainGrid) mainGrid.classList.add('board-edit-active');
+            const titleEl = document.getElementById('boardEditTitle');
+            if (titleEl) titleEl.textContent = 'Modo Edición: Cuadrícula 12×H (Pestaña ' + tabNum + ')';
+            this.renderBoardEditHandles(tabKey);
+            this.showToast('🛠️ Modo edición activado. Ajusta anchos, filas o presets.', 'emerald');
+          } else {
+            if (toolbar) toolbar.classList.add('hidden');
+            if (toggleBtn) {
+              toggleBtn.classList.remove('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
+              toggleBtn.classList.add('subpanel-bg');
+            }
+            ['tab1', 'tab2', 'tab3', 'tab4'].forEach(t => {
+              const g = document.getElementById(t + 'MainGrid');
+              if (g) g.classList.remove('board-edit-active');
+            });
+            this.removeBoardEditHandles();
+          }
+        },
+
+        renderBoardEditHandles(tabKey) {
+          tabKey = tabKey || ('tab' + (state.activeTab || 1));
+          const layout = this.getGridLayout(tabKey);
+          this.removeBoardEditHandles();
+
+          Object.keys(layout).forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('card-edit-mode');
+            const cfg = layout[id];
+            const pct = Math.round((cfg.colSpan / 12) * 100);
+
+            // Create top control bar inside card
+            const bar = document.createElement('div');
+            bar.className = 'board-edit-ctrl-overlay bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-20 relative select-none';
+            bar.innerHTML = `
+              <div class="flex items-center gap-1.5 min-w-0">
+                <span class="cursor-grab text-emerald-400 font-black">⠿</span>
+                <span class="font-bold text-white text-[11px] truncate">${cfg.name || id}</span>
+                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${pct}% (${cfg.colSpan}/12)</span>
+                <span class="text-stone-400 text-[10px] font-mono hidden sm:inline">c${cfg.col}..r${cfg.row}</span>
+              </div>
+              <div class="flex items-center gap-1 shrink-0">
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">-</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs">+</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', -1)" title="Mover a la izquierda" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">◀</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', 1)" title="Mover a la derecha" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▶</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', -1)" title="Subir fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▲</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', 1)" title="Bajar fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs">▼</button>
+              </div>
+            `;
+            el.insertBefore(bar, el.firstChild);
+
+            // Right resize handle
+            const handleR = document.createElement('div');
+            handleR.className = 'card-resize-r board-edit-ctrl-overlay';
+            handleR.title = 'Arrastra para ensanchar o estrechar columnas (1..12)';
+            handleR.onpointerdown = (e) => this.startCardResize(e, id, 'r');
+            el.appendChild(handleR);
+
+            // Bottom resize handle
+            const handleB = document.createElement('div');
+            handleB.className = 'card-resize-b board-edit-ctrl-overlay';
+            handleB.title = 'Arrastra para cambiar altura de filas';
+            handleB.onpointerdown = (e) => this.startCardResize(e, id, 'b');
+            el.appendChild(handleB);
+          });
+        },
+
+        removeBoardEditHandles() {
+          document.querySelectorAll('.board-edit-ctrl-overlay').forEach(el => el.remove());
+          document.querySelectorAll('.card-edit-mode').forEach(el => el.classList.remove('card-edit-mode'));
+        },
+
+        adjustCardSpan(cardId, delta) {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          const cfg = layout[cardId];
+          if (!cfg) return;
+          const newSpan = cfg.colSpan + delta;
+          if (newSpan >= 2 && cfg.col + newSpan - 1 <= 12) {
+            cfg.colSpan = newSpan;
+            this.autoFlowGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+          }
+        },
+
+        adjustCardCol(cardId, delta) {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          const cfg = layout[cardId];
+          if (!cfg) return;
+          const newCol = cfg.col + delta;
+          if (newCol >= 1 && newCol + cfg.colSpan - 1 <= 12) {
+            cfg.col = newCol;
+            this.autoFlowGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+          }
+        },
+
+        adjustCardRow(cardId, delta) {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          const cfg = layout[cardId];
+          if (!cfg) return;
+          const newRow = cfg.row + delta;
+          if (newRow >= 1) {
+            cfg.row = newRow;
+            this.autoFlowGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+          }
+        },
+
+        startCardResize(e, cardId, direction) {
+          e.preventDefault();
+          e.stopPropagation();
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
+          const cfg = layout[cardId];
+          const el = document.getElementById(cardId);
+          if (!cfg || !el) return;
+
+          const container = el.parentElement;
+          const containerRect = container.getBoundingClientRect();
+          const colWidth = (containerRect.width - 11 * 12) / 12;
+          const cardRect = el.getBoundingClientRect();
+
+          const onPointerMove = (moveEvent) => {
+            if (direction === 'r') {
+              const currentW = moveEvent.clientX - cardRect.left;
+              let calculatedSpan = Math.round(currentW / (colWidth + 12));
+              calculatedSpan = Math.max(2, Math.min(13 - cfg.col, calculatedSpan));
+              cfg.colSpan = calculatedSpan;
+              el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+            } else if (direction === 'b') {
+              const currentH = moveEvent.clientY - cardRect.top;
+              let calculatedRows = Math.max(1, Math.min(8, Math.round(currentH / 60)));
+              cfg.rowSpan = calculatedRows;
+              el.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
+            }
+          };
+
+          const onPointerUp = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            this.autoFlowGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+          };
+
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+        },
+
+        saveBoardDesign() {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          this.autoFlowGrid(tabKey);
+          this.applyGridLayout(tabKey);
+          this.toggleBoardEdit(tabKey);
+          saveState();
+          this.showToast('✅ ¡Diseño de cuadrícula 12×H guardado con éxito!', 'emerald');
+        },
+
+        cancelBoardDesign() {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          this.applyGridLayout(tabKey);
+          this.toggleBoardEdit(tabKey);
+          this.showToast('Diseño restablecido a la configuración previa.', 'info');
+        },
+
         saveUiPreferences() {
           if (!state.uiPreferences) state.uiPreferences = {};
           const getVal = id => {
@@ -18644,10 +19358,7 @@
           const p = state.uiPreferences;
           const isMatrixCollapsed = (state.ui.weekTableCollapsed !== false) || (p.showWeekMatrix === false);
 
-          const fullTop = document.getElementById('tab1FullWidthTop');
           const todayWrap = document.getElementById('todayFocusContainer');
-          const leftCol = document.getElementById('tab1LeftCol');
-          const rightCol = document.getElementById('tab1RightCol');
           const listsP = document.getElementById('interactiveListsPanel');
           const miniCal = document.getElementById('notesMiniCalendarPanel');
           const recExp = document.getElementById('tab1RecentExpensesBar');
@@ -18665,62 +19376,14 @@
           if (toggleBtn) {
             toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
             toggleBtn.innerHTML = isMatrixCollapsed
-              ? `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>`
-              : `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
+              ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>'
+              : '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>';
           }
           if (miniCal) miniCal.classList.toggle('hidden', !miniCalVisible);
           if (recExp) recExp.classList.toggle('hidden', !recExpVisible);
           if (listsP) listsP.classList.toggle('hidden', !listsVisible);
 
-          // Reubicación de Hoy según estado de la matriz semanal
-          if (todayWrap && fullTop && leftCol) {
-            if (isMatrixCollapsed) {
-              if (todayWrap.parentElement !== fullTop) {
-                fullTop.appendChild(todayWrap);
-              }
-              fullTop.classList.toggle('hidden', !todayVisible);
-            } else {
-              fullTop.classList.add('hidden');
-              if (leftCol.firstElementChild !== todayWrap) {
-                leftCol.insertBefore(todayWrap, leftCol.firstChild);
-              }
-            }
-          }
-
-          if (listsP && leftCol && listsP.parentElement !== leftCol) {
-            leftCol.appendChild(listsP);
-          }
-
-          if (rightCol) {
-            if (matrixWrap && matrixWrap.parentElement !== rightCol) {
-              rightCol.insertBefore(matrixWrap, rightCol.firstChild);
-            }
-            if (miniCal && miniCal.parentElement !== rightCol) {
-              rightCol.appendChild(miniCal);
-            }
-            if (recExp && recExp.parentElement !== rightCol) {
-              rightCol.appendChild(recExp);
-            }
-          }
-
-          const leftColHasVisible = (!isMatrixCollapsed && todayVisible) || listsVisible;
-          const rightColHasVisible = matrixVisible || miniCalVisible || recExpVisible;
-
-          if (leftCol) {
-            leftCol.classList.toggle('hidden', !leftColHasVisible);
-            leftCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-7', 'lg:col-span-12');
-            leftCol.classList.add(!rightColHasVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-          if (rightCol) {
-            rightCol.classList.toggle('hidden', !rightColHasVisible);
-            rightCol.classList.remove('lg:col-span-5', 'lg:col-span-6', 'lg:col-span-7', 'lg:col-span-12');
-            rightCol.classList.add(!leftColHasVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-
-          const mainGrid = document.getElementById('tab1MainGrid');
-          if (mainGrid) {
-            mainGrid.classList.toggle('hidden', !leftColHasVisible && !rightColHasVisible);
-          }
+          this.applyGridLayout('tab1');
         },
 
         applyUiPreferences() {
@@ -18905,6 +19568,11 @@
 
           const t4Evol = document.getElementById('tab4EvolutionSection');
           if (t4Evol) t4Evol.classList.toggle('hidden', p.tab4ShowEvolution === false);
+
+          // ---------------------------------------------------------
+          // APLICAR CUADRÍCULA TETRIS 12×H AL TABLERO ACTIVO
+          // ---------------------------------------------------------
+          this.applyGridLayout('tab' + (state.activeTab || 1));
 
           // ---------------------------------------------------------
           // DENSIDAD VISUAL
