@@ -352,13 +352,31 @@ var GridEngine = {
         // ========================================================
         // SISTEMA UNIFICADO DE PERSONALIZACIÓN DEL TABLERO (IN-PLACE)
         // ========================================================
+        safeToast(msg, type) {
+          if (typeof app !== 'undefined' && typeof app.showToast === 'function') {
+            app.showToast(msg, type);
+          } else if (typeof this.showToast === 'function') {
+            this.showToast(msg, type);
+          }
+        },
+
+        openBlueprintStudio() {
+          this.toggleBoardEdit();
+        },
+
+        closeBlueprintStudio() {
+          if (state && state.ui && state.ui.isBoardEditMode) {
+            this.toggleBoardEdit();
+          }
+        },
+
         toggleBoardEdit(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           if (!state.ui) state.ui = {};
           state.ui.isBoardEditMode = !state.ui.isBoardEditMode;
 
-          const btn = document.getElementById('personalizeBoardBtn');
-          const btnLabel = document.getElementById('personalizeBtnLabel');
+          const btn = document.getElementById('boardEditToggleBtn') || document.getElementById('personalizeBoardBtn');
+          const btnLabel = document.getElementById('boardEditToggleText') || document.getElementById('personalizeBtnLabel') || (btn ? btn.querySelector('span') : null);
           const mainGrid = document.getElementById('tab1MainGrid') || document.querySelector('.dashboard-grid-12');
           const sidebar = document.getElementById('workspaceSidebar');
           const drawer = document.getElementById('widgetsDrawer');
@@ -367,7 +385,7 @@ var GridEngine = {
             if (btn) {
               btn.className = 'px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold border border-emerald-400 text-xs flex items-center gap-1.5 shadow-md transition whitespace-nowrap cursor-pointer';
             }
-            if (btnLabel) btnLabel.textContent = 'Guardar Diseño';
+            if (btnLabel) btnLabel.textContent = 'Guardar';
 
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
@@ -375,21 +393,20 @@ var GridEngine = {
               sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
             }
 
-            this.resolveGridCollisions(tabKey, null);
-            this.applyGridLayout(tabKey);
-            this.renderBoardEditHandles(tabKey);
-            this.renderWidgetsDrawer();
-            this.showToast('🛠️ Modo Personalización: Ajusta y recoloca cuadros en el tablero.', 'emerald');
+            try { this.resolveGridCollisions(tabKey, null); } catch (e) { console.warn('resolveGridCollisions:', e); }
+            try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
+            try { this.renderBoardEditHandles(tabKey); } catch (e) { console.warn('renderBoardEditHandles:', e); }
+            try { this.renderWidgetsDrawer(); } catch (e) { console.warn('renderWidgetsDrawer:', e); }
+            this.safeToast('🛠️ Modo Diseño: Ajusta y mueve los cuadros en el tablero.', 'emerald');
           } else {
             if (btn) {
               btn.className = 'px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap';
             }
-            if (btnLabel) btnLabel.textContent = 'Personalizar';
+            if (btnLabel) btnLabel.textContent = 'Diseño';
 
             if (mainGrid) mainGrid.classList.remove('board-edit-active');
             if (sidebar) {
               sidebar.classList.remove('sidebar-edit-active');
-              // Si no tiene widgets asignados, cerrar el sidebar
               const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
               if (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0) {
                 sidebar.classList.remove('sidebar-open');
@@ -398,11 +415,13 @@ var GridEngine = {
             }
             if (drawer) drawer.classList.add('hidden');
 
-            this.removeBoardEditHandles();
-            this.applyGridLayout(tabKey);
-            if (window.WorkspacesManager) window.WorkspacesManager.mountActiveWorkspace();
+            try { this.removeBoardEditHandles(); } catch (e) { console.warn('removeBoardEditHandles:', e); }
+            try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
+            if (window.WorkspacesManager) {
+              try { window.WorkspacesManager.mountActiveWorkspace(); } catch (e) { console.warn('mountActiveWorkspace:', e); }
+            }
             if (typeof saveState === 'function') saveState();
-            this.showToast('✅ ¡Diseño del tablero guardado con éxito!', 'emerald');
+            this.safeToast('✅ ¡Diseño del tablero guardado con éxito!', 'emerald');
           }
         },
 
@@ -1530,6 +1549,12 @@ toggleWidgetPin(cardId) {
         '</div>' +
       '</div>';
     }).join('');
-  },
-
+  }
 };
+
+if (typeof window !== 'undefined') {
+  window.GridEngine = GridEngine;
+}
+if (typeof global !== 'undefined') {
+  global.GridEngine = GridEngine;
+}
