@@ -348,49 +348,61 @@ var GridEngine = {
           return !!(state.ui && state.ui.isBoardEditMode);
         },
 
+        
+        // ========================================================
+        // SISTEMA UNIFICADO DE PERSONALIZACIÓN DEL TABLERO (IN-PLACE)
+        // ========================================================
         toggleBoardEdit(tabKey) {
-          if (this.openBlueprintStudio) {
-            this.openBlueprintStudio();
-            return;
-          }
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           if (!state.ui) state.ui = {};
           state.ui.isBoardEditMode = !state.ui.isBoardEditMode;
-          const toolbar = document.getElementById('boardEditToolbar');
-          const toggleBtn = document.getElementById('boardEditToggleBtn');
-          const tabNum = state.activeTab || 1;
-          const mainGrid = document.getElementById('tab' + tabNum + 'MainGrid');
+
+          const btn = document.getElementById('personalizeBoardBtn');
+          const btnLabel = document.getElementById('personalizeBtnLabel');
+          const mainGrid = document.getElementById('tab1MainGrid') || document.querySelector('.dashboard-grid-12');
+          const sidebar = document.getElementById('workspaceSidebar');
+          const drawer = document.getElementById('widgetsDrawer');
 
           if (state.ui.isBoardEditMode) {
-            if (toolbar) toolbar.classList.remove('hidden');
-            if (toggleBtn) {
-              toggleBtn.classList.add('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
-              toggleBtn.classList.remove('subpanel-bg');
+            if (btn) {
+              btn.className = 'px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold border border-emerald-400 text-xs flex items-center gap-1.5 shadow-md transition whitespace-nowrap cursor-pointer';
             }
-            if (mainGrid) mainGrid.classList.add('board-edit-active', 'board-blueprint-mode');
-            const titleEl = document.getElementById('boardEditTitle');
-            if (titleEl) titleEl.textContent = 'Modo Edición: Cuadrícula 12×H';
+            if (btnLabel) btnLabel.textContent = 'Guardar Diseño';
+
+            if (mainGrid) mainGrid.classList.add('board-edit-active');
+            if (sidebar) {
+              sidebar.classList.remove('hidden', 'sidebar-collapsed');
+              sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
+            }
 
             this.resolveGridCollisions(tabKey, null);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             this.renderWidgetsDrawer();
-            this.showToast('🛠️ Modo Plano (Blueprint) y Cajón de Cuadros activo.', 'emerald');
+            this.showToast('🛠️ Modo Personalización: Ajusta y recoloca cuadros en el tablero.', 'emerald');
           } else {
-            if (toolbar) toolbar.classList.add('hidden');
-            if (toggleBtn) {
-              toggleBtn.classList.remove('bg-emerald-500', 'text-slate-950', 'border-emerald-400');
-              toggleBtn.classList.add('subpanel-bg');
+            if (btn) {
+              btn.className = 'px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap';
             }
-            ['tab1', 'tab2', 'tab3', 'tab4'].forEach(t => {
-              const g = document.getElementById(t + 'MainGrid');
-              if (g) g.classList.remove('board-edit-active', 'board-blueprint-mode');
-            });
-            const wsGrid = document.getElementById('workspaceGrid');
-            if (wsGrid) wsGrid.classList.remove('board-edit-active', 'board-blueprint-mode');
-            const drawer = document.getElementById('widgetsDrawer');
-            if (drawer) { drawer.classList.remove('open'); drawer.classList.add('hidden'); }
+            if (btnLabel) btnLabel.textContent = 'Personalizar';
+
+            if (mainGrid) mainGrid.classList.remove('board-edit-active');
+            if (sidebar) {
+              sidebar.classList.remove('sidebar-edit-active');
+              // Si no tiene widgets asignados, cerrar el sidebar
+              const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+              if (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0) {
+                sidebar.classList.remove('sidebar-open');
+                sidebar.classList.add('hidden', 'sidebar-collapsed');
+              }
+            }
+            if (drawer) drawer.classList.add('hidden');
+
             this.removeBoardEditHandles();
+            this.applyGridLayout(tabKey);
+            if (window.WorkspacesManager) window.WorkspacesManager.mountActiveWorkspace();
+            if (typeof saveState === 'function') saveState();
+            this.showToast('✅ ¡Diseño del tablero guardado con éxito!', 'emerald');
           }
         },
 
@@ -404,68 +416,182 @@ var GridEngine = {
             if (!el) return;
             el.classList.add('card-edit-mode');
             const cfg = layout[id];
-            const pct = Math.round((cfg.colSpan / 12) * 100);
 
-            // Escudo protector: bloquea interacción con botones internos y permite arrastrar el cuadro entero
+            // Escudo protector de arrastre
             const shield = document.createElement('div');
             shield.className = 'card-drag-shield board-edit-ctrl-overlay';
             shield.title = 'Arrastra para mover este cuadro de posición';
             shield.onpointerdown = (e) => this.startCardDrag(e, id);
             el.appendChild(shield);
 
-            // Barra de control superior
+            // Barra superior de herramientas sobre la tarjeta
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
+            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
+
+            const isPinned = cfg.isPinned || false;
+            const isCompact = cfg.compact || el.classList.contains('card-mode-compact');
+            const idealRows = (window.PolymorphicCards) ? window.PolymorphicCards.computeIdealRows(el) : (cfg.rowSpan || 6);
+
             bar.innerHTML = `
               <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-emerald-400 font-black text-sm">⠿</span>
+                <span class="text-emerald-400 font-bold text-xs">⠿</span>
                 <span class="font-bold text-white text-[11px] truncate">${cfg.name || id}</span>
-                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${pct}% (${cfg.colSpan}/12)</span>
-                <span class="text-stone-400 text-[10px] font-mono hidden sm:inline">c${cfg.col}..r${cfg.row} (H:${cfg.rowSpan || 2})</span>
+                <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${cfg.colSpan}/12 col · ${cfg.rowSpan || 4}f</span>
               </div>
               <div class="flex items-center gap-1 shrink-0 z-50">
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">-</button>
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', -1)" title="Mover columna a la izquierda" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">◀</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardCol('${id}', 1)" title="Mover columna a la derecha" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▶</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', -1)" title="Subir fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▲</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardRow('${id}', 1)" title="Bajar fila" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">▼</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="${cfg.isPinned ? 'Fijado en todas las ventanas' : 'Fijar en todas las ventanas'}" class="px-1.5 h-5 rounded ${cfg.isPinned ? 'bg-emerald-500 text-slate-950 font-bold shadow-sm' : 'bg-stone-800 text-stone-300'} border border-stone-700 font-bold text-[10px] cursor-pointer">📌</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleCardCompact('${id}')" title="Alternar Modo Normal / Compacto" class="px-1.5 h-5 rounded ${cfg.compact ? 'bg-indigo-500 text-white font-bold' : 'bg-stone-800 text-stone-300'} border border-stone-700 font-bold text-[10px] cursor-pointer">${cfg.compact ? 'Comp' : 'Norm'}</button>
-                <button type="button" onclick="event.stopPropagation(); app.resetCardManualHeight('${id}')" title="Auto-ceñir a contenido (resetear hueco extra)" class="px-1.5 h-5 rounded bg-emerald-500/20 border border-emerald-500/50 text-emerald-300 hover:bg-emerald-500/30 font-bold text-[10px] cursor-pointer">⟲</button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar de esta ventana y guardar en el Cajón" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-rose-400 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="px-1.5 py-0.5 rounded border text-[10px] font-bold cursor-pointer transition ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">📌</button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="px-1.5 py-0.5 rounded border text-[10px] font-bold cursor-pointer transition ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">🗜️</button>
+                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="px-1.5 py-0.5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white text-[10px] font-bold cursor-pointer">✨</button>
+                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a barra lateral" class="px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 hover:text-white text-[10px] font-bold cursor-pointer">↳ Lateral</button>
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
               </div>
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Tiradores en bordes y esquinas (8 direcciones con snap completo a casillas 12x40px)
-            ['t', 'b', 'l', 'r', 'tl', 'tr', 'bl', 'br'].forEach(dir => {
-              const handle = document.createElement('div');
-              handle.className = 'card-resize-handle resize-' + dir + ' board-edit-ctrl-overlay';
-              handle.title = (dir === 't' || dir === 'b') 
-                ? 'Arrastra para redimensionar (Doble clic para auto-ceñir a contenido)'
-                : 'Arrastra para cambiar ancho (' + dir.toUpperCase() + ')';
-              handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
-              if (dir === 't' || dir === 'b') {
-                handle.ondblclick = (e) => {
-                  e.stopPropagation();
-                  this.resetCardManualHeight(id);
-                };
-              }
-              el.appendChild(handle);
-            });
+            // Wireframe técnico para sustituir contenido denso
+            const wireframe = document.createElement('div');
+            wireframe.className = 'board-edit-ctrl-overlay card-blueprint-wireframe';
+            wireframe.innerHTML = `
+              <div class="card-blueprint-wireframe-line" style="width: 80%;"></div>
+              <div class="card-blueprint-wireframe-line" style="width: 55%;"></div>
+              <div class="card-blueprint-wireframe-line" style="width: 90%;"></div>
+            `;
+            el.appendChild(wireframe);
+
+            // Asa de redimensión inferior
+            const handle = document.createElement('div');
+            handle.className = 'card-resize-handle board-edit-ctrl-overlay';
+            handle.title = 'Arrastra para cambiar la altura';
+            handle.onpointerdown = (e) => this.startCardResize(e, id, 's');
+            el.appendChild(handle);
           });
         },
 
         removeBoardEditHandles() {
           document.querySelectorAll('.board-edit-ctrl-overlay').forEach(el => el.remove());
+          document.querySelectorAll('.card-blueprint-wireframe').forEach(el => el.remove());
           document.querySelectorAll('.card-edit-mode').forEach(el => el.classList.remove('card-edit-mode'));
           const placeholder = document.getElementById('gridDropPlaceholder');
           if (placeholder) placeholder.style.display = 'none';
         },
 
+        moveCardToSidebar(cardId) {
+          if (!window.WorkspacesManager) return;
+          const ws = window.WorkspacesManager.getActiveWorkspace();
+          if (!ws) return;
+          if (!ws.sidebarWidgets) ws.sidebarWidgets = [];
+          delete ws.grid[cardId];
+          if (!ws.sidebarWidgets.includes(cardId)) {
+            ws.sidebarWidgets.push(cardId);
+          }
+          const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
+          if (sidebarContainer && window.WidgetsRegistry) {
+            window.WidgetsRegistry.mountWidget(cardId, sidebarContainer);
+          }
+          this.compactGrid();
+          this.applyGridLayout();
+          this.renderBoardEditHandles();
+          this.renderWidgetsDrawer();
+          if (typeof saveState === 'function') saveState();
+          this.showToast('Módulo movido a la Barra Lateral.', 'info');
+        },
 
-        toggleWidgetPin(cardId) {
+        moveCardFromSidebarToGrid(cardId) {
+          if (!window.WorkspacesManager) return;
+          const ws = window.WorkspacesManager.getActiveWorkspace();
+          if (!ws) return;
+          ws.sidebarWidgets = (ws.sidebarWidgets || []).filter(id => id !== cardId);
+          const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(cardId) : {};
+          const maxRow = Object.values(ws.grid || {}).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 6)), 1);
+          if (!ws.grid) ws.grid = {};
+          ws.grid[cardId] = {
+            col: 1,
+            colSpan: def.defaultColSpan || 12,
+            row: maxRow,
+            rowSpan: def.defaultRowSpan || 8,
+            minRows: 4,
+            manualRows: null,
+            isPinned: false,
+            compact: false,
+            name: def.name || cardId
+          };
+          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab1MainGrid');
+          if (gridContainer && window.WidgetsRegistry) {
+            window.WidgetsRegistry.mountWidget(cardId, gridContainer);
+          }
+          this.resolveGridCollisions(null, cardId);
+          this.compactGrid();
+          this.applyGridLayout();
+          this.renderBoardEditHandles();
+          this.renderWidgetsDrawer();
+          if (typeof saveState === 'function') saveState();
+          this.showToast('Módulo devuelto a la Cuadrícula.', 'emerald');
+        },
+
+        snapCardToIdeal(cardId) {
+          if (!window.WorkspacesManager || !window.PolymorphicCards) return;
+          const ws = window.WorkspacesManager.getActiveWorkspace();
+          if (!ws || !ws.grid || !ws.grid[cardId]) return;
+          const el = document.getElementById(cardId);
+          if (!el) return;
+          const idealRows = window.PolymorphicCards.computeIdealRows(el);
+          ws.grid[cardId].rowSpan = idealRows;
+          ws.grid[cardId].manualRows = idealRows;
+          this.compactGrid();
+          this.applyGridLayout();
+          this.renderBoardEditHandles();
+          if (typeof saveState === 'function') saveState();
+          this.showToast('✨ Módulo ajustado a ' + idealRows + ' filas.', 'emerald');
+        },
+
+        renderWidgetsDrawer() {
+          let drawer = document.getElementById('widgetsDrawer');
+          if (!drawer) {
+            drawer = document.createElement('div');
+            drawer.id = 'widgetsDrawer';
+            drawer.className = 'board-widgets-drawer hidden';
+            document.body.appendChild(drawer);
+          }
+
+          const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const gridLayout = this.getGridLayout();
+          const activeGridIds = new Set(Object.keys(gridLayout || {}));
+          const activeSidebarIds = new Set((ws && ws.sidebarWidgets) ? ws.sidebarWidgets : []);
+          const activeDockIds = new Set((ws && ws.dockWidgets) ? ws.dockWidgets : []);
+          const catalog = (window.WidgetsRegistry) ? window.WidgetsRegistry.getCatalog() : {};
+
+          const inactiveWidgets = Object.keys(catalog).filter(id => !activeGridIds.has(id) && !activeSidebarIds.has(id) && !activeDockIds.has(id));
+
+          drawer.innerHTML = `
+            <div class="flex items-center justify-between pb-2 border-b border-stone-700 mb-2">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="font-serif font-bold text-xs text-white">Cajón de Módulos Inactivos (${inactiveWidgets.length} disponibles)</span>
+              </div>
+              <button type="button" onclick="document.getElementById('widgetsDrawer').classList.add('hidden')" class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-stone-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+            </div>
+            <div class="flex flex-wrap items-center gap-2 max-h-36 overflow-y-auto py-1">
+              ${inactiveWidgets.length === 0 ? '<span class="text-xs text-stone-400 italic">Todos los módulos están activos en el tablero o barra lateral.</span>' : ''}
+              ${inactiveWidgets.map(id => {
+                const def = catalog[id] || { name: id, iconSvg: '' };
+                return `
+                  <div class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center gap-2 shadow-xs">
+                    <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
+                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[130px]">${def.name}</span>
+                    <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Tablero</button>
+                    <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Lateral</button>
+                  </div>
+                `;
+              }).join('')}
+            </div>
+          `;
+
+          drawer.classList.remove('hidden');
+        },
+
+toggleWidgetPin(cardId) {
           if (window.WorkspacesManager) {
             window.WorkspacesManager.toggleWidgetPin(cardId);
             this.showToast('📌 Estado de fijado actualizado para este cuadro.', 'emerald');
@@ -1405,362 +1531,5 @@ var GridEngine = {
       '</div>';
     }).join('');
   },
-
-        // ========================================================
-        // BLUEPRINT STUDIO: LIENZO TÉCNICO DE PERSONALIZACIÓN
-        // ========================================================
-        openBlueprintStudio() {
-          if (!window.WorkspacesManager) return;
-          const modal = document.getElementById('blueprintStudioModal');
-          if (!modal) return;
-
-          modal.classList.remove('hidden');
-          this.renderBlueprintStudio();
-
-          // Atajo Esc para cerrar el studio
-          this._blueprintEscHandler = (e) => {
-            if (e.key === 'Escape' && !modal.classList.contains('hidden')) {
-              e.preventDefault();
-              this.closeBlueprintStudio();
-            }
-          };
-          window.addEventListener('keydown', this._blueprintEscHandler);
-        },
-
-        closeBlueprintStudio() {
-          const modal = document.getElementById('blueprintStudioModal');
-          if (modal) modal.classList.add('hidden');
-
-          if (this._blueprintEscHandler) {
-            window.removeEventListener('keydown', this._blueprintEscHandler);
-            this._blueprintEscHandler = null;
-          }
-
-          if (window.WorkspacesManager) {
-            window.WorkspacesManager.mountActiveWorkspace();
-          }
-          this.applyGridLayout();
-          if (typeof saveState === 'function') saveState();
-          this.showToast('✓ Diseño actualizado y aplicado correctamente.', 'emerald');
-        },
-
-        renderBlueprintStudio() {
-          if (!window.WorkspacesManager || !window.WidgetsRegistry) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws) return;
-
-          const badge = document.getElementById('blueprintWorkspaceBadge');
-          if (badge) badge.textContent = ws.name;
-
-          const catalog = window.WidgetsRegistry.getCatalog();
-          const gridZone = document.getElementById('blueprintGridZone');
-          const sidebarZone = document.getElementById('blueprintSidebarZone');
-          const dockZone = document.getElementById('blueprintDockZone');
-          const drawerZone = document.getElementById('blueprintDrawerZone');
-
-          if (!ws.grid) ws.grid = {};
-          if (!ws.sidebarWidgets) ws.sidebarWidgets = [];
-          if (!ws.dockWidgets) ws.dockWidgets = [];
-
-          const gridKeys = Object.keys(ws.grid);
-          const activeSidebarKeys = ws.sidebarWidgets;
-          const activeDockKeys = ws.dockWidgets;
-
-          // Badges de conteo
-          const gCount = document.getElementById('blueprintGridCountBadge');
-          if (gCount) gCount.textContent = gridKeys.length + ' módulos';
-          const sCount = document.getElementById('blueprintSidebarCountBadge');
-          if (sCount) sCount.textContent = activeSidebarKeys.length + ' módulos';
-          const dCount = document.getElementById('blueprintDockCountBadge');
-          if (dCount) dCount.textContent = activeDockKeys.length + ' módulos';
-
-          // 1. Render Cuadrícula Central (12xH)
-          if (gridZone) {
-            gridZone.innerHTML = '';
-            gridKeys.forEach(cardId => {
-              const cfg = ws.grid[cardId];
-              const def = catalog[cardId] || { name: cardId, iconSvg: '' };
-              const liveEl = document.getElementById(cardId);
-              const idealRows = (window.PolymorphicCards && liveEl) 
-                ? window.PolymorphicCards.computeIdealRows(liveEl) 
-                : (cfg.rowSpan || 6);
-
-              const card = document.createElement('div');
-              card.id = 'schematic-' + cardId;
-              card.className = 'blueprint-schematic-card' + (cfg.isPinned ? ' is-pinned' : '') + (cfg.compact ? ' is-compact' : '');
-              card.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
-              card.style.gridRow = cfg.row + ' / span ' + (cfg.rowSpan || 6);
-
-              card.innerHTML = `
-                <div class="flex items-center justify-between gap-1 pb-1.5 border-b border-emerald-500/20">
-                  <div class="flex items-center gap-1.5 min-w-0">
-                    <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
-                    <span class="font-serif font-bold text-xs text-white truncate">${def.name}</span>
-                  </div>
-                  <div class="flex items-center gap-1 shrink-0">
-                    <span class="blueprint-schematic-badge">${cfg.colSpan}/12 col · ${cfg.rowSpan || 6}f</span>
-                    <button type="button" onclick="app.toggleBlueprintPin('${cardId}')" class="blueprint-btn-chip ${cfg.isPinned ? 'active' : ''}" title="${cfg.isPinned ? 'Fijo entre ventanas (activo)' : 'Fijar entre ventanas'}">📌</button>
-                    <button type="button" onclick="app.toggleBlueprintCompact('${cardId}')" class="blueprint-btn-chip ${cfg.compact ? 'active' : ''}" title="${cfg.compact ? 'Modo compacto (activo)' : 'Modo compacto'}">🗜️</button>
-                    <button type="button" onclick="app.snapBlueprintToIdeal('${cardId}')" class="blueprint-btn-chip" title="Ajustar exactamente a tamaño óptimo (${idealRows} filas)">✨</button>
-                  </div>
-                </div>
-
-                <div class="py-2 flex flex-wrap items-center justify-between gap-1.5">
-                  <div class="flex items-center gap-1">
-                    <span class="text-[10px] text-slate-400 font-mono">Ancho:</span>
-                    <button type="button" onclick="app.adjustBlueprintColSpan('${cardId}', -1)" class="blueprint-btn-chip w-5 h-5 flex items-center justify-center font-bold">−</button>
-                    <span class="font-mono text-[10px] font-bold text-emerald-400">${cfg.colSpan}</span>
-                    <button type="button" onclick="app.adjustBlueprintColSpan('${cardId}', 1)" class="blueprint-btn-chip w-5 h-5 flex items-center justify-center font-bold">+</button>
-                  </div>
-                  <div class="flex items-center gap-1">
-                    <button type="button" onclick="app.moveBlueprintWidget('${cardId}', 'sidebar')" class="blueprint-btn-chip" title="Mover al panel lateral">↳ Lateral</button>
-                    <button type="button" onclick="app.moveBlueprintWidget('${cardId}', 'dock')" class="blueprint-btn-chip" title="Mover al dock flotante">↳ Dock</button>
-                    <button type="button" onclick="app.moveBlueprintWidget('${cardId}', 'drawer')" class="blueprint-btn-chip hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/40" title="Quitar de esta ventana">✕</button>
-                  </div>
-                </div>
-
-                <div class="blueprint-resize-handle" title="Arrastra para cambiar altura" onmousedown="app.startSchematicResize('${cardId}', event)" ontouchstart="app.startSchematicResize('${cardId}', event)"></div>
-              `;
-
-              gridZone.appendChild(card);
-            });
-          }
-
-          // 2. Render Panel Lateral (Sidebar)
-          if (sidebarZone) {
-            sidebarZone.innerHTML = '';
-            if (activeSidebarKeys.length === 0) {
-              sidebarZone.innerHTML = '<span class="text-xs text-stone-500 italic block py-4 text-center">Arrastra módulos aquí o usa "↳ Lateral"</span>';
-            } else {
-              activeSidebarKeys.forEach(id => {
-                const def = catalog[id] || { name: id, iconSvg: '' };
-                const row = document.createElement('div');
-                row.className = 'p-2.5 rounded-xl bg-slate-900 border border-cyan-500/40 flex items-center justify-between gap-2 shadow-sm';
-                row.innerHTML = `
-                  <div class="flex items-center gap-2 min-w-0">
-                    <span class="text-cyan-400 shrink-0">${def.iconSvg || ''}</span>
-                    <span class="font-bold text-xs text-white truncate">${def.name}</span>
-                  </div>
-                  <div class="flex items-center gap-1 shrink-0">
-                    <button type="button" onclick="app.moveBlueprintWidget('${id}', 'grid')" class="blueprint-btn-chip" title="Mover a la cuadrícula">↳ Cuadrícula</button>
-                    <button type="button" onclick="app.moveBlueprintWidget('${id}', 'drawer')" class="blueprint-btn-chip text-rose-400">✕</button>
-                  </div>
-                `;
-                sidebarZone.appendChild(row);
-              });
-            }
-          }
-
-          // 3. Render Dock Flotante (Popups)
-          if (dockZone) {
-            dockZone.innerHTML = '';
-            if (activeDockKeys.length === 0) {
-              dockZone.innerHTML = '<span class="text-xs text-stone-500 italic block py-2">Sin popups en el dock</span>';
-            } else {
-              activeDockKeys.forEach(id => {
-                const def = catalog[id] || { name: id, iconSvg: '' };
-                const pill = document.createElement('div');
-                pill.className = 'px-3 py-1.5 rounded-full bg-slate-900 border border-amber-500/40 flex items-center gap-2 shadow-sm';
-                pill.innerHTML = `
-                  <span class="text-amber-400 shrink-0">${def.iconSvg || ''}</span>
-                  <span class="font-bold text-xs text-white truncate max-w-[120px]">${def.name}</span>
-                  <button type="button" onclick="app.moveBlueprintWidget('${id}', 'grid')" class="blueprint-btn-chip text-[9px] py-0.5" title="Mover a cuadrícula">↳ Cuadrícula</button>
-                  <button type="button" onclick="app.moveBlueprintWidget('${id}', 'drawer')" class="text-stone-400 hover:text-rose-400 font-bold text-xs">✕</button>
-                `;
-                dockZone.appendChild(pill);
-              });
-            }
-          }
-
-          // 4. Render Cajón de Inactivos
-          const allActive = new Set([...gridKeys, ...activeSidebarKeys, ...activeDockKeys]);
-          const inactive = Object.keys(catalog).filter(k => !allActive.has(k));
-          const drwCount = document.getElementById('blueprintDrawerCountBadge');
-          if (drwCount) drwCount.textContent = inactive.length + ' disponibles';
-
-          if (drawerZone) {
-            drawerZone.innerHTML = '';
-            if (inactive.length === 0) {
-              drawerZone.innerHTML = '<span class="text-xs text-stone-500 italic block py-2">Todos los módulos del catálogo están colocados.</span>';
-            } else {
-              inactive.forEach(id => {
-                const def = catalog[id] || { name: id, iconSvg: '' };
-                const item = document.createElement('div');
-                item.className = 'px-2.5 py-1.5 rounded-xl bg-slate-800/80 border border-slate-700 hover:border-slate-500 flex items-center gap-2 transition';
-                item.innerHTML = `
-                  <span class="text-slate-400 shrink-0">${def.iconSvg || ''}</span>
-                  <span class="font-medium text-xs text-slate-300 truncate max-w-[110px]">${def.name}</span>
-                  <button type="button" onclick="app.moveBlueprintWidget('${id}', 'grid')" class="blueprint-btn-chip text-emerald-400 hover:text-emerald-300">+ Cuadrícula</button>
-                  <button type="button" onclick="app.moveBlueprintWidget('${id}', 'sidebar')" class="blueprint-btn-chip text-cyan-400 hover:text-cyan-300">+ Lateral</button>
-                  <button type="button" onclick="app.moveBlueprintWidget('${id}', 'dock')" class="blueprint-btn-chip text-amber-400 hover:text-amber-300">+ Dock</button>
-                `;
-                drawerZone.appendChild(item);
-              });
-            }
-          }
-        },
-
-        moveBlueprintWidget(widgetId, targetZone) {
-          if (!window.WorkspacesManager || !window.WidgetsRegistry) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws) return;
-
-          if (!ws.grid) ws.grid = {};
-          if (!ws.sidebarWidgets) ws.sidebarWidgets = [];
-          if (!ws.dockWidgets) ws.dockWidgets = [];
-
-          // Remover de todas las zonas
-          delete ws.grid[widgetId];
-          ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== widgetId);
-          ws.dockWidgets = ws.dockWidgets.filter(id => id !== widgetId);
-
-          const def = window.WidgetsRegistry.getWidgetDef(widgetId) || {};
-
-          if (targetZone === 'grid') {
-            const maxRow = Object.values(ws.grid).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 6)), 1);
-            ws.grid[widgetId] = {
-              col: 1,
-              colSpan: def.defaultColSpan || 12,
-              row: maxRow,
-              rowSpan: def.defaultRowSpan || 8,
-              minRows: 4,
-              manualRows: null,
-              isPinned: false,
-              compact: false,
-              name: def.name || widgetId
-            };
-            this.resolveGridCollisions(null, widgetId);
-            this.compactGrid();
-          } else if (targetZone === 'sidebar') {
-            ws.sidebarWidgets.push(widgetId);
-          } else if (targetZone === 'dock') {
-            ws.dockWidgets.push(widgetId);
-          }
-
-          this.renderBlueprintStudio();
-          if (typeof saveState === 'function') saveState();
-        },
-
-        toggleBlueprintPin(widgetId) {
-          if (!window.WorkspacesManager) return;
-          window.WorkspacesManager.toggleWidgetPin(widgetId);
-          this.renderBlueprintStudio();
-        },
-
-        toggleBlueprintCompact(widgetId) {
-          if (!window.PolymorphicCards) return;
-          window.PolymorphicCards.toggleCompactMode(widgetId);
-          this.renderBlueprintStudio();
-        },
-
-        adjustBlueprintColSpan(widgetId, delta) {
-          if (!window.WorkspacesManager) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws || !ws.grid || !ws.grid[widgetId]) return;
-
-          const cfg = ws.grid[widgetId];
-          const newSpan = cfg.colSpan + delta;
-          if (newSpan >= 2 && cfg.col + newSpan - 1 <= 12) {
-            cfg.colSpan = newSpan;
-            cfg.manualRows = null;
-            this.resolveGridCollisions(null, widgetId);
-            this.compactGrid();
-            this.renderBlueprintStudio();
-            if (typeof saveState === 'function') saveState();
-          }
-        },
-
-        snapBlueprintToIdeal(widgetId) {
-          if (!window.WorkspacesManager || !window.PolymorphicCards) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws || !ws.grid || !ws.grid[widgetId]) return;
-
-          const liveEl = document.getElementById(widgetId);
-          if (!liveEl) return;
-
-          const idealRows = window.PolymorphicCards.computeIdealRows(liveEl);
-          ws.grid[widgetId].rowSpan = idealRows;
-          ws.grid[widgetId].manualRows = idealRows;
-
-          this.compactGrid();
-          this.renderBlueprintStudio();
-          if (typeof saveState === 'function') saveState();
-          this.showToast('✨ Ficha ajustada a ' + idealRows + ' filas.', 'emerald');
-        },
-
-        startSchematicResize(widgetId, startEvent) {
-          startEvent.preventDefault();
-          startEvent.stopPropagation();
-
-          if (!window.WorkspacesManager) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws || !ws.grid || !ws.grid[widgetId]) return;
-
-          const cfg = ws.grid[widgetId];
-          const schematicCard = document.getElementById('schematic-' + widgetId);
-          if (!schematicCard) return;
-
-          const initialY = (startEvent.touches ? startEvent.touches[0].clientY : startEvent.clientY);
-          const initialRowSpan = cfg.rowSpan || 6;
-          const liveEl = document.getElementById(widgetId);
-          const idealRows = (window.PolymorphicCards && liveEl) ? window.PolymorphicCards.computeIdealRows(liveEl) : initialRowSpan;
-
-          const onMove = (moveEv) => {
-            const curY = (moveEv.touches ? moveEv.touches[0].clientY : moveEv.clientY);
-            const deltaY = curY - initialY;
-            const deltaRows = Math.round(deltaY / 52);
-            let newRows = Math.max(2, initialRowSpan + deltaRows);
-
-            // Micro-snap: solo si estamos a menos de 4px del punto exacto
-            const targetPixelHeight = (newRows * 40) + ((newRows - 1) * 12);
-            const idealPixelHeight = (idealRows * 40) + ((idealRows - 1) * 12);
-            if (Math.abs(targetPixelHeight - idealPixelHeight) <= 4) {
-              newRows = idealRows;
-            }
-
-            if (newRows !== cfg.rowSpan) {
-              cfg.rowSpan = newRows;
-              cfg.manualRows = newRows;
-              schematicCard.style.gridRow = cfg.row + ' / span ' + newRows;
-              const badge = schematicCard.querySelector('.blueprint-schematic-badge');
-              if (badge) {
-                badge.textContent = cfg.colSpan + '/12 col · ' + newRows + 'f';
-              }
-            }
-          };
-
-          const onEnd = () => {
-            window.removeEventListener('mousemove', onMove);
-            window.removeEventListener('mouseup', onEnd);
-            window.removeEventListener('touchmove', onMove);
-            window.removeEventListener('touchend', onEnd);
-
-            this.resolveGridCollisions(null, widgetId);
-            this.compactGrid();
-            this.renderBlueprintStudio();
-            if (typeof saveState === 'function') saveState();
-          };
-
-          window.addEventListener('mousemove', onMove);
-          window.addEventListener('mouseup', onEnd);
-          window.addEventListener('touchmove', onMove);
-          window.addEventListener('touchend', onEnd);
-        },
-
-        resetActiveWorkspaceLayout() {
-          if (!window.WorkspacesManager) return;
-          const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws) return;
-
-          const defaultLayout = this.getDefaultGridLayout('tab' + (state.activeTab || 1));
-          ws.grid = JSON.parse(JSON.stringify(defaultLayout));
-          ws.sidebarWidgets = [];
-          ws.dockWidgets = [];
-
-          this.compactGrid();
-          this.renderBlueprintStudio();
-          if (typeof saveState === 'function') saveState();
-          this.showToast('⟲ Distribución reiniciada al diseño de fábrica.', 'emerald');
-        },
 
 };

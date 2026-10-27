@@ -418,14 +418,17 @@ const WorkspacesManager = (function() {
             if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
           } else if (k === 'd') {
             e.preventDefault();
-            if (typeof app !== 'undefined') {
-              const modal = document.getElementById('blueprintStudioModal');
-              if (modal && !modal.classList.contains('hidden')) {
-                if (app.closeBlueprintStudio) app.closeBlueprintStudio();
-              } else {
-                if (app.openBlueprintStudio) app.openBlueprintStudio();
-              }
+            if (typeof app !== 'undefined' && app.toggleBoardEdit) {
+              app.toggleBoardEdit();
             }
+          }
+        }
+
+        // Atajo Escape para salir del modo edición
+        if (e.key === 'Escape' && state && state.ui && state.ui.isBoardEditMode) {
+          e.preventDefault();
+          if (typeof app !== 'undefined' && app.toggleBoardEdit) {
+            app.toggleBoardEdit();
           }
         }
       });

@@ -3135,9 +3135,9 @@
           <span id="themeToggleText" class="hidden sm:inline">Tema</span>
         </button>
         <!-- Botón Único: Personalizar / Blueprint Studio -->
-        <button onclick="app.openBlueprintStudio()" id="personalizeBoardBtn" class="px-2.5 py-1.5 rounded-xl bg-theme-soft border border-theme text-theme-main text-xs font-bold flex items-center gap-1.5 hover:bg-theme-main hover:text-white transition shadow-xs cursor-pointer whitespace-nowrap" title="Personalizar tablero en Blueprint Studio [D]">
-          <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-          <span class="hidden sm:inline">Personalizar</span>
+        <button onclick="app.toggleBoardEdit()" id="personalizeBoardBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Personalizar distribución de cuadros del tablero [D]">
+          <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+          <span id="personalizeBtnLabel" class="hidden sm:inline">Personalizar</span>
         </button>
         <!-- Botón Barra Lateral / Sidebar -->
         <button onclick="app.toggleSidebar()" id="sidebarToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Mostrar/Ocultar Panel Lateral [B]">
@@ -4428,105 +4428,6 @@
     </div>
   </div>
 
-
-  <!-- ========================================================
-       BLUEPRINT STUDIO: LIENZO TÉCNICO DE DISEÑO MODULAR
-       ======================================================== -->
-  <div id="blueprintStudioModal" class="hidden" role="dialog" aria-modal="true" aria-label="Blueprint Studio">
-    <!-- Barra Superior Técnica -->
-    <header class="px-4 py-3 bg-slate-900/95 border-b border-emerald-500/30 flex items-center justify-between gap-3 backdrop-blur-md shrink-0">
-      <div class="flex items-center gap-2.5">
-        <div class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 flex items-center justify-center font-mono font-bold text-sm shadow-xs">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
-        </div>
-        <div>
-          <div class="flex items-center gap-2">
-            <h2 class="text-sm sm:text-base font-bold font-serif text-white tracking-tight">Blueprint Studio</h2>
-            <span id="blueprintWorkspaceBadge" class="px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-400 border border-emerald-500/40 text-[10px] font-mono font-bold">Ventana</span>
-          </div>
-          <p class="text-[11px] text-slate-400 hidden sm:block">Arrastra o asigna módulos entre la Cuadrícula 12×H, el Panel Lateral y el Dock.</p>
-        </div>
-      </div>
-
-      <div class="flex items-center gap-2">
-        <button type="button" onclick="app.resetActiveWorkspaceLayout()" class="px-2.5 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 text-xs font-semibold flex items-center gap-1.5 transition" title="Reiniciar a la distribución de fábrica">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
-          <span class="hidden md:inline">Reiniciar</span>
-        </button>
-        <button type="button" onclick="app.closeBlueprintStudio()" class="px-3.5 py-1.5 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold text-xs flex items-center gap-1.5 shadow-lg shadow-emerald-500/20 transition cursor-pointer" title="Guardar cambios y volver al tablero [Esc]">
-          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
-          <span>Guardar y Salir</span>
-          <kbd class="hidden sm:inline px-1 py-0.2 rounded bg-black/20 text-[9px] font-mono opacity-80">Esc</kbd>
-        </button>
-      </div>
-    </header>
-
-    <!-- Lienzo de Diseño (Canvas) -->
-    <div class="blueprint-tech-canvas flex-1 overflow-y-auto">
-      <div class="max-w-[1600px] mx-auto space-y-6">
-        
-        <!-- Contenedor Principal: Cuadrícula 12xH + Sidebar Lateral -->
-        <div class="flex flex-col xl:flex-row items-start gap-4">
-          <!-- ZONA 1: Cuadrícula Central 12xH -->
-          <div class="flex-1 w-full space-y-2">
-            <div class="flex items-center justify-between text-xs font-mono font-bold text-emerald-400 pb-1 border-b border-emerald-500/20">
-              <span class="flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-                ZONA 1: CUADRÍCULA CENTRAL 12×H (TABLERO PRINCIPAL)
-              </span>
-              <span id="blueprintGridCountBadge" class="opacity-75">0 módulos</span>
-            </div>
-            <div id="blueprintGridZone" class="blueprint-grid-zone">
-              <!-- Renderizado dinámicamente con fichas esquemáticas -->
-            </div>
-          </div>
-
-          <!-- ZONA 2: Panel Lateral (Sidebar Fuera de Cuadrícula) -->
-          <div class="w-full xl:w-80 shrink-0 space-y-2">
-            <div class="flex items-center justify-between text-xs font-mono font-bold text-cyan-400 pb-1 border-b border-cyan-500/20">
-              <span class="flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-                ZONA 2: PANEL LATERAL FIJO
-              </span>
-              <span id="blueprintSidebarCountBadge" class="opacity-75">0 módulos</span>
-            </div>
-            <div id="blueprintSidebarZone" class="blueprint-zone-box space-y-2 min-h-[300px]">
-              <!-- Widgets del sidebar -->
-            </div>
-          </div>
-        </div>
-
-        <!-- ZONA 3: Dock Flotante (Popups / Pastillas Minimizables) -->
-        <div class="space-y-2">
-          <div class="flex items-center justify-between text-xs font-mono font-bold text-amber-400 pb-1 border-b border-amber-500/20">
-            <span class="flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="16" width="20" height="6" rx="2"/><circle cx="6" cy="19" r="1"/></svg>
-              ZONA 3: DOCK FLOTANTE INFERIOR (PASTILLAS POPUP)
-            </span>
-            <span id="blueprintDockCountBadge" class="opacity-75">0 módulos</span>
-          </div>
-          <div id="blueprintDockZone" class="blueprint-zone-box flex flex-wrap items-center gap-2 min-h-[70px]">
-            <!-- Widgets del dock -->
-          </div>
-        </div>
-
-        <!-- ZONA 4: Cajón de Inactivos (Widgets no asignados) -->
-        <div class="space-y-2 pt-2 border-t border-slate-800">
-          <div class="flex items-center justify-between text-xs font-mono font-bold text-slate-400 pb-1">
-            <span class="flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/></svg>
-              CAJÓN DE WIDGETS INACTIVOS (DISPONIBLES)
-            </span>
-            <span id="blueprintDrawerCountBadge" class="opacity-75">0 disponibles</span>
-          </div>
-          <div id="blueprintDrawerZone" class="blueprint-zone-box flex flex-wrap items-center gap-2 min-h-[80px] bg-slate-900/60">
-            <!-- Widgets inactivos -->
-          </div>
-        </div>
-
-      </div>
-    </div>
-  </div>
 
   <!-- POOL DE WIDGETS CENTRALIZADO (SINGLE-DOM REGISTRY) -->
   <div id="widgetsPool" style="display:none;" aria-hidden="true"></div>
