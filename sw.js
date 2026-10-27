@@ -1,6 +1,6 @@
 // Service Worker para Centro de Control PWA
 // Gestiona el ciclo de vida, caché offline y notificación de actualizaciones instantáneas
-const CACHE_NAME = 'centro-control-v2.1.3';
+const CACHE_NAME = 'centro-control-v2.1.4';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',

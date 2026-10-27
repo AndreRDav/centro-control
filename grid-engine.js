@@ -395,7 +395,6 @@ var GridEngine = {
           const btnLabel = document.getElementById('boardEditToggleText') || document.getElementById('personalizeBtnLabel') || (btn ? btn.querySelector('span') : null);
           const mainGrid = document.getElementById('tab1MainGrid') || document.querySelector('.dashboard-grid-12');
           const sidebar = document.getElementById('workspaceSidebar');
-          const drawer = document.getElementById('widgetsDrawer');
           const toolbar = document.getElementById('boardEditToolbar');
 
           if (state.ui.isBoardEditMode) {
@@ -404,6 +403,7 @@ var GridEngine = {
             }
             if (btnLabel) btnLabel.textContent = 'Guardar';
 
+            document.body.classList.add('board-edit-active');
             if (toolbar) toolbar.classList.remove('hidden');
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
@@ -423,6 +423,7 @@ var GridEngine = {
             }
             if (btnLabel) btnLabel.textContent = 'Diseño';
 
+            document.body.classList.remove('board-edit-active', 'drawer-studio-open');
             if (toolbar) toolbar.classList.add('hidden');
             if (mainGrid) mainGrid.classList.remove('board-edit-active');
             if (sidebar) {
@@ -433,10 +434,7 @@ var GridEngine = {
                 sidebar.classList.add('hidden', 'sidebar-collapsed');
               }
             }
-            if (drawer) {
-              drawer.classList.remove('open');
-              drawer.classList.add('hidden');
-            }
+            this.closeWidgetsDrawer();
 
             try { this.removeBoardEditHandles(); } catch (e) { console.warn('removeBoardEditHandles:', e); }
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
@@ -468,39 +466,41 @@ var GridEngine = {
             shield.onpointerdown = (e) => this.startCardDrag(e, id);
             el.appendChild(shield);
 
-            // Barra superior de herramientas sobre la tarjeta
+            // Barra superior de herramientas sobre la tarjeta con nombre humano real
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar bg-stone-900/90 dark:bg-slate-900/95 border border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
+            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar sticky top-1 z-50 bg-stone-100/95 dark:bg-slate-900/95 border border-emerald-600/70 dark:border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 select-none text-stone-900 dark:text-stone-100';
 
             const isPinned = cfg.isPinned || false;
             const isCompact = cfg.compact || el.classList.contains('card-mode-compact');
             const idealRows = (window.PolymorphicCards) ? window.PolymorphicCards.computeIdealRows(el) : (cfg.rowSpan || 6);
+            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id, iconSvg: '' };
+            const cardTitle = def.name || cfg.name || id;
 
             bar.innerHTML = `
               <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-emerald-400 font-bold text-xs">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                <span class="text-emerald-500 dark:text-emerald-400 font-bold text-xs shrink-0">
+                  ${def.iconSvg || '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>'}
                 </span>
-                <span class="font-bold text-white text-[11px] truncate">${cfg.name || id}</span>
-                <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${cfg.colSpan}/12 col · ${cfg.rowSpan || 4}f</span>
+                <span class="font-bold text-stone-900 dark:text-white text-[11px] truncate">${cardTitle}</span>
+                <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono text-[10px] font-bold">${cfg.colSpan}/12 col · ${cfg.rowSpan || 4}f</span>
               </div>
               <div class="flex items-center gap-1 shrink-0 z-50">
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">–</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:text-stone-950 dark:hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">–</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-emerald-600 dark:text-emerald-400 hover:text-stone-950 dark:hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-200 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300'}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto (economizar espacio)" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
+                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto (economizar espacio)" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-200 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300'}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="p-1 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white text-[10px] font-bold cursor-pointer flex items-center justify-center">
+                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="p-1 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-emerald-600 dark:text-emerald-400 hover:text-stone-950 dark:hover:text-white text-[10px] font-bold cursor-pointer flex items-center justify-center">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 hover:text-white text-[10px] font-bold cursor-pointer flex items-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="px-1.5 py-0.5 rounded bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/40 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-200 dark:hover:bg-cyan-900 text-[10px] font-bold cursor-pointer flex items-center gap-1">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                   <span>Lateral</span>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
@@ -534,19 +534,19 @@ var GridEngine = {
             el.appendChild(sidebarShield);
 
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar bg-stone-900/90 dark:bg-slate-900/95 border border-cyan-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
+            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar sticky top-1 z-50 bg-stone-100/95 dark:bg-slate-900/95 border border-cyan-600/70 dark:border-cyan-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 select-none text-stone-900 dark:text-stone-100';
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
             bar.innerHTML = `
               <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-cyan-400 font-mono text-[10px] font-bold px-1 rounded bg-cyan-950/80 border border-cyan-800">PANEL</span>
-                <span class="font-bold text-white text-[11px] truncate">${def.name || id}</span>
+                <span class="text-cyan-700 dark:text-cyan-400 font-mono text-[10px] font-bold px-1 rounded bg-cyan-100 dark:bg-cyan-950/80 border border-cyan-300 dark:border-cyan-800">PANEL</span>
+                <span class="font-bold text-stone-900 dark:text-white text-[11px] truncate">${def.name || id}</span>
               </div>
               <div class="flex items-center gap-1 shrink-0 z-50">
-                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/40 transition cursor-pointer flex items-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/40 transition cursor-pointer flex items-center gap-1">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
                   <span>Cuadrícula</span>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del panel" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del panel" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
@@ -637,7 +637,6 @@ var GridEngine = {
           if (!drawer) {
             drawer = document.createElement('div');
             drawer.id = 'widgetsDrawer';
-            drawer.className = 'board-widgets-drawer hidden';
             document.body.appendChild(drawer);
           }
 
@@ -648,22 +647,17 @@ var GridEngine = {
           const activeDockIds = new Set((ws && ws.dockWidgets) ? ws.dockWidgets : []);
           const catalog = (window.WidgetsRegistry) ? window.WidgetsRegistry.getCatalog() : {};
 
-          // Comprueba estrictamente si el widget está ya físicamente en la ventana
+          // Solo excluye los que están activos en la ventana actual
           const isPlacedInWindow = (id) => {
-            if (activeGridIds.has(id) || activeSidebarIds.has(id) || activeDockIds.has(id)) return true;
-            const el = document.getElementById(id);
-            if (!el) return false;
-            if (el.closest('#widgetsPool')) return false;
-            if (el.closest('#tab1MainGrid') || el.closest('#sidebarWidgetsContainer') || el.closest('#workspaceSidebar') || el.closest('#floatingDock')) return true;
-            return false;
+            return activeGridIds.has(id) || activeSidebarIds.has(id) || activeDockIds.has(id);
           };
 
           const inactiveWidgets = Object.keys(catalog).filter(id => !isPlacedInWindow(id));
 
           const CATEGORIES = {
             all: 'Todos',
+            agenda: 'Notas & Listas',
             habits: 'Hábitos',
-            agenda: 'Estudio & Agenda',
             finance: 'Finanzas Pro',
             performance: 'Rendimiento'
           };
@@ -675,64 +669,228 @@ var GridEngine = {
                 return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
               });
 
+          drawer.className = 'panel-bg border-r-2 border-emerald-500/50 shadow-2xl flex flex-col overflow-hidden drawer-open';
+          document.body.classList.add('drawer-studio-open');
+
           drawer.innerHTML = `
-            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-stone-700/60 mb-2.5 gap-2">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
-                <span class="font-serif font-bold text-xs text-white">Cajón de Módulos Inactivos (${inactiveWidgets.length} disponibles)</span>
+            <div class="p-3 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between shrink-0 bg-stone-100/60 dark:bg-slate-900/60">
+              <div>
+                <h3 class="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
+                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span>Módulos Disponibles (${inactiveWidgets.length})</span>
+                </h3>
+                <p class="text-[10px] text-stone-500 dark:text-slate-400">Arrastra una miniatura al tablero (crece al 100%)</p>
               </div>
-              <div class="flex items-center gap-1.5 flex-wrap">
-                ${Object.keys(CATEGORIES).map(catKey => {
-                  const isActive = (selectedCategory === catKey);
-                  return `
-                    <button type="button" onclick="app.renderWidgetsDrawer('${catKey}')" class="px-2.5 py-0.5 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold' : 'bg-slate-800 text-stone-300 border-slate-700 hover:text-white'}">
-                      ${CATEGORIES[catKey]}
-                    </button>
-                  `;
-                }).join('')}
-              </div>
-              <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-stone-400 hover:text-white flex items-center justify-center text-xs cursor-pointer" title="Cerrar cajón">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-              </button>
+              <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg bg-stone-200 dark:bg-slate-800 border border-stone-300 dark:border-slate-700 text-stone-500 hover:text-stone-900 dark:hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer" title="Cerrar estudio">✕</button>
             </div>
-            <div class="flex flex-wrap items-center gap-2 max-h-44 overflow-y-auto py-1">
-              ${filteredWidgets.length === 0 ? '<span class="text-xs text-stone-400 italic py-2">No hay módulos inactivos en esta categoría. Todos están colocados en el tablero o panel.</span>' : ''}
-              ${filteredWidgets.map(id => {
-                const def = catalog[id] || { name: id, iconSvg: '' };
+
+            <div class="px-2.5 py-1.5 border-b border-stone-200 dark:border-slate-800 flex items-center gap-1 overflow-x-auto text-[11px] shrink-0">
+              ${Object.keys(CATEGORIES).map(catKey => {
+                const isActive = (selectedCategory === catKey);
                 return `
-                  <div class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 hover:border-emerald-500/50 flex items-center gap-2 shadow-xs transition">
-                    <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
-                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[130px]" title="${def.name}">${def.name}</span>
-                    <div class="flex items-center gap-1 shrink-0">
-                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
-                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
-                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-[10px] font-bold border border-amber-500/30 transition cursor-pointer" title="Añadir como popup al Dock">+ Dock</button>
+                  <button type="button" onclick="app.renderWidgetsDrawer('${catKey}')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold border transition cursor-pointer whitespace-nowrap ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-300 border-stone-300 dark:border-slate-700 hover:text-stone-900 dark:hover:text-white'}">
+                    ${CATEGORIES[catKey]}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+
+            <div class="flex-1 overflow-y-auto p-2.5 space-y-3">
+              ${filteredWidgets.length === 0 ? '<p class="text-xs text-stone-400 italic text-center py-6">No hay módulos inactivos en esta categoría.</p>' : ''}
+              ${filteredWidgets.map(id => {
+                const def = catalog[id] || { name: id, iconSvg: '', defaultColSpan: 6, idealRows: 8 };
+                return `
+                  <div class="mini-card-item space-y-1" data-cat="${def.category || 'all'}" data-id="${id}">
+                    <div class="flex items-center justify-between text-[11px] font-bold text-stone-800 dark:text-slate-200 px-0.5">
+                      <span class="flex items-center gap-1.5 truncate">
+                        <span class="text-emerald-500 shrink-0">${def.iconSvg || ''}</span>
+                        <span class="truncate">${def.name}</span>
+                      </span>
+                      <span class="text-[9px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">${def.defaultColSpan || 6}c · ${def.idealRows || 8}f</span>
+                    </div>
+
+                    <div class="mini-card-box cursor-grab" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar">
+                      <div class="mini-card-scaled">
+                        <div class="flex items-center justify-between border-b pb-1 border-stone-300 dark:border-slate-800 font-bold text-xs text-stone-800 dark:text-slate-200">
+                          <span class="truncate">${def.name}</span>
+                          <span class="w-3.5 h-3.5 rounded bg-emerald-500/30"></span>
+                        </div>
+                        <div class="space-y-1.5 opacity-70">
+                          <div class="h-6 rounded bg-emerald-500/10 border border-emerald-500/20 w-full"></div>
+                          <div class="grid grid-cols-2 gap-1">
+                            <div class="h-7 rounded bg-emerald-500/10 border border-emerald-500/20"></div>
+                            <div class="h-7 rounded bg-emerald-500/10 border border-emerald-500/20"></div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <div class="flex items-center justify-end gap-1 pt-0.5">
+                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
+                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
+                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-[10px] font-bold border border-amber-500/30 transition cursor-pointer" title="Añadir al dock">+ Dock</button>
                     </div>
                   </div>
                 `;
               }).join('')}
             </div>
           `;
-
-          drawer.classList.remove('hidden');
-          drawer.classList.add('open');
         },
 
         closeWidgetsDrawer() {
           const drawer = document.getElementById('widgetsDrawer');
           if (drawer) {
-            drawer.classList.remove('open');
-            drawer.classList.add('hidden');
+            drawer.className = 'board-widgets-drawer drawer-closed hidden';
           }
+          document.body.classList.remove('drawer-studio-open');
         },
 
         toggleWidgetsDrawer() {
-          const drawer = document.getElementById('widgetsDrawer');
-          if (drawer && drawer.classList.contains('open')) {
+          if (document.body.classList.contains('drawer-studio-open')) {
             this.closeWidgetsDrawer();
           } else {
             this.renderWidgetsDrawer();
           }
+        },
+
+        // ARRASTRE DE MINIATURAS DEL CAJÓN AL TABLERO (50% ➔ 100%)
+        startMiniWidgetDrag(e, widgetId) {
+          if (e.button !== 0 && e.pointerType === 'mouse') return;
+          e.preventDefault();
+          e.stopPropagation();
+
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(widgetId) : { name: widgetId, defaultColSpan: 6, idealRows: 8 };
+          const colSpan = def.defaultColSpan || 6;
+          const rowSpan = def.idealRows || 8;
+
+          const container = document.getElementById('tab1MainGrid') || document.querySelector('.dashboard-grid-12');
+          if (!container) return;
+
+          const ghost = document.getElementById('boardGridDragGhost');
+          const badge = document.getElementById('boardGridGhostBadge');
+          let placeholder = document.getElementById('gridDropPlaceholder');
+          if (!placeholder && container) {
+            placeholder = document.createElement('div');
+            placeholder.id = 'gridDropPlaceholder';
+            placeholder.className = 'grid-drop-placeholder';
+            container.appendChild(placeholder);
+          }
+
+          const gap = 12;
+          const curContainerRect = container.getBoundingClientRect();
+          const colWidth = (curContainerRect.width - 11 * gap) / 12;
+          const colPitch = colWidth + gap;
+          const rowPitch = 40 + gap;
+
+          const ghostW = Math.round(colSpan * colPitch - gap);
+          const ghostH = Math.round(rowSpan * rowPitch - gap);
+
+          if (ghost) {
+            ghost.style.width = ghostW + 'px';
+            ghost.style.height = ghostH + 'px';
+            ghost.style.left = (e.clientX - 100) + 'px';
+            ghost.style.top = (e.clientY - 40) + 'px';
+            ghost.style.display = 'flex';
+            ghost.classList.remove('ghost-scaling-up');
+            void ghost.offsetWidth;
+            ghost.classList.add('ghost-scaling-up');
+            if (badge) badge.textContent = 'Módulo: ' + (def.name || widgetId);
+          }
+
+          let targetCol = 1;
+          let targetRow = 1;
+          let isHoveringSidebar = false;
+
+          const updateMiniDragPos = (me) => {
+            const curX = me.clientX;
+            const curY = me.clientY;
+
+            // Auto-scroll si está cerca de bordes
+            const edgeZone = 65;
+            const scrollSpeed = 15;
+            if (curY > window.innerHeight - edgeZone) {
+              window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
+            } else if (curY < edgeZone && window.scrollY > 0) {
+              window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
+            }
+
+            // Detección de panel lateral
+            const sidebarEl = document.getElementById('workspaceSidebar');
+            const sidebarRect = (sidebarEl && !sidebarEl.classList.contains('hidden')) ? sidebarEl.getBoundingClientRect() : null;
+            isHoveringSidebar = !!(sidebarRect && (
+              curX >= sidebarRect.left && curX <= sidebarRect.right &&
+              curY >= sidebarRect.top && curY <= sidebarRect.bottom
+            ));
+
+            if (isHoveringSidebar) {
+              if (ghost) {
+                ghost.style.left = (sidebarRect.left + 8) + 'px';
+                ghost.style.top = Math.max(sidebarRect.top + 45, curY - 25) + 'px';
+                ghost.style.width = (sidebarRect.width - 16) + 'px';
+                ghost.style.height = '60px';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (badge) badge.textContent = (def.name || widgetId) + ' → Soltar en Panel Lateral';
+              return;
+            }
+
+            const cRect = container.getBoundingClientRect();
+            const relX = curX - (ghostW / 2) - cRect.left;
+            const relY = curY - 30 - cRect.top;
+
+            let c = Math.round(relX / colPitch) + 1;
+            let r = Math.round(relY / rowPitch) + 1;
+
+            c = Math.max(1, Math.min(13 - colSpan, c));
+            r = Math.max(1, r);
+
+            targetCol = c;
+            targetRow = r;
+
+            const snapLeft = cRect.left + (c - 1) * colPitch;
+            const snapTop = cRect.top + (r - 1) * rowPitch;
+
+            if (ghost) {
+              ghost.style.left = snapLeft + 'px';
+              ghost.style.top = snapTop + 'px';
+              ghost.style.width = ghostW + 'px';
+              ghost.style.height = ghostH + 'px';
+            }
+            if (placeholder) {
+              placeholder.style.gridColumn = targetCol + ' / span ' + colSpan;
+              placeholder.style.gridRow = targetRow + ' / span ' + rowSpan;
+              placeholder.style.display = 'block';
+            }
+            if (badge) {
+              badge.textContent = (def.name || widgetId) + ' → Col ' + targetCol + ' · Fila ' + targetRow;
+            }
+          };
+
+          const onPointerMove = (me) => updateMiniDragPos(me);
+
+          const onPointerUp = () => {
+            window.removeEventListener('pointermove', onPointerMove);
+            window.removeEventListener('pointerup', onPointerUp);
+            window.removeEventListener('pointercancel', onPointerUp);
+
+            if (ghost) {
+              ghost.style.display = 'none';
+              ghost.classList.remove('ghost-scaling-up');
+            }
+            if (placeholder) placeholder.style.display = 'none';
+
+            if (isHoveringSidebar) {
+              this.moveCardToSidebar(widgetId);
+              return;
+            }
+
+            this.addInactiveWidgetToGrid(widgetId, targetCol, targetRow, colSpan, rowSpan);
+          };
+
+          window.addEventListener('pointermove', onPointerMove);
+          window.addEventListener('pointerup', onPointerUp);
+          window.addEventListener('pointercancel', onPointerUp);
         },
 
         addWidgetToDock(widgetId) {
@@ -891,36 +1049,51 @@ var GridEngine = {
           if (typeof saveState === 'function') saveState();
           this.safeToast('Módulo "' + cardName + '" guardado en el Cajón de Inactivos.', 'indigo');
         },
-        addInactiveWidgetToGrid(widgetId) {
-          const layout = this.getGridLayout();
+        addInactiveWidgetToGrid(widgetId, customCol, customRow, customColSpan, customRowSpan) {
+          const tabKey = 'tab' + (state.activeTab || 1);
+          const layout = this.getGridLayout(tabKey);
           if (!layout || !window.WidgetsRegistry) return;
 
           const def = window.WidgetsRegistry.getWidgetDef(widgetId);
           if (!def) return;
 
           const maxRow = Object.values(layout).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 2)), 1);
+          const cCol = (customCol !== undefined && customCol !== null) ? customCol : 1;
+          const cRow = (customRow !== undefined && customRow !== null) ? customRow : maxRow;
+          const cSpan = customColSpan || def.defaultColSpan || 6;
+          const rSpan = customRowSpan || def.idealRows || def.minRows || 6;
 
           layout[widgetId] = {
-            col: 1,
-            colSpan: def.defaultColSpan || 12,
-            row: maxRow,
-            minRows: def.minRows || 6,
-            rowSpan: def.minRows || 6,
+            col: cCol,
+            colSpan: cSpan,
+            row: cRow,
+            minRows: def.minRows || 4,
+            rowSpan: rSpan,
             manualRows: null,
             isPinned: false,
             compact: false,
             name: def.name
           };
 
-          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid');
+          const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
+          if (ws && ws.sidebarWidgets) {
+            ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== widgetId);
+          }
+          if (ws && ws.dockWidgets) {
+            ws.dockWidgets = ws.dockWidgets.filter(id => id !== widgetId);
+          }
+
+          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || document.getElementById('tab1MainGrid');
           if (gridContainer) {
             window.WidgetsRegistry.mountWidget(widgetId, gridContainer);
           }
 
-          this.compactGrid();
-          this.applyGridLayout();
-          this.renderBoardEditHandles();
+          this.resolveGridCollisions(tabKey, widgetId);
+          this.compactGrid(tabKey);
+          this.applyGridLayout(tabKey);
+          this.renderBoardEditHandles(tabKey);
           this.renderWidgetsDrawer();
+          this.renderDockWidgets();
           if (typeof saveState === 'function') saveState();
           this.showToast('Cuadro "' + def.name + '" añadido al tablero.', 'emerald');
         },

@@ -39,7 +39,7 @@ const WidgetsRegistry = (function() {
     },
     interactiveListsPanel: {
       id: 'interactiveListsPanel',
-      name: 'Listas, Tareas y Entregas',
+      name: 'Listas, Tareas y Notas',
       category: 'agenda',
       shortcut: 'L',
       allowedZones: ['grid', 'sidebar'],

@@ -1177,60 +1177,73 @@
     /* ========================================================
        MODO BLUEPRINT / RAYOS X EN EDICIÓN: HITBOXES LIMPIAS
        ======================================================== */
-    .board-edit-active .editorial-card {
+    .board-edit-active .editorial-card,
+    body.board-edit-active .editorial-card {
       user-select: none !important;
       cursor: grab !important;
     }
 
     /* Ocultar TODO texto de cualquier etiqueta que no sea la barra de edición superior */
-    .board-edit-active .editorial-card > *:not(.board-edit-ctrl-overlay) *:not(.board-edit-ctrl-overlay):not(.board-edit-ctrl-overlay *) {
+    body.board-edit-active .editorial-card *:not(.board-edit-ctrl-overlay):not(.board-edit-ctrl-overlay *) {
       color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
       text-shadow: none !important;
       caret-color: transparent !important;
     }
 
+    /* Ocultar placeholders de inputs y textareas */
+    body.board-edit-active .editorial-card input::placeholder,
+    body.board-edit-active .editorial-card textarea::placeholder {
+      color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
+      opacity: 0 !important;
+    }
+
     /* Ocultar svgs e iconos interiores en modo edición */
-    .board-edit-active .editorial-card > *:not(.board-edit-ctrl-overlay) svg:not(.board-edit-ctrl-overlay svg) {
+    body.board-edit-active .editorial-card svg:not(.board-edit-ctrl-overlay svg) {
       opacity: 0 !important;
       visibility: hidden !important;
     }
 
     /* Ocultar imágenes y avatares interiores en modo edición */
-    .board-edit-active .editorial-card > *:not(.board-edit-ctrl-overlay) img {
+    body.board-edit-active .editorial-card img {
       opacity: 0 !important;
       visibility: hidden !important;
     }
 
     /* Inputs, selects y textareas convertidos en hitboxes limpias */
-    .board-edit-active .editorial-card input,
-    .board-edit-active .editorial-card select,
-    .board-edit-active .editorial-card textarea {
+    body.board-edit-active .editorial-card input,
+    body.board-edit-active .editorial-card select,
+    body.board-edit-active .editorial-card textarea {
       background: rgba(16, 185, 129, 0.05) !important;
       border: 1px dashed rgba(16, 185, 129, 0.25) !important;
       color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
       pointer-events: none !important;
       box-shadow: none !important;
     }
 
     /* Botones interiores convertidos en hitboxes limpias */
-    .board-edit-active .editorial-card button:not(.board-edit-ctrl-overlay *) {
+    body.board-edit-active .editorial-card button:not(.board-edit-ctrl-overlay *) {
       background: rgba(16, 185, 129, 0.07) !important;
       border: 1px solid rgba(16, 185, 129, 0.22) !important;
       color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
       box-shadow: none !important;
       pointer-events: none !important;
     }
 
     /* Recuadros interiores, filas de listas, hábitos, tarjetas internas y contenedores */
-    .board-edit-active .editorial-card [id$="ListContainer"] > *,
-    .board-edit-active .editorial-card .habit-row,
-    .board-edit-active .editorial-card table tr,
-    .board-edit-active .editorial-card .subpanel-bg,
-    .board-edit-active .editorial-card .list-card,
-    .board-edit-active .editorial-card .dashboard-kpi-pill,
-    .board-edit-active .editorial-card .rounded-2xl.border,
-    .board-edit-active .editorial-card .rounded-xl.border {
+    body.board-edit-active .editorial-card [id$="ListContainer"] > *,
+    body.board-edit-active .editorial-card .habit-row,
+    body.board-edit-active .editorial-card table tr,
+    body.board-edit-active .editorial-card .subpanel-bg,
+    body.board-edit-active .editorial-card .list-card,
+    body.board-edit-active .editorial-card .dashboard-kpi-pill,
+    body.board-edit-active .editorial-card .rounded-2xl.border,
+    body.board-edit-active .editorial-card .rounded-xl.border {
       color: transparent !important;
+      -webkit-text-fill-color: transparent !important;
       user-select: none !important;
       pointer-events: none !important;
       border: 1px solid rgba(16, 185, 129, 0.25) !important;
@@ -1242,9 +1255,9 @@
     }
 
     /* Barras de huella de contenido (hitbox) */
-    .board-edit-active .editorial-card [id$="ListContainer"] > *::before,
-    .board-edit-active .editorial-card .habit-row::before,
-    .board-edit-active .editorial-card table tr::before {
+    body.board-edit-active .editorial-card [id$="ListContainer"] > *::before,
+    body.board-edit-active .editorial-card .habit-row::before,
+    body.board-edit-active .editorial-card table tr::before {
       content: '';
       position: absolute;
       left: 10px;
@@ -1257,17 +1270,112 @@
     }
 
     /* Barra superior de herramientas y controles SIEMPRE nítidos y legibles */
-    .board-edit-active .board-edit-ctrl-overlay,
-    .board-edit-active .board-edit-ctrl-overlay * {
+    body.board-edit-active .board-edit-ctrl-overlay,
+    body.board-edit-active .board-edit-ctrl-overlay * {
       color: inherit !important;
+      -webkit-text-fill-color: initial !important;
       text-shadow: none !important;
       visibility: visible !important;
       opacity: 1 !important;
     }
 
     .board-edit-header-bar {
+      position: sticky !important;
+      top: 4px !important;
+      z-index: 50 !important;
+    }
+
+    /* COMPRESIÓN DEL LIENZO PRINCIPAL */
+    #mainTabsContainer, #tab1MainGrid, .tab-pane {
+      transition: margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1), transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    body.drawer-studio-open #mainTabsContainer {
+      margin-left: 320px;
+    }
+    @media (max-width: 1024px) {
+      body.drawer-studio-open #mainTabsContainer {
+        margin-left: 0;
+      }
+    }
+
+    /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS */
+    #widgetsDrawer {
+      position: fixed !important;
+      top: 4.5rem !important;
+      left: 0 !important;
+      bottom: 0 !important;
+      width: 320px !important;
+      max-width: 85vw !important;
+      height: calc(100vh - 4.5rem) !important;
+      z-index: 850 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      box-shadow: 6px 0 30px rgba(0, 0, 0, 0.35) !important;
+      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out !important;
+      border-right: 2px solid rgba(16, 185, 129, 0.4) !important;
+      border-top: none !important;
+      border-bottom: none !important;
+      border-left: none !important;
+    }
+    #widgetsDrawer.drawer-closed {
+      transform: translateX(-100%) !important;
+      pointer-events: none !important;
+    }
+    #widgetsDrawer.drawer-open {
+      transform: translateX(0) !important;
+      pointer-events: auto !important;
+    }
+
+    /* MINIATURAS DEL CAJÓN AL 50% */
+    .mini-card-box {
       position: relative;
-      z-index: 50;
+      height: 105px;
+      border-radius: 12px;
+      border: 1px dashed rgba(16, 185, 129, 0.4);
+      background: rgba(16, 185, 129, 0.03);
+      overflow: hidden;
+      cursor: grab;
+      transition: border-color 0.15s, transform 0.15s, box-shadow 0.15s;
+    }
+    .mini-card-box:hover {
+      border-color: #10b981;
+      border-style: solid;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 18px rgba(16, 185, 129, 0.18);
+    }
+    .mini-card-scaled {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 200%;
+      transform: scale(0.5);
+      transform-origin: top left;
+      padding: 10px;
+      pointer-events: none;
+      user-select: none;
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    /* ANIMACIÓN DE CRECIMIENTO AL ARRASTRAR (50% ➔ 100%) */
+    #boardGridDragGhost.ghost-scaling-up {
+      animation: expandGhostToFull 0.24s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      transform-origin: center center;
+    }
+    @keyframes expandGhostToFull {
+      0% { transform: scale(0.5) rotate(-1.5deg); opacity: 0.8; }
+      100% { transform: scale(1) rotate(0deg); opacity: 1; }
+    }
+
+    /* DOCK FLOTANTE INFERIOR DERECHO */
+    #floatingDock {
+      right: 1rem !important;
+      bottom: 1rem !important;
+      left: auto !important;
+      transform: none !important;
+      align-items: flex-end !important;
+      z-index: 800 !important;
     }
 
     /* TIRADORES DE REDIMENSIÓN EN LOS 4 BORDES Y ESQUINA INFERIOR DERECHA */

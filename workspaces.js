@@ -442,7 +442,7 @@ const WorkspacesManager = (function() {
           } else if (k === 'b') {
             e.preventDefault();
             if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
-          } else if (k === 'd') {
+          } else if (k === 'e') {
             e.preventDefault();
             if (typeof app !== 'undefined' && app.toggleBoardEdit) {
               app.toggleBoardEdit();
