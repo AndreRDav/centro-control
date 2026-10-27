@@ -232,23 +232,115 @@ var GridEngine = {
           return current;
         },
 
-        applyDefaultPreset(tabKey) {
+        resetToDefaultLayout(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          state.uiPreferences.gridLayouts.desktop[tabKey] = this.getDefaultGridLayout(tabKey);
-          // Al aplicar predeterminado, resetear manualRows a null para auto-ceñido óptimo
-          const layout = state.uiPreferences.gridLayouts.desktop[tabKey];
-          Object.keys(layout).forEach(id => {
-            layout[id].manualRows = null;
-          });
-          this.compactGrid(tabKey);
-          this.showToast('Diseño predeterminado restaurado con éxito.', 'emerald');
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const wsName = ws ? ws.name : 'Ventana Activa';
+
+          const doReset = () => {
+            const FACTORY_WORKSPACES = [
+              {
+                id: 'ws-1',
+                name: 'Hoy y Enfoque',
+                grid: {
+                  todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 18, isPinned: false, compact: false },
+                  notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
+                  interactiveListsPanel: { col: 7, colSpan: 6, row: 9, rowSpan: 14, isPinned: false, compact: false },
+                  tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, rowSpan: 4, isPinned: false, compact: false },
+                  weekTableContainer: { col: 1, colSpan: 12, row: 23, rowSpan: 8, isPinned: false, compact: false }
+                },
+                sidebarWidgets: [],
+                dockWidgets: []
+              },
+              {
+                id: 'ws-2',
+                name: 'Horario y Metas',
+                grid: {
+                  tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
+                  tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, rowSpan: 14, isPinned: false, compact: false },
+                  tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, rowSpan: 14, isPinned: false, compact: false }
+                },
+                sidebarWidgets: [],
+                dockWidgets: []
+              },
+              {
+                id: 'ws-3',
+                name: 'Finanzas Pro',
+                grid: {
+                  tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
+                  tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
+                  tab3PiggyCard: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
+                  tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
+                  tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false }
+                },
+                sidebarWidgets: [],
+                dockWidgets: []
+              },
+              {
+                id: 'ws-4',
+                name: 'Rendimiento',
+                grid: {
+                  kpiGridContainer: { col: 1, colSpan: 12, row: 1, rowSpan: 6, isPinned: false, compact: false },
+                  tab4SystemRadarCard: { col: 1, colSpan: 6, row: 7, rowSpan: 12, isPinned: false, compact: false },
+                  tab4StudyHoursTrendCard: { col: 7, colSpan: 6, row: 7, rowSpan: 12, isPinned: false, compact: false },
+                  tab4SavingsRateCard: { col: 1, colSpan: 6, row: 19, rowSpan: 10, isPinned: false, compact: false },
+                  tab4HabitsPerformanceCard: { col: 7, colSpan: 6, row: 19, rowSpan: 10, isPinned: false, compact: false }
+                },
+                sidebarWidgets: [],
+                dockWidgets: []
+              },
+              {
+                id: 'ws-5',
+                name: 'Histórico',
+                grid: {
+                  tab5HistoryControlsCard: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false }
+                },
+                sidebarWidgets: [],
+                dockWidgets: []
+              }
+            ];
+
+            const match = FACTORY_WORKSPACES.find(w => ws && w.id === ws.id) || FACTORY_WORKSPACES[0];
+            if (ws) {
+              ws.grid = JSON.parse(JSON.stringify(match.grid));
+              ws.sidebarWidgets = JSON.parse(JSON.stringify(match.sidebarWidgets || []));
+              ws.dockWidgets = JSON.parse(JSON.stringify(match.dockWidgets || []));
+            }
+
+            if (state.uiPreferences && state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.desktop) {
+              state.uiPreferences.gridLayouts.desktop[tabKey] = JSON.parse(JSON.stringify(match.grid));
+            }
+
+            if (window.WorkspacesManager && typeof window.WorkspacesManager.mountActiveWorkspace === 'function') {
+              window.WorkspacesManager.mountActiveWorkspace();
+            }
+
+            this.compactGrid(tabKey);
+            this.applyGridLayout(tabKey);
+            this.renderBoardEditHandles(tabKey);
+            this.renderWidgetsDrawer();
+            this.renderDockWidgets();
+
+            if (typeof saveState === 'function') saveState();
+            this.safeToast('Diseño predeterminado de "' + wsName + '" restaurado con éxito.', 'emerald');
+          };
+
+          if (typeof app !== 'undefined' && app.showConfirm) {
+            app.showConfirm(
+              'Restablecer Diseño Predeterminado',
+              '¿Deseas restablecer la ventana actual ("' + wsName + '") a su disposición original predeterminada? Todos los módulos volverán a su posición inicial.',
+              doReset
+            );
+          } else {
+            doReset();
+          }
+        },
+
+        applyDefaultPreset(tabKey) {
+          this.resetToDefaultLayout(tabKey);
         },
 
         applyDrawingPreset(tabKey) {
-          this.applyDefaultPreset(tabKey);
-        },
-
-        applyDefaultPreset(tabKey) {
           this.resetToDefaultLayout(tabKey);
         },
 
@@ -466,9 +558,9 @@ var GridEngine = {
             shield.onpointerdown = (e) => this.startCardDrag(e, id);
             el.appendChild(shield);
 
-            // Barra superior de herramientas sobre la tarjeta con nombre humano real
+            // Barra superior de herramientas sobre la tarjeta con nombre humano real y botones nítidos
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar sticky top-1 z-50 bg-stone-100/95 dark:bg-slate-900/95 border border-emerald-600/70 dark:border-emerald-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 select-none text-stone-900 dark:text-stone-100';
+            bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
 
             const isPinned = cfg.isPinned || false;
             const isCompact = cfg.compact || el.classList.contains('card-mode-compact');
@@ -477,30 +569,28 @@ var GridEngine = {
             const cardTitle = def.name || cfg.name || id;
 
             bar.innerHTML = `
-              <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-emerald-500 dark:text-emerald-400 font-bold text-xs shrink-0">
-                  ${def.iconSvg || '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>'}
-                </span>
-                <span class="font-bold text-stone-900 dark:text-white text-[11px] truncate">${cardTitle}</span>
-                <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-300 font-mono text-[10px] font-bold">${cfg.colSpan}/12 col · ${cfg.rowSpan || 4}f</span>
+              <div class="header-bar-left">
+                <span class="header-bar-icon">${def.iconSvg || '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'}</span>
+                <span class="header-bar-title">${cardTitle}</span>
+                <span class="header-bar-coords">${cfg.colSpan}/12c · ${cfg.rowSpan || 4}f</span>
               </div>
-              <div class="flex items-center gap-1 shrink-0 z-50">
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-200 hover:text-stone-950 dark:hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">–</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-emerald-600 dark:text-emerald-400 hover:text-stone-950 dark:hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-200 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300'}">
+              <div class="header-bar-actions">
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="header-bar-btn">–</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="header-bar-btn">+</button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="${isPinned ? 'Desfijar de otras ventanas' : 'Fijar en todas las ventanas'}" class="header-bar-btn ${isPinned ? 'is-active-pin' : ''}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto (economizar espacio)" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-200 dark:bg-stone-800 border-stone-300 dark:border-stone-700 text-stone-700 dark:text-stone-300'}">
+                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="header-bar-btn ${isCompact ? 'is-active-compact' : ''}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="p-1 rounded bg-stone-200 dark:bg-stone-800 border border-stone-300 dark:border-stone-700 text-emerald-600 dark:text-emerald-400 hover:text-stone-950 dark:hover:text-white text-[10px] font-bold cursor-pointer flex items-center justify-center">
+                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño ideal (${idealRows} filas)" class="header-bar-btn">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="px-1.5 py-0.5 rounded bg-cyan-100 dark:bg-cyan-950/60 border border-cyan-300 dark:border-cyan-500/40 text-cyan-700 dark:text-cyan-400 hover:bg-cyan-200 dark:hover:bg-cyan-900 text-[10px] font-bold cursor-pointer flex items-center gap-1">
+                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="header-bar-btn-lateral">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                   <span>Lateral</span>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
@@ -534,19 +624,20 @@ var GridEngine = {
             el.appendChild(sidebarShield);
 
             const bar = document.createElement('div');
-            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar sticky top-1 z-50 bg-stone-100/95 dark:bg-slate-900/95 border border-cyan-600/70 dark:border-cyan-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 select-none text-stone-900 dark:text-stone-100';
+            bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
+            const cardTitle = def.name || id;
             bar.innerHTML = `
-              <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-cyan-700 dark:text-cyan-400 font-mono text-[10px] font-bold px-1 rounded bg-cyan-100 dark:bg-cyan-950/80 border border-cyan-300 dark:border-cyan-800">PANEL</span>
-                <span class="font-bold text-stone-900 dark:text-white text-[11px] truncate">${def.name || id}</span>
+              <div class="header-bar-left">
+                <span class="header-bar-coords">PANEL</span>
+                <span class="header-bar-title">${cardTitle}</span>
               </div>
-              <div class="flex items-center gap-1 shrink-0 z-50">
-                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/40 transition cursor-pointer flex items-center gap-1">
+              <div class="header-bar-actions">
+                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="header-bar-btn-lateral">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                  <span>Cuadrícula</span>
+                  <span>Al Tablero</span>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del panel" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-500 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
               </div>
@@ -1214,6 +1305,7 @@ var GridEngine = {
           let targetRow = cfg.row || 1;
           let lastMoveEvent = e;
           let isHoveringSidebar = false;
+          let isHoveringDrawer = false;
 
           const updateDragPosition = (moveEvent) => {
             if (moveEvent) lastMoveEvent = moveEvent;
@@ -1230,6 +1322,31 @@ var GridEngine = {
               window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
             } else if (curY < edgeZone && window.scrollY > 0) {
               window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
+            }
+
+            // Detección de arrastre sobre el cajón de módulos inactivos (#widgetsDrawer)
+            const drawerEl = document.getElementById('widgetsDrawer');
+            const drawerRect = (drawerEl && drawerEl.classList.contains('drawer-open') && !drawerEl.classList.contains('hidden'))
+              ? drawerEl.getBoundingClientRect()
+              : null;
+            isHoveringDrawer = !!(drawerRect && (
+              curX >= drawerRect.left && curX <= drawerRect.right &&
+              curY >= drawerRect.top && curY <= drawerRect.bottom
+            ));
+
+            if (isHoveringDrawer) {
+              if (ghost) {
+                ghost.style.left = (drawerRect.left + 16) + 'px';
+                ghost.style.top = Math.max(drawerRect.top + 50, curY - 30) + 'px';
+                ghost.style.width = (drawerRect.width - 32) + 'px';
+                ghost.style.height = '64px';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (badge) badge.textContent = (cfg.name || cardId) + ' → Soltar para Inactivar y Guardar en Cajón';
+              drawerEl.classList.add('drawer-drop-highlight');
+              return;
+            } else if (drawerEl) {
+              drawerEl.classList.remove('drawer-drop-highlight');
             }
 
             // Detección de arrastre sobre el panel lateral (sidebar)
@@ -1311,9 +1428,17 @@ var GridEngine = {
             window.removeEventListener('pointercancel', onPointerUp);
             window.removeEventListener('scroll', onScroll);
 
+            const drawerEl = document.getElementById('widgetsDrawer');
+            if (drawerEl) drawerEl.classList.remove('drawer-drop-highlight');
+
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
+
+            if (isHoveringDrawer) {
+              this.sendWidgetToDrawer(cardId);
+              return;
+            }
 
             if (isHoveringSidebar) {
               this.moveCardToSidebar(cardId);

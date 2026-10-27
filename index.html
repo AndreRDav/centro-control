@@ -3402,7 +3402,22 @@
     </div>
 
     <!-- CONTENEDOR DE WORKSPACES Y SIDEBAR -->
-    <div id="workspaceLayoutContainer" class="w-full flex items-start gap-4">
+    <div id="workspaceLayoutContainer" class="w-full flex items-start gap-4 relative">
+      <!-- BARRA LATERAL IZQUIERDA FUERA DE CUADRÍCULA (WORKSPACE SIDEBAR) -->
+      <aside id="workspaceSidebar" class="hidden shrink-0 w-80 panel-bg border border-theme rounded-2xl p-3 shadow-xl space-y-3 sticky top-[4.5rem] self-start max-h-[calc(100vh-5.5rem)] overflow-y-auto z-40" aria-label="Panel Lateral Fijo">
+        <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
+          <div class="flex items-center gap-2">
+            <span class="vector-seal w-6 h-6 bg-theme-main text-white text-[11px]">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+            </span>
+            <span class="font-serif font-bold text-xs">Panel Lateral</span>
+          </div>
+          <button onclick="app.toggleSidebar()" class="w-6 h-6 rounded-lg subpanel-bg border text-[11px] flex items-center justify-center text-stone-400 hover:text-stone-800 dark:hover:text-white cursor-pointer" title="Cerrar Panel Lateral">✕</button>
+        </div>
+        <div id="sidebarWidgetsContainer" class="space-y-3 min-h-[100px]">
+          <!-- Widgets del sidebar -->
+        </div>
+      </aside>
       <div id="workspaceMainArea" class="flex-1 min-w-0 space-y-3">
     <!-- ========================================================
          PESTAÑA 1: PANEL DIARIO (REGISTRO + GASTO + POMO + LISTAS)
@@ -4356,21 +4371,7 @@
     </section>
       </div>
 
-      <!-- BARRA LATERAL FUERA DE CUADRÍCULA (WORKSPACE SIDEBAR) -->
-      <aside id="workspaceSidebar" class="hidden shrink-0 w-80 panel-bg border border-theme rounded-2xl p-3 shadow-xl space-y-3" aria-label="Panel Lateral Fijo">
-        <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
-          <div class="flex items-center gap-2">
-            <span class="vector-seal w-6 h-6 bg-theme-main text-white text-[11px]">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </span>
-            <span class="font-serif font-bold text-xs">Panel Lateral</span>
-          </div>
-          <button onclick="app.toggleSidebar()" class="w-6 h-6 rounded-lg subpanel-bg border text-[11px] flex items-center justify-center text-stone-400 hover:text-stone-800 dark:hover:text-white cursor-pointer" title="Cerrar Panel Lateral">✕</button>
-        </div>
-        <div id="sidebarWidgetsContainer" class="space-y-3 min-h-[100px]">
-          <!-- Widgets del sidebar -->
-        </div>
-      </aside>
+
     </div>
 
   </div>

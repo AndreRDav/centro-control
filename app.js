@@ -2076,17 +2076,20 @@
         if (enabled.academic) {
           academicCardHtml = `
             <!-- Asistencia Clases Hoy -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between">
+            <div class="academic-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <div class="academic-header-line flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg>
                   </div>
                   <span class="font-bold text-xs">Clases para Hoy</span>
                 </div>
-                <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${(day.attendance || []).length} asignaturas</span>
+                <div class="flex items-center gap-2">
+                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono compact-hide">${(day.attendance || []).length} asignaturas</span>
+                  <span class="font-mono font-bold text-theme-main text-[10px] hidden compact-inline">${Math.round(m.attPct)}% global</span>
+                </div>
               </div>
-              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
+              <div class="academic-classes-grid space-y-1.5 flex-1 flex flex-col justify-center">
                 ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center">— Sin clases programadas para hoy —</div>` : ''}
                 ${(day.attendance || []).map((c, cIdx) => {
                   let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
@@ -2109,7 +2112,7 @@
                   `;
                 }).join('')}
               </div>
-              <div class="mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
+              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
                 <span>Asistencia requerida: ${w.goals.academic?.attMinPercent || 85}%</span>
                 <span class="font-mono font-bold text-theme-main">${Math.round(m.attPct)}% global</span>
               </div>
