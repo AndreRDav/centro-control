@@ -185,6 +185,31 @@ const WorkspacesManager = (function() {
       return false;
     },
 
+    restoreFactoryWorkspaces() {
+      const doRestore = () => {
+        state.workspaces = JSON.parse(JSON.stringify(FACTORY_WORKSPACES));
+        state.activeWorkspaceId = 'ws-1';
+        state.activeTab = 1;
+        this.mountActiveWorkspace();
+        this.renderNavBar();
+        if (typeof app !== 'undefined' && app.applyGridLayout) app.applyGridLayout();
+        if (typeof app !== 'undefined' && state.ui && state.ui.isBoardEditMode) {
+          if (app.renderBoardEditHandles) app.renderBoardEditHandles();
+          if (app.renderWidgetsDrawer) app.renderWidgetsDrawer();
+        }
+        if (typeof saveState === 'function') saveState();
+        if (typeof app !== 'undefined' && app.safeToast) {
+          app.safeToast('Ventanas predeterminadas restauradas de fábrica.', 'emerald');
+        }
+      };
+
+      if (typeof app !== 'undefined' && app.showConfirm) {
+        app.showConfirm('Restaurar Fábrica', '¿Restaurar todas las ventanas a su configuración original de fábrica? Se reiniciarán las pestañas predeterminadas.', doRestore);
+      } else {
+        doRestore();
+      }
+    },
+
     // Sincroniza widgets marcados con chincheta 📌 entre todas las ventanas
     toggleWidgetPin(widgetId) {
       this.ensureWorkspaces();

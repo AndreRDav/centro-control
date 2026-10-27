@@ -248,6 +248,16 @@ var GridEngine = {
           this.applyDefaultPreset(tabKey);
         },
 
+        applyDefaultPreset(tabKey) {
+          this.resetToDefaultLayout(tabKey);
+        },
+
+        restoreFactoryWorkspaces() {
+          if (window.WorkspacesManager && typeof window.WorkspacesManager.restoreFactoryWorkspaces === 'function') {
+            window.WorkspacesManager.restoreFactoryWorkspaces();
+          }
+        },
+
         applyThreeInRowPreset(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
@@ -386,6 +396,7 @@ var GridEngine = {
           const mainGrid = document.getElementById('tab1MainGrid') || document.querySelector('.dashboard-grid-12');
           const sidebar = document.getElementById('workspaceSidebar');
           const drawer = document.getElementById('widgetsDrawer');
+          const toolbar = document.getElementById('boardEditToolbar');
 
           if (state.ui.isBoardEditMode) {
             if (btn) {
@@ -393,6 +404,7 @@ var GridEngine = {
             }
             if (btnLabel) btnLabel.textContent = 'Guardar';
 
+            if (toolbar) toolbar.classList.remove('hidden');
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
               sidebar.classList.remove('hidden', 'sidebar-collapsed');
@@ -403,6 +415,7 @@ var GridEngine = {
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
             try { this.renderBoardEditHandles(tabKey); } catch (e) { console.warn('renderBoardEditHandles:', e); }
             try { this.renderWidgetsDrawer(); } catch (e) { console.warn('renderWidgetsDrawer:', e); }
+            try { this.renderDockWidgets(); } catch (e) { console.warn('renderDockWidgets:', e); }
             this.safeToast('Modo Diseño activado: Ajusta y mueve los cuadros en el tablero.', 'emerald');
           } else {
             if (btn) {
@@ -410,6 +423,7 @@ var GridEngine = {
             }
             if (btnLabel) btnLabel.textContent = 'Diseño';
 
+            if (toolbar) toolbar.classList.add('hidden');
             if (mainGrid) mainGrid.classList.remove('board-edit-active');
             if (sidebar) {
               sidebar.classList.remove('sidebar-edit-active');
@@ -429,6 +443,7 @@ var GridEngine = {
             if (window.WorkspacesManager) {
               try { window.WorkspacesManager.mountActiveWorkspace(); } catch (e) { console.warn('mountActiveWorkspace:', e); }
             }
+            try { this.renderDockWidgets(); } catch (e) { console.warn('renderDockWidgets:', e); }
             if (typeof saveState === 'function') saveState();
             this.safeToast('Diseño del tablero guardado con éxito.', 'emerald');
           }
@@ -449,7 +464,7 @@ var GridEngine = {
             // Escudo protector de arrastre
             const shield = document.createElement('div');
             shield.className = 'card-drag-shield board-edit-ctrl-overlay';
-            shield.title = 'Arrastra para mover este cuadro de posición';
+            shield.title = 'Arrastra para mover este cuadro de posición o arrástralo al panel lateral';
             shield.onpointerdown = (e) => this.startCardDrag(e, id);
             el.appendChild(shield);
 
@@ -475,7 +490,7 @@ var GridEngine = {
                 <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
+                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto (economizar espacio)" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                 </button>
                 <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="p-1 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white text-[10px] font-bold cursor-pointer flex items-center justify-center">
@@ -492,12 +507,15 @@ var GridEngine = {
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Asa de redimensión inferior
-            const handle = document.createElement('div');
-            handle.className = 'card-resize-handle resize-b board-edit-ctrl-overlay';
-            handle.title = 'Arrastra para cambiar la altura';
-            handle.onpointerdown = (e) => this.startCardResize(e, id, 's');
-            el.appendChild(handle);
+            // Tiradores de redimensión en los 4 bordes y esquina
+            const dirMap = { s: 'resize-b', e: 'resize-r', w: 'resize-l', n: 'resize-t', se: 'resize-br' };
+            ['s', 'e', 'w', 'n', 'se'].forEach(dir => {
+              const handle = document.createElement('div');
+              handle.className = 'card-resize-handle ' + dirMap[dir] + ' board-edit-ctrl-overlay';
+              handle.title = dir === 'se' ? 'Arrastra para cambiar ancho y altura' : (dir === 'e' || dir === 'w' ? 'Arrastra para cambiar ancho' : 'Arrastra para cambiar altura');
+              handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
+              el.appendChild(handle);
+            });
           });
 
           // Renderizar controles en tarjetas del panel lateral
@@ -507,6 +525,14 @@ var GridEngine = {
             const el = document.getElementById(id);
             if (!el) return;
             el.classList.add('card-edit-mode');
+
+            // Escudo de arrastre para mover del sidebar a la cuadrícula
+            const sidebarShield = document.createElement('div');
+            sidebarShield.className = 'card-drag-shield board-edit-ctrl-overlay';
+            sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero';
+            sidebarShield.onpointerdown = (e) => this.startCardDrag(e, id);
+            el.appendChild(sidebarShield);
+
             const bar = document.createElement('div');
             bar.className = 'board-edit-ctrl-overlay board-edit-header-bar bg-stone-900/90 dark:bg-slate-900/95 border border-cyan-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
@@ -577,7 +603,7 @@ var GridEngine = {
             compact: false,
             name: def.name || cardId
           };
-          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab1MainGrid');
+          const gridContainer = document.getElementById('tab1MainGrid') || document.getElementById('workspaceGrid');
           if (gridContainer && window.WidgetsRegistry) {
             window.WidgetsRegistry.mountWidget(cardId, gridContainer);
           }
@@ -606,7 +632,7 @@ var GridEngine = {
           this.safeToast('Módulo ajustado a ' + idealRows + ' filas.', 'emerald');
         },
 
-        renderWidgetsDrawer() {
+        renderWidgetsDrawer(selectedCategory = 'all') {
           let drawer = document.getElementById('widgetsDrawer');
           if (!drawer) {
             drawer = document.createElement('div');
@@ -622,28 +648,66 @@ var GridEngine = {
           const activeDockIds = new Set((ws && ws.dockWidgets) ? ws.dockWidgets : []);
           const catalog = (window.WidgetsRegistry) ? window.WidgetsRegistry.getCatalog() : {};
 
-          const inactiveWidgets = Object.keys(catalog).filter(id => !activeGridIds.has(id) && !activeSidebarIds.has(id) && !activeDockIds.has(id));
+          // Comprueba estrictamente si el widget está ya físicamente en la ventana
+          const isPlacedInWindow = (id) => {
+            if (activeGridIds.has(id) || activeSidebarIds.has(id) || activeDockIds.has(id)) return true;
+            const el = document.getElementById(id);
+            if (!el) return false;
+            if (el.closest('#widgetsPool')) return false;
+            if (el.closest('#tab1MainGrid') || el.closest('#sidebarWidgetsContainer') || el.closest('#workspaceSidebar') || el.closest('#floatingDock')) return true;
+            return false;
+          };
+
+          const inactiveWidgets = Object.keys(catalog).filter(id => !isPlacedInWindow(id));
+
+          const CATEGORIES = {
+            all: 'Todos',
+            habits: 'Hábitos',
+            agenda: 'Estudio & Agenda',
+            finance: 'Finanzas Pro',
+            performance: 'Rendimiento'
+          };
+
+          const filteredWidgets = (selectedCategory === 'all')
+            ? inactiveWidgets
+            : inactiveWidgets.filter(id => {
+                const def = catalog[id];
+                return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
+              });
 
           drawer.innerHTML = `
-            <div class="flex items-center justify-between pb-2 border-b border-stone-700/60 mb-2">
+            <div class="flex flex-wrap items-center justify-between pb-2.5 border-b border-stone-700/60 mb-2.5 gap-2">
               <div class="flex items-center gap-2">
                 <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
                 <span class="font-serif font-bold text-xs text-white">Cajón de Módulos Inactivos (${inactiveWidgets.length} disponibles)</span>
+              </div>
+              <div class="flex items-center gap-1.5 flex-wrap">
+                ${Object.keys(CATEGORIES).map(catKey => {
+                  const isActive = (selectedCategory === catKey);
+                  return `
+                    <button type="button" onclick="app.renderWidgetsDrawer('${catKey}')" class="px-2.5 py-0.5 rounded-lg text-[11px] font-semibold border transition cursor-pointer ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400 font-bold' : 'bg-slate-800 text-stone-300 border-slate-700 hover:text-white'}">
+                      ${CATEGORIES[catKey]}
+                    </button>
+                  `;
+                }).join('')}
               </div>
               <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-stone-400 hover:text-white flex items-center justify-center text-xs cursor-pointer" title="Cerrar cajón">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
               </button>
             </div>
-            <div class="flex flex-wrap items-center gap-2 max-h-40 overflow-y-auto py-1">
-              ${inactiveWidgets.length === 0 ? '<span class="text-xs text-stone-400 italic">Todos los módulos están activos en el tablero o barra lateral.</span>' : ''}
-              ${inactiveWidgets.map(id => {
+            <div class="flex flex-wrap items-center gap-2 max-h-44 overflow-y-auto py-1">
+              ${filteredWidgets.length === 0 ? '<span class="text-xs text-stone-400 italic py-2">No hay módulos inactivos en esta categoría. Todos están colocados en el tablero o panel.</span>' : ''}
+              ${filteredWidgets.map(id => {
                 const def = catalog[id] || { name: id, iconSvg: '' };
                 return `
-                  <div class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center gap-2 shadow-xs">
+                  <div class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 hover:border-emerald-500/50 flex items-center gap-2 shadow-xs transition">
                     <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
-                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[140px]">${def.name}</span>
-                    <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
-                    <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
+                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[130px]" title="${def.name}">${def.name}</span>
+                    <div class="flex items-center gap-1 shrink-0">
+                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
+                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
+                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-[10px] font-bold border border-amber-500/30 transition cursor-pointer" title="Añadir como popup al Dock">+ Dock</button>
+                    </div>
                   </div>
                 `;
               }).join('')}
@@ -662,6 +726,108 @@ var GridEngine = {
           }
         },
 
+        toggleWidgetsDrawer() {
+          const drawer = document.getElementById('widgetsDrawer');
+          if (drawer && drawer.classList.contains('open')) {
+            this.closeWidgetsDrawer();
+          } else {
+            this.renderWidgetsDrawer();
+          }
+        },
+
+        addWidgetToDock(widgetId) {
+          if (!window.WorkspacesManager) return;
+          const ws = window.WorkspacesManager.getActiveWorkspace();
+          if (!ws) return;
+          if (!ws.dockWidgets) ws.dockWidgets = [];
+          if (!ws.dockWidgets.includes(widgetId)) {
+            ws.dockWidgets.push(widgetId);
+          }
+          if (ws.grid && ws.grid[widgetId]) delete ws.grid[widgetId];
+          if (ws.sidebarWidgets) ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== widgetId);
+          
+          this.renderDockWidgets();
+          this.compactGrid();
+          this.applyGridLayout();
+          this.renderBoardEditHandles();
+          this.renderWidgetsDrawer();
+          if (typeof saveState === 'function') saveState();
+          this.safeToast('Módulo añadido al Dock como popup.', 'emerald');
+        },
+
+        removeWidgetFromDock(widgetId) {
+          if (!window.WorkspacesManager) return;
+          const ws = window.WorkspacesManager.getActiveWorkspace();
+          if (!ws || !ws.dockWidgets) return;
+          ws.dockWidgets = ws.dockWidgets.filter(x => x !== widgetId);
+          if (window.WidgetsRegistry) {
+            window.WidgetsRegistry.parkWidget(widgetId);
+          }
+          this.renderDockWidgets();
+          this.renderWidgetsDrawer();
+          if (typeof saveState === 'function') saveState();
+          this.safeToast('Módulo quitado del Dock.', 'info');
+        },
+
+        renderDockWidgets() {
+          const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const dockList = (ws && ws.dockWidgets) ? ws.dockWidgets : [];
+          let container = document.getElementById('dockCustomPills');
+          if (!container) {
+            const pillsWrap = document.querySelector('#floatingDock > .flex.items-center.gap-2');
+            if (pillsWrap) {
+              container = document.createElement('div');
+              container.id = 'dockCustomPills';
+              container.className = 'flex items-center gap-2';
+              pillsWrap.appendChild(container);
+            }
+          }
+          if (!container) return;
+          container.innerHTML = '';
+
+          const isEditMode = (state.ui && state.ui.isBoardEditMode);
+          dockList.forEach(id => {
+            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id, iconSvg: '' };
+            const pill = document.createElement('div');
+            pill.className = 'dock-glass border px-2.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg transition-all cursor-pointer relative';
+            pill.innerHTML = `
+              <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
+              <span class="text-[11px] truncate max-w-[90px]">${def.name}</span>
+              ${isEditMode ? `<button type="button" onclick="event.stopPropagation(); app.removeWidgetFromDock('${id}')" class="w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center text-[10px] ml-1">✕</button>` : ''}
+            `;
+            pill.onclick = () => {
+              this.toggleDockCustomWindow(id);
+            };
+            container.appendChild(pill);
+          });
+        },
+
+        toggleDockCustomWindow(widgetId) {
+          let win = document.getElementById('dockWin_' + widgetId);
+          if (!win) {
+            const dock = document.getElementById('floatingDock');
+            if (!dock) return;
+            win = document.createElement('div');
+            win.id = 'dockWin_' + widgetId;
+            win.className = 'dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 max-w-sm shadow-2xl transition-all duration-200 border space-y-3';
+            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(widgetId) : { name: widgetId };
+            win.innerHTML = `
+              <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
+                <span class="font-serif font-bold text-sm tracking-tight">${def.name}</span>
+                <button type="button" onclick="document.getElementById('dockWin_${widgetId}').classList.add('hidden')" class="p-1 rounded text-slate-400 hover:text-rose-400 text-xs font-bold">✕</button>
+              </div>
+              <div id="dockContent_${widgetId}" class="max-h-[60vh] overflow-y-auto"></div>
+            `;
+            dock.insertBefore(win, dock.firstChild);
+            const contentBox = document.getElementById('dockContent_' + widgetId);
+            if (contentBox && window.WidgetsRegistry) {
+              window.WidgetsRegistry.mountWidget(widgetId, contentBox);
+            }
+          } else {
+            win.classList.toggle('hidden');
+          }
+        },
+
         toggleWidgetPin(cardId) {
           if (window.WorkspacesManager) {
             window.WorkspacesManager.toggleWidgetPin(cardId);
@@ -676,10 +842,22 @@ var GridEngine = {
         toggleCardCompact(cardId) {
           if (window.PolymorphicCards) {
             const isComp = window.PolymorphicCards.toggleCompactMode(cardId);
+            const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+            if (ws && ws.grid && ws.grid[cardId]) {
+              const cfg = ws.grid[cardId];
+              if (isComp) {
+                const compactRows = Math.max(3, Math.ceil((cfg.minRows || 6) * 0.65));
+                cfg.rowSpan = compactRows;
+                cfg.manualRows = compactRows;
+              } else {
+                cfg.rowSpan = cfg.minRows || 8;
+                cfg.manualRows = null;
+              }
+            }
             this.compactGrid();
             this.applyGridLayout();
             this.renderBoardEditHandles();
-            this.safeToast(isComp ? 'Modo Compacto activado.' : 'Modo Normal restaurado.', 'indigo');
+            this.safeToast(isComp ? 'Modo Compacto activado: espacio economizado.' : 'Modo Normal restaurado.', 'indigo');
             if (typeof saveState === 'function') saveState();
             return isComp;
           }
@@ -697,6 +875,9 @@ var GridEngine = {
           if (ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(cardId)) {
             ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== cardId);
           }
+          if (ws && ws.dockWidgets && ws.dockWidgets.includes(cardId)) {
+            ws.dockWidgets = ws.dockWidgets.filter(x => x !== cardId);
+          }
           if (window.WidgetsRegistry) {
             const def = window.WidgetsRegistry.getWidgetDef(cardId);
             if (def) cardName = def.name;
@@ -706,10 +887,10 @@ var GridEngine = {
           this.applyGridLayout();
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
+          this.renderDockWidgets();
           if (typeof saveState === 'function') saveState();
           this.safeToast('Módulo "' + cardName + '" guardado en el Cajón de Inactivos.', 'indigo');
         },
-
         addInactiveWidgetToGrid(widgetId) {
           const layout = this.getGridLayout();
           if (!layout || !window.WidgetsRegistry) return;
@@ -807,7 +988,7 @@ var GridEngine = {
           }
         },
 
-        // ARRASTRE FLUIDO CON RECUADRO FANTASMA Y SOMBRA VERDE (.grid-drop-placeholder)
+        // ARRASTRE FLUIDO ENTRE CUADRÍCULA Y PANEL LATERAL (.grid-drop-placeholder)
         startCardDrag(e, cardId) {
           if (e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
@@ -815,11 +996,14 @@ var GridEngine = {
 
           const tabKey = 'tab' + (state.activeTab || 1);
           const layout = this.getGridLayout(tabKey);
-          const cfg = layout[cardId];
+          const cfg = layout[cardId] || { col: 1, colSpan: 12, row: 1, rowSpan: 6, name: cardId };
           const el = document.getElementById(cardId);
-          if (!cfg || !el) return;
+          if (!el) return;
 
-          const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const isFromSidebar = ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(cardId);
+
+          const container = document.getElementById('tab1MainGrid') || el.parentElement || el;
           const cardRect = el.getBoundingClientRect();
 
           // Offset exacto del cursor respecto a la esquina superior izquierda de la tarjeta
@@ -846,27 +1030,22 @@ var GridEngine = {
             ghost.style.display = 'flex';
             if (badge) badge.textContent = 'Moviendo: ' + (cfg.name || cardId);
           }
-          if (placeholder) {
+          if (placeholder && !isFromSidebar) {
             placeholder.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
             placeholder.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
             placeholder.style.display = 'block';
           }
           el.style.opacity = '0.35';
 
-          let targetCol = cfg.col;
-          let targetRow = cfg.row;
+          let targetCol = cfg.col || 1;
+          let targetRow = cfg.row || 1;
           let lastMoveEvent = e;
+          let isHoveringSidebar = false;
 
           const updateDragPosition = (moveEvent) => {
             if (moveEvent) lastMoveEvent = moveEvent;
             const evt = moveEvent || lastMoveEvent;
             if (!evt) return;
-
-            // Medición DINÁMICA en vivo de la posición del contenedor en el viewport actual (inmune a scroll)
-            const curContainerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
-            const colWidth = (curContainerRect.width - 11 * gap) / 12;
-            const colPitch = colWidth + gap;
-            const rowPitch = 40 + gap; // 52px
 
             const curX = evt.clientX;
             const curY = evt.clientY;
@@ -880,16 +1059,43 @@ var GridEngine = {
               window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
             }
 
+            // Detección de arrastre sobre el panel lateral (sidebar)
+            const sidebarEl = document.getElementById('workspaceSidebar');
+            const sidebarRect = (sidebarEl && !sidebarEl.classList.contains('hidden')) ? sidebarEl.getBoundingClientRect() : null;
+            isHoveringSidebar = !!(sidebarRect && (
+              curX >= sidebarRect.left && curX <= sidebarRect.right &&
+              curY >= sidebarRect.top && curY <= sidebarRect.bottom
+            ));
+
+            if (isHoveringSidebar) {
+              if (ghost) {
+                ghost.style.left = (sidebarRect.left + 8) + 'px';
+                ghost.style.top = Math.max(sidebarRect.top + 45, curY - 25) + 'px';
+                ghost.style.width = (sidebarRect.width - 16) + 'px';
+                ghost.style.height = '60px';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (badge) badge.textContent = (cfg.name || cardId) + ' → Soltar en Panel Lateral';
+              return;
+            }
+
+            // Medición DINÁMICA en vivo de la posición del contenedor en el viewport actual (inmune a scroll)
+            const curContainerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
+            const colWidth = (curContainerRect.width - 11 * gap) / 12;
+            const colPitch = colWidth + gap;
+            const rowPitch = 40 + gap; // 52px
+
             // Coordenadas exactas relativas al contenedor en tiempo real
             const cardLeft = curX - grabOffsetX;
             const cardTop = curY - grabOffsetY;
             const relX = cardLeft - curContainerRect.left;
             const relY = cardTop - curContainerRect.top;
 
+            const effectiveColSpan = cfg.colSpan || 12;
             let c = Math.round(relX / colPitch) + 1;
             let r = Math.round(relY / rowPitch) + 1;
 
-            c = Math.max(1, Math.min(13 - cfg.colSpan, c));
+            c = Math.max(1, Math.min(13 - effectiveColSpan, c));
             r = Math.max(1, r);
 
             targetCol = c;
@@ -898,8 +1104,8 @@ var GridEngine = {
             // Recuadro fantasma y placeholder imantados exactamente a la misma celda física
             const snapLeft = curContainerRect.left + (c - 1) * colPitch;
             const snapTop = curContainerRect.top + (r - 1) * rowPitch;
-            const snapWidth = cfg.colSpan * colPitch - gap;
-            const snapHeight = ((cfg.rowSpan || 2) * rowPitch) - gap;
+            const snapWidth = effectiveColSpan * colPitch - gap;
+            const snapHeight = ((cfg.rowSpan || 4) * rowPitch) - gap;
 
             if (ghost) {
               ghost.style.left = snapLeft + 'px';
@@ -908,8 +1114,9 @@ var GridEngine = {
               ghost.style.height = snapHeight + 'px';
             }
             if (placeholder) {
-              placeholder.style.gridColumn = targetCol + ' / span ' + cfg.colSpan;
-              placeholder.style.gridRow = targetRow + ' / span ' + (cfg.rowSpan || 2);
+              placeholder.style.gridColumn = targetCol + ' / span ' + effectiveColSpan;
+              placeholder.style.gridRow = targetRow + ' / span ' + (cfg.rowSpan || 4);
+              placeholder.style.display = 'block';
             }
 
             if (badge) {
@@ -935,8 +1142,22 @@ var GridEngine = {
             if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
 
-            cfg.col = targetCol;
-            cfg.row = targetRow;
+            if (isHoveringSidebar) {
+              this.moveCardToSidebar(cardId);
+              return;
+            }
+
+            if (isFromSidebar) {
+              this.moveCardFromSidebarToGrid(cardId);
+              const curLayout = this.getGridLayout(tabKey);
+              if (curLayout && curLayout[cardId]) {
+                curLayout[cardId].col = targetCol;
+                curLayout[cardId].row = targetRow;
+              }
+            } else {
+              cfg.col = targetCol;
+              cfg.row = targetRow;
+            }
 
             // Resolver colisiones 2D en cascada
             this.resolveGridCollisions(tabKey, cardId);
@@ -951,7 +1172,7 @@ var GridEngine = {
           window.addEventListener('scroll', onScroll, { passive: true });
         },
 
-        // REDIMENSIÓN MANUAL LIBRE CON TOPE EN EL CONTENIDO VIVO (SIN RATCHET BUG)
+        // REDIMENSIÓN MANUAL DIRECTA EN LOS 4 BORDES Y ESQUINAS (TOP, BOTTOM, LEFT, RIGHT)
         startCardResize(e, cardId, direction) {
           if (e.button !== 0 && e.pointerType === 'mouse') return;
           e.preventDefault();
@@ -963,7 +1184,7 @@ var GridEngine = {
           const el = document.getElementById(cardId);
           if (!cfg || !el) return;
 
-          const container = el.parentElement || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || el;
+          const container = document.getElementById('tab1MainGrid') || el.parentElement || el;
           const cardRect = el.getBoundingClientRect();
 
           // Puntos iniciales absolutos inmunes al scroll
@@ -1014,6 +1235,11 @@ var GridEngine = {
           let finalRowSpan = origRowSpan;
           let lastResizeEvent = e;
 
+          const isLeft = direction.includes('l') || direction.includes('w');
+          const isRight = direction.includes('r') || direction.includes('e');
+          const isTop = direction.includes('t') || direction.includes('n');
+          const isBottom = direction.includes('b') || direction.includes('s');
+
           const updateResizePosition = (moveEvent) => {
             if (moveEvent) lastResizeEvent = moveEvent;
             const evt = moveEvent || lastResizeEvent;
@@ -1038,20 +1264,20 @@ var GridEngine = {
             let r = origRow;
             let rSpan = origRowSpan;
 
-            if (direction.includes('l')) {
+            if (isLeft) {
               const origRight = origCol + origColSpan;
               c = Math.max(1, Math.min(origRight - 1, origCol + deltaCols));
               cSpan = origRight - c;
-            } else if (direction.includes('r')) {
+            } else if (isRight) {
               const maxSpan = 13 - origCol;
               cSpan = Math.max(1, Math.min(maxSpan, origColSpan + deltaCols));
             }
 
-            if (direction.includes('t')) {
+            if (isTop) {
               const origBottom = origRow + origRowSpan;
               r = Math.max(1, Math.min(origBottom - liveMinRows, origRow + deltaRows));
               rSpan = origBottom - r;
-            } else if (direction.includes('b')) {
+            } else if (isBottom) {
               // Auto-compactación inteligente al encoger hacia arriba
               if ((origRowSpan + deltaRows) < liveMinRows && !cfg.compact && window.PolymorphicCards) {
                 window.PolymorphicCards.toggleCompactMode(cardId, true);
@@ -1118,27 +1344,13 @@ var GridEngine = {
             el.style.opacity = '1';
 
             cfg.col = finalCol;
+            cfg.colSpan = finalColSpan;
             cfg.row = finalRow;
-
-            // Si cambió el ancho, resetear manualRows para que se ciña a la nueva anchura
-            if (finalColSpan !== origColSpan) {
-              cfg.colSpan = finalColSpan;
-              cfg.manualRows = null;
-              el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
-              cfg.minRows = this.measureNaturalRows(el);
-              cfg.rowSpan = cfg.minRows;
-            } else {
-              // Si cambió la altura vertical
-              cfg.colSpan = finalColSpan;
-              if (finalRowSpan > liveMinRows) {
-                cfg.manualRows = finalRowSpan;
-              } else {
-                cfg.manualRows = null; // En el tope natural queda en modo Auto-Ceñido
-              }
-              cfg.rowSpan = finalRowSpan;
-            }
+            cfg.rowSpan = finalRowSpan;
+            cfg.manualRows = finalRowSpan;
 
             this.resolveGridCollisions(tabKey, cardId);
+            this.compactGrid(tabKey);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             if (typeof saveState === 'function') saveState();
