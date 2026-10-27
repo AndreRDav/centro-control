@@ -146,7 +146,7 @@ var GridEngine = {
           this.applyGridLayout(tabKey);
           if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
           if (typeof saveState === 'function') saveState();
-          this.showToast('⚡ Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
+          this.showToast('Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
         },
 
         autoFlowGrid(tabKey) {
@@ -241,7 +241,7 @@ var GridEngine = {
             layout[id].manualRows = null;
           });
           this.compactGrid(tabKey);
-          this.showToast('📐 Diseño predeterminado restaurado con éxito.', 'emerald');
+          this.showToast('Diseño predeterminado restaurado con éxito.', 'emerald');
         },
 
         applyDrawingPreset(tabKey) {
@@ -269,7 +269,7 @@ var GridEngine = {
             }
           }
           this.compactGrid(tabKey);
-          this.showToast('3️⃣ Preset 3 en fila aplicado.', 'indigo');
+          this.safeToast('Preset 3 en fila aplicado.', 'indigo');
         },
 
         applyFiftyFiftyPreset(tabKey) {
@@ -284,7 +284,7 @@ var GridEngine = {
             layout[id].manualRows = null;
           });
           this.compactGrid(tabKey);
-          this.showToast('⚖️ Preset 50% / 50% aplicado.', 'emerald');
+          this.safeToast('Preset 50% / 50% aplicado.', 'emerald');
         },
 
         applyFullWidthPreset(tabKey) {
@@ -298,7 +298,7 @@ var GridEngine = {
             layout[id].manualRows = null;
           });
           this.compactGrid(tabKey);
-          this.showToast('⬛ Todos los módulos en 100% de anchura.', 'emerald');
+          this.safeToast('Todos los módulos en 100% de anchura.', 'emerald');
         },
 
         // APLICACIÓN DE LAYOUT (DESKTOP: CUADRÍCULA 12xH / MÓVIL: APILADO VERTICAL LIMPIO)
@@ -330,7 +330,7 @@ var GridEngine = {
             });
           } else {
             // MÓVIL (<1024px): desactivar posicionamiento por celdas y permitir apilado vertical limpio
-            const mobList = (state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.mobile && state.uiPreferences.gridLayouts.mobile[tabKey]) || Object.keys(layout);
+            const mobList = (state.uiPreferences && state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.mobile && state.uiPreferences.gridLayouts.mobile[tabKey]) || Object.keys(layout);
             mobList.forEach((id, idx) => {
               const el = document.getElementById(id);
               if (el) {
@@ -352,12 +352,18 @@ var GridEngine = {
         // ========================================================
         // SISTEMA UNIFICADO DE PERSONALIZACIÓN DEL TABLERO (IN-PLACE)
         // ========================================================
-        safeToast(msg, type) {
+        safeToast(msg, type, duration) {
           if (typeof app !== 'undefined' && typeof app.showToast === 'function') {
-            app.showToast(msg, type);
-          } else if (typeof this.showToast === 'function') {
-            this.showToast(msg, type);
+            app.showToast(msg, type, duration);
+          } else if (typeof window !== 'undefined' && window.app && typeof window.app.showToast === 'function') {
+            window.app.showToast(msg, type, duration);
+          } else {
+            console.log('[Toast ' + (type || 'info') + ']', msg);
           }
+        },
+
+        showToast(msg, type, duration) {
+          this.safeToast(msg, type, duration);
         },
 
         openBlueprintStudio() {
@@ -397,7 +403,7 @@ var GridEngine = {
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
             try { this.renderBoardEditHandles(tabKey); } catch (e) { console.warn('renderBoardEditHandles:', e); }
             try { this.renderWidgetsDrawer(); } catch (e) { console.warn('renderWidgetsDrawer:', e); }
-            this.safeToast('🛠️ Modo Diseño: Ajusta y mueve los cuadros en el tablero.', 'emerald');
+            this.safeToast('Modo Diseño activado: Ajusta y mueve los cuadros en el tablero.', 'emerald');
           } else {
             if (btn) {
               btn.className = 'px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap';
@@ -413,7 +419,10 @@ var GridEngine = {
                 sidebar.classList.add('hidden', 'sidebar-collapsed');
               }
             }
-            if (drawer) drawer.classList.add('hidden');
+            if (drawer) {
+              drawer.classList.remove('open');
+              drawer.classList.add('hidden');
+            }
 
             try { this.removeBoardEditHandles(); } catch (e) { console.warn('removeBoardEditHandles:', e); }
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
@@ -421,7 +430,7 @@ var GridEngine = {
               try { window.WorkspacesManager.mountActiveWorkspace(); } catch (e) { console.warn('mountActiveWorkspace:', e); }
             }
             if (typeof saveState === 'function') saveState();
-            this.safeToast('✅ ¡Diseño del tablero guardado con éxito!', 'emerald');
+            this.safeToast('Diseño del tablero guardado con éxito.', 'emerald');
           }
         },
 
@@ -430,6 +439,7 @@ var GridEngine = {
           const layout = this.getGridLayout(tabKey);
           this.removeBoardEditHandles();
 
+          // Renderizar controles en tarjetas de la cuadrícula
           Object.keys(layout).forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
@@ -453,38 +463,69 @@ var GridEngine = {
 
             bar.innerHTML = `
               <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
-                <span class="text-emerald-400 font-bold text-xs">⠿</span>
+                <span class="text-emerald-400 font-bold text-xs">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="9" cy="5" r="1"/><circle cx="9" cy="12" r="1"/><circle cx="9" cy="19" r="1"/><circle cx="15" cy="5" r="1"/><circle cx="15" cy="12" r="1"/><circle cx="15" cy="19" r="1"/></svg>
+                </span>
                 <span class="font-bold text-white text-[11px] truncate">${cfg.name || id}</span>
                 <span class="px-1.5 py-0.2 rounded bg-emerald-500/20 text-emerald-300 font-mono text-[10px] font-bold">${cfg.colSpan}/12 col · ${cfg.rowSpan || 4}f</span>
               </div>
               <div class="flex items-center gap-1 shrink-0 z-50">
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">-</button>
+                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-stone-200 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">–</button>
                 <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="w-5 h-5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">+</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="px-1.5 py-0.5 rounded border text-[10px] font-bold cursor-pointer transition ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">📌</button>
-                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="px-1.5 py-0.5 rounded border text-[10px] font-bold cursor-pointer transition ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">🗜️</button>
-                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="px-1.5 py-0.5 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white text-[10px] font-bold cursor-pointer">✨</button>
-                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a barra lateral" class="px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 hover:text-white text-[10px] font-bold cursor-pointer">↳ Lateral</button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">✕</button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="Fijar entre ventanas" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isPinned ? 'bg-amber-500 text-slate-950 border-amber-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="p-1 rounded border text-[10px] font-bold cursor-pointer transition flex items-center justify-center ${isCompact ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-800 border-stone-700 text-stone-300'}">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño óptimo (${idealRows} filas)" class="p-1 rounded bg-stone-800 border border-stone-700 text-emerald-400 hover:text-white text-[10px] font-bold cursor-pointer flex items-center justify-center">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="px-1.5 py-0.5 rounded bg-cyan-950/60 border border-cyan-500/40 text-cyan-400 hover:text-white text-[10px] font-bold cursor-pointer flex items-center gap-1">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                  <span>Lateral</span>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del tablero" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
               </div>
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Wireframe técnico para sustituir contenido denso
-            const wireframe = document.createElement('div');
-            wireframe.className = 'board-edit-ctrl-overlay card-blueprint-wireframe';
-            wireframe.innerHTML = `
-              <div class="card-blueprint-wireframe-line" style="width: 80%;"></div>
-              <div class="card-blueprint-wireframe-line" style="width: 55%;"></div>
-              <div class="card-blueprint-wireframe-line" style="width: 90%;"></div>
-            `;
-            el.appendChild(wireframe);
-
             // Asa de redimensión inferior
             const handle = document.createElement('div');
-            handle.className = 'card-resize-handle board-edit-ctrl-overlay';
+            handle.className = 'card-resize-handle resize-b board-edit-ctrl-overlay';
             handle.title = 'Arrastra para cambiar la altura';
             handle.onpointerdown = (e) => this.startCardResize(e, id, 's');
             el.appendChild(handle);
+          });
+
+          // Renderizar controles en tarjetas del panel lateral
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const sidebarCards = (ws && ws.sidebarWidgets) ? ws.sidebarWidgets : [];
+          sidebarCards.forEach(id => {
+            const el = document.getElementById(id);
+            if (!el) return;
+            el.classList.add('card-edit-mode');
+            const bar = document.createElement('div');
+            bar.className = 'board-edit-ctrl-overlay board-edit-header-bar bg-stone-900/90 dark:bg-slate-900/95 border border-cyan-500/70 p-1.5 rounded-xl text-xs flex flex-wrap items-center justify-between gap-1 shadow-md mb-2 z-40 relative select-none';
+            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
+            bar.innerHTML = `
+              <div class="flex items-center gap-1.5 min-w-0 pointer-events-none">
+                <span class="text-cyan-400 font-mono text-[10px] font-bold px-1 rounded bg-cyan-950/80 border border-cyan-800">PANEL</span>
+                <span class="font-bold text-white text-[11px] truncate">${def.name || id}</span>
+              </div>
+              <div class="flex items-center gap-1 shrink-0 z-50">
+                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/40 transition cursor-pointer flex items-center gap-1">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                  <span>Cuadrícula</span>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Quitar del panel" class="w-5 h-5 rounded bg-rose-500/20 border border-rose-500/40 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center font-bold text-xs cursor-pointer">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+            `;
+            el.insertBefore(bar, el.firstChild);
           });
         },
 
@@ -514,7 +555,7 @@ var GridEngine = {
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
           if (typeof saveState === 'function') saveState();
-          this.showToast('Módulo movido a la Barra Lateral.', 'info');
+          this.safeToast('Módulo movido a la Barra Lateral.', 'info');
         },
 
         moveCardFromSidebarToGrid(cardId) {
@@ -546,7 +587,7 @@ var GridEngine = {
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
           if (typeof saveState === 'function') saveState();
-          this.showToast('Módulo devuelto a la Cuadrícula.', 'emerald');
+          this.safeToast('Módulo devuelto a la Cuadrícula.', 'emerald');
         },
 
         snapCardToIdeal(cardId) {
@@ -562,7 +603,7 @@ var GridEngine = {
           this.applyGridLayout();
           this.renderBoardEditHandles();
           if (typeof saveState === 'function') saveState();
-          this.showToast('✨ Módulo ajustado a ' + idealRows + ' filas.', 'emerald');
+          this.safeToast('Módulo ajustado a ' + idealRows + ' filas.', 'emerald');
         },
 
         renderWidgetsDrawer() {
@@ -584,23 +625,25 @@ var GridEngine = {
           const inactiveWidgets = Object.keys(catalog).filter(id => !activeGridIds.has(id) && !activeSidebarIds.has(id) && !activeDockIds.has(id));
 
           drawer.innerHTML = `
-            <div class="flex items-center justify-between pb-2 border-b border-stone-700 mb-2">
+            <div class="flex items-center justify-between pb-2 border-b border-stone-700/60 mb-2">
               <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
                 <span class="font-serif font-bold text-xs text-white">Cajón de Módulos Inactivos (${inactiveWidgets.length} disponibles)</span>
               </div>
-              <button type="button" onclick="document.getElementById('widgetsDrawer').classList.add('hidden')" class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-stone-400 hover:text-white flex items-center justify-center text-xs cursor-pointer">✕</button>
+              <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg bg-slate-800 border border-slate-700 text-stone-400 hover:text-white flex items-center justify-center text-xs cursor-pointer" title="Cerrar cajón">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+              </button>
             </div>
-            <div class="flex flex-wrap items-center gap-2 max-h-36 overflow-y-auto py-1">
+            <div class="flex flex-wrap items-center gap-2 max-h-40 overflow-y-auto py-1">
               ${inactiveWidgets.length === 0 ? '<span class="text-xs text-stone-400 italic">Todos los módulos están activos en el tablero o barra lateral.</span>' : ''}
               ${inactiveWidgets.map(id => {
                 const def = catalog[id] || { name: id, iconSvg: '' };
                 return `
                   <div class="px-2.5 py-1.5 rounded-xl bg-slate-800/90 border border-slate-700 flex items-center gap-2 shadow-xs">
                     <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
-                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[130px]">${def.name}</span>
-                    <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Tablero</button>
-                    <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Lateral</button>
+                    <span class="text-xs font-semibold text-stone-200 truncate max-w-[140px]">${def.name}</span>
+                    <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
+                    <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
                   </div>
                 `;
               }).join('')}
@@ -608,77 +651,7 @@ var GridEngine = {
           `;
 
           drawer.classList.remove('hidden');
-        },
-
-toggleWidgetPin(cardId) {
-          if (window.WorkspacesManager) {
-            window.WorkspacesManager.toggleWidgetPin(cardId);
-            this.showToast('📌 Estado de fijado actualizado para este cuadro.', 'emerald');
-          }
-        },
-
-        toggleCardCompact(cardId) {
-          if (window.PolymorphicCards) {
-            const isComp = window.PolymorphicCards.toggleCompactMode(cardId);
-            this.renderBoardEditHandles();
-            this.showToast(isComp ? '🗜️ Modo Compacto activado.' : '📖 Modo Normal restaurado.', 'indigo');
-          }
-        },
-
-        sendWidgetToDrawer(cardId) {
-          const layout = this.getGridLayout();
-          if (layout && layout[cardId]) {
-            const cardName = layout[cardId].name || cardId;
-            delete layout[cardId];
-            if (window.WidgetsRegistry) {
-              window.WidgetsRegistry.parkWidget(cardId);
-            }
-            this.compactGrid();
-            this.applyGridLayout();
-            this.renderBoardEditHandles();
-            this.renderWidgetsDrawer();
-            if (typeof saveState === 'function') saveState();
-            this.showToast('📦 "' + cardName + '" guardado en el Cajón de Inactivos.', 'indigo');
-          }
-        },
-
-        renderWidgetsDrawer() {
-          const drawer = document.getElementById('widgetsDrawer');
-          const list = document.getElementById('widgetsDrawerList');
-          if (!drawer || !list || !window.WidgetsRegistry) return;
-
-          const layout = this.getGridLayout();
-          const activeIds = new Set(Object.keys(layout || {}));
-          const catalog = window.WidgetsRegistry.getCatalog();
-          const inactiveWidgets = Object.keys(catalog).filter(id => !activeIds.has(id));
-
-          list.innerHTML = '';
-          if (inactiveWidgets.length === 0) {
-            list.innerHTML = '<span class="text-xs text-stone-400 italic py-1">Todos los cuadros disponibles están actualmente colocados en esta ventana.</span>';
-          } else {
-            inactiveWidgets.forEach(id => {
-              const def = catalog[id];
-              const pill = document.createElement('div');
-              pill.className = 'drawer-widget-pill';
-              pill.innerHTML = `
-                <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
-                <span class="truncate">${def.name}</span>
-                <span class="px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 text-[10px] font-bold shrink-0">+ Añadir</span>
-              `;
-              pill.onclick = () => {
-                this.addInactiveWidgetToGrid(id);
-              };
-              list.appendChild(pill);
-            });
-          }
-
-          if (state.ui && state.ui.isBoardEditMode) {
-            drawer.classList.remove('hidden');
-            drawer.classList.add('open');
-          } else {
-            drawer.classList.remove('open');
-            drawer.classList.add('hidden');
-          }
+          drawer.classList.add('open');
         },
 
         closeWidgetsDrawer() {
@@ -687,6 +660,54 @@ toggleWidgetPin(cardId) {
             drawer.classList.remove('open');
             drawer.classList.add('hidden');
           }
+        },
+
+        toggleWidgetPin(cardId) {
+          if (window.WorkspacesManager) {
+            window.WorkspacesManager.toggleWidgetPin(cardId);
+            this.safeToast('Estado de fijado actualizado para este cuadro.', 'emerald');
+          }
+        },
+
+        toggleCompactMode(cardId) {
+          return this.toggleCardCompact(cardId);
+        },
+
+        toggleCardCompact(cardId) {
+          if (window.PolymorphicCards) {
+            const isComp = window.PolymorphicCards.toggleCompactMode(cardId);
+            this.compactGrid();
+            this.applyGridLayout();
+            this.renderBoardEditHandles();
+            this.safeToast(isComp ? 'Modo Compacto activado.' : 'Modo Normal restaurado.', 'indigo');
+            if (typeof saveState === 'function') saveState();
+            return isComp;
+          }
+          return false;
+        },
+
+        sendWidgetToDrawer(cardId) {
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          const layout = this.getGridLayout();
+          let cardName = cardId;
+          if (layout && layout[cardId]) {
+            cardName = layout[cardId].name || cardId;
+            delete layout[cardId];
+          }
+          if (ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(cardId)) {
+            ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== cardId);
+          }
+          if (window.WidgetsRegistry) {
+            const def = window.WidgetsRegistry.getWidgetDef(cardId);
+            if (def) cardName = def.name;
+            window.WidgetsRegistry.parkWidget(cardId);
+          }
+          this.compactGrid();
+          this.applyGridLayout();
+          this.renderBoardEditHandles();
+          this.renderWidgetsDrawer();
+          if (typeof saveState === 'function') saveState();
+          this.safeToast('Módulo "' + cardName + '" guardado en el Cajón de Inactivos.', 'indigo');
         },
 
         addInactiveWidgetToGrid(widgetId) {
@@ -720,7 +741,7 @@ toggleWidgetPin(cardId) {
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
           if (typeof saveState === 'function') saveState();
-          this.showToast('✨ Cuadro "' + def.name + '" añadido al tablero.', 'emerald');
+          this.showToast('Cuadro "' + def.name + '" añadido al tablero.', 'emerald');
         },
         resetCardManualHeight(cardId) {
           const tabKey = 'tab' + (state.activeTab || 1);
@@ -728,7 +749,7 @@ toggleWidgetPin(cardId) {
           if (!layout[cardId]) return;
           layout[cardId].manualRows = null;
           this.compactGrid(tabKey);
-          this.showToast('⟲ Tarjeta auto-ceñida a su contenido.', 'emerald');
+          this.safeToast('Tarjeta auto-ceñida a su contenido.', 'emerald');
         },
 
         // REGLA "A MÁS ANCHO, MENOS ALTO": AL CAMBIAR COLSPAN, RECALCULA MINROWS AUTOMÁTICAMENTE
@@ -1041,6 +1062,7 @@ toggleWidgetPin(cardId) {
               let targetRows = Math.max(liveMinRows, origRowSpan + deltaRows);
 
               // Imán elástico sutil (micro-snap solo si la distancia en píxeles es <= 4px)
+              const currentHeight = cardRect.height + dy;
               const idealHeightPx = (liveIdealRows * 40) + ((liveIdealRows - 1) * 12);
               if (Math.abs(currentHeight - idealHeightPx) <= 4) {
                 targetRows = liveIdealRows;
@@ -1072,7 +1094,7 @@ toggleWidgetPin(cardId) {
             const pct = Math.round((finalColSpan / 12) * 100);
             const isOptimal = (finalRowSpan === liveIdealRows);
             if (badge) {
-              const optimalBadge = isOptimal ? '✨ Tamaño Óptimo · ' : '';
+              const optimalBadge = isOptimal ? '[Óptimo] ' : '';
               badge.textContent = (cfg.name || cardId) + ' → ' + optimalBadge + pct + '% (' + finalColSpan + '/12 cols) · ' + finalRowSpan + ' filas';
             }
           };
@@ -1179,7 +1201,7 @@ toggleWidgetPin(cardId) {
           this.applyGridLayout(tabKey);
           this.toggleBoardEdit(tabKey);
           saveState();
-          this.showToast('✅ ¡Diseño de cuadrícula 12×H guardado con éxito!', 'emerald');
+          this.showToast('Diseño de cuadrícula 12×H guardado con éxito.', 'emerald');
         },
 
         cancelBoardDesign() {
@@ -1284,7 +1306,7 @@ toggleWidgetPin(cardId) {
             state.uiPreferences.density = 'compact';
             state.uiPreferences.kpisCollapsed = true;
             state.ui.weekTableCollapsed = true;
-            this.showToast('🎯 Modo Enfoque activado: Máxima concentración en lo de hoy.', 'info', 1800);
+            this.showToast('Modo Enfoque activado: Máxima concentración en lo de hoy.', 'info', 1800);
           } else if (presetKey === 'balanced') {
             state.uiPreferences.showSystemBanners = true;
             state.uiPreferences.showOverdueAlert = true;
@@ -1317,7 +1339,7 @@ toggleWidgetPin(cardId) {
             state.uiPreferences.density = 'cozy';
             state.uiPreferences.kpisCollapsed = true;
             state.ui.weekTableCollapsed = false;
-            this.showToast('⚖️ Modo Equilibrado activado: Hoy y Matriz lado a lado.', 'info', 1800);
+            this.showToast('Modo Equilibrado activado: Hoy y Matriz lado a lado.', 'info', 1800);
           } else if (presetKey === 'pro') {
             state.uiPreferences.showSystemBanners = true;
             state.uiPreferences.showOverdueAlert = true;
@@ -1350,7 +1372,7 @@ toggleWidgetPin(cardId) {
             state.uiPreferences.density = 'cozy';
             state.uiPreferences.kpisCollapsed = false;
             state.ui.weekTableCollapsed = false;
-            this.showToast('📊 Modo Mucha Info activado: Todas las métricas y paneles visibles.', 'info', 1800);
+            this.showToast('Modo Mucha Info activado: Todas las métricas y paneles visibles.', 'info', 1800);
           }
           this.applyUiPreferences();
           renderDailyHabits();

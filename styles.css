@@ -1174,28 +1174,74 @@
       box-shadow: 0 12px 36px rgba(0, 0, 0, 0.4), 0 0 18px rgba(16, 185, 129, 0.3) !important;
     }
 
-    /* Ocultar contenido denso del cuerpo en modo edición para evitar saturación y desbordamientos */
-    .board-edit-active .editorial-card > *:not(.board-edit-header-bar):not(.board-edit-ctrl-overlay):not(.card-resize-handle):not(.card-drag-shield):not(.card-blueprint-wireframe):not(div:first-child) {
-      display: none !important;
+    /* ESTILO TÉCNICO SOBRIO DE RECUADROS INTERIORES EN MODO EDICIÓN */
+    .board-edit-active .editorial-card [id$="ListContainer"] > *,
+    .board-edit-active .editorial-card .habit-row,
+    .board-edit-active .editorial-card table tr,
+    .board-edit-active .editorial-card .subpanel-bg,
+    .board-edit-active .editorial-card .list-card,
+    .board-edit-active .editorial-card .dashboard-kpi-pill,
+    .board-edit-active .editorial-card .p-3.rounded-2xl.border,
+    .board-edit-active .editorial-card .p-2\.5.rounded-xl.border {
+      color: transparent !important;
+      user-select: none !important;
+      pointer-events: none !important;
+      border-color: rgba(16, 185, 129, 0.28) !important;
+      background: rgba(16, 185, 129, 0.06) !important;
+      border-radius: 8px !important;
+      min-height: 28px !important;
+      position: relative !important;
     }
-
-    .card-blueprint-wireframe {
-      display: flex;
-      flex-direction: column;
-      gap: 8px;
-      padding: 12px 6px;
-      opacity: 0.7;
-      pointer-events: none;
+    .board-edit-active .editorial-card [id$="ListContainer"] > *::before,
+    .board-edit-active .editorial-card .habit-row::before,
+    .board-edit-active .editorial-card table tr::before {
+      content: '';
+      position: absolute;
+      left: 8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 45%;
+      height: 5px;
+      border-radius: 3px;
+      background: rgba(16, 185, 129, 0.25);
     }
-    .card-blueprint-wireframe-line {
-      height: 8px;
-      background: linear-gradient(90deg, rgba(16, 185, 129, 0.28), rgba(16, 185, 129, 0.06));
-      border-radius: 4px;
+    .board-edit-active .editorial-card p,
+    .board-edit-active .editorial-card span:not(.font-mono):not(.vector-seal),
+    .board-edit-active .editorial-card h3,
+    .board-edit-active .editorial-card h4 {
+      color: transparent !important;
+      text-shadow: none !important;
+    }
+    .board-edit-active .board-edit-ctrl-overlay,
+    .board-edit-active .board-edit-ctrl-overlay * {
+      color: inherit !important;
+      text-shadow: none !important;
     }
 
     .board-edit-header-bar {
       position: relative;
       z-index: 50;
+    }
+
+    .card-resize-handle.resize-b {
+      bottom: -6px;
+      left: 12px;
+      right: 12px;
+      height: 16px;
+      cursor: ns-resize;
+      z-index: 60 !important;
+    }
+    .card-resize-handle.resize-b::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: 54px;
+      height: 6px;
+      background: #10b981;
+      border-radius: 9999px;
+      box-shadow: 0 0 10px rgba(16, 185, 129, 0.7);
     }
 
     /* Barra Lateral en modo edición */
@@ -1217,7 +1263,12 @@
       border-top: 2px solid #10b981;
       box-shadow: 0 -10px 40px rgba(0, 0, 0, 0.6);
       padding: 1rem 1.5rem;
+      transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    #widgetsDrawer.open {
+      transform: translateY(0) !important;
+      display: block !important;
     }
     #widgetsDrawer.hidden {
       display: none !important;

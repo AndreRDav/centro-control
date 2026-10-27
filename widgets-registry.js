@@ -306,7 +306,7 @@ const WidgetsRegistry = (function() {
     // Monta un widget en un contenedor de destino mediante reparenting fluido
     mountWidget(widgetId, targetContainer, options = {}) {
       const el = document.getElementById(widgetId);
-      if (!el || !targetContainer) return false;
+      if (!el || !targetContainer) return null;
 
       el.classList.remove('widget-parked-inert');
       if (el.parentElement !== targetContainer) {
@@ -316,7 +316,7 @@ const WidgetsRegistry = (function() {
       if (options.className) {
         el.className = options.className;
       }
-      return true;
+      return el;
     },
 
     // Determina dónde está físicamente montado el widget

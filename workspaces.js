@@ -244,8 +244,9 @@ const WorkspacesManager = (function() {
         if (typeof app !== 'undefined' && app.applyGridLayout) {
           app.applyGridLayout();
         }
-        if (typeof app !== 'undefined' && state.ui && state.ui.isBoardEditMode && app.renderBoardEditHandles) {
-          app.renderBoardEditHandles();
+        if (typeof app !== 'undefined' && state.ui && state.ui.isBoardEditMode) {
+          if (typeof app.renderBoardEditHandles === 'function') app.renderBoardEditHandles();
+          if (typeof app.renderWidgetsDrawer === 'function') app.renderWidgetsDrawer();
         }
         if (typeof saveState === 'function') saveState();
       };
@@ -438,4 +439,7 @@ const WorkspacesManager = (function() {
 
 if (typeof window !== 'undefined') {
   window.WorkspacesManager = WorkspacesManager;
+}
+if (typeof global !== 'undefined') {
+  global.WorkspacesManager = WorkspacesManager;
 }
