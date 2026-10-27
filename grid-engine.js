@@ -30,7 +30,10 @@ var GridEngine = {
               tab4BiometricsSection: 8,
               tab4EvolutionSection: 12
             };
-            return fallbackMins[cardEl.id] || 4;
+            const normalFallback = fallbackMins[cardEl.id] || 4;
+            return cardEl.classList.contains('card-mode-compact')
+              ? Math.max(2, Math.round(normalFallback * 0.45))
+              : normalFallback;
           }
 
           // Guardar temporalmente estilos inline
@@ -414,6 +417,12 @@ var GridEngine = {
               const el = document.getElementById(id);
               if (el) {
                 const cfg = layout[id];
+                // Sincronizar clase card-mode-compact según estado del bloque
+                if (cfg.compact) {
+                  el.classList.add('card-mode-compact');
+                } else {
+                  el.classList.remove('card-mode-compact');
+                }
                 // Calcular filas mínimas según contenido vivo
                 const minReq = this.measureNaturalRows(el);
                 if (minReq > 0) cfg.minRows = minReq;
@@ -1089,24 +1098,32 @@ var GridEngine = {
         },
 
         toggleCardCompact(cardId) {
+          const el = document.getElementById(cardId);
           if (window.PolymorphicCards) {
             const isComp = window.PolymorphicCards.toggleCompactMode(cardId);
+            if (el) {
+              if (isComp) el.classList.add('card-mode-compact');
+              else el.classList.remove('card-mode-compact');
+            }
             const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
             if (ws && ws.grid && ws.grid[cardId]) {
               const cfg = ws.grid[cardId];
+              cfg.compact = isComp;
               if (isComp) {
-                const compactRows = Math.max(3, Math.ceil((cfg.minRows || 6) * 0.65));
+                const liveCompRows = this.measureNaturalRows(el);
+                const compactRows = Math.max(2, liveCompRows);
                 cfg.rowSpan = compactRows;
                 cfg.manualRows = compactRows;
               } else {
-                cfg.rowSpan = cfg.minRows || 8;
+                const liveNormRows = this.measureNaturalRows(el);
+                cfg.rowSpan = Math.max(3, liveNormRows);
                 cfg.manualRows = null;
               }
             }
             this.compactGrid();
             this.applyGridLayout();
             this.renderBoardEditHandles();
-            this.safeToast(isComp ? 'Modo Compacto activado: espacio economizado.' : 'Modo Normal restaurado.', 'indigo');
+            this.safeToast(isComp ? 'Modo Compacto activado: micro-cuadrícula acoplada (espacio economizado).' : 'Modo Normal restaurado.', 'emerald');
             if (typeof saveState === 'function') saveState();
             return isComp;
           }

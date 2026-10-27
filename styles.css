@@ -1620,85 +1620,388 @@
     }
 
     /* ========================================================
-       MODO COMPACTO REAL SOBRE TARJETAS VIVAS Y ACOPLE DE SUBPANELES
+       MODO COMPACTO UNIVERSAL: ACOPLE REAL EN MICRO-CUADRÍCULAS
+       Aplica una compresión y acople de subsecciones en TODOS los bloques
        ======================================================== */
-    .editorial-card.card-mode-compact .academic-card {
-      padding: 0.5rem !important;
-      gap: 0.25rem !important;
-    }
-    .editorial-card.card-mode-compact .academic-card .academic-header-line {
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-      padding-bottom: 0.25rem !important;
-      border-bottom: 1px solid var(--color-border) !important;
-    }
-    .editorial-card.card-mode-compact .academic-card .academic-classes-grid {
-      display: grid !important;
-      grid-template-columns: repeat(auto-fit, minmax(95px, 1fr)) !important;
-      gap: 0.25rem !important;
-      padding: 0.25rem 0 !important;
-    }
-    .editorial-card.card-mode-compact .academic-card .academic-classes-grid button {
-      padding: 0.25rem 0.35rem !important;
-      min-height: 22px !important;
-      font-size: 0.6875rem !important;
-      border-radius: 0.375rem !important;
-      display: flex !important;
-      align-items: center !important;
-      justify-content: space-between !important;
-    }
-    .editorial-card.card-mode-compact .academic-card .academic-footer-line {
-      display: none !important;
-    }
-    .editorial-card.card-mode-compact .compact-inline {
-      display: inline-block !important;
-    }
 
-    .editorial-card.card-mode-compact .gym-card,
-    .editorial-card.card-mode-compact .run-card,
-    .editorial-card.card-mode-compact .study-card {
-      padding: 0.45rem 0.6rem !important;
-      gap: 0.25rem !important;
-    }
-
-    /* ========================================================
-       MODO COMPACTO REAL SOBRE TARJETAS VIVAS
-       ======================================================== */
+    /* Reglas universales para cualquier tarjeta en modo compacto */
     .editorial-card.card-mode-compact {
-      padding: 0.625rem 0.875rem !important;
-      gap: 0.375rem !important;
+      padding: 0.5rem 0.75rem !important;
+      gap: 0.35rem !important;
     }
     .editorial-card.card-mode-compact .compact-hide,
     .editorial-card.card-mode-compact .blueprint-dots,
     .editorial-card.card-mode-compact p.text-stone-500,
     .editorial-card.card-mode-compact p.text-slate-400,
     .editorial-card.card-mode-compact span.text-stone-500,
-    .editorial-card.card-mode-compact span.text-slate-400:not(.badge-keep) {
+    .editorial-card.card-mode-compact span.text-slate-400:not(.badge-keep),
+    .editorial-card.card-mode-compact .emoji-sticker {
       display: none !important;
     }
+    .editorial-card.card-mode-compact .compact-inline {
+      display: inline-block !important;
+    }
     .editorial-card.card-mode-compact h2,
-    .editorial-card.card-mode-compact h3 {
+    .editorial-card.card-mode-compact h3,
+    .editorial-card.card-mode-compact h4 {
       font-size: 0.8125rem !important;
       line-height: 1.15 !important;
     }
     .editorial-card.card-mode-compact .vector-seal {
-      width: 1.5rem !important;
-      height: 1.5rem !important;
-      min-width: 1.5rem !important;
+      width: 1.35rem !important;
+      height: 1.35rem !important;
+      min-width: 1.35rem !important;
     }
     .editorial-card.card-mode-compact .vector-seal svg {
       width: 0.75rem !important;
       height: 0.75rem !important;
     }
-    .editorial-card.card-mode-compact table th,
-    .editorial-card.card-mode-compact table td {
-      padding: 0.2rem 0.4rem !important;
+
+    /* 1. MÓDULO DE HOY (todayFocusContainer) */
+    .editorial-card.card-mode-compact #todayFocusContent {
+      gap: 0.35rem !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    /* Barra de progreso de objetivos hoy: acoplada en 1 fila delgada */
+    .editorial-card.card-mode-compact #todayFocusContent > div.p-3\.5,
+    .editorial-card.card-mode-compact #todayFocusContent > div.subpanel-bg.p-3\.5 {
+      padding: 0.35rem 0.6rem !important;
+      gap: 0.35rem !important;
+      border-radius: 0.75rem !important;
+    }
+    /* Selector de días Lun-Dom */
+    .editorial-card.card-mode-compact [id^="mobileDayBtn_"] {
+      padding: 0.15rem 0.25rem !important;
+      font-size: 0.625rem !important;
+    }
+    /* Asistencia a clases hoy: acoplada en micro-grid */
+    .editorial-card.card-mode-compact .academic-card {
+      padding: 0.4rem 0.6rem !important;
+      gap: 0.25rem !important;
+      border-radius: 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact .academic-card .academic-header-line {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding-bottom: 0.2rem !important;
+      margin-bottom: 0.2rem !important;
+      border-bottom: 1px solid var(--color-border) !important;
+    }
+    .editorial-card.card-mode-compact .academic-card .academic-classes-grid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(90px, 1fr)) !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card.card-mode-compact .academic-card .academic-classes-grid button {
+      padding: 0.2rem 0.35rem !important;
+      min-height: 22px !important;
+      font-size: 0.6875rem !important;
+      border-radius: 0.375rem !important;
+    }
+    .editorial-card.card-mode-compact .academic-card .academic-footer-line {
+      display: none !important;
+    }
+    /* Gimnasio, Running y Estudio hoy: acoplados en filas delgadas */
+    .editorial-card.card-mode-compact .gym-card,
+    .editorial-card.card-mode-compact .run-card,
+    .editorial-card.card-mode-compact .study-card,
+    .editorial-card.card-mode-compact #todayFocusContent .subpanel-bg.p-3 {
+      padding: 0.35rem 0.6rem !important;
+      border-radius: 0.75rem !important;
+      gap: 0.25rem !important;
+    }
+    /* Hábitos personalizados en Hoy: acoplados en micro-cuadrícula */
+    .editorial-card.card-mode-compact #todayFocusContent .habit-row,
+    .editorial-card.card-mode-compact #todayFocusContent .subpanel-bg.habit-row {
+      min-height: 22px !important;
+      padding: 0.2rem 0.45rem !important;
+      font-size: 0.6875rem !important;
+      border-radius: 0.375rem !important;
+    }
+
+    /* 2. LISTAS, TAREAS Y NOTAS (interactiveListsPanel) */
+    .editorial-card.card-mode-compact#interactiveListsPanel,
+    .editorial-card.card-mode-compact #interactiveListsPanel {
+      padding: 0.5rem 0.75rem !important;
+    }
+    /* Pestañas de listas en micro-barra horizontal */
+    .editorial-card.card-mode-compact #interactiveListsPanel .grid-cols-4 {
+      padding: 0.15rem !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card.card-mode-compact #interactiveListsPanel .grid-cols-4 button {
+      padding: 0.2rem 0.3rem !important;
+      font-size: 0.6875rem !important;
+      border-radius: 0.375rem !important;
+    }
+    /* Controles de ordenación y selección compactos */
+    .editorial-card.card-mode-compact #interactiveListsPanel .flex.flex-wrap.items-center.justify-between.gap-1.text-\[10px\] {
+      font-size: 0.625rem !important;
+      padding: 0.1rem 0 !important;
+    }
+    /* Dropzone raíz oculto en compacto para ahorrar espacio */
+    .editorial-card.card-mode-compact #listRootDropZone {
+      display: none !important;
+    }
+    /* Tareas y notas en micro-filas de 22px */
+    .editorial-card.card-mode-compact #interactiveListsPanel [id$="ListContainer"] > *,
+    .editorial-card.card-mode-compact #interactiveListsPanel .list-card {
+      min-height: 24px !important;
+      padding: 0.2rem 0.45rem !important;
+      gap: 0.35rem !important;
+      margin-bottom: 0.2rem !important;
+      border-radius: 0.375rem !important;
+      font-size: 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #interactiveListsPanel input[type="checkbox"] {
+      width: 13px !important;
+      height: 13px !important;
+    }
+
+    /* 3. CALENDARIO & EVENTOS (notesMiniCalendarPanel) */
+    .editorial-card.card-mode-compact #notesMiniCalendarPanel,
+    .editorial-card.card-mode-compact#notesMiniCalendarPanel {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #notesMiniCalendarPanel table th {
+      padding: 0.1rem 0 !important;
+      font-size: 0.625rem !important;
+    }
+    .editorial-card.card-mode-compact #notesMiniCalendarPanel table td,
+    .editorial-card.card-mode-compact #notesMiniCalendarPanel .calendar-day-btn {
+      height: 1.45rem !important;
+      min-height: 1.45rem !important;
+      font-size: 0.6875rem !important;
+      padding: 0 !important;
+    }
+    .editorial-card.card-mode-compact #notesMiniCalendarPanel #calendarSelectedEventsList {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 0.25rem !important;
+      max-height: 60px !important;
+      overflow-y: auto !important;
+    }
+
+    /* 4. MOVIMIENTOS RECIENTES (tab1RecentExpensesBar) */
+    .editorial-card.card-mode-compact #tab1RecentExpensesBar,
+    .editorial-card.card-mode-compact#tab1RecentExpensesBar {
+      padding: 0.35rem 0.65rem !important;
+    }
+    .editorial-card.card-mode-compact #tab1RecentExpensesBar #recentExpensesList {
+      display: flex !important;
+      flex-wrap: nowrap !important;
+      overflow-x: auto !important;
+      gap: 0.35rem !important;
+      padding: 0.2rem 0 !important;
+    }
+    .editorial-card.card-mode-compact #tab1RecentExpensesBar #recentExpensesList > * {
+      flex-shrink: 0 !important;
+      padding: 0.15rem 0.45rem !important;
+      font-size: 0.6875rem !important;
+      font-family: var(--font-mono) !important;
+      border-radius: 0.375rem !important;
+      white-space: nowrap !important;
+    }
+
+    /* 5. MATRIZ SEMANAL DE HÁBITOS (weekTableContainer) */
+    .editorial-card.card-mode-compact #weekTableContainer,
+    .editorial-card.card-mode-compact#weekTableContainer {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #weekTableContainer table th {
+      padding: 0.15rem 0.25rem !important;
+      font-size: 0.625rem !important;
+    }
+    .editorial-card.card-mode-compact #weekTableContainer table td {
+      padding: 0.15rem 0.25rem !important;
       font-size: 0.6875rem !important;
     }
-    .editorial-card.card-mode-compact .space-y-4,
-    .editorial-card.card-mode-compact .space-y-3.5,
-    .editorial-card.card-mode-compact .space-y-3 {
-      margin-top: 0.25rem !important;
+    .editorial-card.card-mode-compact #weekTableContainer input[type="checkbox"] {
+      width: 13px !important;
+      height: 13px !important;
+    }
+
+    /* 6. PLANTILLA DE METAS Y HÁBITOS (tab2ModularHabitsSection) */
+    .editorial-card.card-mode-compact #tab2ModularHabitsSection,
+    .editorial-card.card-mode-compact#tab2ModularHabitsSection {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2ModularHabitsSection #tab2GoalsGrid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) !important;
+      gap: 0.35rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2ModularHabitsSection .subpanel-bg.rounded-2xl {
+      padding: 0.35rem 0.55rem !important;
+      gap: 0.25rem !important;
+      border-radius: 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2ModularHabitsSection input[type="number"],
+    .editorial-card.card-mode-compact #tab2ModularHabitsSection select {
+      padding: 0.15rem 0.35rem !important;
+      font-size: 0.75rem !important;
+    }
+
+    /* 7. HORARIO DE ESTUDIO (tab2ScheduleSection) */
+    .editorial-card.card-mode-compact #tab2ScheduleSection,
+    .editorial-card.card-mode-compact#tab2ScheduleSection {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2ScheduleSection #scheduleDaysContainer {
+      display: grid !important;
+      grid-template-columns: repeat(7, 1fr) !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2ScheduleSection .schedule-day-column {
+      padding: 0.25rem 0.2rem !important;
+      min-height: 50px !important;
+      border-radius: 0.5rem !important;
+    }
+
+    /* 8. REGLAS DE ASISTENCIA Y CLASES (tab2AttendanceRulesSection) */
+    .editorial-card.card-mode-compact #tab2AttendanceRulesSection,
+    .editorial-card.card-mode-compact#tab2AttendanceRulesSection {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab2AttendanceRulesSection .attendance-rule-row {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 0.2rem 0.4rem !important;
+      font-size: 0.6875rem !important;
+      min-height: 22px !important;
+    }
+
+    /* 9. PRESUPUESTO SEMANAL (tab3BudgetConfigCard) */
+    .editorial-card.card-mode-compact #tab3BudgetConfigCard,
+    .editorial-card.card-mode-compact#tab3BudgetConfigCard {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3BudgetConfigCard .budget-slider-row,
+    .editorial-card.card-mode-compact #tab3BudgetConfigCard .subpanel-bg.rounded-xl {
+      padding: 0.25rem 0.45rem !important;
+      min-height: 24px !important;
+      gap: 0.35rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3BudgetConfigCard input[type="range"] {
+      display: none !important;
+    }
+
+    /* 10. METAS DE AHORRO (tab3SavingsGoalsCard) */
+    .editorial-card.card-mode-compact #tab3SavingsGoalsCard,
+    .editorial-card.card-mode-compact#tab3SavingsGoalsCard {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3SavingsGoalsCard #tab3GoalsList {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)) !important;
+      gap: 0.35rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3SavingsGoalsCard #tab3GoalsList > * {
+      padding: 0.3rem 0.45rem !important;
+      gap: 0.2rem !important;
+    }
+
+    /* 11. HUCHA GLOBAL (tab3PiggyCard) */
+    .editorial-card.card-mode-compact #tab3PiggyCard,
+    .editorial-card.card-mode-compact#tab3PiggyCard {
+      padding: 0.35rem 0.65rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3PiggyCard .piggy-content {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 0.5rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3PiggyCard .piggy-amount {
+      font-size: 1.15rem !important;
+      font-family: var(--font-mono) !important;
+    }
+
+    /* 12. GASTOS FIJOS MENSUALES (tab3FixedExpensesCard) */
+    .editorial-card.card-mode-compact #tab3FixedExpensesCard,
+    .editorial-card.card-mode-compact#tab3FixedExpensesCard {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3FixedExpensesCard #tab3FixedExpensesList {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3FixedExpensesCard #tab3FixedExpensesList > * {
+      padding: 0.2rem 0.4rem !important;
+      font-size: 0.6875rem !important;
+      min-height: 22px !important;
+    }
+
+    /* 13. TABLA DE GASTOS DETALLADA (tab3ExpensesTableCard) */
+    .editorial-card.card-mode-compact #tab3ExpensesTableCard,
+    .editorial-card.card-mode-compact#tab3ExpensesTableCard {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3ExpensesTableCard table th {
+      padding: 0.15rem 0.3rem !important;
+      font-size: 0.625rem !important;
+    }
+    .editorial-card.card-mode-compact #tab3ExpensesTableCard table td {
+      padding: 0.15rem 0.3rem !important;
+      font-size: 0.6875rem !important;
+    }
+
+    /* 14. PANEL DE 4 KPIS MAESTROS (kpiGridContainer) */
+    .editorial-card.card-mode-compact#kpiGridContainer,
+    .editorial-card.card-mode-compact #kpiGridContainer {
+      padding: 0.35rem 0.5rem !important;
+    }
+    .editorial-card.card-mode-compact#kpiGridContainer .dashboard-kpi-pill,
+    .editorial-card.card-mode-compact #kpiGridContainer .dashboard-kpi-pill {
+      padding: 0.3rem 0.5rem !important;
+      height: 46px !important;
+      min-height: 46px !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+    }
+    .editorial-card.card-mode-compact#kpiGridContainer .dashboard-kpi-pill .font-black,
+    .editorial-card.card-mode-compact #kpiGridContainer .dashboard-kpi-pill .font-black {
+      font-size: 0.875rem !important;
+    }
+
+    /* 15. AUDITORÍA, BIOMETRÍA Y HISTÓRICO (tab4 / tab5) */
+    .editorial-card.card-mode-compact #tab4StudyAuditSection,
+    .editorial-card.card-mode-compact #tab4CustomHabitsSection,
+    .editorial-card.card-mode-compact #tab4BiometricsSection,
+    .editorial-card.card-mode-compact #tab4EvolutionSection {
+      padding: 0.5rem 0.75rem !important;
+    }
+    .editorial-card.card-mode-compact #tab4StudySubjectsGrid,
+    .editorial-card.card-mode-compact #tab4CustomHabitsGrid,
+    .editorial-card.card-mode-compact #historyWeeksList {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)) !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card.card-mode-compact #tab4StudySubjectsGrid > *,
+    .editorial-card.card-mode-compact #tab4CustomHabitsGrid > *,
+    .editorial-card.card-mode-compact #historyWeeksList > * {
+      padding: 0.2rem 0.4rem !important;
+      font-size: 0.6875rem !important;
+      min-height: 24px !important;
+    }
+
+    /* HITBOXES EN MODO EDICIÓN BLUEPRINT PARA CUALQUIER RECUADRO COMPACTO */
+    .board-edit-active .editorial-card.card-mode-compact [id$="ListContainer"] > *,
+    .board-edit-active .editorial-card.card-mode-compact .habit-row,
+    .board-edit-active .editorial-card.card-mode-compact table tr,
+    .board-edit-active .editorial-card.card-mode-compact .rounded-2xl.border,
+    .board-edit-active .editorial-card.card-mode-compact .rounded-xl.border,
+    .board-edit-active .editorial-card.card-mode-compact .dashboard-kpi-pill,
+    .board-edit-active .editorial-card.card-mode-compact .subpanel-bg {
+      min-height: 18px !important;
+      margin-bottom: 2px !important;
+      border-radius: 4px !important;
+      padding: 2px !important;
     }
 
