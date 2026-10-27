@@ -298,7 +298,15 @@ const WorkspacesManager = (function() {
 
       // Monta cada widget en el grid
       activeIds.forEach(widgetId => {
-        window.WidgetsRegistry.mountWidget(widgetId, gridContainer);
+        const el = window.WidgetsRegistry.mountWidget(widgetId, gridContainer);
+        if (el) {
+          const cfg = activeWidgets[widgetId];
+          if (cfg && cfg.compact) {
+            el.classList.add('card-mode-compact');
+          } else {
+            el.classList.remove('card-mode-compact');
+          }
+        }
       });
 
       // Monta widgets en la barra lateral (si los hay)
@@ -408,6 +416,16 @@ const WorkspacesManager = (function() {
           } else if (k === 'b') {
             e.preventDefault();
             if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
+          } else if (k === 'd') {
+            e.preventDefault();
+            if (typeof app !== 'undefined') {
+              const modal = document.getElementById('blueprintStudioModal');
+              if (modal && !modal.classList.contains('hidden')) {
+                if (app.closeBlueprintStudio) app.closeBlueprintStudio();
+              } else {
+                if (app.openBlueprintStudio) app.openBlueprintStudio();
+              }
+            }
           }
         }
       });
