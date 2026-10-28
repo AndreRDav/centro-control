@@ -108,30 +108,13 @@ const PolymorphicCards = (function() {
       return Math.max(2, calculated);
     },
 
-    // Aplica justificado vertical para evitar huecos vacíos
+    // Aplica distribución vertical armónica cuando una tarjeta tiene altura extra
     applyVerticalJustification(cardEl, hasExtraHeight) {
       if (!cardEl) return;
-      const cardType = cardEl.getAttribute('data-widget-type') || '';
-      const isListCard = cardEl.id === 'interactiveListsPanel' || cardEl.id === 'tab3ExpensesTableCard';
-
-      if (isListCard) {
-        // En tarjetas de listas, el espacio extra expande el scroll útil
-        const scrollArea = cardEl.querySelector('.overflow-y-auto');
-        if (scrollArea) {
-          scrollArea.style.maxHeight = hasExtraHeight ? 'calc(100% - 60px)' : '';
-        }
+      if (hasExtraHeight) {
+        cardEl.classList.add('card-has-extra-height');
       } else {
-        // En tarjetas de bloques, reparte equitativamente las secciones
-        const contentBox = cardEl.querySelector('.editorial-card-content') || cardEl;
-        if (hasExtraHeight) {
-          contentBox.style.display = 'flex';
-          contentBox.style.flexDirection = 'column';
-          contentBox.style.justifyContent = 'space-between';
-        } else {
-          contentBox.style.display = '';
-          contentBox.style.flexDirection = '';
-          contentBox.style.justifyContent = '';
-        }
+        cardEl.classList.remove('card-has-extra-height');
       }
     }
   };

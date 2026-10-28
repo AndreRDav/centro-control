@@ -60,9 +60,10 @@ const WorkspacesManager = (function() {
       order: 4,
       grid: {
         tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
-        tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
-        tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
-        tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, rowSpan: 12, isPinned: false, compact: false }
+        tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
+        tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false },
+        tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
+        tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, rowSpan: 12, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []

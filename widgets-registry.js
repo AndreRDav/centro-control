@@ -234,20 +234,35 @@ const WidgetsRegistry = (function() {
       polymorphic: false,
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>'
     },
-    tab4BiometricsSection: {
-      id: 'tab4BiometricsSection',
-      name: 'Biometría y Salud',
+    tab4AnatomyCard: {
+      id: 'tab4AnatomyCard',
+      name: 'Mapa Muscular Anatómico',
       category: 'performance',
-      shortcut: 'X',
-      allowedZones: ['grid', 'sidebar'],
+      shortcut: 'M',
+      allowedZones: ['grid', 'sidebar', 'dock'],
       defaultZone: 'grid',
       minRows: 6,
       idealRows: 8,
       defaultColSpan: 6,
-      minColSpan: 6,
+      minColSpan: 3,
       supportsCompact: true,
       polymorphic: false,
-      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>'
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path><path d="M6 10v6a6 6 0 0 0 12 0v-6"></path></svg>'
+    },
+    tab4RunningRadarCard: {
+      id: 'tab4RunningRadarCard',
+      name: 'Tri-Sistema Running y Pista',
+      category: 'performance',
+      shortcut: 'R',
+      allowedZones: ['grid', 'sidebar', 'dock'],
+      defaultZone: 'grid',
+      minRows: 6,
+      idealRows: 8,
+      defaultColSpan: 6,
+      minColSpan: 3,
+      supportsCompact: true,
+      polymorphic: false,
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>'
     },
     tab4EvolutionSection: {
       id: 'tab4EvolutionSection',

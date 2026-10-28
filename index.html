@@ -38,7 +38,7 @@
   </script>
   <link rel="stylesheet" href="styles.css" />
 </head>
-<body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white pb-24 sm:pb-16 transition-colors duration-200">
+<body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
   <div id="boardEditToolbar" class="hidden fixed top-3 left-1/2 -translate-x-1/2 z-[9999] max-w-5xl w-[96%] sm:w-auto bg-stone-100/95 dark:bg-slate-900/95 text-stone-900 dark:text-stone-100 border-2 border-emerald-600 dark:border-emerald-500 rounded-2xl shadow-2xl p-2 sm:px-4 sm:py-2 flex flex-wrap items-center justify-between gap-2.5 backdrop-blur-md text-xs select-none">
     <div class="flex items-center gap-2">
@@ -2987,7 +2987,7 @@
     </button>
 
     <!-- COLUMNA DERECHA PRINCIPAL: VIEWPORT DE LA APP -->
-    <div id="appMainViewport" class="flex-1 min-w-0 w-full p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
+    <div id="appMainViewport" class="flex-1 min-w-0 w-full max-w-[1700px] mx-auto p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
 
     <!-- CABECERA PRINCIPAL -->
     <header id="mainAppHeader" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-2 z-40 backdrop-blur-md">
@@ -4144,77 +4144,74 @@
         </div>
       </div>
 
-      <!-- MAPA MUSCULAR ANATÓMICO SVG ULTRA-DETALLADO (Frontal y Posterior) + RADAR TRI-SISTEMA -->
-      <div id="tab4BiometricsSection" class="grid grid-cols-1 lg:grid-cols-12 gap-3">
-        <!-- Mapa Muscular Anatómico Siluetas -->
-        <div class="lg:col-span-7 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
+      <!-- MAPA MUSCULAR ANATÓMICO SVG ULTRA-DETALLADO (Frontal y Posterior) -->
+      <div id="tab4AnatomyCard" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3">
+        <div class="flex justify-between items-center border-b pb-2">
+          <div class="flex items-center gap-2">
+            <div class="vector-seal bg-theme-accent text-white shadow-xs">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path><path d="M6 10v6a6 6 0 0 0 12 0v-6"></path></svg>
+            </div>
+            <div>
+              <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Mapa Muscular Anatómico <span class="italic font-normal">Interactivo</span></h3>
+              <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Haz clic en cualquier músculo para abrir su ficha con entrenamientos y ajuste</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-1.5 text-[10px] font-bold">
+            <span class="w-2.5 h-2.5 rounded-full bg-[#D6CFC2] dark:bg-[#1E293B] border border-stone-400 dark:border-slate-600" title="0 sesiones (Inactivo)"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-theme-medium" style="background-color: var(--theme-500)" title="1 sesión (Tono medio)"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-theme-main" style="background-color: var(--theme-700)" title="2 sesiones (Tono profundo)"></span>
+            <span class="w-2.5 h-2.5 rounded-full bg-theme-accent" style="background-color: var(--theme-accent)" title="3+ sesiones (Acento de contraste)"></span>
+          </div>
+        </div>
+
+        <!-- Siluetas Frontal y Trasera con Cuadrícula Blueprint Técnica y Pedestal -->
+        <div class="blueprint-grid bg-stone-100/60 dark:bg-slate-950/60 rounded-2xl border border-stone-300/80 dark:border-slate-800 p-2.5 sm:p-3 relative overflow-hidden shadow-inner">
+          <span class="absolute top-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
+          <span class="absolute top-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
+          <span class="absolute bottom-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
+          <span class="absolute bottom-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
+          <div id="anatomySvgContainer" class="grid grid-cols-2 gap-2 sm:gap-3 py-1 relative z-10"></div>
+        </div>
+      </div>
+
+      <!-- RADAR TRI-SISTEMA RUNNING + PISTA DE ATLETISMO SVG -->
+      <div id="tab4RunningRadarCard" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between">
+        <div>
           <div class="flex justify-between items-center border-b pb-2">
             <div class="flex items-center gap-2">
-              <div class="vector-seal bg-theme-accent text-white shadow-xs">
-                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a4 4 0 0 1 4 4v2a4 4 0 0 1-8 0V6a4 4 0 0 1 4-4z"></path><path d="M6 10v6a6 6 0 0 0 12 0v-6"></path></svg>
+              <div class="vector-seal bg-theme-main text-white shadow-xs">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
               </div>
               <div>
-                <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Mapa Muscular Anatómico <span class="italic font-normal">Interactivo</span></h3>
-                <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Haz clic en cualquier músculo para abrir su ficha con entrenamientos y ajuste</span>
+                <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Tri-Sistema Fisiológico <span class="italic font-normal">Running</span></h3>
+                <span class="text-[10px] text-theme-main font-mono font-bold">Radar 3 Ejes</span>
               </div>
-            </div>
-            <div class="flex items-center gap-1.5 text-[10px] font-bold">
-              <span class="w-2.5 h-2.5 rounded-full bg-[#D6CFC2] dark:bg-[#1E293B] border border-stone-400 dark:border-slate-600" title="0 sesiones (Inactivo)"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-theme-medium" style="background-color: var(--theme-500)" title="1 sesión (Tono medio)"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-theme-main" style="background-color: var(--theme-700)" title="2 sesiones (Tono profundo)"></span>
-              <span class="w-2.5 h-2.5 rounded-full bg-theme-accent" style="background-color: var(--theme-accent)" title="3+ sesiones (Acento de contraste)"></span>
             </div>
           </div>
 
-          <!-- Siluetas Frontal y Trasera con Cuadrícula Blueprint Técnica y Pedestal -->
-          <div class="blueprint-grid bg-stone-100/60 dark:bg-slate-950/60 rounded-2xl border border-stone-300/80 dark:border-slate-800 p-2.5 sm:p-3 relative overflow-hidden shadow-inner">
+          <!-- Gráfico Radar Triangular SVG con Blueprint Grid -->
+          <div class="blueprint-grid rounded-xl border border-stone-300/40 dark:border-slate-800/80 p-2 my-2 relative overflow-hidden">
             <span class="absolute top-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
             <span class="absolute top-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
             <span class="absolute bottom-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
             <span class="absolute bottom-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-            <div id="anatomySvgContainer" class="grid grid-cols-2 gap-2 sm:gap-3 py-1 relative z-10"></div>
+            <div id="runningRadarSvgContainer" class="flex justify-center"></div>
           </div>
+
+          <!-- Diagnóstico Fisiológico en Vivo -->
+          <div id="runningDiagnosisBox" class="p-3 rounded-xl subpanel-bg border space-y-1 text-xs"></div>
         </div>
 
-        <!-- Radar Tri-Sistema Running + Pista de Atletismo SVG -->
-        <div class="lg:col-span-5 editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 flex flex-col justify-between">
-          <div>
-            <div class="flex justify-between items-center border-b pb-2">
-              <div class="flex items-center gap-2">
-                <div class="vector-seal bg-theme-main text-white shadow-xs">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                </div>
-                <div>
-                  <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Tri-Sistema Fisiológico <span class="italic font-normal">Running</span></h3>
-                  <span class="text-[10px] text-theme-main font-mono font-bold">Radar 3 Ejes</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Gráfico Radar Triangular SVG con Blueprint Grid -->
-            <div class="blueprint-grid rounded-xl border border-stone-300/40 dark:border-slate-800/80 p-2 my-2 relative overflow-hidden">
-              <span class="absolute top-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-              <span class="absolute top-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-              <span class="absolute bottom-1 left-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-              <span class="absolute bottom-1 right-2 font-mono text-[10px] text-stone-400 dark:text-cyan-400/40 select-none font-bold">+</span>
-              <div id="runningRadarSvgContainer" class="flex justify-center"></div>
-            </div>
-
-            <!-- Diagnóstico Fisiológico en Vivo -->
-            <div id="runningDiagnosisBox" class="p-3 rounded-xl subpanel-bg border space-y-1 text-xs"></div>
+        <!-- Pista de Atletismo SVG -->
+        <div class="p-3 rounded-xl subpanel-bg border space-y-2">
+          <div class="flex flex-wrap justify-between items-center gap-1.5 text-xs">
+            <span class="font-bold text-stone-700 dark:text-slate-300 flex items-center gap-1.5 min-w-0">
+              <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+              <span class="truncate">Pista de Atletismo:</span>
+            </span>
+            <span id="trackDistanceBadge" class="font-mono font-bold text-[11px] px-2 py-0.5 rounded-lg bg-theme-soft text-theme-main border border-theme shrink-0">0.0 / 15.0 km</span>
           </div>
-
-          <!-- Pista de Atletismo SVG -->
-          <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-            <div class="flex flex-wrap justify-between items-center gap-1.5 text-xs">
-              <span class="font-bold text-stone-700 dark:text-slate-300 flex items-center gap-1.5 min-w-0">
-                <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                <span class="truncate">Pista de Atletismo:</span>
-              </span>
-              <span id="trackDistanceBadge" class="font-mono font-bold text-[11px] px-2 py-0.5 rounded-lg bg-theme-soft text-theme-main border border-theme shrink-0">0.0 / 15.0 km</span>
-            </div>
-            <div id="runningTrackSvgContainer" class="flex justify-center"></div>
-          </div>
+          <div id="runningTrackSvgContainer" class="flex justify-center"></div>
         </div>
       </div>
 

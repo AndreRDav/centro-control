@@ -863,16 +863,17 @@
               },
               tab4: {
                 tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
-                tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
-                tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Biometría y Salud' },
-                tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
+                tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+                tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
+                tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
+                tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
               }
             },
             mobile: {
               tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
               tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
               tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
-              tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
+              tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection']
             }
           }
         },
@@ -1643,8 +1644,17 @@ var pendingCloudConflictJson = null;
 
         checkAndResumePomo();
         localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
-        renderApp();
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        pendingCloudConflictJson = null;
+
+        if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
+          try { window.renderApp(); } catch (rErr) { console.warn('Error en renderApp tras descarga:', rErr); }
+        } else if (typeof renderApp === 'function') {
+          try { renderApp(); } catch (rErr) { console.warn('Error en renderApp tras descarga:', rErr); }
+        }
+        if (typeof app !== 'undefined' && app.applyGridLayout) {
+          try { app.applyGridLayout(); } catch (_) {}
+        }
         updateGdriveUI();
         isGdriveSyncing = false;
         return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
@@ -2098,6 +2108,76 @@ var pendingCloudConflictJson = null;
             wk.studyRealHours[todayIdx] = parseFloat((curVal + diff).toFixed(1));
           }
         });
+
+        // Migración de tab4BiometricsSection -> tab4AnatomyCard + tab4RunningRadarCard
+        if (Array.isArray(s.workspaces)) {
+          s.workspaces.forEach(ws => {
+            if (ws && ws.grid && ws.grid['tab4BiometricsSection']) {
+              const oldCfg = ws.grid['tab4BiometricsSection'];
+              delete ws.grid['tab4BiometricsSection'];
+              if (!ws.grid['tab4AnatomyCard']) {
+                ws.grid['tab4AnatomyCard'] = {
+                  col: oldCfg.col || 1,
+                  colSpan: Math.min(oldCfg.colSpan || 7, 7),
+                  row: oldCfg.row || 17,
+                  minRows: oldCfg.minRows || 8,
+                  manualRows: oldCfg.manualRows || null,
+                  rowSpan: oldCfg.rowSpan || 8,
+                  name: 'Mapa Muscular Anatómico'
+                };
+              }
+              if (!ws.grid['tab4RunningRadarCard']) {
+                ws.grid['tab4RunningRadarCard'] = {
+                  col: (oldCfg.col || 1) + 7 <= 12 ? (oldCfg.col || 1) + 7 : 8,
+                  colSpan: 5,
+                  row: oldCfg.row || 17,
+                  minRows: oldCfg.minRows || 8,
+                  manualRows: oldCfg.manualRows || null,
+                  rowSpan: oldCfg.rowSpan || 8,
+                  name: 'Tri-Sistema Running y Pista'
+                };
+              }
+            }
+            if (ws && Array.isArray(ws.sidebarWidgets)) {
+              const idx = ws.sidebarWidgets.indexOf('tab4BiometricsSection');
+              if (idx !== -1) {
+                ws.sidebarWidgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+              }
+            }
+            if (ws && Array.isArray(ws.dockWidgets)) {
+              const idx = ws.dockWidgets.indexOf('tab4BiometricsSection');
+              if (idx !== -1) {
+                ws.dockWidgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+              }
+            }
+          });
+        }
+        if (s.deviceProfiles && typeof s.deviceProfiles === 'object') {
+          Object.values(s.deviceProfiles).forEach(dp => {
+            if (dp && dp.desktop && dp.desktop.tab4) {
+              if (dp.desktop.tab4['tab4BiometricsSection']) {
+                const oldCfg = dp.desktop.tab4['tab4BiometricsSection'];
+                delete dp.desktop.tab4['tab4BiometricsSection'];
+                dp.desktop.tab4['tab4AnatomyCard'] = { col: 1, colSpan: 7, row: oldCfg.row || 17, minRows: 8, rowSpan: 8, name: 'Mapa Muscular Anatómico' };
+                dp.desktop.tab4['tab4RunningRadarCard'] = { col: 8, colSpan: 5, row: oldCfg.row || 17, minRows: 8, rowSpan: 8, name: 'Tri-Sistema Running y Pista' };
+              }
+            }
+            if (dp && dp.mobile && Array.isArray(dp.mobile.tab4)) {
+              const idx = dp.mobile.tab4.indexOf('tab4BiometricsSection');
+              if (idx !== -1) {
+                dp.mobile.tab4.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+              }
+            }
+          });
+        }
+        if (s.globalSidebar && Array.isArray(s.globalSidebar.widgets)) {
+          const idx = s.globalSidebar.widgets.indexOf('tab4BiometricsSection');
+          if (idx !== -1) s.globalSidebar.widgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+        }
+        if (s.globalDock && Array.isArray(s.globalDock.widgets)) {
+          const idx = s.globalDock.widgets.indexOf('tab4BiometricsSection');
+          if (idx !== -1) s.globalDock.widgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+        }
 
         return s;
       }

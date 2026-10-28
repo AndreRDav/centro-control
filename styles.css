@@ -1082,6 +1082,16 @@
     #dockRightSidebar.hidden {
       display: none !important;
     }
+    #dockRightSidebarBody {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
+      min-height: calc(100vh - 80px) !important;
+    }
+    #dockRightSidebarBody > *:not(.hidden) {
+      margin-top: auto;
+      margin-bottom: auto;
+    }
     /* Pastilla activa en el Dock inferior */
     .dock-pill-active {
       background: var(--theme-accent-soft, rgba(239, 68, 68, 0.15)) !important;
@@ -1490,11 +1500,19 @@
     /* VIEWPORT Y LIENZO: EL LAYOUT FLEX HORIZONTAL GESTIONA EL ANCHO NATURALMENTE */
     #appMainViewport {
       width: 100% !important;
+      max-width: 1700px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
+      padding-bottom: 4.5rem !important;
+      transition: padding 0.25s ease, max-width 0.25s ease !important;
+    }
+    body.sidebar-view-open #appMainViewport,
+    body:has(#workspaceSidebar:not(.hidden):not(.collapsed)) #appMainViewport,
+    body.dock-sidebar-open #appMainViewport,
+    body:has(#dockRightSidebar:not(.hidden)) #appMainViewport {
       max-width: 100% !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
-      padding-bottom: 7.5rem !important;
-      transition: padding 0.25s ease !important;
     }
 
     /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
@@ -1588,7 +1606,12 @@
       transform: translateX(-50%) !important;
       align-items: center !important;
       z-index: 800 !important;
-      transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.2s ease !important;
+      transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease !important;
+    }
+    #floatingDock.dock-drop-highlight {
+      box-shadow: 0 0 25px var(--theme-main, #10b981) !important;
+      border-color: var(--theme-main, #10b981) !important;
+      transform: translateX(-50%) scale(1.06) !important;
     }
 
     @media (max-width: 639px) {
@@ -2058,7 +2081,8 @@
     /* 15. AUDITORÍA, BIOMETRÍA Y HISTÓRICO (tab4 / tab5) */
     .editorial-card.card-mode-compact #tab4StudyAuditSection,
     .editorial-card.card-mode-compact #tab4CustomHabitsSection,
-    .editorial-card.card-mode-compact #tab4BiometricsSection,
+    .editorial-card.card-mode-compact #tab4AnatomyCard,
+    .editorial-card.card-mode-compact #tab4RunningRadarCard,
     .editorial-card.card-mode-compact #tab4EvolutionSection {
       padding: 0.5rem 0.75rem !important;
     }
@@ -2261,4 +2285,89 @@
     }
     .card-mode-compact .compact-habit-card .compact-hide {
       display: none !important;
+    }
+
+    /* ========================================================
+       18. DISTRIBUCIÓN ARMÓNICA DE ESPACIO EXTRA (NO-IDEAL ROWS)
+       Mantiene la cabecera compacta y fija arriba; el espacio extra
+       se distribuye en los recuadros internos, listas o pedestales.
+       ======================================================== */
+    .editorial-card.card-has-extra-height {
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      height: 100% !important;
+    }
+
+    /* Cabeceras, selectores de días y barras de alerta siempre compactos arriba */
+    .editorial-card.card-has-extra-height > .border-b,
+    .editorial-card.card-has-extra-height > .today-top-bars-wrap,
+    .editorial-card.card-has-extra-height > div:first-child,
+    .editorial-card.card-has-extra-height > .subpanel-bg.p-3 {
+      flex-shrink: 0 !important;
+    }
+
+    /* Topología A: Cuadrícula interna de items y hábitos (Enfoque de Hoy, Metas, etc.) */
+    .editorial-card.card-has-extra-height #todayFocusContent {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.65rem !important;
+    }
+    .editorial-card.card-has-extra-height #todayFocusContent > div:not(.adaptive-internal-grid) {
+      flex-shrink: 0 !important;
+    }
+    .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
+      flex: 1 1 0% !important;
+      display: grid !important;
+      grid-auto-rows: 1fr !important;
+      gap: 0.75rem !important;
+    }
+    .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
+      height: 100% !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .editorial-card.card-has-extra-height #tab2GoalsGrid,
+    .editorial-card.card-has-extra-height #tab2ModularHabitsSection > .grid {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      grid-auto-rows: 1fr !important;
+      gap: 0.75rem !important;
+    }
+
+    /* Topología B: Listas y tablas contables */
+    .editorial-card.card-has-extra-height#interactiveListsPanel,
+    .editorial-card.card-has-extra-height #interactiveListsPanel {
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .editorial-card.card-has-extra-height #interactiveListsPanel #listItemsContainer,
+    .editorial-card.card-has-extra-height#interactiveListsPanel #listItemsContainer,
+    .editorial-card.card-has-extra-height #tab3ExpensesTableCard #tab3ExpensesListContainer,
+    .editorial-card.card-has-extra-height#tab3ExpensesTableCard #tab3ExpensesListContainer {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      max-height: none !important;
+    }
+
+    /* Topología C: Diagramas y pedestales SVG */
+    .editorial-card.card-has-extra-height #anatomySvgContainer,
+    .editorial-card.card-has-extra-height #runningRadarSvgContainer,
+    .editorial-card.card-has-extra-height #evolutionChartContainer {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+    }
+
+    /* Topología D: Balance, hucha y métricas */
+    .editorial-card.card-has-extra-height#tab3PiggyCard > div:last-child,
+    .editorial-card.card-has-extra-height#tab3SavingsGoalsCard > div:last-child {
+      flex: 1 1 0% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: center !important;
     }

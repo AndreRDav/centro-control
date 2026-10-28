@@ -27,7 +27,8 @@ var GridEngine = {
               tab3ExpensesTableCard: 8,
               tab4StudyAuditSection: 8,
               tab4CustomHabitsSection: 8,
-              tab4BiometricsSection: 8,
+              tab4AnatomyCard: 8,
+              tab4RunningRadarCard: 8,
               tab4EvolutionSection: 12
             };
             const normalFallback = fallbackMins[cardEl.id] || 4;
@@ -183,9 +184,10 @@ var GridEngine = {
             },
             tab4: {
               tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
-              tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
-              tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Biometría y Salud' },
-              tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
+              tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+              tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
+              tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
+              tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
             }
           };
           return JSON.parse(JSON.stringify(DEFAULTS[tabKey] || DEFAULTS.tab1));
@@ -210,7 +212,7 @@ var GridEngine = {
                 tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
                 tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
                 tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
-                tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection']
+                tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection']
               }
             };
           }
@@ -286,9 +288,10 @@ var GridEngine = {
                 name: 'Rendimiento',
                 grid: {
                   tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
-                  tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
-                  tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
-                  tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, rowSpan: 12, isPinned: false, compact: false }
+                  tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
+                  tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false },
+                  tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
+                  tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, rowSpan: 12, isPinned: false, compact: false }
                 },
                 sidebarWidgets: [],
                 dockWidgets: []
@@ -452,7 +455,8 @@ var GridEngine = {
 
                 if (window.PolymorphicCards) {
                   window.PolymorphicCards.updateCardAspect(id, cfg.colSpan, finalSpan);
-                  window.PolymorphicCards.applyVerticalJustification(el, (cfg.manualRows && cfg.manualRows > cfg.minRows));
+                  const hasExtra = (cfg.manualRows && cfg.manualRows > cfg.minRows) || (cfg.rowSpan && cfg.rowSpan > cfg.minRows);
+                  window.PolymorphicCards.applyVerticalJustification(el, !!hasExtra);
                 }
               }
             });
@@ -640,6 +644,10 @@ var GridEngine = {
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
                   <span>Lateral</span>
                 </button>
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDock('${id}')" title="Mover al Dock inferior" class="header-bar-btn-dock header-bar-btn-lateral">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
+                  <span>Dock</span>
+                </button>
                 <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                 </button>
@@ -692,6 +700,10 @@ var GridEngine = {
                 <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="header-bar-btn-lateral">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
                   <span>Al Tablero</span>
+                </button>
+                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDock('${id}')" title="Mover al Dock inferior" class="header-bar-btn-dock header-bar-btn-lateral">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
+                  <span>Dock</span>
                 </button>
                 <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -1044,6 +1056,10 @@ var GridEngine = {
           window.addEventListener('pointercancel', onPointerUp);
         },
 
+        sendWidgetToDock(widgetId) {
+          return this.addWidgetToDock(widgetId);
+        },
+
         addWidgetToDock(widgetId) {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
@@ -1387,6 +1403,7 @@ var GridEngine = {
           let lastMoveEvent = e;
           let isHoveringSidebar = false;
           let isHoveringDrawer = false;
+          let isHoveringDock = false;
 
           const updateDragPosition = (moveEvent) => {
             if (moveEvent) lastMoveEvent = moveEvent;
@@ -1461,6 +1478,31 @@ var GridEngine = {
               return;
             }
 
+            // Detección de arrastre sobre el Dock inferior (#floatingDock)
+            const dockEl = document.getElementById('floatingDock');
+            const dockRect = (dockEl && dockEl.offsetParent !== null && !dockEl.classList.contains('hidden'))
+              ? dockEl.getBoundingClientRect()
+              : null;
+            isHoveringDock = !!(dockRect && (
+              curX >= dockRect.left - 20 && curX <= dockRect.right + 20 &&
+              curY >= dockRect.top - 30 && curY <= dockRect.bottom + 30
+            ));
+
+            if (isHoveringDock) {
+              if (ghost) {
+                ghost.style.left = dockRect.left + 'px';
+                ghost.style.top = (dockRect.top - 10) + 'px';
+                ghost.style.width = dockRect.width + 'px';
+                ghost.style.height = '48px';
+              }
+              if (placeholder) placeholder.style.display = 'none';
+              if (badge) badge.textContent = (cfg.name || cardId) + ' → Soltar en el Dock inferior';
+              dockEl.classList.add('dock-drop-highlight');
+              return;
+            } else if (dockEl) {
+              dockEl.classList.remove('dock-drop-highlight');
+            }
+
             // Medición DINÁMICA en vivo de la posición del contenedor en el viewport actual (inmune a scroll)
             const curContainerRect = container.getBoundingClientRect ? container.getBoundingClientRect() : el.getBoundingClientRect();
             const colWidth = (curContainerRect.width - 11 * gap) / 12;
@@ -1522,12 +1564,14 @@ var GridEngine = {
 
             const drawerEl = document.getElementById('widgetsDrawer');
             if (drawerEl) drawerEl.classList.remove('drawer-drop-highlight');
+            const dockEl = document.getElementById('floatingDock');
+            if (dockEl) dockEl.classList.remove('dock-drop-highlight');
 
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
 
-            if (isHoveringDrawer || isHoveringSidebar || isFromSidebar || targetCol !== cfg.col || targetRow !== cfg.row) {
+            if (isHoveringDrawer || isHoveringSidebar || isHoveringDock || isFromSidebar || targetCol !== cfg.col || targetRow !== cfg.row) {
               this.recordUndo('Mover cuadro');
             }
 
@@ -1538,6 +1582,11 @@ var GridEngine = {
 
             if (isHoveringSidebar) {
               this.moveCardToSidebar(cardId);
+              return;
+            }
+
+            if (isHoveringDock) {
+              this.sendWidgetToDock(cardId);
               return;
             }
 
@@ -1827,7 +1876,7 @@ var GridEngine = {
           ['todayFocusContainer', 'notesMiniCalendarPanel', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'weekTableContainer',
            'tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection',
            'tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3FixedExpensesCard', 'tab3ExpensesTableCard',
-           'tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4BiometricsSection', 'tab4EvolutionSection'].forEach(id => {
+           'tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection'].forEach(id => {
             const el = document.getElementById(id);
             if (el) this._gridAutoObserver.observe(el);
           });

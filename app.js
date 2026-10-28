@@ -10711,26 +10711,55 @@
           }
 
           // 2. Sincronizar con Google Drive
-          if (gdriveUserEmail) {
-            try {
-              const res = await syncGdriveCloud(true);
-              if (res && res.success) {
-                if (res.action === 'downloaded') {
-                  this.showToast('Actualizado con cambios más recientes de la nube.', 'success', 2500);
-                } else {
-                  this.showToast('Sincronización con Google Drive completada.', 'success', 2500);
-                }
-              } else {
-                const reason = res ? res.reason : 'error';
-                if (reason === 'token_expired') {
-                  this.showToast('Sesión de Drive expirada. Pulsa en el indicador para renovar.', 'warning', 3500);
-                }
-              }
-            } catch (gErr) {
-              console.warn('Error sincronizando con Drive:', gErr);
+          if (!gdriveUserEmail) {
+            // Si no está conectado, pedir vincular de inmediato
+            const connect = await this.showConfirm({
+              title: 'Conectar con Google Drive',
+              message: 'Para sincronizar tu móvil, tableta y ordenador automáticamente en la nube, necesitas vincular tu cuenta de Google.\n\n¿Deseas iniciar sesión con Google ahora?',
+              confirmText: 'Iniciar Sesión',
+              cancelText: 'Cancelar',
+              isDanger: false
+            });
+            if (connect) this.connectGoogleDrive(true);
+            if (icon) icon.classList.remove('rotate-180');
+            return;
+          }
+
+          // Si el token ha expirado, solicitar renovación interactiva
+          if (typeof isGdriveConnected === 'function' && !isGdriveConnected()) {
+            this.showToast('Renovando sesión de Google Drive...', 'info', 2000);
+            const token = await ensureGdriveToken(true);
+            if (!token) {
+              this.showToast('Sesión de Google no renovada. Pulsa Sincronizar para volver a intentar.', 'warning', 3500);
+              if (icon) icon.classList.remove('rotate-180');
+              return;
             }
-          } else {
-            this.showToast('Datos locales listos. Conecta Drive en Copias para nube.', 'info', 3000);
+          }
+
+          try {
+            const res = await syncGdriveCloud(true);
+            if (res && res.success) {
+              if (res.action === 'downloaded') {
+                this.showToast('¡Actualizado con los cambios más recientes de Google Drive!', 'success', 3000);
+              } else if (res.action === 'uploaded') {
+                this.showToast('¡Cambios locales sincronizados con Google Drive!', 'success', 3000);
+              } else if (res.action === 'conflict') {
+                // Ya se abrió el modal de conflicto
+              } else {
+                this.showToast('Centro de Control sincronizado y al día.', 'success', 2500);
+              }
+            } else {
+              const reason = res ? res.reason : 'error';
+              if (reason === 'token_expired') {
+                this.showToast('Sesión expirada. Intentando reconectar...', 'warning', 2500);
+                this.connectGoogleDrive(false);
+              } else {
+                this.showToast('No se pudo completar la sincronización (' + reason + ').', 'error', 3500);
+              }
+            }
+          } catch (gErr) {
+            console.warn('Error sincronizando con Drive:', gErr);
+            this.showToast('Error de comunicación con Google Drive.', 'error', 3500);
           }
 
           setTimeout(() => {
@@ -11354,12 +11383,26 @@
           this.closeModal('modalSyncConflict');
           if (action === 'upload') {
             this.showToast('Subiendo cambios locales a Google Drive...', 'info');
-            await syncGdriveCloud(false, true, false);
-            this.showToast('Versión local subida a Drive.', 'success');
+            const res = await syncGdriveCloud(false, true, false);
+            if (res && res.success) {
+              this.showToast('Versión local subida a Drive con éxito.', 'success');
+            } else {
+              this.showToast('Error subiendo a Drive: ' + (res ? res.reason : 'desconocido'), 'error');
+            }
           } else if (action === 'download') {
             this.showToast('Descargando versión de Google Drive...', 'info');
-            await syncGdriveCloud(true, false, true);
-            this.showToast('Versión de Drive cargada correctamente.', 'success');
+            const res = await syncGdriveCloud(true, false, true);
+            if (res && res.success) {
+              if (window.WorkspacesManager && window.WorkspacesManager.mountActiveWorkspace) {
+                try { window.WorkspacesManager.mountActiveWorkspace(); } catch (_) {}
+              }
+              if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
+                try { window.renderApp(); } catch (_) {}
+              }
+              this.showToast('Versión de Google Drive cargada con éxito.', 'success');
+            } else {
+              this.showToast('Error cargando versión de Drive: ' + (res ? res.reason : 'desconocido'), 'error');
+            }
           } else if (action === 'merge') {
             if (!pendingCloudConflictJson) return;
             pushUndo('Fusión inteligente de semanas');
@@ -11936,8 +11979,10 @@
           const t4Habits = document.getElementById('tab4CustomHabitsSection');
           if (t4Habits) t4Habits.classList.toggle('hidden', p.tab4ShowCustomHabits === false);
 
-          const t4Bio = document.getElementById('tab4BiometricsSection');
-          if (t4Bio) t4Bio.classList.toggle('hidden', p.tab4ShowBiometrics === false);
+          const t4Anat = document.getElementById('tab4AnatomyCard');
+          if (t4Anat) t4Anat.classList.toggle('hidden', p.tab4ShowBiometrics === false);
+          const t4Radar = document.getElementById('tab4RunningRadarCard');
+          if (t4Radar) t4Radar.classList.toggle('hidden', p.tab4ShowBiometrics === false);
 
           const t4Evol = document.getElementById('tab4EvolutionSection');
           if (t4Evol) t4Evol.classList.toggle('hidden', p.tab4ShowEvolution === false);
