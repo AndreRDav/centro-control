@@ -1595,19 +1595,22 @@ var pendingCloudConflictJson = null;
           if (st.weeks) {
             const wkList = Array.isArray(st.weeks) ? st.weeks : Object.values(st.weeks);
             if (wkList.some(w => Array.isArray(w?.expenses) && w.expenses.length > 0)) return true;
-            const checkDays = (days) => Array.isArray(days) && days.some(d =>
-              Number(d?.studyRealHours) > 0 || d?.gymDone || d?.runKm > 0 || d?.nutriDone ||
-              (d?.customHabits && Object.values(d.customHabits).some(v => v === true || Number(v) > 0)) ||
-              (d?.notes && typeof d.notes === 'string' && d.notes.trim() !== '')
-            );
-            if (wkList.some(w => checkDays(w?.days))) return true;
+            if (wkList.some(w => Array.isArray(w?.studyRealHours) && w.studyRealHours.some(h => Number(h) > 0))) return true;
+            if (wkList.some(w => Array.isArray(w?.days) && w.days.some(d =>
+              (d?.gym && Number(d.gym.sessions) > 0) ||
+              (d?.run && (Number(d.run.km) > 0 || Number(d.run.sessions) > 0)) ||
+              (d?.nutrition && (d.nutrition === 'success' || d.nutrition === 'fail' || Number(d.nutritionKcal) > 0))
+            ))) return true;
+            if (wkList.some(w => w?.customHabitsData && Object.values(w.customHabitsData).some(arr =>
+              Array.isArray(arr) && arr.some(v => v !== null && v !== false && v !== 0 && v !== '')
+            ))) return true;
           }
           if (Array.isArray(st.customHabits) && st.customHabits.length > 0) return true;
           if (Array.isArray(st.savingsGoals) && st.savingsGoals.length > 0) return true;
           if (st.piggyBank && Array.isArray(st.piggyBank.history) && st.piggyBank.history.length > 0) return true;
-          if (st.interactiveLists) {
-            const lists = Array.isArray(st.interactiveLists) ? st.interactiveLists : Object.values(st.interactiveLists);
-            if (lists.some(l => Array.isArray(l?.items) && l.items.length > 0)) return true;
+          if (st.lists && typeof st.lists === 'object') {
+            const listCats = Object.values(st.lists);
+            if (listCats.some(arr => Array.isArray(arr) && arr.length > 0)) return true;
           }
         } catch (_) {}
         return false;
@@ -1673,12 +1676,13 @@ var pendingCloudConflictJson = null;
 
         try {
           const myDeviceId = getLocalDeviceId();
-          let fileId = await findGdriveFileId(token);
+          let fileId = (allowPull || forceDownload) ? await findGdriveFileId(token, true) : await findGdriveFileId(token);
 
           // Sincronización inteligente bidireccional basada en updatedAt y detección de conflicto
           if (fileId && !forceUpload) {
             try {
               const dlRes = await fetch(`https://www.googleapis.com/drive/v3/files/${fileId}?alt=media`, {
+                cache: 'no-store',
                 headers: { Authorization: `Bearer ${token}` }
               });
               if (dlRes.status === 401) {
@@ -2198,6 +2202,10 @@ var pendingCloudConflictJson = null;
         } catch (_) {}
       }
       window.saveUiOnly = saveUiOnly;
+      window.applyCloudDownload = applyCloudDownload;
+      window.syncGdriveCloud = syncGdriveCloud;
+      window.ensureGdriveToken = ensureGdriveToken;
+      window.getLocalDeviceId = getLocalDeviceId;
 
       function saveState(skipDiskSync = false) {
         try {

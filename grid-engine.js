@@ -37,7 +37,10 @@ var GridEngine = {
               : normalFallback;
           }
 
-          // Guardar temporalmente estilos inline
+          // Guardar temporalmente estilos inline y clase de estiramiento
+          const hadExtraClass = cardEl.classList.contains('card-has-extra-height');
+          if (hadExtraClass) cardEl.classList.remove('card-has-extra-height');
+
           const prevAlignSelf = cardEl.style.alignSelf;
           const prevHeight = cardEl.style.height;
           const prevMinHeight = cardEl.style.minHeight;
@@ -55,6 +58,7 @@ var GridEngine = {
           const naturalHeightPx = cardEl.getBoundingClientRect().height;
 
           // Restaurar inmediatamente en la línea siguiente (mismo tick síncrono de JS, cero parpadeo)
+          if (hadExtraClass) cardEl.classList.add('card-has-extra-height');
           cardEl.style.alignSelf = prevAlignSelf;
           cardEl.style.height = prevHeight;
           cardEl.style.minHeight = prevMinHeight;
@@ -109,7 +113,7 @@ var GridEngine = {
         },
 
         // 3. GRAVEDAD Y COMPACTACIÓN SKYLINE DE 12 COLUMNAS (0 HUECOS Y 0 SOLAPAMIENTOS)
-        compactGrid(tabKey) {
+        compactGrid(tabKey, showToast = false) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
 
@@ -149,8 +153,24 @@ var GridEngine = {
 
           this.applyGridLayout(tabKey);
           if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
-          if (typeof saveState === 'function') saveState();
-          this.showToast('Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
+          if (typeof saveUiOnly === 'function') {
+            saveUiOnly();
+          } else if (typeof saveState === 'function') {
+            saveUiOnly();
+          }
+          if (typeof localStorage !== 'undefined') {
+            try {
+              const localLayout = {
+                workspaces: state.workspaces,
+                gridLayouts: state.uiPreferences?.gridLayouts,
+                globalSidebar: state.globalSidebar
+              };
+              localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify(localLayout));
+            } catch (_) {}
+          }
+          if (showToast || (state.ui && state.ui.isBoardEditMode)) {
+            this.showToast('Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
+          }
         },
 
         autoFlowGrid(tabKey) {

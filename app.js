@@ -11390,9 +11390,13 @@
               this.showToast('Error subiendo a Drive: ' + (res ? res.reason : 'desconocido'), 'error');
             }
           } else if (action === 'download') {
-            this.showToast('Descargando versión de Google Drive...', 'info');
-            const res = await syncGdriveCloud(true, false, true);
-            if (res && res.success) {
+            this.showToast('Cargando versión de Google Drive...', 'info');
+            if (typeof pendingCloudConflictJson !== 'undefined' && pendingCloudConflictJson) {
+              const myDevId = (typeof getLocalDeviceId === 'function') ? getLocalDeviceId() : (state.deviceId || 'dev_local');
+              const fn = (typeof applyCloudDownload === 'function') ? applyCloudDownload : window.applyCloudDownload;
+              if (fn) {
+                fn(pendingCloudConflictJson, Number(pendingCloudConflictJson.updatedAt) || Date.now(), myDevId);
+              }
               if (window.WorkspacesManager && window.WorkspacesManager.mountActiveWorkspace) {
                 try { window.WorkspacesManager.mountActiveWorkspace(); } catch (_) {}
               }
@@ -11401,7 +11405,19 @@
               }
               this.showToast('Versión de Google Drive cargada con éxito.', 'success');
             } else {
-              this.showToast('Error cargando versión de Drive: ' + (res ? res.reason : 'desconocido'), 'error');
+              const syncFn = (typeof syncGdriveCloud === 'function') ? syncGdriveCloud : window.syncGdriveCloud;
+              const res = syncFn ? await syncFn(true, false, true) : null;
+              if (res && res.success) {
+                if (window.WorkspacesManager && window.WorkspacesManager.mountActiveWorkspace) {
+                  try { window.WorkspacesManager.mountActiveWorkspace(); } catch (_) {}
+                }
+                if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
+                  try { window.renderApp(); } catch (_) {}
+                }
+                this.showToast('Versión de Google Drive cargada con éxito.', 'success');
+              } else {
+                this.showToast('Error cargando versión de Drive: ' + (res ? res.reason : 'desconocido'), 'error');
+              }
             }
           } else if (action === 'merge') {
             if (!pendingCloudConflictJson) return;

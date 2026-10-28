@@ -1,6 +1,6 @@
 // Service Worker para Centro de Control PWA
 // Gestiona el ciclo de vida, caché offline y notificación de actualizaciones instantáneas
-const CACHE_NAME = 'centro-control-v2.2.7';
+const CACHE_NAME = 'centro-control-v2.3.0';
 const ASSETS_TO_CACHE = [
   './',
   './index.html',
@@ -70,7 +70,7 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin === location.origin && (url.pathname.endsWith('.js') || url.pathname.endsWith('.css') || url.pathname.endsWith('.json'))) {
     event.respondWith(
-      fetch(req)
+      fetch(req, { cache: 'no-cache' })
         .then((networkRes) => {
           if (networkRes && networkRes.status === 200) {
             const resClone = networkRes.clone();
@@ -78,7 +78,7 @@ self.addEventListener('fetch', (event) => {
           }
           return networkRes;
         })
-        .catch(() => caches.match(req))
+        .catch(() => caches.match(req, { ignoreSearch: true }))
     );
     return;
   }

@@ -1497,22 +1497,26 @@
       color: #ffffff !important;
     }
 
-    /* VIEWPORT Y LIENZO: EL LAYOUT FLEX HORIZONTAL GESTIONA EL ANCHO NATURALMENTE */
+    /* VIEWPORT Y LIENZO: ARQUITECTURA SIMÉTRICA EN ESCRITORIO (>= 1280px) */
     #appMainViewport {
       width: 100% !important;
-      max-width: 1700px !important;
-      margin-left: auto !important;
-      margin-right: auto !important;
-      padding-bottom: 4.5rem !important;
-      transition: padding 0.25s ease, max-width 0.25s ease !important;
-    }
-    body.sidebar-view-open #appMainViewport,
-    body:has(#workspaceSidebar:not(.hidden):not(.collapsed)) #appMainViewport,
-    body.dock-sidebar-open #appMainViewport,
-    body:has(#dockRightSidebar:not(.hidden)) #appMainViewport {
       max-width: 100% !important;
       margin-left: 0 !important;
       margin-right: 0 !important;
+      padding-bottom: 4.5rem !important;
+      transition: padding 0.25s ease, margin 0.25s ease !important;
+    }
+
+    @media (min-width: 1280px) {
+      /* Cuando el panel derecho del dock está cerrado, reservamos 340px a la derecha */
+      #appMainViewport {
+        margin-right: 340px !important;
+      }
+      /* Cuando el panel derecho del dock está abierto, el panel ocupa físicamente esos 340px */
+      body.dock-sidebar-open #appMainViewport,
+      body:has(#dockRightSidebar:not(.hidden)) #appMainViewport {
+        margin-right: 0 !important;
+      }
     }
 
     /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
@@ -2290,7 +2294,7 @@
     /* ========================================================
        18. DISTRIBUCIÓN ARMÓNICA DE ESPACIO EXTRA (NO-IDEAL ROWS)
        Mantiene la cabecera compacta y fija arriba; el espacio extra
-       se distribuye en los recuadros internos, listas o pedestales.
+       se distribuye entre las filas de recuadros sin deformar los items.
        ======================================================== */
     .editorial-card.card-has-extra-height {
       display: flex !important;
@@ -2305,11 +2309,12 @@
     .editorial-card.card-has-extra-height > div:first-child,
     .editorial-card.card-has-extra-height > .subpanel-bg.p-3 {
       flex-shrink: 0 !important;
+      margin-bottom: 0 !important;
     }
 
     /* Topología A: Cuadrícula interna de items y hábitos (Enfoque de Hoy, Metas, etc.) */
     .editorial-card.card-has-extra-height #todayFocusContent {
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
       display: flex !important;
       flex-direction: column !important;
@@ -2317,24 +2322,33 @@
     }
     .editorial-card.card-has-extra-height #todayFocusContent > div:not(.adaptive-internal-grid) {
       flex-shrink: 0 !important;
+      margin-bottom: 0 !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       display: grid !important;
-      grid-auto-rows: 1fr !important;
-      gap: 0.75rem !important;
+      grid-auto-rows: auto !important;
+      align-content: space-evenly !important;
+      row-gap: 1.15rem !important;
+      column-gap: 0.75rem !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
-      height: 100% !important;
+      height: auto !important;
       display: flex !important;
       flex-direction: column !important;
     }
     .editorial-card.card-has-extra-height #tab2GoalsGrid,
-    .editorial-card.card-has-extra-height #tab2ModularHabitsSection > .grid {
-      flex: 1 1 0% !important;
+    .editorial-card.card-has-extra-height #tab2ModularHabitsSection > .grid,
+    .editorial-card.card-has-extra-height #tab3BudgetConfigCard > div:last-child,
+    .editorial-card.card-has-extra-height #tab4StudySubjectsGrid,
+    .editorial-card.card-has-extra-height #tab4CustomHabitsGrid,
+    .editorial-card.card-has-extra-height #tab2AttendanceRulesSection > div:last-child {
+      flex: 1 1 auto !important;
       min-height: 0 !important;
-      grid-auto-rows: 1fr !important;
-      gap: 0.75rem !important;
+      grid-auto-rows: auto !important;
+      align-content: space-evenly !important;
+      row-gap: 1.15rem !important;
+      column-gap: 0.75rem !important;
     }
 
     /* Topología B: Listas y tablas contables */
