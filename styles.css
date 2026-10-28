@@ -1430,7 +1430,12 @@
 
     /* VIEWPORT Y LIENZO: EL LAYOUT FLEX HORIZONTAL GESTIONA EL ANCHO NATURALMENTE */
     #appMainViewport {
-      transition: max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s ease !important;
+      width: 100% !important;
+      max-width: 100% !important;
+      margin-left: 0 !important;
+      margin-right: 0 !important;
+      padding-bottom: 7.5rem !important;
+      transition: padding 0.25s ease !important;
     }
 
     /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
@@ -1516,14 +1521,30 @@
       100% { transform: scale(1) rotate(0deg); opacity: 1; }
     }
 
-    /* DOCK FLOTANTE INFERIOR DERECHO */
+    /* DOCK FLOTANTE INFERIOR CENTRADO (macOS / iPadOS STYLE) */
     #floatingDock {
-      right: 1rem !important;
-      bottom: 1rem !important;
-      left: auto !important;
-      transform: none !important;
-      align-items: flex-end !important;
+      left: 50% !important;
+      right: auto !important;
+      bottom: 1.25rem !important;
+      transform: translateX(-50%) !important;
+      align-items: center !important;
       z-index: 800 !important;
+      transition: left 0.25s cubic-bezier(0.16, 1, 0.3, 1), bottom 0.2s ease !important;
+    }
+
+    @media (max-width: 639px) {
+      #floatingDock {
+        bottom: 4.25rem !important;
+      }
+    }
+
+    /* En pantallas grandes (>=1024px), si el panel lateral está visible (320px), centramos el dock respecto al área visible del tablero */
+    @media (min-width: 1024px) {
+      body.sidebar-view-open #floatingDock,
+      body:has(#workspaceSidebar.sidebar-open) #floatingDock,
+      body:has(#workspaceSidebar:not(.hidden):not(.collapsed)) #floatingDock {
+        left: calc(50% + 160px) !important;
+      }
     }
 
     /* TIRADORES DE REDIMENSIÓN EN LOS 4 BORDES Y ESQUINA INFERIOR DERECHA */

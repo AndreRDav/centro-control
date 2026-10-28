@@ -298,6 +298,11 @@ const WorkspacesManager = (function() {
       const applyDomChanges = () => {
         this.mountActiveWorkspace();
         this.renderNavBar();
+        if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
+          try { window.renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
+        } else if (typeof renderApp === 'function') {
+          try { renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
+        }
         if (typeof app !== 'undefined' && app.applyGridLayout) {
           app.applyGridLayout();
         }
@@ -387,9 +392,11 @@ const WorkspacesManager = (function() {
         if (sidebarWidgets.length > 0) {
           sidebar.classList.remove('hidden', 'sidebar-collapsed');
           sidebar.classList.add('sidebar-open');
+          document.body.classList.add('sidebar-view-open');
         } else {
           sidebar.classList.remove('sidebar-open');
           sidebar.classList.add('hidden', 'sidebar-collapsed');
+          document.body.classList.remove('sidebar-view-open');
         }
       }
 

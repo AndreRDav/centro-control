@@ -2911,9 +2911,9 @@
   </div>
 
   <!-- ========================================================
-       DOCK FLOTANTE INFERIOR DERECHO (GMAIL / macOS STYLE)
+       DOCK FLOTANTE INFERIOR CENTRADO (macOS STYLE)
        ======================================================== -->
-  <div id="floatingDock" class="fixed bottom-14 sm:bottom-4 left-1/2 -translate-x-1/2 sm:left-auto sm:translate-x-0 sm:right-4 z-40 flex flex-col items-center sm:items-end gap-2.5 pointer-events-auto select-none print:hidden">
+  <div id="floatingDock" class="fixed bottom-16 sm:bottom-5 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2.5 pointer-events-auto select-none print:hidden">
 
     <!-- VENTANA FLOTANTE 1: POMODORO MINIMIZABLE -->
     <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-80 md:w-88 max-w-sm shadow-2xl transition-all duration-200 border">
@@ -3126,7 +3126,7 @@
     </aside>
 
     <!-- COLUMNA DERECHA PRINCIPAL: VIEWPORT DE LA APP -->
-    <div id="appMainViewport" class="flex-1 min-w-0 max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
+    <div id="appMainViewport" class="flex-1 min-w-0 w-full p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
 
     <!-- CABECERA PRINCIPAL -->
     <header id="mainAppHeader" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-2 z-40 backdrop-blur-md">
@@ -3461,6 +3461,10 @@
             </div>
             <div class="flex items-center gap-1.5 sm:gap-2">
               <span id="dailyScoreBadge" class="px-2 sm:px-2.5 py-1 rounded-xl bg-theme-soft text-theme-main border border-theme text-[11px] sm:text-xs font-bold font-mono">Score: 0 / 100</span>
+              <button onclick="app.toggleCompactMode('todayFocusContainer')" id="todayFocusCompactBtn" class="flex px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-stone-700 dark:text-slate-300 font-bold text-[11px] sm:text-xs items-center gap-1 transition shadow-sm cursor-pointer" title="Alternar modo compacto">
+                <svg class="w-3.5 h-3.5 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/></svg>
+                <span class="hidden sm:inline">Compacto</span>
+              </button>
               <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-[11px] sm:text-xs items-center gap-1 sm:gap-1.5 transition shadow-sm">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                 <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span>
@@ -3716,7 +3720,7 @@
     <!-- ========================================================
          PESTAÑA 2: METAS Y HORARIO
          ======================================================== -->
-    <section id="tab2" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
+    <section id="tab2" class="hidden w-full space-y-3 sm:space-y-4 px-0 sm:px-1">
       <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO METAS Y HORARIO) -->
       <div id="tab2MainGrid" class="dashboard-grid-12">
         <!-- CONFIGURACIÓN DE METAS SEMANALES -->
@@ -3904,7 +3908,7 @@
     <!-- ========================================================
          PESTAÑA 3: FINANZAS PRO (PRESUPUESTO, HUCHA, GASTOS HORMIGA)
          ======================================================== -->
-    <section id="tab3" class="hidden w-full max-w-7xl mx-auto space-y-3 sm:space-y-4 px-0 sm:px-1">
+    <section id="tab3" class="hidden w-full space-y-3 sm:space-y-4 px-0 sm:px-1">
       
       <!-- FILA SUPERIOR: CONFIGURACIÓN DEL PRESUPUESTO + METAS DE AHORRO INDIVIDUALES (LADO A LADO) -->
       <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO FINANZAS) -->

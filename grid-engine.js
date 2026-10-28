@@ -422,6 +422,14 @@ var GridEngine = {
               const el = document.getElementById(id);
               if (el) {
                 const cfg = layout[id];
+                const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(id) : null;
+                const minCols = (def && def.minColSpan) || cfg.minColSpan || 3;
+                if (!cfg.colSpan || cfg.colSpan < minCols) {
+                  cfg.colSpan = minCols;
+                  if (cfg.col + cfg.colSpan - 1 > 12) {
+                    cfg.col = Math.max(1, 13 - cfg.colSpan);
+                  }
+                }
                 // Sincronizar clase card-mode-compact según estado del bloque
                 if (cfg.compact) {
                   el.classList.add('card-mode-compact');
@@ -525,13 +533,20 @@ var GridEngine = {
             if (toolbar) toolbar.classList.remove('hidden');
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
+              sidebar.classList.remove('hidden', 'sidebar-collapsed');
+              sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
+              document.body.classList.add('sidebar-view-open');
+              const sContainer = document.getElementById('sidebarWidgetsContainer');
               const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-              if (ws && ws.sidebarWidgets && ws.sidebarWidgets.length > 0) {
-                sidebar.classList.remove('hidden', 'sidebar-collapsed');
-                sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
-              } else {
-                sidebar.classList.remove('sidebar-open', 'sidebar-edit-active');
-                sidebar.classList.add('hidden', 'sidebar-collapsed');
+              if (sContainer && (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0)) {
+                let emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
+                if (!emptyDrop) {
+                  emptyDrop = document.createElement('div');
+                  emptyDrop.id = 'sidebarEmptyDropPlaceholder';
+                  emptyDrop.className = 'p-4 rounded-xl border-2 border-dashed border-theme/40 text-center text-xs text-stone-400 italic my-2';
+                  emptyDrop.textContent = 'Arrastra cuadros aquí o pulsa "+ Panel" para fijarlos en el Panel Lateral';
+                  sContainer.appendChild(emptyDrop);
+                }
               }
             }
 
@@ -552,10 +567,13 @@ var GridEngine = {
             if (mainGrid) mainGrid.classList.remove('board-edit-active');
             if (sidebar) {
               sidebar.classList.remove('sidebar-edit-active');
+              const emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
+              if (emptyDrop) emptyDrop.remove();
               const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
               if (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0) {
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('hidden', 'sidebar-collapsed');
+                document.body.classList.remove('sidebar-view-open');
               }
             }
             this.closeWidgetsDrawer();
@@ -1120,6 +1138,16 @@ var GridEngine = {
             win.classList.toggle('hidden');
           }
 
+          if (!win.classList.contains('hidden')) {
+            if (typeof app !== 'undefined') {
+              if (app.toggleDockPomo) app.toggleDockPomo(false);
+              if (app.toggleDockExpense) app.toggleDockExpense(false);
+            }
+            document.querySelectorAll('[id^="dockWin_"]').forEach(w => {
+              if (w.id !== 'dockWin_' + widgetId) w.classList.add('hidden');
+            });
+          }
+
           const contentBox = document.getElementById('dockContent_' + widgetId);
           if (contentBox && !win.classList.contains('hidden') && window.WidgetsRegistry) {
             const mountedEl = window.WidgetsRegistry.mountWidget(widgetId, contentBox);
@@ -1168,6 +1196,10 @@ var GridEngine = {
             this.compactGrid();
             this.applyGridLayout();
             this.renderBoardEditHandles();
+            if (cardId === 'todayFocusContainer') {
+              if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
+              else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
+            }
             this.safeToast(isComp ? 'Modo Compacto activado: micro-cuadrícula acoplada (espacio economizado).' : 'Modo Normal restaurado.', 'emerald');
             if (typeof saveState === 'function') saveState();
             return isComp;
@@ -1282,8 +1314,10 @@ var GridEngine = {
           const el = document.getElementById(cardId);
           if (!cfg || !el) return;
 
+          const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(cardId) : null;
+          const minColSpan = (def && def.minColSpan) || cfg.minColSpan || 3;
           const newSpan = cfg.colSpan + delta;
-          if (newSpan >= 1 && cfg.col + newSpan - 1 <= 12) {
+          if (newSpan >= minColSpan && cfg.col + newSpan - 1 <= 12) {
             this.recordUndo('Ajustar tamaño de tarjeta');
             cfg.colSpan = newSpan;
             cfg.manualRows = null; // Resetear altura manual para que se ciña a la nueva anchura
@@ -1645,13 +1679,16 @@ var GridEngine = {
             let r = origRow;
             let rSpan = origRowSpan;
 
+            const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(cardId) : null;
+            const minColSpan = (def && def.minColSpan) || cfg.minColSpan || 3;
+
             if (isLeft) {
               const origRight = origCol + origColSpan;
-              c = Math.max(1, Math.min(origRight - 1, origCol + deltaCols));
-              cSpan = origRight - c;
+              c = Math.max(1, Math.min(origRight - minColSpan, origCol + deltaCols));
+              cSpan = Math.max(minColSpan, origRight - c);
             } else if (isRight) {
               const maxSpan = 13 - origCol;
-              cSpan = Math.max(1, Math.min(maxSpan, origColSpan + deltaCols));
+              cSpan = Math.max(minColSpan, Math.min(maxSpan, origColSpan + deltaCols));
             }
 
             // Reflow en vivo de tarjetas internas al arrastrar bordes horizontales

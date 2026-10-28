@@ -2335,16 +2335,11 @@
         if (nutriCardHtml) todayMetricCards.push(nutriCardHtml);
         metricCustomCards.forEach(c => todayMetricCards.push(c));
 
-        // En modo compacto, fusionar recordatorios directamente en la rejilla para rellenar huecos vacíos
-        if (isCompact) {
-          reminderCustomCards.forEach(c => todayMetricCards.push(c));
-        }
+        // Integrar SIEMPRE los recordatorios directamente en la cuadrícula bento adaptativa
+        // rellenando de inmediato los huecos vacíos y suprimiendo la sección separada y el hairline
+        reminderCustomCards.forEach(c => todayMetricCards.push(c));
 
         const gridCardsHtml = todayMetricCards.map((cHtml) => {
-          return `<div class="h-full flex flex-col">${cHtml}</div>`;
-        }).join('');
-
-        const remindersGridHtml = reminderCustomCards.map((cHtml) => {
           return `<div class="h-full flex flex-col">${cHtml}</div>`;
         }).join('');
 
@@ -2357,26 +2352,10 @@
           ${urgentHtml}
           ${!progressSlot ? prominentProgressBarHtml : ''}
 
-          <!-- CUADRÍCULA UNIFORME DE HÁBITOS DE HOY (ADAPTATIVA SEGÚN ANCHO) -->
+          <!-- CUADRÍCULA UNIFORME DE HÁBITOS Y RECORDATORIOS DE HOY (ADAPTATIVA SEGÚN ANCHO) -->
           <div class="adaptive-internal-grid">
             ${gridCardsHtml || `<div class="${emptySpanClass} p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>`}
           </div>
-
-          <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SOLO EN MODO EXPANDIDO) -->
-          ${(!isCompact && reminderCustomCards.length > 0) ? `
-            <div class="pt-3 border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 space-y-2.5 mt-3">
-              <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-slate-300 px-1">
-                <div class="flex items-center gap-1.5">
-                  <span class="w-2 h-2 rounded-full bg-amber-500"></span>
-                  <span class="uppercase tracking-wider text-[10.5px] text-amber-500 font-mono">Recordatorios & Rutinas (Sin impacto en Score)</span>
-                </div>
-                <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
-              </div>
-              <div class="adaptive-internal-grid">
-                ${remindersGridHtml}
-              </div>
-            </div>
-          ` : ''}
         `;
       }
 
@@ -5480,6 +5459,40 @@
         } else if (state.activeTab === 4) {
           try { renderTab4(); } catch (e) { console.error('Error in renderTab4:', e); }
         }
+
+        // Renderizado reactivo de soporte para widgets anatómicos o de biometría en cualquier ventana
+        const anatContainer = document.getElementById('anatomySvgContainer');
+        if (anatContainer && (!anatContainer.innerHTML || anatContainer.children.length === 0)) {
+          try { anatContainer.innerHTML = renderSvgAnatomy(); } catch (e) {}
+        }
+        const radarContainer = document.getElementById('runningRadarSvgContainer');
+        if (radarContainer && (!radarContainer.innerHTML || radarContainer.children.length === 0)) {
+          try {
+            const isWk = state.ui?.labScope === 'week';
+            const weeksScan = isWk ? [getActiveWeek()] : Object.values(state.weeks);
+            let sCount = 0, rCount = 0, tCount = 0, kmTotal = 0;
+            weeksScan.forEach(wk => {
+              if (!wk) return;
+              wk.days.forEach(d => {
+                if (d.run && d.run.km > 0) {
+                  kmTotal += d.run.km;
+                  if (d.run.type === 'series') sCount++;
+                  else if (d.run.type === 'rodaje') rCount++;
+                  else if (d.run.type === 'tirada') tCount++;
+                }
+              });
+            });
+            radarContainer.innerHTML = renderTriSystemRadar(sCount, rCount, tCount, kmTotal);
+          } catch (e) {}
+        }
+      }
+
+      if (typeof window !== 'undefined') {
+        window.renderApp = renderApp;
+        window.renderDailyHabits = renderDailyHabits;
+        window.renderTab2 = renderTab2;
+        window.renderTab3 = renderTab3;
+        window.renderTab4 = renderTab4;
       }
 
       // APP ACCIONES Y MÉTODOS PÚBLICOS
@@ -5780,8 +5793,10 @@
           if (!sidebar) return;
           if (window.innerWidth >= 1024) {
             sidebar.classList.toggle('collapsed');
+            const isOpen = !sidebar.classList.contains('collapsed') && !sidebar.classList.contains('hidden');
+            document.body.classList.toggle('sidebar-view-open', isOpen);
             if (state.globalSidebar) {
-              state.globalSidebar.isOpen = !sidebar.classList.contains('collapsed');
+              state.globalSidebar.isOpen = isOpen;
             }
           } else {
             sidebar.classList.toggle('open-mobile');
@@ -5810,12 +5825,29 @@
           const body = document.getElementById('kpisCollapsibleBody');
           const statusText = document.getElementById('kpisSlimStatusText');
           const arrow = document.getElementById('kpisSlimArrow');
+          const wrap = document.getElementById('topKpisWrapper');
           if (!body) return;
           const isHidden = body.classList.toggle('hidden');
           if (statusText) statusText.textContent = isHidden ? 'Mostrar' : 'Plegar';
           if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
           if (!state.uiPreferences) state.uiPreferences = {};
           state.uiPreferences.kpisCollapsed = isHidden;
+
+          // Si topKpisWrapper está en el grid activo, actualizar su rowSpan en cascada
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          if (ws && ws.grid && ws.grid['topKpisWrapper']) {
+            const cfg = ws.grid['topKpisWrapper'];
+            cfg.rowSpan = isHidden ? 3 : 8;
+            cfg.manualRows = isHidden ? 3 : 8;
+            if (wrap) {
+              wrap.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
+            }
+            if (typeof app !== 'undefined' && typeof app.resolveGridCollisions === 'function') {
+              app.resolveGridCollisions(null, 'topKpisWrapper');
+              app.applyGridLayout();
+            }
+          }
+
           if (typeof saveState === 'function') saveState();
           if (typeof this.triggerReflow === 'function') this.triggerReflow();
         },
@@ -6603,6 +6635,7 @@
             win.classList.remove('hidden');
             const expWin = document.getElementById('dockExpenseWindow');
             if (expWin) expWin.classList.add('hidden');
+            document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
           } else {
             win.classList.add('hidden');
           }
@@ -6616,6 +6649,7 @@
             win.classList.remove('hidden');
             const pomoWin = document.getElementById('dockPomoWindow');
             if (pomoWin) pomoWin.classList.add('hidden');
+            document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
             renderDockExpenseUI();
             setTimeout(() => {
               const inp = document.getElementById('dockExpenseAmount');
@@ -12460,6 +12494,7 @@
           app.toggleZen(false);
           app.toggleDockPomo(false);
           app.toggleDockExpense(false);
+          document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
           app.closeModal('closeWeekModal');
           app.closeModal('backupModal');
           app.closeModal('customMuscleModal');
