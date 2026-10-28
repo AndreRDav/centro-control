@@ -241,6 +241,7 @@ var GridEngine = {
           const wsName = ws ? ws.name : 'Ventana Activa';
 
           const doReset = () => {
+            this.recordUndo('Restablecer diseño predeterminado');
             const FACTORY_WORKSPACES = [
               {
                 id: 'ws-1',
@@ -485,6 +486,14 @@ var GridEngine = {
           this.safeToast(msg, type, duration);
         },
 
+        recordUndo(actionName = 'Ajustar tablero') {
+          if (typeof window !== 'undefined' && typeof window.pushUndo === 'function') {
+            window.pushUndo(actionName);
+          } else if (typeof pushUndo === 'function') {
+            pushUndo(actionName);
+          }
+        },
+
         openBlueprintStudio() {
           this.toggleBoardEdit();
         },
@@ -687,6 +696,7 @@ var GridEngine = {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
+          this.recordUndo('Mover a panel lateral');
           if (!ws.sidebarWidgets) ws.sidebarWidgets = [];
           delete ws.grid[cardId];
           if (!ws.sidebarWidgets.includes(cardId)) {
@@ -708,6 +718,7 @@ var GridEngine = {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
+          this.recordUndo('Mover a cuadrícula');
           ws.sidebarWidgets = (ws.sidebarWidgets || []).filter(id => id !== cardId);
           const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(cardId) : {};
           const maxRow = Object.values(ws.grid || {}).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 6)), 1);
@@ -789,7 +800,8 @@ var GridEngine = {
                 return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
               });
 
-          drawer.className = 'panel-bg border-r border-theme shadow-2xl flex flex-col overflow-hidden drawer-open';
+          drawer.className = 'w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col drawer-open';
+          drawer.classList.remove('hidden');
           document.body.classList.add('drawer-studio-open');
 
           drawer.innerHTML = `
@@ -860,7 +872,7 @@ var GridEngine = {
         closeWidgetsDrawer() {
           const drawer = document.getElementById('widgetsDrawer');
           if (drawer) {
-            drawer.className = 'board-widgets-drawer drawer-closed hidden';
+            drawer.className = 'hidden w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col';
           }
           document.body.classList.remove('drawer-studio-open');
         },
@@ -1000,6 +1012,7 @@ var GridEngine = {
             }
             if (placeholder) placeholder.style.display = 'none';
 
+            this.recordUndo('Añadir módulo');
             if (isHoveringSidebar) {
               this.moveCardToSidebar(widgetId);
               return;
@@ -1017,6 +1030,7 @@ var GridEngine = {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
+          this.recordUndo('Añadir al Dock');
           if (!ws.dockWidgets) ws.dockWidgets = [];
           if (!ws.dockWidgets.includes(widgetId)) {
             ws.dockWidgets.push(widgetId);
@@ -1037,6 +1051,7 @@ var GridEngine = {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws || !ws.dockWidgets) return;
+          this.recordUndo('Quitar del Dock');
           ws.dockWidgets = ws.dockWidgets.filter(x => x !== widgetId);
           if (window.WidgetsRegistry) {
             window.WidgetsRegistry.parkWidget(widgetId);
@@ -1081,28 +1096,37 @@ var GridEngine = {
         },
 
         toggleDockCustomWindow(widgetId) {
+          const dock = document.getElementById('floatingDock');
+          if (!dock) return;
           let win = document.getElementById('dockWin_' + widgetId);
+          const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(widgetId) : { name: widgetId, iconSvg: '' };
+
           if (!win) {
-            const dock = document.getElementById('floatingDock');
-            if (!dock) return;
             win = document.createElement('div');
             win.id = 'dockWin_' + widgetId;
-            win.className = 'dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-88 max-w-sm shadow-2xl transition-all duration-200 border space-y-3';
-            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(widgetId) : { name: widgetId };
+            win.className = 'dock-glass panel-bg rounded-2xl p-3 w-[calc(100vw-2rem)] sm:w-88 max-w-sm shadow-2xl transition-all duration-200 border border-theme space-y-2 z-50';
             win.innerHTML = `
-              <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
-                <span class="font-serif font-bold text-sm tracking-tight">${def.name}</span>
-                <button type="button" onclick="document.getElementById('dockWin_${widgetId}').classList.add('hidden')" class="p-1 rounded text-slate-400 hover:text-rose-400 text-xs font-bold">✕</button>
+              <div class="flex items-center justify-between pb-1.5 border-b border-theme">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="vector-seal w-5 h-5 bg-theme-main text-white text-[10px] shrink-0">${def.iconSvg || ''}</span>
+                  <span class="font-serif font-bold text-xs tracking-tight text-stone-900 dark:text-white truncate">${def.name}</span>
+                </div>
+                <button type="button" onclick="document.getElementById('dockWin_${widgetId}').classList.add('hidden')" class="w-5 h-5 rounded subpanel-bg border border-theme text-stone-400 hover:text-stone-900 dark:hover:text-white text-xs font-bold flex items-center justify-center cursor-pointer shrink-0" title="Cerrar ventana">✕</button>
               </div>
-              <div id="dockContent_${widgetId}" class="max-h-[60vh] overflow-y-auto"></div>
+              <div id="dockContent_${widgetId}" class="max-h-[65vh] overflow-y-auto space-y-2"></div>
             `;
             dock.insertBefore(win, dock.firstChild);
-            const contentBox = document.getElementById('dockContent_' + widgetId);
-            if (contentBox && window.WidgetsRegistry) {
-              window.WidgetsRegistry.mountWidget(widgetId, contentBox);
-            }
           } else {
             win.classList.toggle('hidden');
+          }
+
+          const contentBox = document.getElementById('dockContent_' + widgetId);
+          if (contentBox && !win.classList.contains('hidden') && window.WidgetsRegistry) {
+            const mountedEl = window.WidgetsRegistry.mountWidget(widgetId, contentBox);
+            if (mountedEl) {
+              mountedEl.setAttribute('data-cols', '3');
+              mountedEl.classList.add('card-mode-compact');
+            }
           }
         },
 
@@ -1120,6 +1144,7 @@ var GridEngine = {
         toggleCardCompact(cardId) {
           const el = document.getElementById(cardId);
           if (window.PolymorphicCards) {
+            this.recordUndo('Modo compacto');
             const isComp = window.PolymorphicCards.toggleCompactMode(cardId);
             if (el) {
               if (isComp) el.classList.add('card-mode-compact');
@@ -1152,6 +1177,7 @@ var GridEngine = {
 
         sendWidgetToDrawer(cardId) {
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          this.recordUndo('Inactivar módulo');
           const layout = this.getGridLayout();
           let cardName = cardId;
           if (layout && layout[cardId]) {
@@ -1184,6 +1210,8 @@ var GridEngine = {
 
           const def = window.WidgetsRegistry.getWidgetDef(widgetId);
           if (!def) return;
+
+          this.recordUndo('Añadir módulo a cuadrícula');
 
           const maxRow = Object.values(layout).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 2)), 1);
           const cCol = (customCol !== undefined && customCol !== null) ? customCol : 1;
@@ -1256,6 +1284,7 @@ var GridEngine = {
 
           const newSpan = cfg.colSpan + delta;
           if (newSpan >= 1 && cfg.col + newSpan - 1 <= 12) {
+            this.recordUndo('Ajustar tamaño de tarjeta');
             cfg.colSpan = newSpan;
             cfg.manualRows = null; // Resetear altura manual para que se ciña a la nueva anchura
 
@@ -1278,6 +1307,7 @@ var GridEngine = {
           if (!cfg) return;
           const newCol = cfg.col + delta;
           if (newCol >= 1 && newCol + cfg.colSpan - 1 <= 12) {
+            this.recordUndo('Mover tarjeta');
             cfg.col = newCol;
             this.resolveGridCollisions(tabKey, cardId);
             this.applyGridLayout(tabKey);
@@ -1483,6 +1513,10 @@ var GridEngine = {
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
+
+            if (isHoveringDrawer || isHoveringSidebar || isFromSidebar || targetCol !== cfg.col || targetRow !== cfg.row) {
+              this.recordUndo('Mover cuadro');
+            }
 
             if (isHoveringDrawer) {
               this.sendWidgetToDrawer(cardId);
@@ -1713,6 +1747,10 @@ var GridEngine = {
             if (ghost) ghost.style.display = 'none';
             if (placeholder) placeholder.style.display = 'none';
             el.style.opacity = '1';
+
+            if (finalColSpan !== cfg.colSpan || finalRowSpan !== cfg.rowSpan || finalCol !== cfg.col || finalRow !== cfg.row) {
+              this.recordUndo('Redimensionar cuadro');
+            }
 
             cfg.col = finalCol;
             cfg.colSpan = finalColSpan;

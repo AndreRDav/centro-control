@@ -350,9 +350,12 @@ const WorkspacesManager = (function() {
 
       const activeWidgets = ws.grid || {};
       const activeIds = Object.keys(activeWidgets);
+      const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
+      const dockWidgets = ws.dockWidgets || [];
+      const allActiveInWorkspace = new Set([...activeIds, ...sidebarWidgets, ...dockWidgets]);
 
-      // Parquea en el pool los widgets que no forman parte de este workspace
-      window.WidgetsRegistry.parkInactiveWidgets(activeIds);
+      // Parquea en el pool los widgets que no forman parte de este workspace (ni en grid, ni en sidebar, ni en dock)
+      window.WidgetsRegistry.parkInactiveWidgets(Array.from(allActiveInWorkspace));
 
       // Monta cada widget en el grid
       activeIds.forEach(widgetId => {
@@ -371,7 +374,6 @@ const WorkspacesManager = (function() {
       // Monta widgets en la barra lateral (si los hay)
       const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
       const sidebar = document.getElementById('workspaceSidebar');
-      const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
       if (sidebarContainer) {
         sidebarWidgets.forEach(widgetId => {
           const sEl = window.WidgetsRegistry.mountWidget(widgetId, sidebarContainer);

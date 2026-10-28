@@ -1176,7 +1176,7 @@
         ];
         const yr = miniCalendarState.year;
         const mo = miniCalendarState.month;
-        monthLabel.textContent = `${monthNames[mo]} ${yr}`;
+        monthLabel.innerHTML = `<span class="month-full">${monthNames[mo]} ${yr}</span><span class="month-short hidden">${monthNames[mo].substring(0, 3)} '${String(yr).slice(-2)}</span>`;
 
         // Mapeo de notas y entregas por fecha
         const dateNotesMap = {};
@@ -1515,6 +1515,22 @@
 
         // Widget de Próximo Hito Académico y Personal (Alta Visibilidad en Hero Banner y Cabecera)
         renderMilestoneWidget();
+
+        // Sincronizar estado del acordeón de KPIs
+        const kpiBody = document.getElementById('kpisCollapsibleBody');
+        const kpiTxt = document.getElementById('kpisSlimStatusText');
+        const kpiArr = document.getElementById('kpisSlimArrow');
+        if (kpiBody && state.uiPreferences && state.uiPreferences.kpisCollapsed !== undefined) {
+          if (state.uiPreferences.kpisCollapsed) {
+            kpiBody.classList.add('hidden');
+            if (kpiTxt) kpiTxt.textContent = 'Mostrar';
+            if (kpiArr) kpiArr.textContent = '▼';
+          } else {
+            kpiBody.classList.remove('hidden');
+            if (kpiTxt) kpiTxt.textContent = 'Plegar';
+            if (kpiArr) kpiArr.textContent = '▲';
+          }
+        }
 
         // KPI 1 Dinámico (Módulos Base Activos + Hábitos Personalizados de la Semana en Visualización)
         const enabled = getWeekEnabledModules(w);
@@ -2307,7 +2323,10 @@
           }
         });
 
-        // Agrupar todas las tarjetas métricas activas en una cuadrícula Bento Box adaptativa
+        const todayContainerEl = document.getElementById('todayFocusContainer');
+        const isCompact = (todayContainerEl && todayContainerEl.classList.contains('card-mode-compact')) || (container && container.closest('.card-mode-compact') !== null);
+
+        // Agrupar tarjetas en cuadrícula Bento Box adaptativa
         const todayMetricCards = [];
         if (gymCardHtml) todayMetricCards.push(gymCardHtml);
         if (runCardHtml) todayMetricCards.push(runCardHtml);
@@ -2315,6 +2334,11 @@
         if (studyCardHtml) todayMetricCards.push(studyCardHtml);
         if (nutriCardHtml) todayMetricCards.push(nutriCardHtml);
         metricCustomCards.forEach(c => todayMetricCards.push(c));
+
+        // En modo compacto, fusionar recordatorios directamente en la rejilla para rellenar huecos vacíos
+        if (isCompact) {
+          reminderCustomCards.forEach(c => todayMetricCards.push(c));
+        }
 
         const gridCardsHtml = todayMetricCards.map((cHtml) => {
           return `<div class="h-full flex flex-col">${cHtml}</div>`;
@@ -2338,8 +2362,8 @@
             ${gridCardsHtml || `<div class="${emptySpanClass} p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>`}
           </div>
 
-          <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SIN IMPACTO EN SCORE) -->
-          ${reminderCustomCards.length > 0 ? `
+          <!-- SECCIÓN SEPARADA EXCLUSIVA DE RECORDATORIOS (SOLO EN MODO EXPANDIDO) -->
+          ${(!isCompact && reminderCustomCards.length > 0) ? `
             <div class="pt-3 border-t-2 border-dashed border-stone-300 dark:border-slate-700/80 space-y-2.5 mt-3">
               <div class="flex items-center justify-between text-xs font-bold text-stone-700 dark:text-slate-300 px-1">
                 <div class="flex items-center gap-1.5">
@@ -5780,6 +5804,20 @@
               if (txt) txt.textContent = 'Mostrar';
             }
           }
+        },
+
+        toggleKpisAccordion() {
+          const body = document.getElementById('kpisCollapsibleBody');
+          const statusText = document.getElementById('kpisSlimStatusText');
+          const arrow = document.getElementById('kpisSlimArrow');
+          if (!body) return;
+          const isHidden = body.classList.toggle('hidden');
+          if (statusText) statusText.textContent = isHidden ? 'Mostrar' : 'Plegar';
+          if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
+          if (!state.uiPreferences) state.uiPreferences = {};
+          state.uiPreferences.kpisCollapsed = isHidden;
+          if (typeof saveState === 'function') saveState();
+          if (typeof this.triggerReflow === 'function') this.triggerReflow();
         },
 
         toggleTheme() {
@@ -10928,7 +10966,7 @@
               document.getElementById('undoToast').classList.add('hidden');
               renderApp();
               saveState();
-              this.showToast('↩️ Elemento restaurado', 'info');
+              this.showToast('Elemento restaurado', 'info');
               return;
             }
             this.showToast('No hay acciones recientes para deshacer.', 'info');
@@ -10937,11 +10975,13 @@
           const { actionName, snapshot } = undoStack.pop();
           state = sanitizeState(snapshot);
           renderApp();
+          if (window.WorkspacesManager) window.WorkspacesManager.mountActiveWorkspace();
+          if (typeof app.applyGridLayout === 'function') app.applyGridLayout();
           renderListsTree();
           saveState();
           const undoToastEl = document.getElementById('undoToast');
           if (undoToastEl) undoToastEl.classList.add('hidden');
-          this.showToast(`↩️ Deshecho: ${actionName}`, 'info');
+          this.showToast(`Deshecho: ${actionName}`, 'info');
         },
 
         // --- CONFLICTO DE GOOGLE DRIVE ---

@@ -1221,6 +1221,10 @@ var activeSubjectPromptContext = null; // { mode: 'add'|'rename', oldName }
           if (undoStack.length > MAX_UNDO) undoStack.shift();
         } catch (_) {}
       }
+      if (typeof window !== 'undefined') {
+        window.pushUndo = pushUndo;
+        window.undoStack = undoStack;
+      }
 
       // PERSISTENCIA DE MANEJADOR DE ARCHIVO DISCO / DRIVE VÍA INDEXEDDB
       const IDB_NAME = 'CENTRO_CONTROL_IDB';
