@@ -2240,28 +2240,36 @@
               const isChecked = (dayVal === true || dayVal === 1 || dayVal === 'true' || (Array.isArray(dayVal) && dayVal[0]));
               const slotHour = (h.slotLabels && h.slotLabels[0]) || h.fixedHour || '';
               const isLate = (isRealToday && slotHour && currentHourStr > slotHour && !isChecked);
+              const isRem = !!h.isReminderOnly;
+              const chkBtnClass = isRem
+                ? (isChecked ? 'bg-theme-accent text-white border-theme-accent shadow-xs' : 'bg-white/90 dark:bg-slate-900 border-2 border-theme-accent/60 text-theme-accent font-bold hover:bg-theme-accent-soft')
+                : (isChecked ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs'));
 
               bodyHtml = `
                 <div class="pt-1 flex items-center justify-between gap-2">
-                  <div class="flex items-center gap-1.5 text-[10px] font-mono ${isLate ? 'text-amber-500 font-bold' : 'text-stone-400'}">
+                  <div class="flex items-center gap-1.5 text-[10px] font-mono ${isLate ? 'text-amber-500 font-bold' : (isRem ? 'text-theme-accent font-semibold' : 'text-stone-400')}">
                     ${slotHour ? `<span>${isLate ? '⚠️ Atrasado (' + slotHour + ')' : '⏰ ' + slotHour}</span>` : '<span>Estado:</span>'}
                   </div>
-                  <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition flex items-center gap-2 cursor-pointer ${isChecked ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs')}">
+                  <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition flex items-center gap-2 cursor-pointer ${chkBtnClass}">
                     ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span> <span>Pendiente</span>' : '<span class="w-3.5 h-3.5 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span> <span>Pendiente</span>')}
                   </button>
                 </div>
               `;
             } else {
+              const isRem = !!h.isReminderOnly;
               bodyHtml = `
                 <div class="pt-1.5 space-y-1.5">
-                  <div class="text-[10px] font-bold text-stone-500 uppercase tracking-wider">Tomas de hoy (${daySlots}):</div>
+                  <div class="text-[10px] font-bold ${isRem ? 'text-theme-accent' : 'text-stone-500'} uppercase tracking-wider">Tomas de hoy (${daySlots}):</div>
                   <div class="flex flex-wrap gap-2">
                     ${Array.from({length: daySlots}).map((_, sIdx) => {
                       const isSlotChk = Array.isArray(dayVal) ? !!dayVal[sIdx] : (sIdx === 0 && (dayVal === true || dayVal === 1));
                       const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
                       const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
+                      const slotBtnClass = isRem
+                        ? (isSlotChk ? 'bg-theme-accent text-white border-theme-accent shadow-xs' : 'bg-white/90 dark:bg-slate-900 border-2 border-theme-accent/60 text-theme-accent font-bold hover:bg-theme-accent-soft')
+                        : (isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs'));
                       return `
-                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[75px] py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs')}">
+                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[75px] py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${slotBtnClass}">
                           ${isSlotChk ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<span class="w-3 h-3 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span>'}
                           <span>${slotHour || ('Toma ' + (sIdx + 1))}</span>
                         </button>
@@ -2291,27 +2299,41 @@
           }
 
           const isReminder = !!h.isReminderOnly;
-          const cardBorderColor = isReminder ? 'border-l-[3px] border-l-amber-500 bg-amber-500/[0.02] dark:bg-amber-500/[0.03]' : 'border-l-[3px] border-l-theme-main bg-theme-main/[0.025] dark:bg-theme-main/[0.035]';
-          const iconBorderColor = isReminder ? 'border-amber-500/30 text-amber-500' : 'border-theme/30 text-theme-main';
-          const iconColor = isReminder ? 'text-amber-500' : 'text-theme-main';
+          const cardClass = isReminder
+            ? 'p-3 rounded-xl bg-theme-accent-soft border-2 border-theme-accent/60 space-y-2 flex flex-col justify-between h-full shadow-xs'
+            : 'p-3 rounded-xl subpanel-bg border border-theme space-y-2 flex flex-col justify-between h-full shadow-2xs';
+
+          const iconSealClass = isReminder
+            ? 'w-6 h-6 rounded-lg bg-theme-accent text-white flex items-center justify-center shrink-0 shadow-xs'
+            : 'w-6 h-6 rounded-lg subpanel-bg border border-theme text-theme-main flex items-center justify-center shrink-0 shadow-2xs';
+
+          const iconColor = isReminder ? 'text-white' : 'text-theme-main';
+
+          const badgeHtml = isReminder
+            ? '<span class="px-1.5 py-0.5 rounded text-[8px] font-bold bg-theme-accent text-white font-mono shrink-0 uppercase tracking-wider">Recordatorio</span>'
+            : '<span class="text-[8.5px] font-mono text-stone-400 font-bold uppercase shrink-0">Hábito</span>';
+
+          const footerStatus = isReminder
+            ? '<span class="font-mono font-bold text-theme-accent">Rutina</span>'
+            : `<span class="font-mono font-bold text-theme-main">${Math.round(m.customHabitsPct?.[h.id] || 0)}%</span>`;
 
           const cardHtml = `
-            <div class="p-3 rounded-xl subpanel-bg border ${cardBorderColor} space-y-2 flex flex-col justify-between h-full shadow-2xs">
+            <div class="${cardClass}">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
-                  <span class="w-6 h-6 rounded-lg subpanel-bg border ${iconBorderColor} flex items-center justify-center ${iconColor} shrink-0 shadow-2xs">
+                  <span class="${iconSealClass}">
                     ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3.5 h-3.5 ${iconColor}`)}
                   </span>
                   <span class="font-bold text-xs truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
                 </div>
-                ${isReminder ? '<span class="px-1.5 py-0.2 rounded text-[8px] font-bold bg-amber-500/10 text-amber-500 border border-amber-500/30 font-mono shrink-0">Recordatorio</span>' : '<span class="text-[8.5px] font-mono text-stone-400 font-bold uppercase shrink-0">Hábito</span>'}
+                ${badgeHtml}
               </div>
               <div class="flex-1 flex flex-col justify-center py-0.5">
                 ${bodyHtml}
               </div>
               <div class="mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
                 <span>Meta: ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}</span>
-                <span class="font-mono font-bold ${isReminder ? 'text-amber-500' : 'text-theme-main'}">${isReminder ? 'Rutina' : (Math.round(m.customHabitsPct?.[h.id] || 0) + '%')}</span>
+                ${footerStatus}
               </div>
             </div>
           `;
@@ -5837,8 +5859,8 @@
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
           if (ws && ws.grid && ws.grid['topKpisWrapper']) {
             const cfg = ws.grid['topKpisWrapper'];
-            cfg.rowSpan = isHidden ? 3 : 8;
-            cfg.manualRows = isHidden ? 3 : 8;
+            cfg.rowSpan = isHidden ? 2 : 8;
+            cfg.manualRows = isHidden ? 2 : 8;
             if (wrap) {
               wrap.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
             }
@@ -6626,37 +6648,115 @@
           }
         },
 
-        // Métodos del Dock Flotante (Gmail / macOS Style)
-        toggleDockPomo(forceOpen) {
-          const win = document.getElementById('dockPomoWindow');
-          if (!win) return;
-          const willOpen = forceOpen !== undefined ? forceOpen : win.classList.contains('hidden');
-          if (willOpen) {
-            win.classList.remove('hidden');
-            const expWin = document.getElementById('dockExpenseWindow');
-            if (expWin) expWin.classList.add('hidden');
-            document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
-          } else {
-            win.classList.add('hidden');
-          }
-        },
+        // Métodos del Panel Lateral Derecho del Dock (100% VH - Flujo Natural)
+        activeDockTool: null,
 
-        toggleDockExpense(forceOpen) {
-          const win = document.getElementById('dockExpenseWindow');
-          if (!win) return;
-          const willOpen = forceOpen !== undefined ? forceOpen : win.classList.contains('hidden');
-          if (willOpen) {
-            win.classList.remove('hidden');
-            const pomoWin = document.getElementById('dockPomoWindow');
-            if (pomoWin) pomoWin.classList.add('hidden');
-            document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
+        openDockSidebar(mode) {
+          const sidebar = document.getElementById('dockRightSidebar');
+          const titleEl = document.getElementById('dockRightSidebarTitle');
+          const iconEl = document.getElementById('dockRightSidebarIcon');
+          const pomoWin = document.getElementById('dockPomoWindow');
+          const expWin = document.getElementById('dockExpenseWindow');
+          const customBox = document.getElementById('dockRightSidebarCustomContent');
+          if (!sidebar) return;
+
+          this.activeDockTool = mode;
+          sidebar.classList.remove('hidden');
+          document.body.classList.add('dock-sidebar-open');
+
+          // Desactivar pastillas previas
+          document.querySelectorAll('#floatingDock button, #floatingDock [data-dock-pill-id]').forEach(btn => {
+            btn.classList.remove('dock-pill-active');
+          });
+
+          // Ocultar todos los paneles internos por defecto
+          if (pomoWin) pomoWin.classList.add('hidden');
+          if (expWin) expWin.classList.add('hidden');
+          if (customBox) {
+            customBox.classList.add('hidden');
+            customBox.innerHTML = '';
+          }
+
+          if (mode === 'pomo') {
+            if (pomoWin) pomoWin.classList.remove('hidden');
+            if (titleEl) titleEl.textContent = 'Enfoque Pomodoro';
+            if (iconEl) iconEl.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>`;
+            const pill = document.getElementById('dockPomoPill');
+            if (pill) pill.classList.add('dock-pill-active');
+          } else if (mode === 'expense') {
+            if (expWin) expWin.classList.remove('hidden');
+            if (titleEl) titleEl.textContent = 'Registro de Gasto Rápido';
+            if (iconEl) iconEl.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>`;
+            const pill = document.getElementById('dockExpensePill');
+            if (pill) pill.classList.add('dock-pill-active');
             renderDockExpenseUI();
             setTimeout(() => {
               const inp = document.getElementById('dockExpenseAmount');
               if (inp) inp.focus();
             }, 60);
           } else {
-            win.classList.add('hidden');
+            // Widget dinámico
+            if (customBox) {
+              customBox.classList.remove('hidden');
+              const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(mode) : { name: mode, iconSvg: '' };
+              if (titleEl) titleEl.textContent = def.name || mode;
+              if (iconEl) iconEl.innerHTML = def.iconSvg || `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
+              
+              if (window.WidgetsRegistry) {
+                const mountedEl = window.WidgetsRegistry.mountWidget(mode, customBox);
+                if (mountedEl) {
+                  mountedEl.setAttribute('data-cols', '3');
+                  mountedEl.classList.add('card-mode-compact');
+                }
+              }
+            }
+            const pill = document.querySelector(`[data-dock-pill-id="${mode}"]`);
+            if (pill) pill.classList.add('dock-pill-active');
+          }
+
+          if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
+            setTimeout(() => {
+              window.GridEngine.applyGridLayout();
+            }, 50);
+          }
+        },
+
+        closeDockSidebar() {
+          const sidebar = document.getElementById('dockRightSidebar');
+          if (sidebar) sidebar.classList.add('hidden');
+          this.activeDockTool = null;
+          document.body.classList.remove('dock-sidebar-open');
+          document.querySelectorAll('#floatingDock button, #floatingDock [data-dock-pill-id]').forEach(btn => {
+            btn.classList.remove('dock-pill-active');
+          });
+          const customBox = document.getElementById('dockRightSidebarCustomContent');
+          if (customBox) {
+            customBox.innerHTML = '';
+          }
+          if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
+            setTimeout(() => {
+              window.GridEngine.applyGridLayout();
+            }, 50);
+          }
+        },
+
+        toggleDockPomo() {
+          const sidebar = document.getElementById('dockRightSidebar');
+          const isVisible = sidebar && !sidebar.classList.contains('hidden');
+          if (isVisible && this.activeDockTool === 'pomo') {
+            this.closeDockSidebar();
+          } else {
+            this.openDockSidebar('pomo');
+          }
+        },
+
+        toggleDockExpense() {
+          const sidebar = document.getElementById('dockRightSidebar');
+          const isVisible = sidebar && !sidebar.classList.contains('hidden');
+          if (isVisible && this.activeDockTool === 'expense') {
+            this.closeDockSidebar();
+          } else {
+            this.openDockSidebar('expense');
           }
         },
 
@@ -12492,9 +12592,7 @@
           app.closeModal('modalKpi4Budget');
           app.closeModal('modalBulkEditListItems');
           app.toggleZen(false);
-          app.toggleDockPomo(false);
-          app.toggleDockExpense(false);
-          document.querySelectorAll('[id^="dockWin_"]').forEach(w => w.classList.add('hidden'));
+          if (app.closeDockSidebar) app.closeDockSidebar();
           app.closeModal('closeWeekModal');
           app.closeModal('backupModal');
           app.closeModal('customMuscleModal');

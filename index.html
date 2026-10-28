@@ -2913,154 +2913,10 @@
   <!-- ========================================================
        DOCK FLOTANTE INFERIOR CENTRADO (macOS STYLE)
        ======================================================== -->
-  <div id="floatingDock" class="fixed bottom-16 sm:bottom-5 left-1/2 -translate-x-1/2 z-40 flex flex-col items-center gap-2.5 pointer-events-auto select-none print:hidden">
-
-    <!-- VENTANA FLOTANTE 1: POMODORO MINIMIZABLE -->
-    <div id="dockPomoWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-80 md:w-88 max-w-sm shadow-2xl transition-all duration-200 border">
-      <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
-        <div class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-          <span class="font-serif font-bold text-sm tracking-tight" id="dockPomoTitle">Enfoque Pomodoro</span>
-          <span id="dockPomoPhaseBadge" class="text-[9px] font-mono uppercase font-extrabold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">ENFOQUE</span>
-        </div>
-        <div class="flex items-center gap-1">
-          <button onclick="app.toggleZen(true)" class="p-1 rounded text-slate-400 hover:text-cyan-400 text-xs font-semibold" title="Modo Zen Pantalla Completa">Zen</button>
-          <button onclick="app.toggleDockPomo(false)" class="p-1 rounded text-slate-400 hover:text-rose-400 text-xs font-bold" title="Minimizar ventana">✕</button>
-        </div>
-      </div>
-
-      <!-- Selector Asignatura Dock + Modo Pomodoro -->
-      <div class="mb-2.5 space-y-1.5">
-        <select id="dockPomoSubject" onchange="app.changePomoSubject(this.value)" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-semibold outline-none cursor-pointer"></select>
-        <div id="dockPomoSubjectStats" class="text-[10px] text-stone-500 dark:text-slate-400 font-mono flex items-center justify-between px-1">
-          <span>Semana en asignatura:</span>
-          <strong id="dockPomoSubjectHours" class="text-blue-600 dark:text-blue-400">0.0h</strong>
-        </div>
-        <div class="flex items-center gap-1.5">
-          <select id="dockPomoPreset" onchange="app.setPomoPreset(this.value)" class="flex-1 input-bg border rounded-xl px-2.5 py-1 text-[11px] font-semibold outline-none cursor-pointer">
-            <option value="25-5">25 / 5 min (Clásico)</option>
-            <option value="50-10">50 / 10 min (Extenso)</option>
-            <option value="free">Libre / Manual</option>
-          </select>
-          <button type="button" onclick="app.toggleDockPomoSettings()" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1" title="Ajustes de sonido y volumen">
-            <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
-            <span>Ajustar</span>
-          </button>
-        </div>
-      </div>
-
-      <!-- Drawer de Ajustes y Sonido en Dock Flotante -->
-      <div id="dockPomoSettingsDrawer" class="hidden mb-2.5 p-2.5 rounded-xl subpanel-bg border space-y-2 text-[11px]">
-        <div class="space-y-1">
-          <span class="text-stone-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
-            <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
-            <span>Sonido Alarma:</span>
-          </span>
-          <select id="dockPomoSoundSelect" onchange="app.changePomoSound(this.value)" class="w-full input-bg border rounded-lg px-2 py-1 text-xs font-semibold outline-none cursor-pointer">
-            <option value="bowl">Cuenco Zen Tibetano</option>
-            <option value="chord">Acorde Armónico</option>
-            <option value="bell">Campana Cristalina</option>
-            <option value="pulse">Pulso Digital Moderno</option>
-            <option value="silent">Silencioso (Parpadeo y título)</option>
-          </select>
-        </div>
-        <div class="space-y-0.5">
-          <div class="flex items-center justify-between text-[10px] font-bold">
-            <span class="text-stone-700 dark:text-slate-300 flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
-              <span>Volumen:</span>
-            </span>
-            <span id="dockVolumeLabel" class="font-mono text-theme-main">80%</span>
-          </div>
-          <input id="dockVolumeSlider" type="range" min="0" max="100" value="80" oninput="app.changePomoVolume(this.value)" class="w-full accent-theme-main cursor-pointer" />
-        </div>
-      </div>
-
-      <!-- Inputs libres en Dock cuando está en modo Libre/Manual -->
-      <div id="dockPomoFreeInputs" class="hidden mb-2 p-2 rounded-xl subpanel-bg border flex items-center justify-between gap-1 text-[11px]">
-        <span class="text-slate-400 font-medium">Estudio:</span>
-        <input id="dockFreeStudyMin" type="number" min="1" max="180" class="w-12 input-bg border rounded-lg py-0.5 text-center font-mono font-bold text-theme-main outline-none" oninput="app.updateFreeStudyMin(this.value)" onchange="app.updateFreeStudyMin(this.value)" />
-        <span class="text-slate-400 font-medium">m</span>
-        <span class="text-slate-400 font-medium ml-1">Descanso:</span>
-        <input id="dockFreeRestMin" type="number" min="1" max="60" class="w-12 input-bg border rounded-lg py-0.5 text-center font-mono font-bold text-theme-accent outline-none" oninput="app.updateFreeRestMin(this.value)" onchange="app.updateFreeRestMin(this.value)" />
-        <span class="text-slate-400 font-medium">m</span>
-      </div>
-
-      <!-- Reloj Grande + Tiempo Efectivo -->
-      <div class="text-center py-2.5 mb-2.5 subpanel-bg rounded-xl border">
-        <div id="dockPomoDisplay" onclick="app.toggleDockPomoSettings()" class="text-4xl font-extrabold font-mono tracking-tight cursor-pointer hover:text-theme-main transition" title="Haz clic para abrir ajustes de tiempo y sonido">25:00</div>
-        <div class="text-[11px] text-slate-400 mt-1">
-          Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span>
-        </div>
-      </div>
-
-      <!-- Ajustes rápidos de tiempo -->
-      <div class="flex items-center justify-between gap-1 mb-3 text-[10px]">
-        <button onclick="app.adjustClock(-5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-cyan-500 font-semibold">-5m</button>
-        <button onclick="app.adjustClock(-1)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-cyan-500 font-semibold">-1m</button>
-        <button onclick="app.adjustClock(1)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-cyan-500 font-semibold">+1m</button>
-        <button onclick="app.adjustClock(5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-cyan-500 font-semibold">+5m</button>
-      </div>
-
-      <!-- Botones de Acción -->
-      <div class="flex items-center gap-2">
-        <button onclick="app.togglePomo()" id="dockPomoPlayBtn" class="flex-1 py-2 rounded-xl bg-theme-accent hover:bg-theme-accent text-white font-bold text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
-          <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
-          <span id="dockPomoPlayBtnLabel">Iniciar</span>
-        </button>
-        <button onclick="app.commitStudyToToday()" class="px-3 py-2 rounded-xl bg-theme-main hover:bg-theme-main text-white font-bold text-xs shadow-md border border-theme-main active:translate-y-0.5 transition flex items-center gap-1" title="Volcar horas acumuladas al día de hoy">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
-          <span>Volcar</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- VENTANA FLOTANTE 2: GASTO RÁPIDO MINIMIZABLE -->
-    <div id="dockExpenseWindow" class="hidden dock-glass rounded-2xl p-4 w-[calc(100vw-2rem)] sm:w-80 md:w-88 max-w-sm shadow-2xl transition-all duration-200 border">
-      <div class="flex items-center justify-between pb-2 mb-2.5 border-b border-slate-700/40">
-        <div class="flex items-center gap-2">
-          <svg class="w-4 h-4 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"></line><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-          <span class="font-serif font-bold text-sm tracking-tight">Registro Rápido de Gasto</span>
-        </div>
-        <button onclick="app.toggleDockExpense(false)" class="p-1 rounded text-slate-400 hover:text-rose-400 text-xs font-bold" title="Minimizar">✕</button>
-      </div>
-
-      <div class="space-y-2.5">
-        <div class="grid grid-cols-2 gap-2">
-          <div>
-            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Importe (€ o cálculo):</label>
-            <input id="dockExpenseAmount" type="text" inputmode="decimal" placeholder="0.00 o ej: 15.6-2.3" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold focus:border-theme outline-none" />
-          </div>
-          <div>
-            <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Día:</label>
-            <select id="dockExpenseDay" class="w-full input-bg border rounded-xl px-2 py-1.5 text-xs font-semibold focus:border-theme outline-none"></select>
-          </div>
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Concepto:</label>
-          <input id="dockExpenseConcept" type="text" placeholder="Ej: Café, Supermercado..." oninput="app.onDockConceptInput(this.value)" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs focus:border-theme outline-none" autocomplete="off" />
-        </div>
-
-        <div>
-          <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Categoría:</label>
-          <select id="dockExpenseCategory" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:border-theme outline-none"></select>
-        </div>
-
-        <!-- Chips frecuentes en dock -->
-        <div id="dockExpenseChips" class="flex flex-wrap gap-1 max-h-16 overflow-y-auto py-1"></div>
-
-        <button onclick="app.submitDockExpense()" class="w-full py-2.5 rounded-xl bg-accent-green hover:bg-accent-green text-white font-bold text-xs shadow-md border border-emerald-500/50 active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
-          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-          <span>Añadir Gasto</span>
-        </button>
-      </div>
-    </div>
-
-    <!-- BARRA DE PASTILLAS MINIMIZADAS (SIEMPRE DISPONIBLE EN ESQUINA) -->
+  <div id="floatingDock" class="fixed bottom-16 sm:bottom-4 left-1/2 -translate-x-1/2 z-40 flex items-center justify-center pointer-events-auto select-none print:hidden">
     <div class="flex items-center gap-2">
       <!-- Pastilla Pomodoro -->
-      <button onclick="app.toggleDockPomo()" id="dockPomoPill" class="dock-glass border px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer" title="Abrir temporizador flotante">
+      <button onclick="app.toggleDockPomo()" id="dockPomoPill" class="dock-glass border px-3 py-1.5 rounded-full flex items-center gap-2 text-xs font-bold shadow-lg hover:scale-105 active:scale-95 transition-all cursor-pointer" title="Abrir temporizador en panel lateral">
         <span class="relative flex h-2 w-2">
           <span id="dockPomoLivePing" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-cyan-400 opacity-75"></span>
           <span id="dockPomoLiveDot" class="relative inline-flex rounded-full h-2 w-2 bg-slate-400"></span>
@@ -3076,7 +2932,6 @@
         <span class="text-[10px] opacity-60 font-mono hidden sm:inline">[N]</span>
       </button>
     </div>
-
   </div>
 
   <!-- ========================================================
@@ -4296,7 +4151,7 @@
               </div>
               <div>
                 <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Mapa Muscular Anatómico <span class="italic font-normal">Interactivo</span></h3>
-                <span class="text-[10px] text-stone-500 dark:text-slate-400">Haz clic en cualquier músculo para abrir su ficha con entrenamientos y ajuste</span>
+                <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Haz clic en cualquier músculo para abrir su ficha con entrenamientos y ajuste</span>
               </div>
             </div>
             <div class="flex items-center gap-1.5 text-[10px] font-bold">
@@ -4347,12 +4202,12 @@
 
           <!-- Pista de Atletismo SVG -->
           <div class="p-3 rounded-xl subpanel-bg border space-y-2">
-            <div class="flex justify-between items-center text-xs">
-              <span class="font-bold text-stone-700 dark:text-slate-300 flex items-center gap-1.5">
-                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
-                <span>Pista de Atletismo Semanal:</span>
+            <div class="flex flex-wrap justify-between items-center gap-1.5 text-xs">
+              <span class="font-bold text-stone-700 dark:text-slate-300 flex items-center gap-1.5 min-w-0">
+                <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                <span class="truncate">Pista de Atletismo:</span>
               </span>
-              <span id="trackDistanceBadge" class="font-mono font-bold text-[11px] px-2 py-0.5 rounded-lg bg-theme-soft text-theme-main border border-theme">0.0 / 15.0 km</span>
+              <span id="trackDistanceBadge" class="font-mono font-bold text-[11px] px-2 py-0.5 rounded-lg bg-theme-soft text-theme-main border border-theme shrink-0">0.0 / 15.0 km</span>
             </div>
             <div id="runningTrackSvgContainer" class="flex justify-center"></div>
           </div>
@@ -4408,6 +4263,155 @@
       </div>
 
     </div>
+
+    <!-- ========================================================
+         COLUMNA DERECHA AUXILIAR: PANEL LATERAL DEL DOCK (100% VH)
+         ======================================================== -->
+    <aside id="dockRightSidebar" class="hidden w-80 sm:w-88 shrink-0 sticky top-0 h-screen overflow-y-auto z-40 border-l border-theme panel-bg p-3.5 space-y-3 shadow-2xl flex flex-col transition-all duration-200" aria-label="Panel Lateral Derecho del Dock">
+      <!-- Cabecera de la Sidebar Derecha -->
+      <div class="flex items-center justify-between pb-2 border-b border-theme shrink-0">
+        <div class="flex items-center gap-2 min-w-0">
+          <span id="dockRightSidebarIcon" class="vector-seal w-6 h-6 bg-theme-main text-white text-[11px] shrink-0">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </span>
+          <span id="dockRightSidebarTitle" class="font-serif font-bold text-xs truncate">Enfoque Pomodoro</span>
+        </div>
+        <button onclick="app.closeDockSidebar()" class="w-6 h-6 rounded-lg subpanel-bg border border-theme text-[11px] flex items-center justify-center text-stone-400 hover:text-stone-800 dark:hover:text-white cursor-pointer shrink-0" title="Cerrar Panel Lateral">✕</button>
+      </div>
+
+      <!-- Contenedor de Contenido Dinámico del Dock -->
+      <div id="dockRightSidebarBody" class="flex-1 overflow-y-auto space-y-3">
+        <!-- VENTANA 1: POMODORO -->
+        <div id="dockPomoWindow" class="hidden editorial-card panel-bg rounded-2xl p-3.5 space-y-3 border border-theme shadow-sm">
+          <div class="flex items-center justify-between pb-1.5 border-b border-theme/40">
+            <span id="dockPomoPhaseBadge" class="text-[9px] font-mono uppercase font-extrabold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">ENFOQUE</span>
+            <button onclick="app.toggleZen(true)" class="px-2 py-0.5 rounded text-stone-500 hover:text-theme-main text-xs font-semibold" title="Modo Zen Pantalla Completa">Modo Zen</button>
+          </div>
+
+          <!-- Selector Asignatura Dock + Modo Pomodoro -->
+          <div class="space-y-1.5">
+            <select id="dockPomoSubject" onchange="app.changePomoSubject(this.value)" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-semibold outline-none cursor-pointer"></select>
+            <div id="dockPomoSubjectStats" class="text-[10px] text-stone-500 dark:text-slate-400 font-mono flex items-center justify-between px-1">
+              <span>Semana en asignatura:</span>
+              <strong id="dockPomoSubjectHours" class="text-blue-600 dark:text-blue-400">0.0h</strong>
+            </div>
+            <div class="flex items-center gap-1.5">
+              <select id="dockPomoPreset" onchange="app.setPomoPreset(this.value)" class="flex-1 input-bg border rounded-xl px-2.5 py-1 text-[11px] font-semibold outline-none cursor-pointer">
+                <option value="25-5">25 / 5 min (Clásico)</option>
+                <option value="50-10">50 / 10 min (Extenso)</option>
+                <option value="free">Libre / Manual</option>
+              </select>
+              <button type="button" onclick="app.toggleDockPomoSettings()" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme text-stone-700 dark:text-slate-300 font-bold text-xs flex items-center gap-1" title="Ajustes de sonido y volumen">
+                <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Ajustar</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Drawer de Ajustes y Sonido en Dock Flotante -->
+          <div id="dockPomoSettingsDrawer" class="hidden p-2.5 rounded-xl subpanel-bg border space-y-2 text-[11px]">
+            <div class="space-y-1">
+              <span class="text-stone-700 dark:text-slate-300 font-bold flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                <span>Sonido Alarma:</span>
+              </span>
+              <select id="dockPomoSoundSelect" onchange="app.changePomoSound(this.value)" class="w-full input-bg border rounded-lg px-2 py-1 text-xs font-semibold outline-none cursor-pointer">
+                <option value="bowl">Cuenco Zen Tibetano</option>
+                <option value="chord">Acorde Armónico</option>
+                <option value="bell">Campana Cristalina</option>
+                <option value="pulse">Pulso Digital Moderno</option>
+                <option value="silent">Silencioso (Parpadeo y título)</option>
+              </select>
+            </div>
+            <div class="space-y-0.5">
+              <div class="flex items-center justify-between text-[10px] font-bold">
+                <span class="text-stone-700 dark:text-slate-300 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon><path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path></svg>
+                  <span>Volumen:</span>
+                </span>
+                <span id="dockVolumeLabel" class="font-mono text-theme-main">80%</span>
+              </div>
+              <input id="dockVolumeSlider" type="range" min="0" max="100" value="80" oninput="app.changePomoVolume(this.value)" class="w-full accent-theme-main cursor-pointer" />
+            </div>
+          </div>
+
+          <!-- Inputs libres en Dock cuando está en modo Libre/Manual -->
+          <div id="dockPomoFreeInputs" class="hidden p-2 rounded-xl subpanel-bg border flex items-center justify-between gap-1 text-[11px]">
+            <span class="text-slate-400 font-medium">Estudio:</span>
+            <input id="dockFreeStudyMin" type="number" min="1" max="180" class="w-12 input-bg border rounded-lg py-0.5 text-center font-mono font-bold text-theme-main outline-none" oninput="app.updateFreeStudyMin(this.value)" onchange="app.updateFreeStudyMin(this.value)" />
+            <span class="text-slate-400 font-medium">m</span>
+            <span class="text-slate-400 font-medium ml-1">Descanso:</span>
+            <input id="dockFreeRestMin" type="number" min="1" max="60" class="w-12 input-bg border rounded-lg py-0.5 text-center font-mono font-bold text-theme-accent outline-none" oninput="app.updateFreeRestMin(this.value)" onchange="app.updateFreeRestMin(this.value)" />
+            <span class="text-slate-400 font-medium">m</span>
+          </div>
+
+          <!-- Reloj Grande + Tiempo Efectivo -->
+          <div class="text-center py-2.5 subpanel-bg rounded-xl border">
+            <div id="dockPomoDisplay" onclick="app.toggleDockPomoSettings()" class="text-4xl font-extrabold font-mono tracking-tight cursor-pointer hover:text-theme-main transition" title="Haz clic para abrir ajustes de tiempo y sonido">25:00</div>
+            <div class="text-[11px] text-slate-400 mt-1">
+              Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span>
+            </div>
+          </div>
+
+          <!-- Ajustes rápidos de tiempo -->
+          <div class="flex items-center justify-between gap-1 text-[10px]">
+            <button onclick="app.adjustClock(-5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">-5m</button>
+            <button onclick="app.adjustClock(-1)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">-1m</button>
+            <button onclick="app.adjustClock(1)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">+1m</button>
+            <button onclick="app.adjustClock(5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">+5m</button>
+          </div>
+
+          <!-- Botones de Acción -->
+          <div class="flex items-center gap-2">
+            <button onclick="app.togglePomo()" id="dockPomoPlayBtn" class="flex-1 py-2 rounded-xl bg-theme-accent hover:bg-theme-accent text-white font-bold text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              <span id="dockPomoPlayBtnLabel">Iniciar</span>
+            </button>
+            <button onclick="app.commitStudyToToday()" class="px-3 py-2 rounded-xl bg-theme-main hover:bg-theme-main text-white font-bold text-xs shadow-md border border-theme-main active:translate-y-0.5 transition flex items-center gap-1" title="Volcar horas acumuladas al día de hoy">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/></svg>
+              <span>Volcar</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- VENTANA 2: GASTO RÁPIDO -->
+        <div id="dockExpenseWindow" class="hidden editorial-card panel-bg rounded-2xl p-3.5 space-y-3 border border-theme shadow-sm">
+          <div class="space-y-2.5">
+            <div class="grid grid-cols-2 gap-2">
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Importe (€ o cálculo):</label>
+                <input id="dockExpenseAmount" type="text" inputmode="decimal" placeholder="0.00 o ej: 15.6-2.3" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-mono font-bold focus:border-theme outline-none" />
+              </div>
+              <div>
+                <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Día:</label>
+                <select id="dockExpenseDay" class="w-full input-bg border rounded-xl px-2 py-1.5 text-xs font-semibold focus:border-theme outline-none"></select>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Concepto:</label>
+              <input id="dockExpenseConcept" type="text" placeholder="Ej: Café, Supermercado..." oninput="app.onDockConceptInput(this.value)" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs focus:border-theme outline-none" autocomplete="off" />
+            </div>
+
+            <div>
+              <label class="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">Categoría:</label>
+              <select id="dockExpenseCategory" class="w-full input-bg border rounded-xl px-2.5 py-1.5 text-xs font-semibold focus:border-theme outline-none"></select>
+            </div>
+
+            <!-- Chips frecuentes en dock -->
+            <div id="dockExpenseChips" class="flex flex-wrap gap-1 max-h-16 overflow-y-auto py-1"></div>
+
+            <button onclick="app.submitDockExpense()" class="w-full py-2.5 rounded-xl bg-theme-main hover:bg-theme-main text-white font-bold text-xs shadow-md border border-theme-main active:translate-y-0.5 transition flex items-center justify-center gap-1.5">
+              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+              <span>Añadir Gasto</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- CONTENEDOR PARA WIDGETS DINÁMICOS DEL DOCK -->
+        <div id="dockRightSidebarCustomContent" class="space-y-3 min-h-[100px]"></div>
+      </div>
+    </aside>
 
   </div>
 

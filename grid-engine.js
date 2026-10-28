@@ -247,7 +247,7 @@ var GridEngine = {
                 id: 'ws-1',
                 name: 'Hoy y Enfoque',
                 grid: {
-                  topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 3, isPinned: false, compact: false },
+                  topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 2, isPinned: false, compact: false },
                   todayFocusContainer: { col: 1, colSpan: 6, row: 4, rowSpan: 18, isPinned: false, compact: false },
                   notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 4, rowSpan: 8, isPinned: false, compact: false },
                   interactiveListsPanel: { col: 7, colSpan: 6, row: 12, rowSpan: 14, isPinned: false, compact: false },
@@ -1101,6 +1101,7 @@ var GridEngine = {
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id, iconSvg: '' };
             const pill = document.createElement('div');
             pill.className = 'dock-glass border px-2.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg transition-all cursor-pointer relative';
+            pill.setAttribute('data-dock-pill-id', id);
             pill.innerHTML = `
               <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
               <span class="text-[11px] truncate max-w-[90px]">${def.name}</span>
@@ -1114,46 +1115,13 @@ var GridEngine = {
         },
 
         toggleDockCustomWindow(widgetId) {
-          const dock = document.getElementById('floatingDock');
-          if (!dock) return;
-          let win = document.getElementById('dockWin_' + widgetId);
-          const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(widgetId) : { name: widgetId, iconSvg: '' };
-
-          if (!win) {
-            win = document.createElement('div');
-            win.id = 'dockWin_' + widgetId;
-            win.className = 'dock-glass panel-bg rounded-2xl p-3 w-[calc(100vw-2rem)] sm:w-88 max-w-sm shadow-2xl transition-all duration-200 border border-theme space-y-2 z-50';
-            win.innerHTML = `
-              <div class="flex items-center justify-between pb-1.5 border-b border-theme">
-                <div class="flex items-center gap-1.5 min-w-0">
-                  <span class="vector-seal w-5 h-5 bg-theme-main text-white text-[10px] shrink-0">${def.iconSvg || ''}</span>
-                  <span class="font-serif font-bold text-xs tracking-tight text-stone-900 dark:text-white truncate">${def.name}</span>
-                </div>
-                <button type="button" onclick="document.getElementById('dockWin_${widgetId}').classList.add('hidden')" class="w-5 h-5 rounded subpanel-bg border border-theme text-stone-400 hover:text-stone-900 dark:hover:text-white text-xs font-bold flex items-center justify-center cursor-pointer shrink-0" title="Cerrar ventana">✕</button>
-              </div>
-              <div id="dockContent_${widgetId}" class="max-h-[65vh] overflow-y-auto space-y-2"></div>
-            `;
-            dock.insertBefore(win, dock.firstChild);
+          const sidebar = document.getElementById('dockRightSidebar');
+          const isVisible = sidebar && !sidebar.classList.contains('hidden');
+          if (isVisible && typeof app !== 'undefined' && app.activeDockTool === widgetId) {
+            if (app.closeDockSidebar) app.closeDockSidebar();
           } else {
-            win.classList.toggle('hidden');
-          }
-
-          if (!win.classList.contains('hidden')) {
-            if (typeof app !== 'undefined') {
-              if (app.toggleDockPomo) app.toggleDockPomo(false);
-              if (app.toggleDockExpense) app.toggleDockExpense(false);
-            }
-            document.querySelectorAll('[id^="dockWin_"]').forEach(w => {
-              if (w.id !== 'dockWin_' + widgetId) w.classList.add('hidden');
-            });
-          }
-
-          const contentBox = document.getElementById('dockContent_' + widgetId);
-          if (contentBox && !win.classList.contains('hidden') && window.WidgetsRegistry) {
-            const mountedEl = window.WidgetsRegistry.mountWidget(widgetId, contentBox);
-            if (mountedEl) {
-              mountedEl.setAttribute('data-cols', '3');
-              mountedEl.classList.add('card-mode-compact');
+            if (typeof app !== 'undefined' && app.openDockSidebar) {
+              app.openDockSidebar(widgetId);
             }
           }
         },

@@ -1059,6 +1059,51 @@
     }
 
     /* ========================================================
+       PANEL LATERAL DERECHO DEL DOCK (100% VH)
+       ======================================================== */
+    #dockRightSidebar {
+      width: 340px !important;
+      max-width: 85vw !important;
+      flex-shrink: 0 !important;
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow-y: auto !important;
+      background: var(--color-panel, #f3ede2) !important;
+      border-left: 1px solid var(--color-border, #d6cbb8) !important;
+      border-right: none !important;
+      border-top: none !important;
+      border-bottom: none !important;
+      border-radius: 0 !important;
+      z-index: 40 !important;
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+    }
+    #dockRightSidebar.hidden {
+      display: none !important;
+    }
+    @media (max-width: 1023px) {
+      #dockRightSidebar {
+        position: fixed !important;
+        top: 0 !important;
+        bottom: 0 !important;
+        right: 0 !important;
+        width: 85vw !important;
+        max-width: 360px !important;
+        z-index: 1000 !important;
+        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5) !important;
+      }
+    }
+
+    /* Pastilla activa en el Dock inferior */
+    .dock-pill-active {
+      background: var(--theme-accent-soft, rgba(239, 68, 68, 0.15)) !important;
+      border-color: var(--theme-accent, #ef4444) !important;
+      color: var(--theme-accent, #ef4444) !important;
+      box-shadow: 0 0 12px var(--theme-accent-soft, rgba(239, 68, 68, 0.3)) !important;
+    }
+
+    /* ========================================================
        SIDEBAR LATERAL IZQUIERDO DE PANTALLA COMPLETA (100% VH)
        ======================================================== */
     #workspaceSidebar {
@@ -1538,13 +1583,26 @@
       }
     }
 
-    /* En pantallas grandes (>=1024px), si el panel lateral está visible (320px), centramos el dock respecto al área visible del tablero */
+    /* En pantallas grandes (>=1024px), si el panel lateral izquierdo o derecho está visible, centramos el dock respecto al área visible del tablero */
     @media (min-width: 1024px) {
-      body.sidebar-view-open #floatingDock,
-      body:has(#workspaceSidebar.sidebar-open) #floatingDock,
-      body:has(#workspaceSidebar:not(.hidden):not(.collapsed)) #floatingDock {
+      body.sidebar-view-open:not(.dock-sidebar-open) #floatingDock,
+      body:has(#workspaceSidebar:not(.hidden):not(.collapsed)):not(.dock-sidebar-open) #floatingDock {
         left: calc(50% + 160px) !important;
       }
+      body.dock-sidebar-open:not(.sidebar-view-open) #floatingDock,
+      body:has(#dockRightSidebar:not(.hidden)):not(.sidebar-view-open) #floatingDock {
+        left: calc(50% - 170px) !important;
+      }
+      body.sidebar-view-open.dock-sidebar-open #floatingDock {
+        left: 50% !important;
+      }
+    }
+
+    /* KPI BARRA SUPERIOR PLEGADA: AJUSTE EXACTO DE ALTURA SIN ESPACIO VACÍO */
+    #topKpisWrapper:has(#kpisCollapsibleBody.hidden) {
+      min-height: 0 !important;
+      height: auto !important;
+      padding-bottom: 0.5rem !important;
     }
 
     /* TIRADORES DE REDIMENSIÓN EN LOS 4 BORDES Y ESQUINA INFERIOR DERECHA */
