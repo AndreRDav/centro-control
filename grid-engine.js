@@ -246,11 +246,12 @@ var GridEngine = {
                 id: 'ws-1',
                 name: 'Hoy y Enfoque',
                 grid: {
-                  todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 18, isPinned: false, compact: false },
-                  notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
-                  interactiveListsPanel: { col: 7, colSpan: 6, row: 9, rowSpan: 14, isPinned: false, compact: false },
-                  tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, rowSpan: 4, isPinned: false, compact: false },
-                  weekTableContainer: { col: 1, colSpan: 12, row: 23, rowSpan: 8, isPinned: false, compact: false }
+                  topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 3, isPinned: false, compact: false },
+                  todayFocusContainer: { col: 1, colSpan: 6, row: 4, rowSpan: 18, isPinned: false, compact: false },
+                  notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 4, rowSpan: 8, isPinned: false, compact: false },
+                  interactiveListsPanel: { col: 7, colSpan: 6, row: 12, rowSpan: 14, isPinned: false, compact: false },
+                  tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 22, rowSpan: 4, isPinned: false, compact: false },
+                  weekTableContainer: { col: 1, colSpan: 12, row: 26, rowSpan: 8, isPinned: false, compact: false }
                 },
                 sidebarWidgets: [],
                 dockWidgets: []
@@ -283,11 +284,10 @@ var GridEngine = {
                 id: 'ws-4',
                 name: 'Rendimiento',
                 grid: {
-                  kpiGridContainer: { col: 1, colSpan: 12, row: 1, rowSpan: 6, isPinned: false, compact: false },
-                  tab4SystemRadarCard: { col: 1, colSpan: 6, row: 7, rowSpan: 12, isPinned: false, compact: false },
-                  tab4StudyHoursTrendCard: { col: 7, colSpan: 6, row: 7, rowSpan: 12, isPinned: false, compact: false },
-                  tab4SavingsRateCard: { col: 1, colSpan: 6, row: 19, rowSpan: 10, isPinned: false, compact: false },
-                  tab4HabitsPerformanceCard: { col: 7, colSpan: 6, row: 19, rowSpan: 10, isPinned: false, compact: false }
+                  tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
+                  tab4CustomHabitsSection: { col: 1, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
+                  tab4BiometricsSection: { col: 7, colSpan: 6, row: 9, rowSpan: 8, isPinned: false, compact: false },
+                  tab4EvolutionSection: { col: 1, colSpan: 12, row: 17, rowSpan: 12, isPinned: false, compact: false }
                 },
                 sidebarWidgets: [],
                 dockWidgets: []
@@ -329,11 +329,15 @@ var GridEngine = {
           };
 
           if (typeof app !== 'undefined' && app.showConfirm) {
-            app.showConfirm(
-              'Restablecer Diseño Predeterminado',
-              '¿Deseas restablecer la ventana actual ("' + wsName + '") a su disposición original predeterminada? Todos los módulos volverán a su posición inicial.',
-              doReset
-            );
+            app.showConfirm({
+              title: 'Restablecer Diseño Predeterminado',
+              message: '¿Deseas restablecer la ventana actual ("' + wsName + '") a su disposición original predeterminada? Todos los módulos volverán a su posición inicial.',
+              confirmText: 'Restablecer',
+              cancelText: 'Cancelar',
+              isDanger: true
+            }).then(confirmed => {
+              if (confirmed) doReset();
+            });
           } else {
             doReset();
           }
@@ -432,6 +436,10 @@ var GridEngine = {
                 el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
                 el.style.gridRow = cfg.row + ' / span ' + finalSpan;
                 el.style.width = '100%';
+                el.setAttribute('data-cols', String(cfg.colSpan || 12));
+                if (el.closest && el.closest('#sidebarWidgetsContainer')) {
+                  el.setAttribute('data-cols', '3');
+                }
 
                 if (window.PolymorphicCards) {
                   window.PolymorphicCards.updateCardAspect(id, cfg.colSpan, finalSpan);
@@ -500,7 +508,7 @@ var GridEngine = {
 
           if (state.ui.isBoardEditMode) {
             if (btn) {
-              btn.className = 'px-3 py-1.5 rounded-xl bg-emerald-500 text-slate-950 font-bold border border-emerald-400 text-xs flex items-center gap-1.5 shadow-md transition whitespace-nowrap cursor-pointer';
+              btn.className = 'px-3 py-1.5 rounded-xl bg-theme-main text-white font-bold border border-theme text-xs flex items-center gap-1.5 shadow-md transition whitespace-nowrap cursor-pointer';
             }
             if (btnLabel) btnLabel.textContent = 'Guardar';
 
@@ -508,8 +516,14 @@ var GridEngine = {
             if (toolbar) toolbar.classList.remove('hidden');
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
-              sidebar.classList.remove('hidden', 'sidebar-collapsed');
-              sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
+              const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+              if (ws && ws.sidebarWidgets && ws.sidebarWidgets.length > 0) {
+                sidebar.classList.remove('hidden', 'sidebar-collapsed');
+                sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
+              } else {
+                sidebar.classList.remove('sidebar-open', 'sidebar-edit-active');
+                sidebar.classList.add('hidden', 'sidebar-collapsed');
+              }
             }
 
             try { this.resolveGridCollisions(tabKey, null); } catch (e) { console.warn('resolveGridCollisions:', e); }
@@ -611,8 +625,14 @@ var GridEngine = {
             ['s', 'e', 'w', 'n', 'se'].forEach(dir => {
               const handle = document.createElement('div');
               handle.className = 'card-resize-handle ' + dirMap[dir] + ' board-edit-ctrl-overlay';
-              handle.title = dir === 'se' ? 'Arrastra para cambiar ancho y altura' : (dir === 'e' || dir === 'w' ? 'Arrastra para cambiar ancho' : 'Arrastra para cambiar altura');
+              handle.title = dir === 'se' ? 'Arrastra para cambiar ancho y altura' : (dir === 'e' || dir === 'w' ? 'Arrastra para cambiar ancho' : 'Arrastra para cambiar altura (Doble clic para ceñir al contenido)');
               handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
+              if (dir === 's') {
+                handle.ondblclick = (e) => {
+                  e.stopPropagation();
+                  this.resetCardManualHeight(id);
+                };
+              }
               el.appendChild(handle);
             });
           });
@@ -769,26 +789,26 @@ var GridEngine = {
                 return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
               });
 
-          drawer.className = 'panel-bg border-r-2 border-emerald-500/50 shadow-2xl flex flex-col overflow-hidden drawer-open';
+          drawer.className = 'panel-bg border-r border-theme shadow-2xl flex flex-col overflow-hidden drawer-open';
           document.body.classList.add('drawer-studio-open');
 
           drawer.innerHTML = `
-            <div class="p-3 border-b border-stone-200 dark:border-slate-800 flex items-center justify-between shrink-0 bg-stone-100/60 dark:bg-slate-900/60">
+            <div class="p-3 border-b border-theme flex items-center justify-between shrink-0 subpanel-bg">
               <div>
                 <h3 class="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
-                  <span class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                  <span class="w-2.5 h-2.5 rounded-full bg-theme-main animate-pulse"></span>
                   <span>Módulos Disponibles (${inactiveWidgets.length})</span>
                 </h3>
                 <p class="text-[10px] text-stone-500 dark:text-slate-400">Arrastra una miniatura al tablero (crece al 100%)</p>
               </div>
-              <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg bg-stone-200 dark:bg-slate-800 border border-stone-300 dark:border-slate-700 text-stone-500 hover:text-stone-900 dark:hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer" title="Cerrar estudio">✕</button>
+              <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg subpanel-bg border border-theme text-stone-500 hover:text-stone-900 dark:hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer" title="Cerrar estudio">✕</button>
             </div>
 
-            <div class="px-2.5 py-1.5 border-b border-stone-200 dark:border-slate-800 flex items-center gap-1 overflow-x-auto text-[11px] shrink-0">
+            <div class="px-2.5 py-1.5 border-b border-theme flex items-center gap-1 overflow-x-auto text-[11px] shrink-0">
               ${Object.keys(CATEGORIES).map(catKey => {
                 const isActive = (selectedCategory === catKey);
                 return `
-                  <button type="button" onclick="app.renderWidgetsDrawer('${catKey}')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold border transition cursor-pointer whitespace-nowrap ${isActive ? 'bg-emerald-500 text-slate-950 border-emerald-400' : 'bg-stone-200 dark:bg-slate-800 text-stone-600 dark:text-slate-300 border-stone-300 dark:border-slate-700 hover:text-stone-900 dark:hover:text-white'}">
+                  <button type="button" onclick="app.renderWidgetsDrawer('${catKey}')" class="px-2 py-0.5 rounded-lg text-[10px] font-bold border transition cursor-pointer whitespace-nowrap ${isActive ? 'bg-theme-main text-white border-theme-main shadow-xs' : 'subpanel-bg text-stone-600 dark:text-slate-300 border-theme hover:text-stone-900 dark:hover:text-white'}">
                     ${CATEGORIES[catKey]}
                   </button>
                 `;
@@ -803,32 +823,32 @@ var GridEngine = {
                   <div class="mini-card-item space-y-1" data-cat="${def.category || 'all'}" data-id="${id}">
                     <div class="flex items-center justify-between text-[11px] font-bold text-stone-800 dark:text-slate-200 px-0.5">
                       <span class="flex items-center gap-1.5 truncate">
-                        <span class="text-emerald-500 shrink-0">${def.iconSvg || ''}</span>
+                        <span class="text-theme-main shrink-0">${def.iconSvg || ''}</span>
                         <span class="truncate">${def.name}</span>
                       </span>
-                      <span class="text-[9px] font-mono px-1 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 font-bold">${def.defaultColSpan || 6}c · ${def.idealRows || 8}f</span>
+                      <span class="text-[9px] font-mono px-1 rounded bg-theme-soft text-theme-main font-bold border border-theme/30">${def.defaultColSpan || 6}c · ${def.idealRows || 8}f</span>
                     </div>
 
                     <div class="mini-card-box cursor-grab" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar">
                       <div class="mini-card-scaled">
                         <div class="flex items-center justify-between border-b pb-1 border-stone-300 dark:border-slate-800 font-bold text-xs text-stone-800 dark:text-slate-200">
                           <span class="truncate">${def.name}</span>
-                          <span class="w-3.5 h-3.5 rounded bg-emerald-500/30"></span>
+                          <span class="w-3.5 h-3.5 rounded bg-theme-soft"></span>
                         </div>
                         <div class="space-y-1.5 opacity-70">
-                          <div class="h-6 rounded bg-emerald-500/10 border border-emerald-500/20 w-full"></div>
+                          <div class="h-6 rounded bg-theme-soft/50 border border-theme/20 w-full"></div>
                           <div class="grid grid-cols-2 gap-1">
-                            <div class="h-7 rounded bg-emerald-500/10 border border-emerald-500/20"></div>
-                            <div class="h-7 rounded bg-emerald-500/10 border border-emerald-500/20"></div>
+                            <div class="h-7 rounded bg-theme-soft/50 border border-theme/20"></div>
+                            <div class="h-7 rounded bg-theme-soft/50 border border-theme/20"></div>
                           </div>
                         </div>
                       </div>
                     </div>
 
                     <div class="flex items-center justify-end gap-1 pt-0.5">
-                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-500 hover:text-slate-950 text-[10px] font-bold border border-emerald-500/30 transition cursor-pointer">+ Cuadrícula</button>
-                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded bg-cyan-500/20 text-cyan-600 dark:text-cyan-400 hover:bg-cyan-500 hover:text-slate-950 text-[10px] font-bold border border-cyan-500/30 transition cursor-pointer">+ Panel</button>
-                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-600 dark:text-amber-400 hover:bg-amber-500 hover:text-slate-950 text-[10px] font-bold border border-amber-500/30 transition cursor-pointer" title="Añadir al dock">+ Dock</button>
+                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer">+ Cuadrícula</button>
+                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded subpanel-bg text-stone-600 dark:text-slate-300 hover:border-theme-main text-[10px] font-bold border border-theme transition cursor-pointer">+ Panel</button>
+                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-theme-accent-soft text-theme-accent hover:bg-theme-accent hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer" title="Añadir al dock">+ Dock</button>
                     </div>
                   </div>
                 `;
@@ -1209,8 +1229,20 @@ var GridEngine = {
           const tabKey = 'tab' + (state.activeTab || 1);
           const layout = this.getGridLayout(tabKey);
           if (!layout[cardId]) return;
-          layout[cardId].manualRows = null;
+          const cfg = layout[cardId];
+          cfg.manualRows = null;
+          const el = document.getElementById(cardId);
+          if (el) {
+            const natural = this.measureNaturalRows(el);
+            if (natural > 0) {
+              cfg.minRows = natural;
+              cfg.rowSpan = natural;
+            }
+          }
           this.compactGrid(tabKey);
+          this.applyGridLayout(tabKey);
+          this.renderBoardEditHandles(tabKey);
+          if (typeof saveState === 'function') saveState();
           this.safeToast('Tarjeta auto-ceñida a su contenido.', 'emerald');
         },
 
@@ -1588,15 +1620,39 @@ var GridEngine = {
               cSpan = Math.max(1, Math.min(maxSpan, origColSpan + deltaCols));
             }
 
+            // Reflow en vivo de tarjetas internas al arrastrar bordes horizontales
+            if (isLeft || isRight) {
+              el.style.gridColumn = c + ' / span ' + cSpan;
+              el.setAttribute('data-cols', String(cSpan));
+              liveMinRows = this.measureNaturalRows(el);
+              cfg.minRows = liveMinRows;
+            }
+
             if (isTop) {
               const origBottom = origRow + origRowSpan;
               r = Math.max(1, Math.min(origBottom - liveMinRows, origRow + deltaRows));
               rSpan = origBottom - r;
             } else if (isBottom) {
-              // Auto-compactación inteligente al encoger hacia arriba
-              if ((origRowSpan + deltaRows) < liveMinRows && !cfg.compact && window.PolymorphicCards) {
-                window.PolymorphicCards.toggleCompactMode(cardId, true);
-                liveMinRows = this.measureNaturalRows(el);
+              // Relación inversa: si empuja hacia arriba más allá del mínimo
+              if ((origRowSpan + deltaRows) < liveMinRows) {
+                // Auto-compactación inteligente al encoger hacia arriba
+                if (!cfg.compact && window.PolymorphicCards) {
+                  window.PolymorphicCards.toggleCompactMode(cardId, true);
+                  liveMinRows = this.measureNaturalRows(el);
+                }
+                // Si aún así no cabe, intentar ensanchar hacia la derecha o izquierda
+                if ((origRowSpan + deltaRows) < liveMinRows) {
+                  if (c + cSpan <= 12) {
+                    cSpan = Math.min(12, cSpan + 1);
+                  } else if (c > 1) {
+                    c = c - 1;
+                    cSpan = cSpan + 1;
+                  }
+                  el.style.gridColumn = c + ' / span ' + cSpan;
+                  el.setAttribute('data-cols', String(cSpan));
+                  liveMinRows = this.measureNaturalRows(el);
+                  cfg.minRows = liveMinRows;
+                }
               }
 
               // Estirar hacia abajo o encoger con tope en liveMinRows
@@ -1663,6 +1719,7 @@ var GridEngine = {
             cfg.row = finalRow;
             cfg.rowSpan = finalRowSpan;
             cfg.manualRows = finalRowSpan;
+            el.setAttribute('data-cols', String(finalColSpan));
 
             this.resolveGridCollisions(tabKey, cardId);
             this.compactGrid(tabKey);

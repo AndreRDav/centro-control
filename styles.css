@@ -1073,19 +1073,22 @@
     }
 
     /* ========================================================
-       SIDEBAR LATERAL IZQUIERDO ACOPLABLE FUERA DE CUADRÍCULA
+       SIDEBAR LATERAL IZQUIERDO DE PANTALLA COMPLETA (100% VH)
        ======================================================== */
     #workspaceSidebar {
-      position: sticky !important;
-      top: 4.5rem !important;
-      align-self: flex-start !important;
       width: 320px !important;
       flex-shrink: 0 !important;
-      max-height: calc(100vh - 5.5rem) !important;
+      position: sticky !important;
+      top: 0 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
       overflow-y: auto !important;
-      background: var(--color-panel) !important;
-      border: 1px solid var(--color-border) !important;
-      border-radius: 1rem !important;
+      background: var(--color-panel, #f3ede2) !important;
+      border-right: 1px solid var(--color-border, #d6cbb8) !important;
+      border-top: none !important;
+      border-bottom: none !important;
+      border-left: none !important;
+      border-radius: 0 !important;
       z-index: 40 !important;
       transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
     }
@@ -1096,7 +1099,7 @@
     @media (max-width: 1023px) {
       #workspaceSidebar {
         position: fixed !important;
-        top: 4.5rem !important;
+        top: 0 !important;
         bottom: 0 !important;
         left: 0 !important;
         width: 85vw !important;
@@ -1359,40 +1362,47 @@
       pointer-events: auto !important;
     }
     .board-edit-header-bar button.header-bar-btn {
-      width: 1.35rem !important;
-      height: 1.35rem !important;
+      width: 1.45rem !important;
+      height: 1.45rem !important;
       border-radius: 0.375rem !important;
       display: flex !important;
       align-items: center !important;
       justify-content: center !important;
       font-size: 0.75rem !important;
       font-weight: 700 !important;
-      background: var(--color-canvas, #f3ede2) !important;
-      border: 1px solid var(--color-border, #d6cbb8) !important;
-      color: var(--color-text, #1c1917) !important;
-      -webkit-text-fill-color: initial !important;
       cursor: pointer !important;
       pointer-events: auto !important;
-      transition: transform 0.1s, background 0.15s !important;
+      transition: transform 0.1s, background 0.15s, color 0.15s !important;
     }
-    .blueprint-theme .board-edit-header-bar button.header-bar-btn {
-      background: #1e293b !important;
-      border-color: #334155 !important;
-      color: #f1f5f9 !important;
+    /* Modo Claro (apagado) */
+    html:not(.dark) .board-edit-header-bar button.header-bar-btn {
+      background: rgba(0, 0, 0, 0.07) !important;
+      border: 1px solid rgba(0, 0, 0, 0.22) !important;
+      color: #1e293b !important;
+    }
+    /* Modo Oscuro (apagado) */
+    html.dark .board-edit-header-bar button.header-bar-btn {
+      background: rgba(255, 255, 255, 0.10) !important;
+      border: 1px solid rgba(255, 255, 255, 0.25) !important;
+      color: #e2e8f0 !important;
+    }
+    .board-edit-header-bar button.header-bar-btn svg {
+      stroke: currentColor !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+      display: inline-block !important;
     }
     .board-edit-header-bar button.header-bar-btn:hover {
-      filter: brightness(1.1) !important;
-      transform: translateY(-1px) !important;
+      transform: scale(1.08) !important;
+      filter: brightness(1.15) !important;
     }
-    .board-edit-header-bar button.header-bar-btn.is-active-pin {
-      background: #f59e0b !important;
-      color: #0f172a !important;
-      border-color: #d97706 !important;
-    }
+    /* Encendidos (activo pin y activo compacto) */
+    .board-edit-header-bar button.header-bar-btn.is-active-pin,
     .board-edit-header-bar button.header-bar-btn.is-active-compact {
-      background: #10b981 !important;
-      color: #0f172a !important;
-      border-color: #059669 !important;
+      background: var(--theme-main) !important;
+      border-color: var(--theme-main) !important;
+      color: #ffffff !important;
+      box-shadow: 0 0 10px var(--theme-100) !important;
     }
     .board-edit-header-bar button.header-bar-btn-lateral {
       padding: 0.15rem 0.4rem !important;
@@ -1432,46 +1442,39 @@
       color: #ffffff !important;
     }
 
-    /* COMPRESIÓN / DESPLAZAMIENTO DEL LIENZO EN MODO EDICIÓN */
-    #workspaceLayoutContainer {
-      transition: margin-left 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
-    }
-    body.board-edit-active #workspaceLayoutContainer,
-    body.drawer-studio-open #workspaceLayoutContainer {
-      margin-left: 330px !important;
-    }
-    @media (max-width: 1200px) {
-      body.board-edit-active #workspaceLayoutContainer,
-      body.drawer-studio-open #workspaceLayoutContainer {
-        margin-left: 0 !important;
-      }
+    /* VIEWPORT Y LIENZO: EL LAYOUT FLEX HORIZONTAL GESTIONA EL ANCHO NATURALMENTE */
+    #appMainViewport {
+      transition: max-width 0.25s cubic-bezier(0.16, 1, 0.3, 1), padding 0.25s ease !important;
     }
 
-    /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS */
+    /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
     #widgetsDrawer {
-      position: fixed !important;
-      top: 4.5rem !important;
-      left: 0 !important;
-      bottom: 0 !important;
+      position: sticky !important;
+      top: 0 !important;
       width: 320px !important;
       max-width: 85vw !important;
-      height: calc(100vh - 4.5rem) !important;
-      z-index: 850 !important;
+      height: 100vh !important;
+      max-height: 100vh !important;
+      overflow-y: auto !important;
+      flex-shrink: 0 !important;
+      z-index: 50 !important;
       display: flex !important;
       flex-direction: column !important;
-      box-shadow: 6px 0 30px rgba(0, 0, 0, 0.35) !important;
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out !important;
-      border-right: 2px solid rgba(16, 185, 129, 0.4) !important;
+      box-shadow: 6px 0 30px rgba(0, 0, 0, 0.25) !important;
+      background: var(--color-panel, #f3ede2) !important;
+      border-right: 2px solid var(--theme-main, #10b981) !important;
       border-top: none !important;
       border-bottom: none !important;
       border-left: none !important;
+      border-radius: 0 !important;
+      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.2s ease-out !important;
     }
-    #widgetsDrawer.drawer-closed {
-      transform: translateX(-100%) !important;
-      pointer-events: none !important;
+    #widgetsDrawer.drawer-closed,
+    #widgetsDrawer.hidden {
+      display: none !important;
     }
     #widgetsDrawer.drawer-open {
-      transform: translateX(0) !important;
+      display: flex !important;
       pointer-events: auto !important;
     }
 
@@ -2005,3 +2008,77 @@
       padding: 2px !important;
     }
 
+
+    /* ========================================================
+       LEY DE CONSERVACIÓN DE ÁREA: REJILLAS INTERNAS ADAPTABLES
+       Gobernadas por data-cols (1 a 12) y .card-mode-compact
+       ======================================================== */
+    .adaptive-internal-grid {
+      display: grid !important;
+      gap: 0.65rem !important;
+      align-items: stretch !important;
+    }
+    /* En Sidebar o cuadros estrechos (1 a 4 cols) */
+    [data-cols="1"] .adaptive-internal-grid,
+    [data-cols="2"] .adaptive-internal-grid,
+    [data-cols="3"] .adaptive-internal-grid,
+    [data-cols="4"] .adaptive-internal-grid,
+    #sidebarWidgetsContainer .adaptive-internal-grid {
+      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+    }
+    [data-cols="3"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="4"].card-mode-compact .adaptive-internal-grid,
+    #sidebarWidgetsContainer .card-mode-compact .adaptive-internal-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    /* Cuadros medianos (5 a 7 cols) */
+    [data-cols="5"] .adaptive-internal-grid,
+    [data-cols="6"] .adaptive-internal-grid,
+    [data-cols="7"] .adaptive-internal-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    }
+    [data-cols="5"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="6"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="7"].card-mode-compact .adaptive-internal-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    /* Cuadros anchos (8 a 10 cols) */
+    [data-cols="8"] .adaptive-internal-grid,
+    [data-cols="9"] .adaptive-internal-grid,
+    [data-cols="10"] .adaptive-internal-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    }
+    [data-cols="8"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="9"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="10"].card-mode-compact .adaptive-internal-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+    /* Cuadros ancho completo (11 a 12 cols) */
+    [data-cols="11"] .adaptive-internal-grid,
+    [data-cols="12"] .adaptive-internal-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+    }
+    [data-cols="11"].card-mode-compact .adaptive-internal-grid,
+    [data-cols="12"].card-mode-compact .adaptive-internal-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    }
+
+    /* Prevenir colapso de texto en Sidebar o anchos estrechos */
+    #sidebarWidgetsContainer [class*="md:col-span-"],
+    [data-cols="1"] [class*="md:col-span-"],
+    [data-cols="2"] [class*="md:col-span-"],
+    [data-cols="3"] [class*="md:col-span-"],
+    [data-cols="4"] [class*="md:col-span-"] {
+      grid-column: 1 / -1 !important;
+    }
+
+    /* Agrupador 50% / 50% de selector de días y progreso en Hoy */
+    .today-top-bars-wrap {
+      display: grid !important;
+      grid-template-columns: 1fr !important;
+      gap: 0.5rem !important;
+    }
+    .editorial-card.card-mode-compact .today-top-bars-wrap {
+      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      align-items: center !important;
+    }

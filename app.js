@@ -1796,9 +1796,8 @@
 
         const container = document.getElementById('todayFocusContent');
         if (!container) return;
-        const isMatrixCollapsed = (state.ui.weekTableCollapsed !== false) || (state.uiPreferences && state.uiPreferences.showWeekMatrix === false);
-        const gridColsClass = isMatrixCollapsed ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4' : 'grid-cols-1 sm:grid-cols-2';
-        const emptySpanClass = isMatrixCollapsed ? 'col-span-1 sm:col-span-2 lg:col-span-3 xl:col-span-4' : 'col-span-1 sm:col-span-2';
+        const gridColsClass = 'adaptive-internal-grid';
+        const emptySpanClass = 'col-span-full';
 
         let urgentHtml = '';
         if (urgentDeliveries.length > 0) {
@@ -1940,7 +1939,7 @@
                       <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
                     ` : ''}
                   </div>
-                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin entrenamiento registrado hoy</div>'}
+                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5 compact-hide">Sin entrenamiento registrado hoy</div>'}
                 ${(() => {
                   if (day.gym.sessions < 2) return '';
                   let extraHtml = '';
@@ -2000,7 +1999,7 @@
                       <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
                     ` : ''}
                   </div>
-                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin carrera registrada hoy</div>'}
+                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5 compact-hide">Sin carrera registrada hoy</div>'}
                 ${(() => {
                   if (day.run.sessions < 2) return '';
                   let extraRun = '';
@@ -2090,7 +2089,7 @@
                 </div>
               </div>
               <div class="academic-classes-grid space-y-1.5 flex-1 flex flex-col justify-center">
-                ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center">— Sin clases programadas para hoy —</div>` : ''}
+                ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center compact-hide">— Sin clases programadas para hoy —</div>` : ''}
                 ${(day.attendance || []).map((c, cIdx) => {
                   let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
                   let btnBg = 'subpanel-bg border';
@@ -2123,6 +2122,7 @@
         let studyCardHtml = '';
         if (enabled.study) {
           const subs = Object.entries(w.studyBySubject || {}).filter(([k, v]) => Number(v) > 0);
+          const totalWeeklyStudy = w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
           studyCardHtml = `
             <!-- Horas de Estudio de Hoy -->
             <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
@@ -2133,11 +2133,11 @@
                   </div>
                   <div>
                     <span class="font-bold block text-xs">Estudio de Hoy</span>
-                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan: ${studyPlan.toFixed(1)}h · Semanal: ${w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0).toFixed(1)}h</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan: ${formatHoursToHMin(studyPlan)} · Semanal: ${formatHoursToHMin(totalWeeklyStudy)}</span>
                   </div>
                 </div>
                 <div class="flex items-center gap-1.5 shrink-0">
-                  <span class="text-xs font-extrabold font-mono text-theme-main">${studyDone.toFixed(1)}h</span>
+                  <span class="text-xs font-extrabold font-mono text-theme-main">${formatHoursToHMin(studyDone)}</span>
                   <span class="text-[9.5px] font-mono font-bold text-stone-400">(${studyPct}%)</span>
                 </div>
               </div>
@@ -2149,12 +2149,12 @@
                   ${subs.slice(0, 3).map(([subName, hrs]) => `
                     <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
                       <span class="truncate max-w-[75px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
-                      <span class="font-mono font-bold text-theme-main">${Number(hrs).toFixed(1)}h</span>
+                      <span class="font-mono font-bold text-theme-main">${formatHoursToHMin(hrs)}</span>
                     </span>
                   `).join('')}
                   ${subs.length > 3 ? `<span class="text-[9px] text-stone-400 self-center">+${subs.length - 3}</span>` : ''}
                 </div>
-              ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5">Sin asignaturas registradas hoy</div>'}
+              ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5 compact-hide">Sin asignaturas registradas hoy</div>'}
               <div class="mt-auto pt-2 flex items-center justify-between gap-1.5 text-xs border-t border-stone-200/50 dark:border-slate-800/50">
                 <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30m</button>
                 <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1h</button>
@@ -2324,12 +2324,17 @@
           return `<div class="h-full flex flex-col">${cHtml}</div>`;
         }).join('');
 
+        const progressSlot = document.getElementById('todayProgressBarSlot');
+        if (progressSlot) {
+          progressSlot.innerHTML = prominentProgressBarHtml;
+        }
+
         container.innerHTML = `
           ${urgentHtml}
-          ${prominentProgressBarHtml}
+          ${!progressSlot ? prominentProgressBarHtml : ''}
 
           <!-- CUADRÍCULA UNIFORME DE HÁBITOS DE HOY (ADAPTATIVA SEGÚN ANCHO) -->
-          <div class="grid ${gridColsClass} gap-3 items-stretch">
+          <div class="adaptive-internal-grid">
             ${gridCardsHtml || `<div class="${emptySpanClass} p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>`}
           </div>
 
@@ -2343,7 +2348,7 @@
                 </div>
                 <span class="text-[9.5px] text-stone-400 font-mono">${reminderCustomCards.length} activos hoy</span>
               </div>
-              <div class="grid ${gridColsClass} gap-3 items-stretch">
+              <div class="adaptive-internal-grid">
                 ${remindersGridHtml}
               </div>
             </div>
@@ -4046,18 +4051,18 @@
                 <div class="font-bold text-stone-900 dark:text-white text-xs truncate">${safeSub}</div>
                 <div class="flex items-center gap-3 text-[10px] text-stone-500 dark:text-slate-400 mt-0.5">
                   <span>Semana: <strong class="text-theme-main dark:text-blue-400 font-mono font-bold">${formatHoursToHMin(curWeekHrs)}</strong></span>
-                  <span>Histórico: <strong class="text-emerald-600 dark:text-emerald-400 font-mono font-bold">${curGlobalHrs.toFixed(1)}h</strong></span>
+                  <span>Histórico: <strong class="text-theme-main font-mono font-bold">${formatHoursToHMin(curGlobalHrs)}</strong></span>
                 </div>
               </div>
               <div class="flex items-center gap-1 shrink-0">
-                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', -1.0)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-rose-500 text-rose-500 dark:text-rose-400 font-mono font-bold text-xs transition" title="Restar 1 hora">-1h</button>
-                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', -0.5)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-rose-500 text-rose-500 dark:text-rose-400 font-mono font-bold text-xs transition" title="Restar 0.5 horas">-0.5h</button>
+                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', -1.0)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-theme-accent text-theme-accent font-mono font-bold text-xs transition" title="Restar 1 hora">-1h</button>
+                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', -0.5)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-theme-accent text-theme-accent font-mono font-bold text-xs transition" title="Restar 0.5 horas">-30m</button>
                 <div class="flex items-center gap-1 mx-1">
-                  <input type="number" step="0.5" min="0" value="${curWeekHrs.toFixed(1)}" onchange="app.setSubjectStudyHours('${subArg}', this.value)" class="w-16 input-bg border rounded-lg py-1 px-1.5 text-center font-mono font-bold text-xs outline-none focus:border-blue-500" title="Editar directamente horas de esta semana" />
+                  <input type="number" step="0.5" min="0" value="${curWeekHrs.toFixed(1)}" onchange="app.setSubjectStudyHours('${subArg}', this.value)" class="w-16 input-bg border rounded-lg py-1 px-1.5 text-center font-mono font-bold text-xs outline-none focus:border-theme" title="Editar directamente horas de esta semana" />
                   <span class="text-stone-400 text-xs">h</span>
                 </div>
-                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', 0.5)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-emerald-500 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs transition" title="Sumar 0.5 horas">+0.5h</button>
-                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', 1.0)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-emerald-500 text-emerald-600 dark:text-emerald-400 font-mono font-bold text-xs transition" title="Sumar 1 hora">+1h</button>
+                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', 0.5)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-theme text-theme-main font-mono font-bold text-xs transition" title="Sumar 0.5 horas">+30m</button>
+                <button type="button" onclick="app.adjustSubjectStudyHours('${subArg}', 1.0)" class="px-2 py-1 rounded-lg subpanel-bg border hover:border-theme text-theme-main font-mono font-bold text-xs transition" title="Sumar 1 hora">+1h</button>
               </div>
             </div>
           `;
@@ -4065,9 +4070,9 @@
 
         container.innerHTML = cardsHtml;
         const elW = document.getElementById('modalStudyWeekTotal');
-        if (elW) elW.textContent = `${weekTotal.toFixed(1)} h`;
+        if (elW) elW.textContent = formatHoursToHMin(weekTotal);
         const elG = document.getElementById('modalStudyGlobalTotal');
-        if (elG) elG.textContent = `${globalTotal.toFixed(1)} h`;
+        if (elG) elG.textContent = formatHoursToHMin(globalTotal);
       }
 
       function renderKpi1BlocksModal() {
@@ -8025,7 +8030,7 @@
         },
 
         closeAllContextMenus() {
-          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover'].forEach(id => {
+          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover', 'workspaceTabActionMenuPopover'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
           });
@@ -8034,6 +8039,7 @@
           activeHabitMenuContext = null;
           activeClassMenuContext = null;
           activeSubjectMenuContext = null;
+          activeWorkspaceTabContext = null;
         },
 
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ELEMENTOS DE LISTAS
@@ -8266,6 +8272,65 @@
             this.openSubjectStudyStatsModal(subjectName);
           } else if (action === 'delete') {
             this.deleteSubjectPrompt(subjectName);
+          }
+        },
+
+        // MENÚ CONTEXTUAL (CLIC DERECHO) PARA PESTAÑAS DE VENTANAS
+        openWorkspaceTabContextMenu(event, wsId) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('workspaceTabActionMenuPopover');
+          if (!popover) return false;
+
+          this.closeAllContextMenus();
+          activeWorkspaceTabContext = { wsId };
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeWorkspaceTabActionsMenu() {
+          this.closeAllContextMenus();
+        },
+
+        triggerWorkspaceTabMenuAction(action) {
+          if (!activeWorkspaceTabContext) return;
+          const { wsId } = activeWorkspaceTabContext;
+          this.closeWorkspaceTabActionsMenu();
+          if (!window.WorkspacesManager) return;
+          const ws = window.WorkspacesManager.getWorkspaceById(wsId);
+          if (!ws) return;
+
+          if (action === 'rename') {
+            this.showPrompt({
+              title: 'Renombrar Ventana',
+              message: 'Introduce el nuevo nombre para la ventana:',
+              defaultValue: ws.name
+            }).then(name => {
+              if (name && name.trim()) {
+                window.WorkspacesManager.renameWorkspace(wsId, name.trim());
+              }
+            });
+          } else if (action === 'duplicate') {
+            window.WorkspacesManager.duplicateWorkspace(wsId);
+          } else if (action === 'reset') {
+            if (window.GridEngine && window.GridEngine.resetToDefaultLayout) {
+              window.GridEngine.resetToDefaultLayout();
+            }
+          } else if (action === 'delete') {
+            this.showConfirm({
+              title: 'Eliminar Ventana',
+              message: '¿Estás seguro de que deseas eliminar la ventana "' + ws.name + '"?',
+              confirmText: 'Eliminar',
+              cancelText: 'Cancelar',
+              isDanger: true
+            }).then(confirmed => {
+              if (confirmed) {
+                window.WorkspacesManager.deleteWorkspace(wsId);
+              }
+            });
           }
         },
 
@@ -12375,7 +12440,7 @@
       // CERRAR MENÚ CONTEXTUAL AL HACER CLIC FUERA
       document.addEventListener('click', (e) => {
         const isActionBtn = e.target.closest('[title="Más opciones"]');
-        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover');
+        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover');
         if (!isActionBtn && !isAnyMenu) {
           app.closeAllContextMenus();
         }
@@ -12390,11 +12455,32 @@
 
       // CERRAR MENÚS CONTEXTUALES AL HACER CLICK DERECHO FUERA DE ELEMENTOS CONTEXTUALES
       document.addEventListener('contextmenu', (e) => {
-        const isContextCard = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover');
+        const isContextCard = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover');
         if (!isContextCard) {
           app.closeAllContextMenus();
         }
       });
+
+      // SOPORTE DE RUEDA DE RATÓN EN INPUTS NUMÉRICOS (ENFOCADOS O EN MODO COMPACTO)
+      document.addEventListener('wheel', (e) => {
+        const target = e.target;
+        if (target && target.tagName === 'INPUT' && target.type === 'number') {
+          if (document.activeElement === target || target.closest('.card-mode-compact')) {
+            e.preventDefault();
+            const step = parseFloat(target.step) || 1;
+            const min = target.min !== '' ? parseFloat(target.min) : -Infinity;
+            const max = target.max !== '' ? parseFloat(target.max) : Infinity;
+            let val = parseFloat(target.value) || 0;
+            if (e.deltaY < 0) {
+              val = Math.min(max, Math.round((val + step) * 100) / 100);
+            } else {
+              val = Math.max(min, Math.round((val - step) * 100) / 100);
+            }
+            target.value = val;
+            target.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        }
+      }, { passive: false });
 
       // INICIALIZADOR ROBUSTO
       Object.assign(window, { app });

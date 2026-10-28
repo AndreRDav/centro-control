@@ -254,12 +254,26 @@ const WidgetsRegistry = (function() {
       shortcut: 'K',
       allowedZones: ['header', 'grid', 'sidebar'],
       defaultZone: 'header',
-      minRows: 3,
+      minRows: 2,
       idealRows: 4,
       defaultColSpan: 12,
       supportsCompact: true,
       polymorphic: true,
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
+    },
+    topKpisWrapper: {
+      id: 'topKpisWrapper',
+      name: 'Métricas & 4 KPIs Semanales',
+      category: 'performance',
+      shortcut: 'K',
+      allowedZones: ['grid', 'sidebar', 'header'],
+      defaultZone: 'grid',
+      minRows: 2,
+      idealRows: 4,
+      defaultColSpan: 12,
+      supportsCompact: true,
+      polymorphic: false,
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>'
     }
   };
 

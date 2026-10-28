@@ -2875,6 +2875,27 @@
     </button>
   </div>
 
+  <!-- MENÚ CONTEXTUAL FLOTANTE (CLIC DERECHO) PARA PESTAÑAS DE VENTANAS -->
+  <div id="workspaceTabActionMenuPopover" class="fixed z-[100] hidden panel-bg border rounded-2xl p-1.5 shadow-2xl backdrop-blur-md text-xs w-52 space-y-0.5 border-stone-300 dark:border-slate-700">
+    <button type="button" onclick="app.triggerWorkspaceTabMenuAction('rename')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-main flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+      <span>Renombrar ventana</span>
+    </button>
+    <button type="button" onclick="app.triggerWorkspaceTabMenuAction('duplicate')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-accent flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2" ry="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+      <span>Duplicar ventana</span>
+    </button>
+    <button type="button" onclick="app.triggerWorkspaceTabMenuAction('reset')" class="w-full text-left px-3 py-2 rounded-xl subpanel-hover text-stone-800 dark:text-slate-200 hover:text-theme-warning flex items-center gap-2.5 transition font-medium">
+      <svg class="w-3.5 h-3.5 text-theme-warning" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+      <span>Restablecer esta ventana</span>
+    </button>
+    <div class="border-t border-stone-200 dark:border-slate-800/80 my-1"></div>
+    <button type="button" onclick="app.triggerWorkspaceTabMenuAction('delete')" class="w-full text-left px-3 py-2 rounded-xl hover:bg-rose-500/10 text-rose-600 dark:text-rose-400 hover:text-rose-700 dark:hover:text-rose-300 flex items-center gap-2.5 transition font-semibold">
+      <svg class="w-3.5 h-3.5 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      <span>Eliminar ventana</span>
+    </button>
+  </div>
+
   <!-- MENÚ POPOVER FLOTANTE DE PALETAS DE ACENTO (Z-INDEX SUPERIOR INDEPENDIENTE) -->
   <div id="palettePickerPopover" class="fixed z-[150] hidden panel-bg border rounded-2xl p-3 shadow-2xl backdrop-blur-md text-xs w-64 space-y-2 border-stone-300 dark:border-slate-700">
     <div class="flex items-center justify-between border-b pb-2 border-stone-200 dark:border-slate-800">
@@ -3081,9 +3102,31 @@
   </nav>
 
   <!-- ========================================================
-       CONTENIDO PRINCIPAL DE LA APLICACIÓN
+       ARQUITECTURA DE PANTALLA COMPLETA: CAJÓN Y PANEL LATERAL 100% VH
        ======================================================== -->
-  <div class="max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4">
+  <div id="appRootLayout" class="min-h-screen flex items-stretch relative">
+    
+    <!-- COLUMNA IZQUIERDA 1: CAJÓN DE MÓDULOS INACTIVOS (DRAWER) -->
+    <aside id="widgetsDrawer" class="hidden w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col"></aside>
+
+    <!-- COLUMNA IZQUIERDA 2: PANEL LATERAL FIJO DE ARRIBA A ABAJO (100% VH) -->
+    <aside id="workspaceSidebar" class="hidden w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-40 border-r border-theme panel-bg p-3 space-y-3 shadow-xl" aria-label="Panel Lateral Fijo">
+      <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
+        <div class="flex items-center gap-2">
+          <span class="vector-seal w-6 h-6 bg-theme-main text-white text-[11px]">
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+          </span>
+          <span class="font-serif font-bold text-xs">Panel Lateral</span>
+        </div>
+        <button onclick="app.toggleSidebar()" class="w-6 h-6 rounded-lg subpanel-bg border text-[11px] flex items-center justify-center text-stone-400 hover:text-stone-800 dark:hover:text-white cursor-pointer" title="Cerrar Panel Lateral">✕</button>
+      </div>
+      <div id="sidebarWidgetsContainer" class="space-y-3 min-h-[100px]">
+        <!-- Widgets del sidebar -->
+      </div>
+    </aside>
+
+    <!-- COLUMNA DERECHA PRINCIPAL: VIEWPORT DE LA APP -->
+    <div id="appMainViewport" class="flex-1 min-w-0 max-w-7xl mx-auto p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
 
     <!-- CABECERA PRINCIPAL -->
     <header id="mainAppHeader" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-4 flex flex-wrap items-center justify-between gap-3 shadow-xl sticky top-2 z-40 backdrop-blur-md">
@@ -3273,9 +3316,9 @@
     </div>
 
     <!-- ========================================================
-         BLOQUE SUPERIOR DE MÉTRICAS Y 4 KPIS SEMANALES
+         BLOQUE SUPERIOR DE MÉTRICAS Y 4 KPIS SEMANALES (WIDGET PAQUETE)
          ======================================================== -->
-    <div id="topKpisWrapper" class="space-y-2">
+    <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
       <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
       <div id="kpisSlimHeaderBar" class="editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-xs hover:border-theme-main transition cursor-pointer" onclick="app.toggleKpisAccordion()">
         <div class="flex items-center gap-2">
@@ -3401,24 +3444,7 @@
       </div>
     </div>
 
-    <!-- CONTENEDOR DE WORKSPACES Y SIDEBAR -->
-    <div id="workspaceLayoutContainer" class="w-full flex items-start gap-4 relative">
-      <!-- BARRA LATERAL IZQUIERDA FUERA DE CUADRÍCULA (WORKSPACE SIDEBAR) -->
-      <aside id="workspaceSidebar" class="hidden shrink-0 w-80 panel-bg border border-theme rounded-2xl p-3 shadow-xl space-y-3 sticky top-[4.5rem] self-start max-h-[calc(100vh-5.5rem)] overflow-y-auto z-40" aria-label="Panel Lateral Fijo">
-        <div class="flex items-center justify-between pb-2 border-b border-stone-200 dark:border-slate-800">
-          <div class="flex items-center gap-2">
-            <span class="vector-seal w-6 h-6 bg-theme-main text-white text-[11px]">
-              <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-            </span>
-            <span class="font-serif font-bold text-xs">Panel Lateral</span>
-          </div>
-          <button onclick="app.toggleSidebar()" class="w-6 h-6 rounded-lg subpanel-bg border text-[11px] flex items-center justify-center text-stone-400 hover:text-stone-800 dark:hover:text-white cursor-pointer" title="Cerrar Panel Lateral">✕</button>
-        </div>
-        <div id="sidebarWidgetsContainer" class="space-y-3 min-h-[100px]">
-          <!-- Widgets del sidebar -->
-        </div>
-      </aside>
-      <div id="workspaceMainArea" class="flex-1 min-w-0 space-y-3">
+      <div id="workspaceMainArea" class="w-full space-y-3">
     <!-- ========================================================
          PESTAÑA 1: PANEL DIARIO (REGISTRO + GASTO + POMO + LISTAS)
          ======================================================== -->
@@ -3443,15 +3469,20 @@
             </div>
           </div>
 
-          <!-- Selector Rápido de Días Lun-Dom (Visible en PC y Móvil para cambiar de día fácilmente) -->
-          <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
-            <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">L</button>
-            <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">M</button>
-            <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">X</button>
-            <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">J</button>
-            <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">V</button>
-            <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">S</button>
-            <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">D</button>
+          <!-- Bloque Superior de Días y Progreso (Agrupado 50% / 50% en Modo Compacto) -->
+          <div class="today-top-bars-wrap grid grid-cols-1 gap-2 relative z-10">
+            <!-- Selector Rápido de Días Lun-Dom -->
+            <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
+              <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">L</button>
+              <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">M</button>
+              <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">X</button>
+              <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">J</button>
+              <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">V</button>
+              <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">S</button>
+              <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">D</button>
+            </div>
+            <!-- Slot para la Barra de Progreso de Hoy -->
+            <div id="todayProgressBarSlot"></div>
           </div>
 
           <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
@@ -3701,7 +3732,7 @@
           </div>
           <button type="button" onclick="app.openManageHabitsModal()" class="px-3.5 py-1.5 rounded-xl bg-theme-main text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:opacity-90 active:scale-95 transition">
             <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
-            <span>+ Nuevo Hábito</span>
+            <span>Nuevo Hábito</span>
           </button>
         </div>
 
@@ -4371,7 +4402,6 @@
     </section>
       </div>
 
-
     </div>
 
   </div>
@@ -4444,8 +4474,7 @@
   <!-- POOL DE WIDGETS CENTRALIZADO (SINGLE-DOM REGISTRY) -->
   <div id="widgetsPool" style="display:none;" aria-hidden="true"></div>
 
-  <!-- CAJÓN DE WIDGETS INACTIVOS (DRAWER) -->
-  <div id="widgetsDrawer" class="hidden"></div>
+
 
   <!-- SCRIPTS MODULARES -->
   <script src="state-sync.js"></script>

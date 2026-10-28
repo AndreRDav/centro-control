@@ -15,11 +15,12 @@ const WorkspacesManager = (function() {
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
       order: 1,
       grid: {
-        todayFocusContainer: { col: 1, colSpan: 6, row: 1, rowSpan: 18, isPinned: false, compact: false },
-        notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
-        interactiveListsPanel: { col: 7, colSpan: 6, row: 9, rowSpan: 14, isPinned: false, compact: false },
-        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, rowSpan: 4, isPinned: false, compact: false },
-        weekTableContainer: { col: 1, colSpan: 12, row: 23, rowSpan: 8, isPinned: false, compact: false }
+        topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 3, isPinned: false, compact: false },
+        todayFocusContainer: { col: 1, colSpan: 6, row: 4, rowSpan: 18, isPinned: false, compact: false },
+        notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 4, rowSpan: 8, isPinned: false, compact: false },
+        interactiveListsPanel: { col: 7, colSpan: 6, row: 12, rowSpan: 14, isPinned: false, compact: false },
+        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 22, rowSpan: 4, isPinned: false, compact: false },
+        weekTableContainer: { col: 1, colSpan: 12, row: 26, rowSpan: 8, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []
@@ -185,6 +186,29 @@ const WorkspacesManager = (function() {
       return false;
     },
 
+    duplicateWorkspace(id) {
+      this.ensureWorkspaces();
+      const source = this.getWorkspaceById(id);
+      if (!source) return null;
+      const newId = 'ws-' + Date.now();
+      const duplicated = {
+        id: newId,
+        name: source.name + ' (Copia)',
+        iconSvg: source.iconSvg || '',
+        order: state.workspaces.length + 1,
+        grid: JSON.parse(JSON.stringify(source.grid || {})),
+        sidebarWidgets: JSON.parse(JSON.stringify(source.sidebarWidgets || [])),
+        dockWidgets: JSON.parse(JSON.stringify(source.dockWidgets || []))
+      };
+      state.workspaces.push(duplicated);
+      this.switchWorkspace(newId);
+      if (typeof saveState === 'function') saveState();
+      if (typeof app !== 'undefined' && app.safeToast) {
+        app.safeToast('Ventana "' + duplicated.name + '" creada.', 'emerald');
+      }
+      return duplicated;
+    },
+
     restoreFactoryWorkspaces() {
       const doRestore = () => {
         state.workspaces = JSON.parse(JSON.stringify(FACTORY_WORKSPACES));
@@ -204,7 +228,15 @@ const WorkspacesManager = (function() {
       };
 
       if (typeof app !== 'undefined' && app.showConfirm) {
-        app.showConfirm('Restaurar Fábrica', '¿Restaurar todas las ventanas a su configuración original de fábrica? Se reiniciarán las pestañas predeterminadas.', doRestore);
+        app.showConfirm({
+          title: 'Restaurar Fábrica',
+          message: '¿Restaurar todas las ventanas a su configuración original de fábrica? Se reiniciarán las pestañas predeterminadas.',
+          confirmText: 'Restaurar Fábrica',
+          cancelText: 'Cancelar',
+          isDanger: true
+        }).then(confirmed => {
+          if (confirmed) doRestore();
+        });
       } else {
         doRestore();
       }
@@ -332,16 +364,31 @@ const WorkspacesManager = (function() {
           } else {
             el.classList.remove('card-mode-compact');
           }
+          el.setAttribute('data-cols', String(cfg && cfg.colSpan ? cfg.colSpan : 12));
         }
       });
 
       // Monta widgets en la barra lateral (si los hay)
       const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
+      const sidebar = document.getElementById('workspaceSidebar');
+      const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
       if (sidebarContainer) {
-        const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
         sidebarWidgets.forEach(widgetId => {
-          window.WidgetsRegistry.mountWidget(widgetId, sidebarContainer);
+          const sEl = window.WidgetsRegistry.mountWidget(widgetId, sidebarContainer);
+          if (sEl) {
+            sEl.setAttribute('data-cols', '3');
+          }
         });
+      }
+
+      if (sidebar && !(state.ui && state.ui.isBoardEditMode)) {
+        if (sidebarWidgets.length > 0) {
+          sidebar.classList.remove('hidden', 'sidebar-collapsed');
+          sidebar.classList.add('sidebar-open');
+        } else {
+          sidebar.classList.remove('sidebar-open');
+          sidebar.classList.add('hidden', 'sidebar-collapsed');
+        }
       }
 
       // Sincronizar botones de barra de navegación móvil (1-4)
@@ -371,6 +418,12 @@ const WorkspacesManager = (function() {
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.onclick = () => this.switchWorkspace(ws.id);
+        btn.oncontextmenu = (e) => {
+          e.preventDefault();
+          if (typeof app !== 'undefined' && app.openWorkspaceTabContextMenu) {
+            app.openWorkspaceTabContextMenu(e, ws.id);
+          }
+        };
         btn.className = isActive
           ? 'px-3 py-1.5 rounded-xl bg-theme-main text-white font-bold text-xs flex items-center gap-1.5 shadow-md border border-theme transition scale-[1.02]'
           : 'px-3 py-1.5 rounded-xl bg-theme-soft/50 hover:bg-theme-soft text-stone-300 hover:text-white font-semibold text-xs flex items-center gap-1.5 border border-theme/20 transition';
@@ -395,7 +448,11 @@ const WorkspacesManager = (function() {
 
     promptCreateWorkspace() {
       if (typeof app !== 'undefined' && app.showPrompt) {
-        app.showPrompt('Nueva Ventana', 'Escribe el nombre de la nueva ventana de trabajo:', 'Ej. Estudio Intensivo', (val) => {
+        app.showPrompt({
+          title: 'Nueva Ventana',
+          message: 'Escribe el nombre de la nueva ventana de trabajo:',
+          placeholder: 'Ej. Estudio Intensivo'
+        }).then(val => {
           if (val && val.trim()) {
             this.createWorkspace(val.trim());
           }

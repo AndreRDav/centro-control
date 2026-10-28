@@ -1187,6 +1187,7 @@ var activeSubjectPromptContext = null; // { mode: 'add'|'rename', oldName }
       let activeHabitMenuContext = null; // { habitId }
       let activeClassMenuContext = null; // { dIdx, cIdx }
       let activeSubjectMenuContext = null; // { subjectName }
+      let activeWorkspaceTabContext = null; // { wsId }
       let piggyModalCurrentType = 'deposit'; // 'deposit' | 'withdraw'
       let piggyModalCalculatedValue = 0;
       let customConfirmResolve = null;

@@ -28,14 +28,15 @@ const PolymorphicCards = (function() {
       el.setAttribute('data-card-aspect', aspect);
 
       // Adaptación específica para el panel de 4 KPIs
-      if (cardId === 'kpiGridContainer') {
-        el.classList.remove('grid-cols-1', 'grid-cols-2', 'grid-cols-4', 'lg:grid-cols-4');
+      if (cardId === 'kpiGridContainer' || cardId === 'topKpisWrapper') {
+        const kpiGrid = el.id === 'kpiGridContainer' ? el : (el.querySelector('#kpiGridContainer') || el);
+        kpiGrid.classList.remove('grid-cols-1', 'grid-cols-2', 'grid-cols-4', 'lg:grid-cols-4');
         if (aspect === 'tower') {
-          el.classList.add('grid-cols-1');
+          kpiGrid.classList.add('grid-cols-1');
         } else if (aspect === 'square') {
-          el.classList.add('grid-cols-2');
+          kpiGrid.classList.add('grid-cols-2');
         } else {
-          el.classList.add('grid-cols-2', 'lg:grid-cols-4');
+          kpiGrid.classList.add('grid-cols-2', 'lg:grid-cols-4');
         }
       }
 
