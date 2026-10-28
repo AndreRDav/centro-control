@@ -2980,6 +2980,12 @@
       </div>
     </aside>
 
+    <!-- PESTAÑA FLOTANTE LATERAL IZQUIERDA (PULL-TAB) -->
+    <button id="sidebarPullTab" onclick="app.toggleSidebar()" class="fixed left-0 top-1/2 -translate-y-1/2 z-45 py-3 px-1.5 rounded-r-xl panel-bg border border-l-0 border-theme shadow-lg text-theme-main hover:pl-2.5 transition-all cursor-pointer flex flex-col items-center gap-1 print:hidden" title="Abrir Panel Lateral [B]">
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
+      <span class="text-[9px] font-bold">▶</span>
+    </button>
+
     <!-- COLUMNA DERECHA PRINCIPAL: VIEWPORT DE LA APP -->
     <div id="appMainViewport" class="flex-1 min-w-0 w-full p-2 sm:p-4 md:p-6 space-y-4 transition-all duration-200">
 
@@ -3031,61 +3037,59 @@
         <button onclick="app.switchTab(4)" id="tabNav4" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">04</span>Estadísticas</button>
       </nav>
 
-      <!-- Botones de Acción + Tema + Paleta + Sincronizar + Cerrar Semana + Copias -->
+      <!-- Botones de Acción Agrupados en 3 Islas Visuales: Diseño, Sincronización y Acción Principal -->
       <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto overflow-x-auto no-scrollbar py-0.5 shrink-0">
-        <button onclick="app.openShortcutsModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-300 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
-          <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><line x1="6" y1="8" x2="6" y2="8"/><line x1="10" y1="8" x2="10" y2="8"/><line x1="14" y1="8" x2="14" y2="8"/><line x1="18" y1="8" x2="18" y2="8"/><line x1="6" y1="12" x2="6" y2="12"/><line x1="10" y1="12" x2="10" y2="12"/><line x1="14" y1="12" x2="14" y2="12"/><line x1="18" y1="12" x2="18" y2="12"/><line x1="7" y1="16" x2="17" y2="16"/></svg>
-          <span class="hidden md:inline">Atajos</span>
-          <kbd class="px-1 py-0.2 rounded text-[10px] font-mono border border-stone-300 dark:border-slate-700 opacity-75">?</kbd>
-        </button>
+        <!-- Isla 1: Diseño y Apariencia -->
+        <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border border-theme/40">
+          <button onclick="app.toggleBoardEdit()" id="boardEditToggleBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-bold flex items-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Editar cuadrícula y personalizar diseño del tablero [E]">
+            <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+            <span id="boardEditToggleText" class="hidden sm:inline">Diseño</span>
+          </button>
+          <button onclick="app.openDeviceProfilesModal()" id="headerProfilesBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-bold flex items-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Biblioteca de Dispositivos y Vistas">
+            <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><line x1="8" y1="21" x2="16" y2="21"/><line x1="12" y1="17" x2="12" y2="21"/></svg>
+            <span class="hidden xl:inline">Vistas</span>
+          </button>
+          <button onclick="app.toggleTheme()" id="themeToggleBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-bold flex items-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
+            <span id="themeToggleIcon" class="flex items-center justify-center"></span>
+            <span id="themeToggleText" class="hidden sm:inline">Tema</span>
+          </button>
+          <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-bold flex items-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar paleta cromática bicolor">
+            <div class="flex items-center -space-x-1">
+              <span id="palettePickerActiveDot" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
+              <span id="palettePickerActiveDot2" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
+            </div>
+            <span class="hidden xl:inline text-stone-800 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
+            <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+          </button>
+        </div>
 
-        <button onclick="app.toggleTheme()" id="themeToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar tema claro/oscuro [D]">
-          <span id="themeToggleIcon" class="flex items-center justify-center"></span>
-          <span id="themeToggleText" class="hidden sm:inline">Tema</span>
-        </button>
-        <!-- Botón Personalizar Diseño del Tablero -->
-        <button onclick="app.toggleBoardEdit()" id="boardEditToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Editar cuadrícula y personalizar diseño del tablero [D]">
-          <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
-          <span id="boardEditToggleText" class="hidden sm:inline">Diseño</span>
-        </button>
-        <!-- Botón Barra Lateral / Sidebar -->
-        <button onclick="app.toggleSidebar()" id="sidebarToggleBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Mostrar/Ocultar Panel Lateral [B]">
-          <svg class="w-3.5 h-3.5 text-theme-main shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="9" y1="3" x2="9" y2="21"/></svg>
-          <span class="hidden xl:inline">Lateral</span>
-        </button>
+        <!-- Isla 2: Sincronización y Ayuda -->
+        <div class="flex items-center gap-1 subpanel-bg p-1 rounded-xl border border-theme/40">
+          <button onclick="app.refreshAppAndSync()" id="headerSyncRefreshBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-bold flex items-center justify-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Sincronizar con Google Drive y comprobar actualizaciones de la app">
+            <svg id="headerSyncRefreshIcon" class="w-3.5 h-3.5 text-theme-main shrink-0 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
+            </svg>
+            <span class="hidden md:inline">Sincronizar</span>
+          </button>
+          <button id="headerGdriveReconnectChip" onclick="app.connectGoogleDrive()" class="hidden px-2 py-1 rounded-lg bg-amber-500/15 border border-amber-500/40 text-amber-500 text-[10px] font-bold animate-pulse cursor-pointer whitespace-nowrap" title="Sesión de Google Drive expirada. Clic para reconectar">⚡ Reconectar Drive</button>
+          <button onclick="app.openBackupModal()" id="headerBackupBtn" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-semibold flex items-center gap-1.5 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
+            <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+            <span class="hidden md:inline">Copias</span>
+            <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0" title="Autoguardado en disco"></span>
+          </button>
+          <button onclick="app.openUserGuideModal()" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-medium flex items-center justify-center gap-1 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
+            <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            <span class="hidden md:inline">Guía</span>
+          </button>
+          <button onclick="app.openShortcutsModal()" class="px-2 py-1 rounded-lg hover:subpanel-bg hover:border-theme/40 text-xs font-medium flex items-center gap-1 transition text-stone-700 dark:text-slate-300 cursor-pointer whitespace-nowrap" title="Ver todos los atajos de teclado [?]">
+            <kbd class="px-1 py-0.2 rounded text-[10px] font-mono border border-stone-300 dark:border-slate-700 opacity-75">?</kbd>
+          </button>
+        </div>
 
-        <!-- Selector de Paleta de Color de Acento Centralizado (Dúo Bicolor) -->
-        <button type="button" onclick="app.togglePalettePicker(event)" id="palettePickerBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Cambiar paleta cromática bicolor">
-          <div class="flex items-center -space-x-1">
-            <span id="palettePickerActiveDot" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
-            <span id="palettePickerActiveDot2" class="w-2.5 h-2.5 rounded-full inline-block shadow-xs border border-black/20 dark:border-white/20"></span>
-          </div>
-          <span class="hidden xl:inline text-stone-800 dark:text-slate-200" id="palettePickerActiveName">Paleta</span>
-          <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-        </button>
-
-        <!-- Botón Recargar / Sincronizar App y Drive -->
-        <button onclick="app.refreshAppAndSync()" id="headerSyncRefreshBtn" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center justify-center gap-1.5 hover:border-theme-main transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Sincronizar con Google Drive y comprobar actualizaciones de la app">
-          <svg id="headerSyncRefreshIcon" class="w-3.5 h-3.5 text-theme-main shrink-0 transition-transform duration-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M21.5 2v6h-6M21.34 15.57a10 10 0 1 1-.57-8.38l5.67-5.67"/>
-          </svg>
-          <span class="hidden md:inline">Sincronizar</span>
-        </button>
-
+        <!-- Isla 3: Acción Principal -->
         <button onclick="app.openCloseWeekModal()" id="headerCloseWeekBtn" class="px-3 py-1.5 rounded-xl bg-theme-accent hover:opacity-90 font-black text-xs shadow-md border border-theme-accent active:translate-y-0.5 transition flex items-center justify-center gap-1.5 cursor-pointer whitespace-nowrap">
           <svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
           <span class="whitespace-nowrap">Cerrar Semana</span>
-        </button>
-
-        <button onclick="app.openUserGuideModal()" class="px-2.5 py-1.5 rounded-xl subpanel-bg border text-xs font-bold flex items-center justify-center gap-1 hover:border-theme dark:hover:border-blue-400 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Guía de uso, sincronización con Google Drive e instalación en móvil">
-          <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
-          <span class="hidden md:inline">Guía</span>
-        </button>
-
-        <button onclick="app.openBackupModal()" class="px-3 py-1.5 rounded-xl subpanel-bg border text-xs font-semibold flex items-center gap-1.5 hover:border-stone-400 dark:hover:border-slate-600 transition text-stone-700 dark:text-slate-200 cursor-pointer whitespace-nowrap" title="Copias de seguridad y estado de disco/Drive">
-          <svg class="w-3.5 h-3.5 text-stone-500 dark:text-slate-400" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-          <span class="hidden md:inline">Copias</span>
-          <span id="autoSaveIndicatorDot" onclick="event.stopPropagation(); app.resumeAutoSavePermission();" class="w-2.5 h-2.5 rounded-full bg-slate-500 cursor-pointer hover:scale-125 transition shrink-0" title="Autoguardado en disco"></span>
         </button>
       </div>
     </header>
@@ -3175,7 +3179,7 @@
          ======================================================== -->
     <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
       <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
-      <div id="kpisSlimHeaderBar" class="editorial-card panel-bg border border-theme rounded-xl p-2 flex items-center justify-between shadow-xs hover:border-theme-main transition cursor-pointer" onclick="app.toggleKpisAccordion()">
+      <div id="kpisSlimHeaderBar" class="p-1 flex items-center justify-between hover:text-theme-main transition cursor-pointer select-none" onclick="app.toggleKpisAccordion()">
         <div class="flex items-center gap-2">
           <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -3667,9 +3671,9 @@
               </span>
               <span class="text-[10px] text-stone-400 dark:text-slate-500">Balance diario</span>
             </div>
-            <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+            <div class="grid grid-cols-2 lg:grid-cols-4 gap-2.5">
               <div class="space-y-0.5">
-                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Fase:</label>
+                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider truncate">Fase:</label>
                 <select id="goalNutriPhase" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2 py-1.5 text-xs font-semibold capitalize outline-none focus:border-blue-500" title="Fase nutricional">
                   <option value="volumen">Volumen</option>
                   <option value="definicion">Definición</option>
@@ -3677,21 +3681,21 @@
                 </select>
               </div>
               <div class="space-y-0.5">
-                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Objetivo:</label>
+                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider truncate">Objetivo:</label>
                 <div class="relative">
                   <input id="goalNutriKcal" type="number" step="50" min="1000" max="6000" placeholder="2800" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2 py-1.5 text-left font-bold font-mono text-xs pr-7 outline-none focus:border-blue-500" title="Meta de Kcal/día" />
                   <span class="absolute right-1.5 top-1.5 text-[9px] text-stone-400 font-mono">kcal</span>
                 </div>
               </div>
               <div class="space-y-0.5">
-                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Margen:</label>
+                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider truncate">Margen:</label>
                 <div class="relative">
                   <input id="goalNutriMargin" type="number" step="25" min="25" max="600" placeholder="150" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2 py-1.5 text-left font-bold font-mono text-xs pr-8 outline-none focus:border-blue-500" title="Margen de tolerancia (±Kcal)" />
                   <span class="absolute right-1.5 top-1.5 text-[9px] text-stone-400 font-mono">±kcal</span>
                 </div>
               </div>
               <div class="space-y-0.5">
-                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Frecuencia:</label>
+                <label class="block text-[9.5px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider truncate">Frecuencia:</label>
                 <div class="relative">
                   <input id="goalNutriDays" type="number" min="1" max="7" placeholder="6" oninput="app.autoSaveGoalSetting()" onchange="app.autoSaveGoalSetting()" class="w-full input-bg border rounded-lg px-2 py-1.5 text-left font-bold text-xs pr-7 outline-none focus:border-blue-500" title="Días meta por semana" />
                   <span class="absolute right-1.5 top-1.5 text-[9px] text-stone-400">días</span>

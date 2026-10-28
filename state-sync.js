@@ -963,6 +963,8 @@
           restMin: 5,
           timeLeft: 1500,
           isRunning: false,
+          targetEndTime: null,
+          lastTick: null,
           phase: 'work',
           effectiveSeconds: 0,
           selectedSubject: 'Estudio General',
@@ -1131,6 +1133,45 @@
         const p = state?.pomo;
         if (!p || !p.isRunning) return;
 
+        if (p.targetEndTime) {
+          if (p.targetEndTime > now) {
+            const remaining = Math.max(0, Math.round((p.targetEndTime - now) / 1000));
+            const elapsedSec = p.timeLeft - remaining;
+            if (elapsedSec > 0 && p.phase === 'work') {
+              p.effectiveSeconds = (p.effectiveSeconds || 0) + elapsedSec;
+            }
+            p.timeLeft = remaining;
+            p.lastTick = now;
+            renderPomodoroUI();
+            return;
+          } else {
+            // El tiempo objetivo se ha cumplido
+            if (p.phase === 'work') {
+              p.effectiveSeconds = (p.effectiveSeconds || 0) + p.timeLeft;
+            }
+            const expiredPhase = p.phase;
+            p.isRunning = false;
+            p.targetEndTime = null;
+            p.lastTick = null;
+            if (pomoTimerInterval) {
+              clearInterval(pomoTimerInterval);
+              pomoTimerInterval = null;
+            }
+            releasePomoWakeLock();
+            triggerPomoAlert(expiredPhase, p.sound);
+
+            // Avanzar a la siguiente fase
+            p.phase = expiredPhase === 'work' ? 'rest' : 'work';
+            p.timeLeft = (p.phase === 'work' ? p.studyMin : p.restMin) * 60;
+            renderPomodoroUI();
+            if (typeof app !== 'undefined' && app.showToast) {
+              app.showToast(`¡Tiempo de ${p.phase === 'work' ? 'Enfoque' : 'Descanso'}!`, 'info', 5000);
+            }
+            saveState();
+            return;
+          }
+        }
+
         const lastTick = p.lastTick || now;
         const elapsedSec = Math.floor((now - lastTick) / 1000);
         if (elapsedSec <= 0) return;
@@ -1151,8 +1192,12 @@
           }
           const expiredPhase = p.phase;
           p.isRunning = false;
-          clearInterval(pomoTimerInterval);
-          pomoTimerInterval = null;
+          p.targetEndTime = null;
+          p.lastTick = null;
+          if (pomoTimerInterval) {
+            clearInterval(pomoTimerInterval);
+            pomoTimerInterval = null;
+          }
           releasePomoWakeLock();
           triggerPomoAlert(expiredPhase, p.sound);
 
@@ -1160,10 +1205,43 @@
           p.phase = expiredPhase === 'work' ? 'rest' : 'work';
           p.timeLeft = (p.phase === 'work' ? p.studyMin : p.restMin) * 60;
           renderPomodoroUI();
-          app.showToast(`¡Tiempo de ${p.phase === 'work' ? 'Enfoque' : 'Descanso'}!`, 'info', 5000);
+          if (typeof app !== 'undefined' && app.showToast) {
+            app.showToast(`¡Tiempo de ${p.phase === 'work' ? 'Enfoque' : 'Descanso'}!`, 'info', 5000);
+          }
           saveState();
         }
       }
+
+      function checkAndResumePomo() {
+        const p = state?.pomo;
+        if (!p) return;
+        if (p.isRunning && p.targetEndTime) {
+          const now = Date.now();
+          if (p.targetEndTime > now) {
+            const remaining = Math.max(0, Math.round((p.targetEndTime - now) / 1000));
+            p.timeLeft = remaining;
+            p.lastTick = now;
+            if (pomoTimerInterval) clearInterval(pomoTimerInterval);
+            requestPomoWakeLock();
+            pomoTimerInterval = setInterval(() => {
+              syncPomoTime();
+            }, 1000);
+          } else {
+            p.timeLeft = 0;
+            p.isRunning = false;
+            p.targetEndTime = null;
+            p.lastTick = null;
+            if (pomoTimerInterval) {
+              clearInterval(pomoTimerInterval);
+              pomoTimerInterval = null;
+            }
+            releasePomoWakeLock();
+            triggerPomoAlert(p.phase, p.sound);
+          }
+          renderPomodoroUI();
+        }
+      }
+      window.checkAndResumePomo = checkAndResumePomo;
 
       // ESTADO GLOBAL Y PERSISTENCIA
 var state = null;
@@ -1399,6 +1477,12 @@ var gdriveDebounceTimer = null;
             dot.title = 'Sin sincronización activa (clic para conectar Drive)';
           }
         }
+
+        const reconnectChip = document.getElementById('headerGdriveReconnectChip');
+        if (reconnectChip) {
+          const needsReconnect = !!gdriveUserEmail && !isGdriveConnected();
+          reconnectChip.classList.toggle('hidden', !needsReconnect);
+        }
       }
 
       function initGsiClient() {
@@ -1504,6 +1588,68 @@ var gdriveDebounceTimer = null;
       }
 var pendingCloudConflictJson = null;
 
+      function hasUserData(st) {
+        if (!st) return false;
+        try {
+          if (st.weeks) {
+            const wkList = Array.isArray(st.weeks) ? st.weeks : Object.values(st.weeks);
+            if (wkList.some(w => Array.isArray(w?.expenses) && w.expenses.length > 0)) return true;
+            const checkDays = (days) => Array.isArray(days) && days.some(d =>
+              Number(d?.studyRealHours) > 0 || d?.gymDone || d?.runKm > 0 || d?.nutriDone ||
+              (d?.customHabits && Object.values(d.customHabits).some(v => v === true || Number(v) > 0)) ||
+              (d?.notes && typeof d.notes === 'string' && d.notes.trim() !== '')
+            );
+            if (wkList.some(w => checkDays(w?.days))) return true;
+          }
+          if (Array.isArray(st.customHabits) && st.customHabits.length > 0) return true;
+          if (Array.isArray(st.savingsGoals) && st.savingsGoals.length > 0) return true;
+          if (st.piggyBank && Array.isArray(st.piggyBank.history) && st.piggyBank.history.length > 0) return true;
+          if (st.interactiveLists) {
+            const lists = Array.isArray(st.interactiveLists) ? st.interactiveLists : Object.values(st.interactiveLists);
+            if (lists.some(l => Array.isArray(l?.items) && l.items.length > 0)) return true;
+          }
+        } catch (_) {}
+        return false;
+      }
+
+      function applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId) {
+        try {
+          localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
+        } catch (_) {}
+
+        // Conservar el layout local activo de este dispositivo
+        const localLayoutRaw = localStorage.getItem('CC_LOCAL_DEVICE_LAYOUT');
+        let localLayout = null;
+        if (localLayoutRaw) {
+          try { localLayout = JSON.parse(localLayoutRaw); } catch(_) {}
+        }
+
+        state = sanitizeState(cloudJson);
+        state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo físico actual
+        state.lastSyncedCloudUpdatedAt = cloudTimestamp;
+
+        // Restaurar layout local del dispositivo si existe
+        if (localLayout) {
+          if (localLayout.workspaces && Array.isArray(localLayout.workspaces) && localLayout.workspaces.length > 0) {
+            state.workspaces = localLayout.workspaces;
+          }
+          if (localLayout.gridLayouts && state.uiPreferences) {
+            state.uiPreferences.gridLayouts = localLayout.gridLayouts;
+          }
+          if (localLayout.globalSidebar) {
+            state.globalSidebar = localLayout.globalSidebar;
+          }
+        }
+
+        checkAndResumePomo();
+        localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
+        renderApp();
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        updateGdriveUI();
+        isGdriveSyncing = false;
+        return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
+      }
+
       async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
         if (isGdriveSyncing) return { success: false, reason: 'already_syncing' };
         const token = await ensureGdriveToken(allowPull);
@@ -1543,12 +1689,20 @@ var pendingCloudConflictJson = null;
                   const localTimestamp = Number(state.updatedAt) || 0;
                   const lastSynced = Number(localStorage.getItem('gdrive_last_synced_time') || 0);
 
-                  // Detección de conflicto real: Ambos modificaron después de la última sincronización en dispositivos diferentes
+                  const cloudHasData = hasUserData(cloudJson);
+                  const localHasData = hasUserData(state);
+
+                  // CASO A (Dispositivo Virgen/Recién Iniciado): Si local no tiene datos reales y la nube sí, descarga siempre
+                  if (!forceUpload && !localHasData && cloudHasData) {
+                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
+                  }
+
+                  // CASO D (Conflicto Real): Ambos modificaron después de la última sincronización en dispositivos diferentes
                   const cloudChangedSinceSync = cloudTimestamp > (lastSynced + 3000);
                   const localChangedSinceSync = localTimestamp > (lastSynced + 3000);
                   const differentDevice = cloudJson.deviceId && (cloudJson.deviceId !== myDeviceId);
 
-                  if (!forceDownload && cloudChangedSinceSync && localChangedSinceSync && differentDevice && Math.abs(cloudTimestamp - localTimestamp) > 3000) {
+                  if (!forceDownload && !forceUpload && cloudHasData && localHasData && cloudChangedSinceSync && localChangedSinceSync && differentDevice && Math.abs(cloudTimestamp - localTimestamp) > 3000) {
                     // Conflicto: Mostrar modal interactivo para que el usuario decida y evitar sobreescritura accidental
                     pendingCloudConflictJson = cloudJson;
                     isGdriveSyncing = false;
@@ -1557,22 +1711,9 @@ var pendingCloudConflictJson = null;
                     return { success: true, action: 'conflict' };
                   }
 
-                  // Si la nube es más reciente o forzamos descarga:
+                  // CASO B (Descarga Limpia): Si la nube es más reciente o forzamos descarga o allowPull:
                   if (forceDownload || cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
-                    // Backup de seguridad antes de sobreescribir
-                    try {
-                      localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
-                    } catch (_) {}
-
-                    state = sanitizeState(cloudJson);
-                    state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo físico actual
-                    state.lastSyncedCloudUpdatedAt = cloudTimestamp;
-                    localStorage.setItem('gdrive_last_synced_time', String(cloudTimestamp));
-                    renderApp();
-                    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-                    updateGdriveUI();
-                    isGdriveSyncing = false;
-                    return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
+                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
                   }
                 }
               }
@@ -1826,7 +1967,10 @@ var pendingCloudConflictJson = null;
         if (!Array.isArray(s.savingsGoals)) s.savingsGoals = [];
         s.lists = Object.assign({}, DEFAULT_STATE.lists, s.lists);
         s.pomo = Object.assign({}, DEFAULT_STATE.pomo, s.pomo);
-        s.pomo.isRunning = false;
+        s.pomo.isRunning = !!s.pomo.isRunning;
+        if (s.pomo.targetEndTime !== undefined) {
+          s.pomo.targetEndTime = s.pomo.targetEndTime ? Number(s.pomo.targetEndTime) : null;
+        }
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
@@ -1965,12 +2109,27 @@ var pendingCloudConflictJson = null;
         } catch (e) {
           state = sanitizeState({});
         }
+        checkAndResumePomo();
       }
+
+      function saveUiOnly() {
+        try {
+          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+        } catch (_) {}
+      }
+      window.saveUiOnly = saveUiOnly;
 
       function saveState(skipDiskSync = false) {
         try {
           state.updatedAt = Date.now();
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          try {
+            localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify({
+              workspaces: state.workspaces,
+              gridLayouts: state.uiPreferences?.gridLayouts,
+              globalSidebar: state.globalSidebar
+            }));
+          } catch (_) {}
           if (!skipDiskSync) {
             syncDiskFile();
           }
@@ -1999,3 +2158,22 @@ var pendingCloudConflictJson = null;
           }
         }
       }
+
+      // Escucha inteligente de pestaña activa para pull silencioso entre dispositivos (debounce 30s)
+      let lastFocusPullTime = 0;
+      function handleAppFocusPull() {
+        const now = Date.now();
+        if (now - lastFocusPullTime < 30000) return;
+        lastFocusPullTime = now;
+        if (typeof isGdriveConnected === 'function' && isGdriveConnected()) {
+          syncGdriveCloud(true, false, false);
+        } else if (gdriveUserEmail) {
+          updateGdriveUI();
+        }
+      }
+      window.addEventListener('focus', handleAppFocusPull);
+      document.addEventListener('visibilitychange', () => {
+        if (document.visibilityState === 'visible') {
+          handleAppFocusPull();
+        }
+      });

@@ -5800,7 +5800,8 @@
             }
           }
           renderApp();
-          saveState(true);
+          if (typeof saveUiOnly === 'function') saveUiOnly();
+          else saveState(true);
         },
 
 
@@ -5810,20 +5811,30 @@
           }
         },
 
-        toggleSidebar() {
+        toggleSidebar(forceOpen = null) {
           const sidebar = document.getElementById('workspaceSidebar');
+          const pullTab = document.getElementById('sidebarPullTab');
           if (!sidebar) return;
-          if (window.innerWidth >= 1024) {
-            sidebar.classList.toggle('collapsed');
-            const isOpen = !sidebar.classList.contains('collapsed') && !sidebar.classList.contains('hidden');
-            document.body.classList.toggle('sidebar-view-open', isOpen);
-            if (state.globalSidebar) {
-              state.globalSidebar.isOpen = isOpen;
-            }
+          const isCurrentlyOpen = !sidebar.classList.contains('hidden') && !sidebar.classList.contains('collapsed') && !sidebar.classList.contains('sidebar-collapsed');
+          const shouldOpen = forceOpen !== null ? forceOpen : !isCurrentlyOpen;
+
+          if (shouldOpen) {
+            sidebar.classList.remove('hidden', 'collapsed', 'sidebar-collapsed');
+            sidebar.classList.add('sidebar-open');
+            document.body.classList.add('sidebar-view-open');
+            if (pullTab) pullTab.style.display = 'none';
           } else {
-            sidebar.classList.toggle('open-mobile');
+            sidebar.classList.remove('sidebar-open');
+            sidebar.classList.add('hidden', 'sidebar-collapsed');
+            document.body.classList.remove('sidebar-view-open');
+            if (pullTab) pullTab.style.display = 'flex';
           }
-          if (typeof saveState === 'function') saveState();
+
+          if (state && state.globalSidebar) {
+            state.globalSidebar.isOpen = shouldOpen;
+          }
+          if (typeof saveUiOnly === 'function') saveUiOnly();
+          else if (typeof saveState === 'function') saveState();
         },
         toggleMobileKpis() {
           const kpiBox = document.getElementById('mobileKpisCollapsibleContainer');
@@ -5859,18 +5870,26 @@
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
           if (ws && ws.grid && ws.grid['topKpisWrapper']) {
             const cfg = ws.grid['topKpisWrapper'];
-            cfg.rowSpan = isHidden ? 2 : 8;
-            cfg.manualRows = isHidden ? 2 : 8;
+            const measureFn = (window.GridEngine && window.GridEngine.measureNaturalRows) ? window.GridEngine.measureNaturalRows.bind(window.GridEngine) : (app.measureNaturalRows ? app.measureNaturalRows.bind(app) : null);
+            const newRows = measureFn && wrap ? measureFn(wrap) : (isHidden ? 2 : 5);
+            cfg.rowSpan = Math.max(2, newRows);
+            cfg.minRows = cfg.rowSpan;
+            cfg.manualRows = null;
             if (wrap) {
               wrap.style.gridRow = cfg.row + ' / span ' + cfg.rowSpan;
             }
-            if (typeof app !== 'undefined' && typeof app.resolveGridCollisions === 'function') {
-              app.resolveGridCollisions(null, 'topKpisWrapper');
-              app.applyGridLayout();
+            if (window.GridEngine) {
+              window.GridEngine.resolveGridCollisions(null, 'topKpisWrapper');
+              window.GridEngine.compactGrid();
+              window.GridEngine.applyGridLayout();
             }
           }
 
-          if (typeof saveState === 'function') saveState();
+          if (typeof app.saveUiOnly === 'function') {
+            app.saveUiOnly();
+          } else if (typeof saveState === 'function') {
+            saveState();
+          }
           if (typeof this.triggerReflow === 'function') this.triggerReflow();
         },
 
@@ -6825,6 +6844,7 @@
           p.isRunning = !p.isRunning;
           if (p.isRunning) {
             p.lastTick = Date.now();
+            p.targetEndTime = Date.now() + (p.timeLeft * 1000);
             requestPomoWakeLock();
             if (pomoTimerInterval) clearInterval(pomoTimerInterval);
             pomoTimerInterval = setInterval(() => {
@@ -6832,6 +6852,7 @@
             }, 1000);
           } else {
             p.lastTick = null;
+            p.targetEndTime = null;
             if (pomoTimerInterval) {
               clearInterval(pomoTimerInterval);
               pomoTimerInterval = null;
@@ -7007,6 +7028,10 @@
         adjustClock(mins) {
           const p = state.pomo;
           p.timeLeft = Math.max(0, p.timeLeft + mins * 60);
+          if (p.isRunning) {
+            p.targetEndTime = Date.now() + (p.timeLeft * 1000);
+            saveState();
+          }
           renderPomodoroUI();
         },
         adjustEffective(mins) {
@@ -12703,7 +12728,9 @@
         if (gdriveUserEmail) {
           syncGdriveCloud(true);
         }
-        if (state && state.pomo && state.pomo.isRunning) {
+        if (typeof checkAndResumePomo === 'function') {
+          checkAndResumePomo();
+        } else if (state && state.pomo && state.pomo.isRunning) {
           pomoTimerInterval = setInterval(() => {
             syncPomoTime();
           }, 1000);

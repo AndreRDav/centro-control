@@ -149,7 +149,8 @@ const WorkspacesManager = (function() {
       if (ws && newName && newName.trim()) {
         ws.name = newName.trim();
         this.renderNavBar();
-        if (typeof saveState === 'function') saveState();
+        if (typeof saveUiOnly === 'function') saveUiOnly();
+        else if (typeof saveState === 'function') saveState();
       }
     },
 
@@ -180,7 +181,8 @@ const WorkspacesManager = (function() {
 
         this.renderNavBar();
         this.mountActiveWorkspace();
-        if (typeof saveState === 'function') saveState();
+        if (typeof saveUiOnly === 'function') saveUiOnly();
+        else if (typeof saveState === 'function') saveState();
         return true;
       }
       return false;
@@ -221,7 +223,8 @@ const WorkspacesManager = (function() {
           if (app.renderBoardEditHandles) app.renderBoardEditHandles();
           if (app.renderWidgetsDrawer) app.renderWidgetsDrawer();
         }
-        if (typeof saveState === 'function') saveState();
+        if (typeof saveUiOnly === 'function') saveUiOnly();
+        else if (typeof saveState === 'function') saveState();
         if (typeof app !== 'undefined' && app.safeToast) {
           app.safeToast('Ventanas predeterminadas restauradas de fábrica.', 'emerald');
         }
@@ -310,7 +313,8 @@ const WorkspacesManager = (function() {
           if (typeof app.renderBoardEditHandles === 'function') app.renderBoardEditHandles();
           if (typeof app.renderWidgetsDrawer === 'function') app.renderWidgetsDrawer();
         }
-        if (typeof saveState === 'function') saveState();
+        if (typeof saveUiOnly === 'function') saveUiOnly();
+        else if (typeof saveState === 'function') saveState();
       };
 
       // Si el navegador soporta View Transitions API de forma nativa
@@ -398,6 +402,11 @@ const WorkspacesManager = (function() {
           sidebar.classList.add('hidden', 'sidebar-collapsed');
           document.body.classList.remove('sidebar-view-open');
         }
+      }
+
+      const pullTab = document.getElementById('sidebarPullTab');
+      if (pullTab && sidebar) {
+        pullTab.style.display = (sidebar.classList.contains('sidebar-open') && !sidebar.classList.contains('hidden')) ? 'none' : 'flex';
       }
 
       // Sincronizar botones de barra de navegación móvil (1-4)

@@ -264,21 +264,6 @@ const WidgetsRegistry = (function() {
       polymorphic: false,
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
     },
-    kpiGridContainer: {
-      id: 'kpiGridContainer',
-      name: 'Panel de 4 KPIs Maestros',
-      category: 'performance',
-      shortcut: 'K',
-      allowedZones: ['header', 'grid', 'sidebar'],
-      defaultZone: 'header',
-      minRows: 2,
-      idealRows: 4,
-      defaultColSpan: 12,
-      minColSpan: 4,
-      supportsCompact: true,
-      polymorphic: true,
-      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>'
-    },
     topKpisWrapper: {
       id: 'topKpisWrapper',
       name: 'Métricas & 4 KPIs Semanales',

@@ -1430,9 +1430,20 @@ var GridEngine = {
               drawerEl.classList.remove('drawer-drop-highlight');
             }
 
+            // Auto-apertura si se arrastra sobre la pestaña flotante izquierda (pull-tab)
+            const pullTabEl = document.getElementById('sidebarPullTab');
+            if (pullTabEl && pullTabEl.offsetParent !== null) {
+              const ptRect = pullTabEl.getBoundingClientRect();
+              if (curX >= ptRect.left && curX <= ptRect.right && curY >= ptRect.top && curY <= ptRect.bottom) {
+                if (typeof app !== 'undefined' && app.toggleSidebar) {
+                  app.toggleSidebar(true);
+                }
+              }
+            }
+
             // Detección de arrastre sobre el panel lateral (sidebar)
             const sidebarEl = document.getElementById('workspaceSidebar');
-            const sidebarRect = (sidebarEl && !sidebarEl.classList.contains('hidden')) ? sidebarEl.getBoundingClientRect() : null;
+            const sidebarRect = (sidebarEl && !sidebarEl.classList.contains('hidden') && !sidebarEl.classList.contains('collapsed')) ? sidebarEl.getBoundingClientRect() : null;
             isHoveringSidebar = !!(sidebarRect && (
               curX >= sidebarRect.left && curX <= sidebarRect.right &&
               curY >= sidebarRect.top && curY <= sidebarRect.bottom
@@ -2007,21 +2018,6 @@ var GridEngine = {
           saveState();
         },
 
-        toggleKpisAccordion(forceState = null) {
-          if (!state.uiPreferences) state.uiPreferences = {};
-          const body = document.getElementById('kpisCollapsibleBody');
-          const txt = document.getElementById('kpisSlimStatusText');
-          const arrow = document.getElementById('kpisSlimArrow');
-          if (!body) return;
-          const isCurrentlyHidden = body.classList.contains('hidden');
-          const shouldShow = forceState !== null ? forceState : isCurrentlyHidden;
-          body.classList.toggle('hidden', !shouldShow);
-          if (txt) txt.textContent = shouldShow ? 'Plegar' : 'Mostrar';
-          if (arrow) arrow.textContent = shouldShow ? '▲' : '▼';
-          state.uiPreferences.kpisCollapsed = !shouldShow;
-          saveState();
-        },
-
         rebalanceTab1Layout() {
           if (!state.uiPreferences) return;
           const p = state.uiPreferences;
@@ -2092,8 +2088,10 @@ var GridEngine = {
       name: name,
       deviceType: deviceType,
       mode: mode,
+      workspaces: JSON.parse(JSON.stringify(state.workspaces || [])),
       gridLayouts: JSON.parse(JSON.stringify(state.uiPreferences?.gridLayouts || {})),
       uiPreferences: JSON.parse(JSON.stringify(state.uiPreferences || {})),
+      globalSidebar: JSON.parse(JSON.stringify(state.globalSidebar || { isOpen: false, position: 'right', widgets: [] })),
       updatedAt: Date.now()
     };
     state.activeDeviceProfileId = profileId;
@@ -2111,6 +2109,12 @@ var GridEngine = {
     }
 
     const prof = state.deviceProfiles[profileId];
+    if (prof.workspaces && Array.isArray(prof.workspaces) && prof.workspaces.length > 0) {
+      state.workspaces = JSON.parse(JSON.stringify(prof.workspaces));
+    }
+    if (prof.globalSidebar) {
+      state.globalSidebar = JSON.parse(JSON.stringify(prof.globalSidebar));
+    }
     if (prof.gridLayouts) {
       if (!state.uiPreferences) state.uiPreferences = {};
       state.uiPreferences.gridLayouts = JSON.parse(JSON.stringify(prof.gridLayouts));
@@ -2122,6 +2126,9 @@ var GridEngine = {
     state.activeDeviceProfileId = profileId;
     saveState();
 
+    if (typeof WorkspacesManager !== 'undefined' && WorkspacesManager.mountActiveWorkspace) {
+      WorkspacesManager.mountActiveWorkspace();
+    }
     this.applyUiPreferences();
     this.applyGridLayout('tab' + (state.activeTab || 1));
     this.showToast('Perfil "' + prof.name + '" aplicado a este dispositivo.', 'success');

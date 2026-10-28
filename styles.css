@@ -1082,19 +1082,6 @@
     #dockRightSidebar.hidden {
       display: none !important;
     }
-    @media (max-width: 1023px) {
-      #dockRightSidebar {
-        position: fixed !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        right: 0 !important;
-        width: 85vw !important;
-        max-width: 360px !important;
-        z-index: 1000 !important;
-        box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5) !important;
-      }
-    }
-
     /* Pastilla activa en el Dock inferior */
     .dock-pill-active {
       background: var(--theme-accent-soft, rgba(239, 68, 68, 0.15)) !important;
@@ -1127,20 +1114,32 @@
     #workspaceSidebar.hidden {
       display: none !important;
     }
+
+    /* Pestaña Flotante Lateral Izquierda (Pull-Tab) */
+    #sidebarPullTab {
+      display: flex;
+    }
+    body.sidebar-view-open #sidebarPullTab,
+    body:has(#workspaceSidebar:not(.hidden):not(.collapsed):not(.sidebar-collapsed)) #sidebarPullTab {
+      display: none !important;
+    }
+
+    /* CAJONES Y PANELES SUPERPUESTOS EN MÓVIL Y TABLETA (< 1024px) */
     @media (max-width: 1023px) {
-      #workspaceSidebar {
+      #widgetsDrawer.drawer-open,
+      #workspaceSidebar.sidebar-open,
+      #workspaceSidebar.open-mobile,
+      #dockRightSidebar:not(.hidden) {
         position: fixed !important;
-        top: 0 !important;
-        bottom: 0 !important;
-        left: 0 !important;
-        width: 85vw !important;
-        max-width: 340px !important;
-        z-index: 1000 !important;
-        transform: translateX(-100%) !important;
-        box-shadow: 10px 0 30px rgba(0, 0, 0, 0.5) !important;
-      }
-      #workspaceSidebar.open-mobile {
-        transform: translateX(0) !important;
+        inset: 0 !important;
+        width: 100vw !important;
+        max-width: 100vw !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        z-index: 9998 !important;
+        transform: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
       }
     }
 
@@ -1247,6 +1246,21 @@
     body.board-edit-active .editorial-card > *:not(.board-edit-header-bar):not(.card-drag-shield):not(.card-resize-handle) svg {
       opacity: 0 !important;
       visibility: hidden !important;
+    }
+
+    /* Excluir explícitamente el cajón de widgets y sus miniaturas del modo edición */
+    #widgetsDrawer,
+    #widgetsDrawer *,
+    #widgetsDrawer .editorial-card,
+    #widgetsDrawer .editorial-card * {
+      color: inherit !important;
+      -webkit-text-fill-color: initial !important;
+      opacity: 1 !important;
+      visibility: visible !important;
+    }
+    #widgetsDrawer svg {
+      opacity: 1 !important;
+      visibility: visible !important;
     }
 
     /* Ocultar imágenes y avatares interiores */
@@ -1580,6 +1594,10 @@
     @media (max-width: 639px) {
       #floatingDock {
         bottom: 4.25rem !important;
+      }
+      #appMainViewport {
+        padding-top: 5.5rem !important;
+        padding-bottom: 8.5rem !important;
       }
     }
 
@@ -2083,58 +2101,94 @@
       gap: 0.65rem !important;
       align-items: stretch !important;
     }
-    /* En Sidebar o cuadros estrechos (1 a 4 cols) */
-    [data-cols="1"] .adaptive-internal-grid,
-    [data-cols="2"] .adaptive-internal-grid,
-    [data-cols="3"] .adaptive-internal-grid,
-    [data-cols="4"] .adaptive-internal-grid,
-    #sidebarWidgetsContainer .adaptive-internal-grid {
-      grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
-    }
-    [data-cols="3"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="4"].card-mode-compact .adaptive-internal-grid,
-    #sidebarWidgetsContainer .card-mode-compact .adaptive-internal-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-    /* Cuadros medianos (5 a 7 cols) */
-    [data-cols="5"] .adaptive-internal-grid,
-    [data-cols="6"] .adaptive-internal-grid,
-    [data-cols="7"] .adaptive-internal-grid {
-      grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
-    }
-    [data-cols="5"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="6"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="7"].card-mode-compact .adaptive-internal-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    }
-    /* Cuadros anchos (8 a 10 cols) */
-    [data-cols="8"] .adaptive-internal-grid,
-    [data-cols="9"] .adaptive-internal-grid,
-    [data-cols="10"] .adaptive-internal-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
-    }
-    [data-cols="8"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="9"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="10"].card-mode-compact .adaptive-internal-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    }
-    /* Cuadros ancho completo (11 a 12 cols) */
-    [data-cols="11"] .adaptive-internal-grid,
-    [data-cols="12"] .adaptive-internal-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
-    }
-    [data-cols="11"].card-mode-compact .adaptive-internal-grid,
-    [data-cols="12"].card-mode-compact .adaptive-internal-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+    /* ESCRITORIO (>= 1024px): Rige el ancho asignado al cuadro (data-cols) */
+    @media (min-width: 1024px) {
+      /* En Sidebar o cuadros estrechos (1 a 4 cols) */
+      [data-cols="1"] .adaptive-internal-grid,
+      [data-cols="2"] .adaptive-internal-grid,
+      [data-cols="3"] .adaptive-internal-grid,
+      [data-cols="4"] .adaptive-internal-grid,
+      #sidebarWidgetsContainer .adaptive-internal-grid {
+        grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+      }
+      [data-cols="3"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="4"].card-mode-compact .adaptive-internal-grid,
+      #sidebarWidgetsContainer .card-mode-compact .adaptive-internal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      /* Cuadros medianos (5 a 7 cols) */
+      [data-cols="5"] .adaptive-internal-grid,
+      [data-cols="6"] .adaptive-internal-grid,
+      [data-cols="7"] .adaptive-internal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+      }
+      [data-cols="5"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="6"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="7"].card-mode-compact .adaptive-internal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      /* Cuadros anchos (8 a 10 cols) */
+      [data-cols="8"] .adaptive-internal-grid,
+      [data-cols="9"] .adaptive-internal-grid,
+      [data-cols="10"] .adaptive-internal-grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+      }
+      [data-cols="8"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="9"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="10"].card-mode-compact .adaptive-internal-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      }
+      /* Cuadros ancho completo (11 a 12 cols) */
+      [data-cols="11"] .adaptive-internal-grid,
+      [data-cols="12"] .adaptive-internal-grid {
+        grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+      }
+      [data-cols="11"].card-mode-compact .adaptive-internal-grid,
+      [data-cols="12"].card-mode-compact .adaptive-internal-grid {
+        grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+      }
+
+      /* Prevenir colapso de texto en Sidebar o anchos estrechos */
+      #sidebarWidgetsContainer [class*="md:col-span-"],
+      [data-cols="1"] [class*="md:col-span-"],
+      [data-cols="2"] [class*="md:col-span-"],
+      [data-cols="3"] [class*="md:col-span-"],
+      [data-cols="4"] [class*="md:col-span-"] {
+        grid-column: 1 / -1 !important;
+      }
     }
 
-    /* Prevenir colapso de texto en Sidebar o anchos estrechos */
-    #sidebarWidgetsContainer [class*="md:col-span-"],
-    [data-cols="1"] [class*="md:col-span-"],
-    [data-cols="2"] [class*="md:col-span-"],
-    [data-cols="3"] [class*="md:col-span-"],
-    [data-cols="4"] [class*="md:col-span-"] {
-      grid-column: 1 / -1 !important;
+    /* MÓVIL Y TABLETA (< 1024px): 1 columna en normal, exactamente 2 en compacto */
+    @media (max-width: 1023px) {
+      .adaptive-internal-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.6rem !important;
+      }
+      .card-mode-compact .adaptive-internal-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        gap: 0.45rem !important;
+      }
+      /* Diseño anti-desborde en móvil compacto 2xN */
+      .card-mode-compact .adaptive-internal-grid > div {
+        padding: 0.4rem 0.5rem !important;
+      }
+      .card-mode-compact .adaptive-internal-grid > div .compact-hide,
+      .card-mode-compact .adaptive-internal-grid > div [class*="text-[8.5px]"] {
+        display: none !important;
+      }
+      .card-mode-compact .adaptive-internal-grid > div button,
+      .card-mode-compact .adaptive-internal-grid > div input {
+        width: 100% !important;
+        justify-content: center !important;
+        padding-left: 0.5rem !important;
+        padding-right: 0.5rem !important;
+        padding-top: 0.25rem !important;
+        padding-bottom: 0.25rem !important;
+        font-size: 11px !important;
+        overflow: hidden !important;
+        text-overflow: ellipsis !important;
+        white-space: nowrap !important;
+      }
     }
 
     /* Agrupador 50% / 50% de selector de días y progreso en Hoy */
