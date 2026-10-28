@@ -68,24 +68,36 @@ var GridEngine = {
           return Math.max(2, requiredRows);
         },
 
-        // 2. RESOLUCIÓN DE COLISIONES 2D EN CASCADA (CASCADE PUSH)
-        resolveGridCollisions(tabKey, priorityId) {
-          tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          const layout = this.getGridLayout(tabKey);
+        // 2. RESOLUCIÓN DE COLISIONES 2D EN CASCADA (CASCADE PUSH) CON PRIORIDAD PARA RECUADROS FIJADOS (PIN)
+        resolveGridCollisions(tabKeyOrLayout, priorityId) {
+          let layout;
+          if (tabKeyOrLayout && typeof tabKeyOrLayout === 'object') {
+            layout = tabKeyOrLayout;
+          } else {
+            const tabKey = tabKeyOrLayout || ('tab' + (state.activeTab || 1));
+            layout = this.getGridLayout(tabKey);
+          }
+          if (!layout) return;
+
           const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
 
           let hasCollision = true;
           let iterations = 0;
-          const maxIterations = 50;
+          const maxIterations = 60;
 
           while (hasCollision && iterations < maxIterations) {
             hasCollision = false;
             iterations++;
 
-            // Ordenar por fila ascendente, priorizando la tarjeta movida/redimensionada
+            // Ordenar: Tarjetas fijadas (isPinned === true) u obstáculo prioritario (priorityId)
+            // tienen máxima prioridad inamovible
             cards.sort((a, b) => {
-              if (a.id === priorityId) return -1;
-              if (b.id === priorityId) return 1;
+              const aPinned = !!a.isPinned;
+              const bPinned = !!b.isPinned;
+              if (aPinned && !bPinned) return -1;
+              if (!aPinned && bPinned) return 1;
+              if (a.id === priorityId && b.id !== priorityId) return -1;
+              if (b.id === priorityId && a.id !== priorityId) return 1;
               return a.row - b.row || a.col - b.col;
             });
 
@@ -100,15 +112,22 @@ var GridEngine = {
 
                 if (colsOverlap && rowsOverlap) {
                   hasCollision = true;
-                  // La tarjeta superior/prioritaria empuja a la inferior justo debajo
-                  b.row = a.row + a.rowSpan;
+                  // Si b es pinned y a no lo es (por seguridad), a cede el paso
+                  if (b.isPinned && !a.isPinned) {
+                    a.row = b.row + b.rowSpan;
+                  } else {
+                    // La tarjeta 'a' (prioritaria/pinned/superior) empuja a la tarjeta 'b' justo debajo
+                    b.row = a.row + a.rowSpan;
+                  }
                 }
               }
             }
           }
 
           cards.forEach(c => {
-            layout[c.id].row = c.row;
+            if (layout[c.id]) {
+              layout[c.id].row = c.row;
+            }
           });
         },
 
@@ -645,28 +664,18 @@ var GridEngine = {
             bar.innerHTML = `
               <div class="header-bar-left">
                 <span class="header-bar-icon">${def.iconSvg || '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'}</span>
-                <span class="header-bar-title">${cardTitle}</span>
+                <span class="header-bar-title" title="${cardTitle}">${cardTitle}</span>
                 <span class="header-bar-coords">${cfg.colSpan}/12c · ${cfg.rowSpan || 4}f</span>
               </div>
               <div class="header-bar-actions">
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', -1)" title="Reducir ancho (-1 col)" class="header-bar-btn">–</button>
-                <button type="button" onclick="event.stopPropagation(); app.adjustCardSpan('${id}', 1)" title="Aumentar ancho (+1 col)" class="header-bar-btn">+</button>
                 <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="${isPinned ? 'Desfijar de otras ventanas' : 'Fijar en todas las ventanas'}" class="header-bar-btn ${isPinned ? 'is-active-pin' : ''}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
                 </button>
                 <button type="button" onclick="event.stopPropagation(); app.toggleCompactMode('${id}')" title="Modo Compacto" class="header-bar-btn ${isCompact ? 'is-active-compact' : ''}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/><line x1="14" y1="10" x2="21" y2="3"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
                 </button>
-                <button type="button" onclick="event.stopPropagation(); app.snapCardToIdeal('${id}')" title="Ajustar a tamaño ideal (${idealRows} filas)" class="header-bar-btn">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                </button>
-                <button type="button" onclick="event.stopPropagation(); app.moveCardToSidebar('${id}')" title="Mover a panel lateral" class="header-bar-btn-lateral">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
-                  <span>Lateral</span>
-                </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDock('${id}')" title="Mover al Dock inferior" class="header-bar-btn-dock header-bar-btn-lateral">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
-                  <span>Dock</span>
+                <button type="button" onclick="event.stopPropagation(); app.toggleBoardCardMenu('${id}', event)" title="Más opciones de diseño" class="header-bar-btn">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
                 </button>
                 <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -714,16 +723,11 @@ var GridEngine = {
             bar.innerHTML = `
               <div class="header-bar-left">
                 <span class="header-bar-coords">PANEL</span>
-                <span class="header-bar-title">${cardTitle}</span>
+                <span class="header-bar-title" title="${cardTitle}">${cardTitle}</span>
               </div>
               <div class="header-bar-actions">
-                <button type="button" onclick="event.stopPropagation(); app.moveCardFromSidebarToGrid('${id}')" title="Mover a cuadrícula principal" class="header-bar-btn-lateral">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                  <span>Al Tablero</span>
-                </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDock('${id}')" title="Mover al Dock inferior" class="header-bar-btn-dock header-bar-btn-lateral">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
-                  <span>Dock</span>
+                <button type="button" onclick="event.stopPropagation(); app.toggleBoardCardMenu('${id}', event, true)" title="Más opciones" class="header-bar-btn">
+                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
                 </button>
                 <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
@@ -740,6 +744,82 @@ var GridEngine = {
           document.querySelectorAll('.card-edit-mode').forEach(el => el.classList.remove('card-edit-mode'));
           const placeholder = document.getElementById('gridDropPlaceholder');
           if (placeholder) placeholder.style.display = 'none';
+          const popover = document.getElementById('boardCardMenuPopover');
+          if (popover) popover.classList.add('hidden');
+        },
+
+        toggleBoardCardMenu(cardId, event, isSidebar = false) {
+          if (event) event.stopPropagation();
+          let popover = document.getElementById('boardCardMenuPopover');
+          if (popover && popover.getAttribute('data-active-card') === cardId && !popover.classList.contains('hidden')) {
+            popover.classList.add('hidden');
+            return;
+          }
+
+          if (!popover) {
+            popover = document.createElement('div');
+            popover.id = 'boardCardMenuPopover';
+            popover.className = 'board-card-menu-popover fixed z-[9999] hidden panel-bg border border-theme shadow-2xl rounded-xl p-1.5 flex flex-col gap-1 text-xs select-none';
+            document.body.appendChild(popover);
+          }
+
+          const btnRect = event ? event.currentTarget.getBoundingClientRect() : { right: 200, bottom: 200, left: 10, top: 10 };
+          popover.setAttribute('data-active-card', cardId);
+          popover.classList.remove('hidden');
+
+          const el = document.getElementById(cardId);
+          const idealRows = (window.PolymorphicCards && el) ? window.PolymorphicCards.computeIdealRows(el) : 6;
+
+          if (isSidebar) {
+            popover.innerHTML = `
+              <button type="button" onclick="app.moveCardFromSidebarToGrid('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
+                <span>Al Tablero principal</span>
+              </button>
+              <button type="button" onclick="app.sendWidgetToDock('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
+                <span>Mover al Dock</span>
+              </button>
+              <button type="button" onclick="app.sendWidgetToDrawer('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');" class="text-rose-500 hover:text-rose-600">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>Inactivar (al cajón)</span>
+              </button>
+            `;
+          } else {
+            popover.innerHTML = `
+              <button type="button" onclick="app.snapCardToIdeal('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                <span>Ajustar a ideal (${idealRows} filas)</span>
+              </button>
+              <button type="button" onclick="app.adjustCardSpan('${cardId}', 1); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Aumentar ancho (+1 col)</span>
+              </button>
+              <button type="button" onclick="app.adjustCardSpan('${cardId}', -1); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                <span>Reducir ancho (-1 col)</span>
+              </button>
+              <button type="button" onclick="app.moveCardToSidebar('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="15" y1="3" x2="15" y2="21"/></svg>
+                <span>Mover a panel lateral</span>
+              </button>
+              <button type="button" onclick="app.sendWidgetToDock('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
+                <span>Mover al Dock</span>
+              </button>
+            `;
+          }
+
+          const popoverW = 210;
+          let left = btnRect.right - popoverW;
+          if (left < 10) left = btnRect.left;
+          let top = btnRect.bottom + 6;
+          if (top + 220 > window.innerHeight) {
+            top = btnRect.top - 220;
+          }
+
+          popover.style.left = Math.max(10, Math.min(window.innerWidth - popoverW - 10, left)) + 'px';
+          popover.style.top = Math.max(10, top) + 'px';
         },
 
         moveCardToSidebar(cardId) {
@@ -881,6 +961,65 @@ var GridEngine = {
               ${filteredWidgets.length === 0 ? '<p class="text-xs text-stone-400 italic text-center py-6">No hay módulos inactivos en esta categoría.</p>' : ''}
               ${filteredWidgets.map(id => {
                 const def = catalog[id] || { name: id, iconSvg: '', defaultColSpan: 6, idealRows: 8 };
+                const colSpan = def.defaultColSpan || 6;
+                const idealRows = def.idealRows || 8;
+                const boxHeight = Math.max(54, Math.min(165, Math.round(idealRows * 9.5))) + 'px';
+                const widthPercent = Math.min(100, Math.max(45, Math.round((colSpan / 12) * 100))) + '%';
+
+                let wireframeHtml = '';
+                if (id === 'topKpisWrapper') {
+                  wireframeHtml = `
+                    <div class="grid grid-cols-4 gap-1 p-1 h-full">
+                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                    </div>
+                  `;
+                } else if (id === 'interactiveListsPanel') {
+                  wireframeHtml = `
+                    <div class="space-y-1.5 p-1.5 h-full flex flex-col justify-around">
+                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/50 flex-1"></div></div>
+                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/40 flex-1"></div></div>
+                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/30 flex-1"></div></div>
+                    </div>
+                  `;
+                } else if (id === 'notesMiniCalendarPanel') {
+                  wireframeHtml = `
+                    <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                      <div class="grid grid-cols-7 gap-0.5"><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-main/50"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div></div>
+                      <div class="space-y-1"><div class="h-1.5 w-4/5 rounded bg-theme-main/40"></div><div class="h-1.5 w-3/5 rounded bg-theme-main/30"></div></div>
+                    </div>
+                  `;
+                } else if (id === 'tab3ExpensesTableCard' || id === 'weekTableContainer' || id === 'tab3FixedExpensesCard') {
+                  wireframeHtml = `
+                    <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                      <div class="h-2 rounded bg-theme-main/30 border-b border-theme/40 w-full"></div>
+                      <div class="space-y-1 flex-1 flex flex-col justify-around"><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div></div>
+                    </div>
+                  `;
+                } else if (id === 'todayFocusContainer' || id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
+                  wireframeHtml = `
+                    <div class="p-1.5 h-full grid grid-cols-2 gap-1">
+                      <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
+                      <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
+                    </div>
+                  `;
+                } else if (id.includes('Evolution') || id.includes('Radar') || id.includes('Anatomy')) {
+                  wireframeHtml = `
+                    <div class="p-1 h-full flex items-center justify-center">
+                      <svg class="w-full h-full text-theme-main/50" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="5,35 25,20 45,28 65,12 85,18 95,5"/></svg>
+                    </div>
+                  `;
+                } else {
+                  wireframeHtml = `
+                    <div class="p-1.5 h-full flex flex-col justify-between">
+                      <div class="h-2 w-1/2 rounded bg-theme-main/40"></div>
+                      <div class="space-y-1"><div class="h-2 rounded bg-theme-soft/60"></div><div class="h-2 rounded bg-theme-soft/60"></div></div>
+                    </div>
+                  `;
+                }
+
                 return `
                   <div class="mini-card-item space-y-1" data-cat="${def.category || 'all'}" data-id="${id}">
                     <div class="flex items-center justify-between text-[11px] font-bold text-stone-800 dark:text-slate-200 px-0.5">
@@ -888,23 +1027,11 @@ var GridEngine = {
                         <span class="text-theme-main shrink-0">${def.iconSvg || ''}</span>
                         <span class="truncate">${def.name}</span>
                       </span>
-                      <span class="text-[9px] font-mono px-1 rounded bg-theme-soft text-theme-main font-bold border border-theme/30">${def.defaultColSpan || 6}c · ${def.idealRows || 8}f</span>
+                      <span class="text-[9px] font-mono px-1 rounded bg-theme-soft text-theme-main font-bold border border-theme/30">${colSpan}c · ${idealRows}f</span>
                     </div>
 
-                    <div class="mini-card-box cursor-grab" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar">
-                      <div class="mini-card-scaled">
-                        <div class="flex items-center justify-between border-b pb-1 border-stone-300 dark:border-slate-800 font-bold text-xs text-stone-800 dark:text-slate-200">
-                          <span class="truncate">${def.name}</span>
-                          <span class="w-3.5 h-3.5 rounded bg-theme-soft"></span>
-                        </div>
-                        <div class="space-y-1.5 opacity-70">
-                          <div class="h-6 rounded bg-theme-soft/50 border border-theme/20 w-full"></div>
-                          <div class="grid grid-cols-2 gap-1">
-                            <div class="h-7 rounded bg-theme-soft/50 border border-theme/20"></div>
-                            <div class="h-7 rounded bg-theme-soft/50 border border-theme/20"></div>
-                          </div>
-                        </div>
-                      </div>
+                    <div class="mini-card-box cursor-grab panel-bg border border-theme/50 rounded-lg overflow-hidden shadow-xs hover:border-theme-main transition" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;">
+                      ${wireframeHtml}
                     </div>
 
                     <div class="flex items-center justify-end gap-1 pt-0.5">
@@ -933,6 +1060,48 @@ var GridEngine = {
           } else {
             this.renderWidgetsDrawer();
           }
+        },
+
+        // Helper reutilizable de auto-scroll continuo por requestAnimationFrame
+        startAutoScrollLoop(getPointerY, onScrollTick) {
+          let animId = null;
+          let isRunning = true;
+
+          const tick = () => {
+            if (!isRunning) return;
+            const curY = (typeof getPointerY === 'function') ? getPointerY() : null;
+            if (curY !== null && curY !== undefined) {
+              const topThreshold = 115;
+              const bottomThreshold = window.innerHeight - 85;
+              let scrollDelta = 0;
+
+              if (curY < topThreshold && window.scrollY > 0) {
+                const factor = Math.max(0, Math.min(1, (topThreshold - curY) / topThreshold));
+                scrollDelta = -Math.round(6 + factor * 16);
+              } else if (curY > bottomThreshold) {
+                const maxScrollY = document.documentElement.scrollHeight - window.innerHeight;
+                if (window.scrollY < maxScrollY - 2) {
+                  const factor = Math.max(0, Math.min(1, (curY - bottomThreshold) / 85));
+                  scrollDelta = Math.round(6 + factor * 16);
+                }
+              }
+
+              if (scrollDelta !== 0) {
+                window.scrollBy({ top: scrollDelta, behavior: 'instant' });
+                if (typeof onScrollTick === 'function') {
+                  onScrollTick(scrollDelta);
+                }
+              }
+            }
+            animId = requestAnimationFrame(tick);
+          };
+
+          animId = requestAnimationFrame(tick);
+
+          return () => {
+            isRunning = false;
+            if (animId) cancelAnimationFrame(animId);
+          };
         },
 
         // ARRASTRE DE MINIATURAS DEL CAJÓN AL TABLERO (50% ➔ 100%)
@@ -983,19 +1152,16 @@ var GridEngine = {
           let targetCol = 1;
           let targetRow = 1;
           let isHoveringSidebar = false;
+          let currentPointerX = e.clientX;
+          let currentPointerY = e.clientY;
 
           const updateMiniDragPos = (me) => {
-            const curX = me.clientX;
-            const curY = me.clientY;
-
-            // Auto-scroll si está cerca de bordes
-            const edgeZone = 65;
-            const scrollSpeed = 15;
-            if (curY > window.innerHeight - edgeZone) {
-              window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
-            } else if (curY < edgeZone && window.scrollY > 0) {
-              window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
+            if (me) {
+              currentPointerX = me.clientX;
+              currentPointerY = me.clientY;
             }
+            const curX = currentPointerX;
+            const curY = currentPointerY;
 
             // Detección de panel lateral
             const sidebarEl = document.getElementById('workspaceSidebar');
@@ -1049,9 +1215,15 @@ var GridEngine = {
             }
           };
 
+          const stopAutoScroll = this.startAutoScrollLoop(
+            () => currentPointerY,
+            () => { updateMiniDragPos(null); }
+          );
+
           const onPointerMove = (me) => updateMiniDragPos(me);
 
           const onPointerUp = () => {
+            stopAutoScroll();
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
@@ -1182,29 +1354,34 @@ var GridEngine = {
               if (isComp) el.classList.add('card-mode-compact');
               else el.classList.remove('card-mode-compact');
             }
+            const isEdit = (typeof this.isBoardEditMode === 'function') ? this.isBoardEditMode() : false;
             const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
             if (ws && ws.grid && ws.grid[cardId]) {
               const cfg = ws.grid[cardId];
               cfg.compact = isComp;
-              if (isComp) {
-                const liveCompRows = this.measureNaturalRows(el);
-                const compactRows = Math.max(2, liveCompRows);
-                cfg.rowSpan = compactRows;
-                cfg.manualRows = compactRows;
-              } else {
-                const liveNormRows = this.measureNaturalRows(el);
-                cfg.rowSpan = Math.max(3, liveNormRows);
-                cfg.manualRows = null;
+              if (isEdit) {
+                if (isComp) {
+                  const liveCompRows = this.measureNaturalRows(el);
+                  const compactRows = Math.max(2, liveCompRows);
+                  cfg.rowSpan = compactRows;
+                  cfg.manualRows = compactRows;
+                } else {
+                  const liveNormRows = this.measureNaturalRows(el);
+                  cfg.rowSpan = Math.max(3, liveNormRows);
+                  cfg.manualRows = null;
+                }
               }
             }
-            this.compactGrid();
-            this.applyGridLayout();
-            this.renderBoardEditHandles();
+            if (isEdit) {
+              this.compactGrid();
+              this.applyGridLayout();
+              this.renderBoardEditHandles();
+            }
             if (cardId === 'todayFocusContainer') {
               if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
               else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
             }
-            this.safeToast(isComp ? 'Modo Compacto activado: micro-cuadrícula acoplada (espacio economizado).' : 'Modo Normal restaurado.', 'emerald');
+            this.safeToast(isComp ? 'Modo Compacto activado: micro-cuadrícula acoplada.' : 'Modo Normal restaurado.', 'emerald');
             if (typeof saveState === 'function') saveState();
             return isComp;
           }
@@ -1421,26 +1598,23 @@ var GridEngine = {
           let targetCol = cfg.col || 1;
           let targetRow = cfg.row || 1;
           let lastMoveEvent = e;
+          let currentPointerX = e.clientX;
+          let currentPointerY = e.clientY;
           let isHoveringSidebar = false;
           let isHoveringDrawer = false;
           let isHoveringDock = false;
 
           const updateDragPosition = (moveEvent) => {
-            if (moveEvent) lastMoveEvent = moveEvent;
-            const evt = moveEvent || lastMoveEvent;
+            if (moveEvent) {
+              lastMoveEvent = moveEvent;
+              currentPointerX = moveEvent.clientX;
+              currentPointerY = moveEvent.clientY;
+            }
+            const evt = lastMoveEvent;
             if (!evt) return;
 
-            const curX = evt.clientX;
-            const curY = evt.clientY;
-
-            // Auto-scroll suave si el usuario arrastra cerca de los bordes del viewport
-            const edgeZone = 65;
-            const scrollSpeed = 15;
-            if (curY > window.innerHeight - edgeZone) {
-              window.scrollBy({ top: scrollSpeed, behavior: 'instant' });
-            } else if (curY < edgeZone && window.scrollY > 0) {
-              window.scrollBy({ top: -scrollSpeed, behavior: 'instant' });
-            }
+            const curX = currentPointerX;
+            const curY = currentPointerY;
 
             // Detección de arrastre sobre el cajón de módulos inactivos (#widgetsDrawer)
             const drawerEl = document.getElementById('widgetsDrawer');
@@ -1568,6 +1742,11 @@ var GridEngine = {
             }
           };
 
+          const stopAutoScroll = this.startAutoScrollLoop(
+            () => currentPointerY,
+            () => { updateDragPosition(null); }
+          );
+
           const onPointerMove = (moveEvent) => {
             updateDragPosition(moveEvent);
           };
@@ -1577,6 +1756,7 @@ var GridEngine = {
           };
 
           const onPointerUp = () => {
+            stopAutoScroll();
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);
@@ -1697,6 +1877,8 @@ var GridEngine = {
           let finalRow = origRow;
           let finalRowSpan = origRowSpan;
           let lastResizeEvent = e;
+          let currentPointerX = e.clientX;
+          let currentPointerY = e.clientY;
 
           const isLeft = direction.includes('l') || direction.includes('w');
           const isRight = direction.includes('r') || direction.includes('e');
@@ -1704,8 +1886,12 @@ var GridEngine = {
           const isBottom = direction.includes('b') || direction.includes('s');
 
           const updateResizePosition = (moveEvent) => {
-            if (moveEvent) lastResizeEvent = moveEvent;
-            const evt = moveEvent || lastResizeEvent;
+            if (moveEvent) {
+              lastResizeEvent = moveEvent;
+              currentPointerX = moveEvent.clientX;
+              currentPointerY = moveEvent.clientY;
+            }
+            const evt = lastResizeEvent;
             if (!evt) return;
 
             // Medición DINÁMICA en vivo del contenedor
@@ -1714,8 +1900,8 @@ var GridEngine = {
             const colPitch = colWidth + gap;
             const rowPitch = 40 + gap; // 52px
 
-            const curPageX = evt.clientX + window.scrollX;
-            const curPageY = evt.clientY + window.scrollY;
+            const curPageX = currentPointerX + window.scrollX;
+            const curPageY = currentPointerY + window.scrollY;
             const dx = curPageX - startX;
             const dy = curPageY - startY;
 
@@ -1815,6 +2001,11 @@ var GridEngine = {
             }
           };
 
+          const stopAutoScroll = this.startAutoScrollLoop(
+            () => currentPointerY,
+            () => { updateResizePosition(null); }
+          );
+
           const onPointerMove = (moveEvent) => {
             updateResizePosition(moveEvent);
           };
@@ -1824,6 +2015,7 @@ var GridEngine = {
           };
 
           const onPointerUp = () => {
+            stopAutoScroll();
             window.removeEventListener('pointermove', onPointerMove);
             window.removeEventListener('pointerup', onPointerUp);
             window.removeEventListener('pointercancel', onPointerUp);

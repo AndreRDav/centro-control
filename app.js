@@ -8227,7 +8227,7 @@
         },
 
         closeAllContextMenus() {
-          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover', 'workspaceTabActionMenuPopover'].forEach(id => {
+          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover', 'workspaceTabActionMenuPopover', 'boardCardMenuPopover'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
           });
@@ -11381,9 +11381,14 @@
 
         async resolveSyncConflict(action) {
           this.closeModal('modalSyncConflict');
+          const conflictModal = document.getElementById('modalSyncConflict');
+          if (conflictModal) conflictModal.classList.add('hidden');
+
           if (action === 'upload') {
+            if (window.clearPendingCloudConflictJson) window.clearPendingCloudConflictJson();
             this.showToast('Subiendo cambios locales a Google Drive...', 'info');
-            const res = await syncGdriveCloud(false, true, false);
+            const syncFn = (typeof syncGdriveCloud === 'function') ? syncGdriveCloud : window.syncGdriveCloud;
+            const res = syncFn ? await syncFn(false, true, false) : null;
             if (res && res.success) {
               this.showToast('Versión local subida a Drive con éxito.', 'success');
             } else {
@@ -11391,11 +11396,12 @@
             }
           } else if (action === 'download') {
             this.showToast('Cargando versión de Google Drive...', 'info');
-            if (typeof pendingCloudConflictJson !== 'undefined' && pendingCloudConflictJson) {
-              const myDevId = (typeof getLocalDeviceId === 'function') ? getLocalDeviceId() : (state.deviceId || 'dev_local');
-              const fn = (typeof applyCloudDownload === 'function') ? applyCloudDownload : window.applyCloudDownload;
+            const cloudData = window.getPendingCloudConflictJson ? window.getPendingCloudConflictJson() : (typeof pendingCloudConflictJson !== 'undefined' ? pendingCloudConflictJson : null);
+            if (cloudData) {
+              const myDevId = (window.getLocalDeviceId) ? window.getLocalDeviceId() : ((typeof getLocalDeviceId === 'function') ? getLocalDeviceId() : (state.deviceId || 'dev_local'));
+              const fn = window.applyCloudDownload || (typeof applyCloudDownload === 'function' ? applyCloudDownload : null);
               if (fn) {
-                fn(pendingCloudConflictJson, Number(pendingCloudConflictJson.updatedAt) || Date.now(), myDevId);
+                fn(cloudData, Number(cloudData.updatedAt) || Date.now(), myDevId);
               }
               if (window.WorkspacesManager && window.WorkspacesManager.mountActiveWorkspace) {
                 try { window.WorkspacesManager.mountActiveWorkspace(); } catch (_) {}
@@ -11403,9 +11409,9 @@
               if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
                 try { window.renderApp(); } catch (_) {}
               }
-              this.showToast('Versión de Google Drive cargada con éxito.', 'success');
+              this.showToast('Versión de Google Drive cargada correctamente.', 'success');
             } else {
-              const syncFn = (typeof syncGdriveCloud === 'function') ? syncGdriveCloud : window.syncGdriveCloud;
+              const syncFn = window.syncGdriveCloud || (typeof syncGdriveCloud === 'function' ? syncGdriveCloud : null);
               const res = syncFn ? await syncFn(true, false, true) : null;
               if (res && res.success) {
                 if (window.WorkspacesManager && window.WorkspacesManager.mountActiveWorkspace) {
@@ -11414,13 +11420,14 @@
                 if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
                   try { window.renderApp(); } catch (_) {}
                 }
-                this.showToast('Versión de Google Drive cargada con éxito.', 'success');
+                this.showToast('Versión de Google Drive cargada correctamente.', 'success');
               } else {
                 this.showToast('Error cargando versión de Drive: ' + (res ? res.reason : 'desconocido'), 'error');
               }
             }
           } else if (action === 'merge') {
-            if (!pendingCloudConflictJson) return;
+            const conflictJson = window.getPendingCloudConflictJson ? window.getPendingCloudConflictJson() : (typeof pendingCloudConflictJson !== 'undefined' ? pendingCloudConflictJson : null);
+            if (!conflictJson) return;
             pushUndo('Fusión inteligente de semanas');
             try {
               localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
@@ -11431,7 +11438,7 @@
               return Array.isArray(wks) ? wks : Object.values(wks);
             };
 
-            const cloudWeeks = getWeeksArray(pendingCloudConflictJson.weeks);
+            const cloudWeeks = getWeeksArray(conflictJson.weeks);
             const localWeeks = getWeeksArray(state.weeks);
             const mergedMap = new Map();
 
@@ -11472,14 +11479,15 @@
 
         // --- RESUMEN Y VISTA PREVIA DE FUSIÓN DE DRIVE ---
         previewMergeResult() {
-          if (!pendingCloudConflictJson) return;
+          const conflictData = window.getPendingCloudConflictJson ? window.getPendingCloudConflictJson() : (typeof pendingCloudConflictJson !== 'undefined' ? pendingCloudConflictJson : null);
+          if (!conflictData) return;
 
           const getWeeksArray = (wks) => {
             if (!wks) return [];
             return Array.isArray(wks) ? wks : Object.values(wks);
           };
 
-          const cloudWeeks = getWeeksArray(pendingCloudConflictJson.weeks);
+          const cloudWeeks = getWeeksArray(conflictData.weeks);
           const localWeeks = getWeeksArray(state.weeks);
           const mergedList = [];
           const mergedMap = new Map();
@@ -12600,48 +12608,46 @@
         const shortcutsModal = document.getElementById('modalShortcuts');
         const isShortcutsOpen = shortcutsModal && !shortcutsModal.classList.contains('hidden');
 
-        if (e.key === '1') {
+        if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key >= '1' && e.key <= '9') {
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.switchTab(1);
-        } else if (e.key === '2') {
-          if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.switchTab(2);
-        } else if (e.key === '3') {
-          if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.switchTab(3);
-        } else if (e.key === '4') {
-          if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.switchTab(4);
+          const targetIdx = parseInt(e.key, 10) - 1;
+          if (window.WorkspacesManager && window.WorkspacesManager.switchWorkspaceByIndex) {
+            window.WorkspacesManager.switchWorkspaceByIndex(targetIdx);
+          } else {
+            app.switchTab(targetIdx + 1);
+          }
         } else if (e.key === 'ArrowLeft') {
           e.preventDefault();
           app.navWeek(-1);
         } else if (e.key === 'ArrowRight') {
           e.preventDefault();
           app.navWeek(1);
-        } else if (e.key.toLowerCase() === 't') {
+        } else if (e.key.toLowerCase() === 't' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.returnToActiveWeek();
           app.scrollToToday();
-        } else if (e.key.toLowerCase() === 'b') {
+        } else if (e.key.toLowerCase() === 'b' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.openModal('backupModal');
-        } else if (e.key.toLowerCase() === 'p') {
+          app.toggleSidebar();
+        } else if (e.key.toLowerCase() === 'e' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.toggleDockPomo(true);
+          app.toggleBoardEdit();
+        } else if (e.key.toLowerCase() === 'p' && !e.ctrlKey && !e.metaKey) {
+          e.preventDefault();
+          if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.togglePomo();
-          app.showToast(state.pomo.isRunning ? '⏱️ Pomodoro en marcha' : '⏸️ Pomodoro pausado', 'info', 1200);
-        } else if (e.key.toLowerCase() === 'g') {
+        } else if (e.key.toLowerCase() === 'g' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
           app.openManageHabitsModal();
-        } else if (e.key.toLowerCase() === 'n') {
+        } else if (e.key.toLowerCase() === 'n' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           if (isShortcutsOpen) app.closeModal('modalShortcuts');
-          app.toggleDockExpense(true);
-        } else if (e.key.toLowerCase() === 'd') {
+          app.toggleDockExpense();
+        } else if (e.key.toLowerCase() === 'd' && !e.ctrlKey && !e.metaKey) {
           e.preventDefault();
           app.toggleTheme();
         } else if (e.key.toLowerCase() === 'z' && !e.ctrlKey && !e.metaKey) {
@@ -12698,8 +12704,8 @@
 
       // CERRAR MENÚ CONTEXTUAL AL HACER CLIC FUERA
       document.addEventListener('click', (e) => {
-        const isActionBtn = e.target.closest('[title="Más opciones"]');
-        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover');
+        const isActionBtn = e.target.closest('[title="Más opciones"], [title="Más opciones de diseño"]');
+        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover');
         if (!isActionBtn && !isAnyMenu) {
           app.closeAllContextMenus();
         }

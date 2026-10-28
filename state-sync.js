@@ -1621,6 +1621,11 @@ var pendingCloudConflictJson = null;
           localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
         } catch (_) {}
 
+        try {
+          const conflictModal = document.getElementById('modalSyncConflict');
+          if (conflictModal) conflictModal.classList.add('hidden');
+        } catch (_) {}
+
         // Conservar el layout local activo de este dispositivo
         const localLayoutRaw = localStorage.getItem('CC_LOCAL_DEVICE_LAYOUT');
         let localLayout = null;
@@ -1665,7 +1670,7 @@ var pendingCloudConflictJson = null;
 
       async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
         if (isGdriveSyncing) return { success: false, reason: 'already_syncing' };
-        const token = await ensureGdriveToken(allowPull);
+        const token = isGdriveConnected() ? gdriveAccessToken : await ensureGdriveToken(true);
         if (!token) {
           updateGdriveUI();
           return { success: false, reason: 'no_token' };
@@ -2206,6 +2211,8 @@ var pendingCloudConflictJson = null;
       window.syncGdriveCloud = syncGdriveCloud;
       window.ensureGdriveToken = ensureGdriveToken;
       window.getLocalDeviceId = getLocalDeviceId;
+      window.getPendingCloudConflictJson = () => pendingCloudConflictJson;
+      window.clearPendingCloudConflictJson = () => { pendingCloudConflictJson = null; };
 
       function saveState(skipDiskSync = false) {
         try {

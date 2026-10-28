@@ -1389,7 +1389,7 @@
       white-space: nowrap !important;
       overflow: hidden !important;
       text-overflow: ellipsis !important;
-      max-width: 140px !important;
+      max-width: 200px !important;
     }
     .blueprint-theme .board-edit-header-bar .header-bar-title {
       color: #f8fafc !important;
@@ -1508,15 +1508,56 @@
     }
 
     @media (min-width: 1280px) {
-      /* Cuando el panel derecho del dock está cerrado, reservamos 340px a la derecha */
+      /* Cuando ambos paneles laterales están cerrados, mantenemos un lienzo simétrico con márgenes reservados */
       #appMainViewport {
+        margin-left: 320px !important;
         margin-right: 340px !important;
       }
-      /* Cuando el panel derecho del dock está abierto, el panel ocupa físicamente esos 340px */
+      /* Al abrir el panel lateral izquierdo (#workspaceSidebar o #widgetsDrawer), se libera el margen izquierdo */
+      body.sidebar-view-open #appMainViewport,
+      body.drawer-studio-open #appMainViewport,
+      body:has(#workspaceSidebar:not(.hidden)) #appMainViewport,
+      body:has(#widgetsDrawer:not(.hidden)) #appMainViewport {
+        margin-left: 0 !important;
+      }
+      /* Al abrir el panel derecho del dock (#dockRightSidebar), se libera el margen derecho */
       body.dock-sidebar-open #appMainViewport,
       body:has(#dockRightSidebar:not(.hidden)) #appMainViewport {
         margin-right: 0 !important;
       }
+    }
+
+    /* MENÚ POPOVER DE OPCIONES SECUNDARIAS DE TARJETA EN MODO EDICIÓN */
+    .board-card-menu-popover {
+      background: var(--color-panel, #f3ede2) !important;
+      border: 1px solid var(--theme-500, #10b981) !important;
+      color: var(--color-text, #1c1917) !important;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
+    }
+    .blueprint-theme .board-card-menu-popover {
+      background: #0f172a !important;
+      border-color: #10b981 !important;
+      color: #f8fafc !important;
+    }
+    .board-card-menu-popover button {
+      display: flex !important;
+      align-items: center !important;
+      gap: 0.5rem !important;
+      width: 100% !important;
+      padding: 0.35rem 0.6rem !important;
+      border-radius: 0.5rem !important;
+      font-size: 0.75rem !important;
+      font-weight: 600 !important;
+      text-align: left !important;
+      transition: background 0.15s ease !important;
+      cursor: pointer !important;
+      color: inherit !important;
+      background: transparent !important;
+      border: none !important;
+    }
+    .board-card-menu-popover button:hover {
+      background: var(--theme-soft, rgba(16, 185, 129, 0.15)) !important;
+      color: var(--theme-main, #10b981) !important;
     }
 
     /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
@@ -2327,10 +2368,13 @@
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
       flex: 1 1 auto !important;
       display: grid !important;
-      grid-auto-rows: auto !important;
+      grid-auto-rows: minmax(110px, 165px) !important;
       align-content: space-evenly !important;
-      row-gap: 1.15rem !important;
+      row-gap: 0.85rem !important;
       column-gap: 0.75rem !important;
+    }
+    .editorial-card.card-has-extra-height.card-mode-compact #todayFocusContent .adaptive-internal-grid {
+      grid-auto-rows: minmax(68px, 105px) !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
       height: auto !important;
@@ -2345,10 +2389,16 @@
     .editorial-card.card-has-extra-height #tab2AttendanceRulesSection > div:last-child {
       flex: 1 1 auto !important;
       min-height: 0 !important;
-      grid-auto-rows: auto !important;
+      grid-auto-rows: minmax(110px, 165px) !important;
       align-content: space-evenly !important;
-      row-gap: 1.15rem !important;
+      row-gap: 0.85rem !important;
       column-gap: 0.75rem !important;
+    }
+    .editorial-card.card-has-extra-height.card-mode-compact #tab2GoalsGrid,
+    .editorial-card.card-has-extra-height.card-mode-compact #tab2ModularHabitsSection > .grid,
+    .editorial-card.card-has-extra-height.card-mode-compact #tab4StudySubjectsGrid,
+    .editorial-card.card-has-extra-height.card-mode-compact #tab4CustomHabitsGrid {
+      grid-auto-rows: minmax(68px, 105px) !important;
     }
 
     /* Topología B: Listas y tablas contables */
