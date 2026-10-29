@@ -3197,25 +3197,82 @@
          BLOQUE SUPERIOR DE MÉTRICAS Y 4 KPIS SEMANALES (WIDGET PAQUETE)
          ======================================================== -->
     <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
-      <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
-      <div id="kpisSlimHeaderBar" class="p-1 flex items-center justify-between hover:text-theme-main transition cursor-pointer select-none" onclick="app.toggleKpisAccordion()">
-        <div class="flex items-center gap-2 min-w-0">
-          <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
-            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+      <!-- Barra Superior de Métricas y 4 KPIs (Aprovecha el 100% del Ancho en Modo Sintético) -->
+      <div id="kpisSlimHeaderBar" class="flex flex-col gap-2 select-none transition-all">
+        <div class="flex items-center justify-between pb-1 border-b border-theme/20">
+          <div class="flex items-center gap-2 min-w-0">
+            <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
+              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+            </div>
+            <span class="text-xs font-bold text-stone-900 dark:text-white leading-tight font-serif tracking-wide truncate">Métricas & Síntesis Semanal</span>
           </div>
-          <div class="text-left flex items-center gap-2 min-w-0">
-            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight truncate">Métricas & 4 KPIs</span>
-            <div id="kpisSlimChipsRow" class="hidden sm:flex items-center gap-1.5 font-mono text-[9.5px]">
-              <span id="kpiChipScore" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-theme-main font-bold">Score: 0</span>
-              <span id="kpiChipStudy" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-cyan-600 dark:text-cyan-400 font-bold">0h</span>
-              <span id="kpiChipAttendance" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-emerald-600 dark:text-emerald-400 font-bold">0%</span>
-              <span id="kpiChipExpenses" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-amber-600 dark:text-amber-400 font-bold">0€</span>
+          <button type="button" id="kpisAccordionToggleBtn" onclick="app.toggleKpisAccordion()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-bold text-[10.5px] shrink-0 transition cursor-pointer shadow-xs active:translate-y-0.5" title="Conmutar entre vista sintética de 4 tarjetas y desglose grande">
+            <span id="kpisSlimStatusText">Ver Desglose</span>
+            <span id="kpisSlimArrow" class="text-[9px]">▼</span>
+          </button>
+        </div>
+
+        <!-- Fila de 4 Paneles Horizontales Equilibrados (Aprovecha el 100% del ancho con acceso directo) -->
+        <div id="kpisSlimGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full pt-0.5">
+          <!-- 01. Score Semanal -->
+          <div onclick="event.stopPropagation(); app.openKpi1BlocksModal()" class="kpi-slim-card p-2 sm:p-2.5 rounded-xl subpanel-bg border border-theme/40 hover:border-theme-main flex flex-col justify-between gap-1.5 transition cursor-pointer shadow-2xs group" title="Haz clic para ver desglose y diagnóstico de los 6 bloques">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Score</span>
+              <span class="catalog-idx font-mono text-[9.5px] text-theme-main">01</span>
+            </div>
+            <div class="flex items-baseline justify-between gap-1">
+              <span id="kpiChipScore" class="font-mono font-black text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-theme-main transition-colors">0/100</span>
+              <span id="kpiSlimScoreMeta" class="font-mono text-[9px] text-stone-400">Meta: 85</span>
+            </div>
+            <div class="w-full h-1 bg-stone-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="kpiSlimScoreBar" class="h-full bg-theme-main rounded-full transition-all duration-300" style="width: 0%"></div>
             </div>
           </div>
-        </div>
-        <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
-          <span id="kpisSlimStatusText">Mostrar</span>
-          <span id="kpisSlimArrow" class="text-[9px]">▼</span>
+
+          <!-- 02. Horas de Estudio -->
+          <div onclick="event.stopPropagation(); app.openSubjectStudyStatsModal()" class="kpi-slim-card p-2 sm:p-2.5 rounded-xl subpanel-bg border border-theme/40 hover:border-theme-main flex flex-col justify-between gap-1.5 transition cursor-pointer shadow-2xs group" title="Haz clic para ver estadísticas y ajustar horas por asignatura">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Estudio</span>
+              <span class="catalog-idx font-mono text-[9.5px] text-theme-main">02</span>
+            </div>
+            <div class="flex items-baseline justify-between gap-1">
+              <span id="kpiChipStudy" class="font-mono font-black text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-theme-main transition-colors">0h</span>
+              <span id="kpiSlimStudyMeta" class="font-mono text-[9px] text-stone-400">Meta: 20h</span>
+            </div>
+            <div class="w-full h-1 bg-stone-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="kpiSlimStudyBar" class="h-full bg-theme-main rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
+
+          <!-- 03. Asistencia a Clase -->
+          <div onclick="event.stopPropagation(); app.openAttendanceModal()" class="kpi-slim-card p-2 sm:p-2.5 rounded-xl subpanel-bg border border-theme/40 hover:border-theme-main flex flex-col justify-between gap-1.5 transition cursor-pointer shadow-2xs group" title="Haz clic para ver registro de asistencia a clases">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Asistencia</span>
+              <span class="catalog-idx font-mono text-[9.5px] text-theme-main">03</span>
+            </div>
+            <div class="flex items-baseline justify-between gap-1">
+              <span id="kpiChipAttendance" class="font-mono font-black text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-theme-main transition-colors">100%</span>
+              <span id="kpiSlimAttendanceCount" class="font-mono text-[9px] text-stone-400">0 clases</span>
+            </div>
+            <div class="w-full h-1 bg-stone-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="kpiSlimAttendanceBar" class="h-full bg-theme-positive rounded-full transition-all duration-300" style="width: 100%"></div>
+            </div>
+          </div>
+
+          <!-- 04. Gasto Semanal -->
+          <div onclick="event.stopPropagation(); app.openExpensesModal()" class="kpi-slim-card p-2 sm:p-2.5 rounded-xl subpanel-bg border border-theme/40 hover:border-theme-main flex flex-col justify-between gap-1.5 transition cursor-pointer shadow-2xs group" title="Haz clic para ver balance y registro financiero">
+            <div class="flex items-center justify-between">
+              <span class="text-[10px] font-bold text-stone-500 dark:text-slate-400 uppercase tracking-wider">Gastos</span>
+              <span class="catalog-idx font-mono text-[9.5px] text-theme-main">04</span>
+            </div>
+            <div class="flex items-baseline justify-between gap-1">
+              <span id="kpiChipExpenses" class="font-mono font-black text-sm sm:text-base text-stone-900 dark:text-white group-hover:text-theme-main transition-colors">0.00€</span>
+              <span id="kpiSlimExpensesBudget" class="font-mono text-[9px] text-stone-400">Restan: 0€</span>
+            </div>
+            <div class="w-full h-1 bg-stone-200 dark:bg-slate-800 rounded-full overflow-hidden">
+              <div id="kpiSlimExpensesBar" class="h-full bg-theme-accent rounded-full transition-all duration-300" style="width: 0%"></div>
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3385,6 +3442,15 @@
               </div>
 
               <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
+            </div>
+
+            <!-- Divisor Táctil Interactivo Hoy / Semana -->
+            <div id="habitsSplitter" class="habits-splitter" onmousedown="app.startHabitsSplitDrag(event)" ontouchstart="app.startHabitsSplitDrag(event)" ondblclick="app.resetHabitsSplit()" title="Arrastrar para calibrar proporción Hoy / Semana (Doble clic para centrar 40/60)">
+              <div class="habits-splitter-handle">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
             </div>
 
             <!-- Subpanel 2: Matriz Semanal de Hábitos (Lunes a Domingo) -->
@@ -4158,7 +4224,7 @@
             </button>
           </div>
         </div>
-        <div id="tab4StudySubjectsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+        <div id="tab4StudySubjectsGrid" class="grid gap-2.5" style="grid-template-columns: repeat(auto-fill, minmax(215px, 1fr));">
           <!-- Tarjetas de estudio generadas dinámicamente -->
         </div>
       </div>
@@ -4395,7 +4461,17 @@
             </div>
           </div>
 
-          <!-- Ajustes rápidos de tiempo -->
+          <!-- Fila dedicada de ajuste de tiempo efectivo (Distracción y Previo) -->
+          <div class="flex items-center justify-between gap-1.5">
+            <button type="button" onclick="app.adjustEffective(-5)" class="flex-1 py-1 rounded-lg subpanel-bg border border-rose-500/30 hover:border-rose-500 text-rose-500 font-bold text-[10.5px] transition shadow-2xs active:translate-y-0.5 flex items-center justify-center gap-1" title="Restar 5 minutos de tiempo efectivo si te has distraído">
+              <span>Distracción (-5m)</span>
+            </button>
+            <button type="button" onclick="app.adjustEffective(5)" class="flex-1 py-1 rounded-lg subpanel-bg border border-theme hover:border-theme-main text-theme-main font-bold text-[10.5px] transition shadow-2xs active:translate-y-0.5 flex items-center justify-center gap-1" title="Sumar 5 minutos de trabajo previo">
+              <span>Previo (+5m)</span>
+            </button>
+          </div>
+
+          <!-- Ajustes rápidos de tiempo del cronómetro -->
           <div class="flex items-center justify-between gap-1 text-[10px]">
             <button onclick="app.adjustClock(-5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">-5m</button>
             <button onclick="app.adjustClock(-1)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold">-1m</button>
@@ -4528,12 +4604,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.5.8"></script>
-  <script src="widgets-registry.js?v=2.5.8"></script>
-  <script src="polymorphic-cards.js?v=2.5.8"></script>
-  <script src="workspaces.js?v=2.5.8"></script>
-  <script src="grid-engine.js?v=2.5.8"></script>
-  <script src="app.js?v=2.5.8"></script>
+  <script src="state-sync.js?v=2.5.9"></script>
+  <script src="widgets-registry.js?v=2.5.9"></script>
+  <script src="polymorphic-cards.js?v=2.5.9"></script>
+  <script src="workspaces.js?v=2.5.9"></script>
+  <script src="grid-engine.js?v=2.5.9"></script>
+  <script src="app.js?v=2.5.9"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

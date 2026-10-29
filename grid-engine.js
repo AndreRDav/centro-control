@@ -1110,15 +1110,18 @@ var GridEngine = {
               `;
             } else if (id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
               return `
-                <div class="p-1.5 h-full grid grid-cols-2 gap-1">
-                  <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
-                  <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/3 rounded bg-theme-main/50"></div><div class="h-1.5 w-8 rounded bg-theme-soft"></div></div>
+                  <div class="space-y-1 flex-1 flex flex-col justify-around">
+                    <div class="rounded bg-theme-soft/70 border border-theme/20 p-1 flex items-center justify-between"><div class="flex items-center gap-1"><div class="w-2 h-2 rounded bg-theme-main/60"></div><div class="h-1.5 w-12 rounded bg-theme-main/40"></div></div><div class="w-2.5 h-2.5 rounded bg-emerald-500/80"></div></div>
+                    <div class="rounded bg-theme-soft/70 border border-theme/20 p-1 flex items-center justify-between"><div class="flex items-center gap-1"><div class="w-2 h-2 rounded bg-theme-main/60"></div><div class="h-1.5 w-14 rounded bg-theme-main/40"></div></div><div class="w-2.5 h-2.5 rounded border border-theme/40"></div></div>
+                  </div>
                 </div>
               `;
             } else if (id === 'tab4StudyAuditSection') {
               return `
                 <div class="p-1.5 h-full flex flex-col justify-between gap-1">
-                  <div class="h-1.5 w-1/2 rounded bg-theme-main/50"></div>
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/2 rounded bg-theme-main/50"></div><div class="h-2 w-8 rounded bg-theme-soft border border-theme/30"></div></div>
                   <div class="grid grid-cols-7 gap-0.5 flex-1 items-end">
                     <div class="h-2/3 rounded-xs bg-theme-main/60"></div>
                     <div class="h-full rounded-xs bg-theme-main/70"></div>
@@ -1130,10 +1133,83 @@ var GridEngine = {
                   </div>
                 </div>
               `;
-            } else if (id.includes('Evolution') || id.includes('Radar') || id.includes('Anatomy')) {
+            } else if (id === 'tab4EvolutionSection') {
               return `
-                <div class="p-1 h-full flex items-center justify-center">
-                  <svg class="w-full h-full text-theme-main/50" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="5,35 25,20 45,28 65,12 85,18 95,5"/></svg>
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between">
+                    <div class="flex items-center gap-1">
+                      <div class="h-2 px-1 rounded text-[8px] bg-theme-main text-white font-mono font-bold flex items-center">Score</div>
+                      <div class="h-2 px-1 rounded text-[8px] bg-theme-soft text-theme-main font-mono flex items-center">Km</div>
+                      <div class="h-2 px-1 rounded text-[8px] bg-theme-soft text-theme-main font-mono flex items-center">Estudio</div>
+                    </div>
+                    <div class="h-2 w-8 rounded bg-theme-soft border border-theme/30"></div>
+                  </div>
+                  <div class="relative flex-1 w-full border-b border-l border-theme/40 flex items-end px-0.5">
+                    <svg class="w-full h-full text-theme-main" viewBox="0 0 100 35" fill="none" preserveAspectRatio="none">
+                      <path d="M 0 28 Q 20 22 35 15 T 70 18 T 100 6" stroke="currentColor" stroke-width="1.8" fill="none"/>
+                      <circle cx="35" cy="15" r="2" fill="currentColor"/>
+                      <circle cx="70" cy="18" r="2" fill="currentColor"/>
+                      <circle cx="100" cy="6" r="2.5" fill="var(--theme-accent, #3b82f6)"/>
+                    </svg>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab4RunningRadarCard') {
+              return `
+                <div class="p-1.5 h-full flex items-center justify-between gap-1">
+                  <div class="w-1/2 h-full flex flex-col justify-between items-center py-0.5">
+                    <div class="h-1.5 w-full rounded bg-theme-main/50 mb-1"></div>
+                    <svg class="w-12 h-12 text-theme-main" viewBox="0 0 40 40" fill="none">
+                      <polygon points="20,4 36,32 4,32" stroke="currentColor" stroke-width="1" stroke-dasharray="2,2" opacity="0.4"/>
+                      <polygon points="20,10 31,29 9,29" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5,1.5" opacity="0.6"/>
+                      <polygon points="20,12 29,27 12,25" fill="var(--theme-accent, #3b82f6)" fill-opacity="0.25" stroke="var(--theme-accent, #3b82f6)" stroke-width="1.5"/>
+                    </svg>
+                  </div>
+                  <div class="w-1/2 h-full flex flex-col justify-between py-0.5 border-l border-theme/30 pl-1.5">
+                    <div class="h-2 w-3/4 rounded bg-theme-soft border border-theme/30"></div>
+                    <div class="w-full h-6 rounded-full border-2 border-theme-main/60 flex items-center justify-center p-0.5">
+                      <div class="w-full h-full rounded-full border border-dashed border-theme-main/40 flex items-center justify-center">
+                        <div class="w-1.5 h-1.5 rounded-full bg-theme-accent"></div>
+                      </div>
+                    </div>
+                    <div class="h-1.5 w-full rounded bg-theme-soft"></div>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab4AnatomyCard') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/3 rounded bg-theme-main/50"></div><div class="h-2 w-10 rounded bg-theme-soft"></div></div>
+                  <div class="flex items-center justify-around flex-1">
+                    <svg class="h-full w-8 text-theme-main/70" viewBox="0 0 24 40" fill="none" stroke="currentColor" stroke-width="1.2">
+                      <circle cx="12" cy="5" r="3.5" fill="currentColor" fill-opacity="0.2"/>
+                      <path d="M7 11 L17 11 L15 24 L9 24 Z" fill="currentColor" fill-opacity="0.3"/>
+                      <line x1="10" y1="24" x2="9" y2="38"/>
+                      <line x1="14" y1="24" x2="15" y2="38"/>
+                      <line x1="7" y1="12" x2="4" y2="22"/>
+                      <line x1="17" y1="12" x2="20" y2="22"/>
+                    </svg>
+                    <svg class="h-full w-8 text-theme-main/50" viewBox="0 0 24 40" fill="none" stroke="currentColor" stroke-width="1.2">
+                      <circle cx="12" cy="5" r="3.5" stroke="currentColor"/>
+                      <path d="M7 11 L17 11 L15 24 L9 24 Z" stroke="currentColor"/>
+                      <line x1="10" y1="24" x2="9" y2="38"/>
+                      <line x1="14" y1="24" x2="15" y2="38"/>
+                      <line x1="7" y1="12" x2="4" y2="22"/>
+                      <line x1="17" y1="12" x2="20" y2="22"/>
+                    </svg>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'topKpisWrapper') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/3 rounded bg-theme-main/50"></div><div class="h-1.5 w-6 rounded bg-theme-soft"></div></div>
+                  <div class="grid grid-cols-4 gap-1 flex-1 items-center">
+                    <div class="rounded bg-theme-soft/80 border border-theme/30 p-1 flex flex-col justify-between h-full"><div class="h-1 w-2/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-full rounded bg-theme-main"></div></div>
+                    <div class="rounded bg-theme-soft/80 border border-theme/30 p-1 flex flex-col justify-between h-full"><div class="h-1 w-2/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-full rounded bg-theme-main"></div></div>
+                    <div class="rounded bg-theme-soft/80 border border-theme/30 p-1 flex flex-col justify-between h-full"><div class="h-1 w-2/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-full rounded bg-theme-positive"></div></div>
+                    <div class="rounded bg-theme-soft/80 border border-theme/30 p-1 flex flex-col justify-between h-full"><div class="h-1 w-2/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-full rounded bg-theme-accent"></div></div>
+                  </div>
                 </div>
               `;
             } else {
@@ -1278,49 +1354,6 @@ var GridEngine = {
               ` : ''}
             </div>
           `;
-
-          // Inyectar clon visual auténtico a escala reducida si el cuadro está vivo y visible en el tablero
-          drawer.querySelectorAll('[data-widget-preview]').forEach(box => {
-            const wid = box.getAttribute('data-widget-preview');
-            const realEl = document.getElementById(wid);
-            const isMountedAndVisible = realEl &&
-              !realEl.classList.contains('widget-parked-inert') &&
-              !realEl.classList.contains('hidden') &&
-              !realEl.closest('#widgetsPool') &&
-              !realEl.closest('.hidden') &&
-              realEl.offsetHeight > 40;
-
-            if (isMountedAndVisible) {
-              const clone = realEl.cloneNode(true);
-              clone.removeAttribute('id');
-              clone.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
-              clone.querySelectorAll('.board-edit-ctrl-overlay, .card-resize-handle, .board-edit-header-bar, .card-drag-shield').forEach(x => x.remove());
-              clone.classList.remove('card-edit-mode', 'widget-parked-inert', 'hidden');
-              clone.style.display = 'block';
-              clone.style.pointerEvents = 'none';
-              clone.style.userSelect = 'none';
-              clone.style.width = '100%';
-              clone.style.margin = '0';
-
-              if (wid === 'todayFocusContainer') {
-                clone.classList.remove('habits-matrix-collapsed', 'subview-week');
-                const wk = clone.querySelector('.habits-subpanel-week');
-                if (wk) wk.style.display = 'block';
-                const hy = clone.querySelector('.habits-subpanel-today');
-                if (hy) hy.style.display = 'block';
-              }
-
-              const scaleWrapper = document.createElement('div');
-              scaleWrapper.className = 'mini-card-scale-wrapper';
-              const innerScaler = document.createElement('div');
-              innerScaler.className = 'mini-cloned-preview';
-              innerScaler.appendChild(clone);
-              scaleWrapper.appendChild(innerScaler);
-
-              box.innerHTML = '';
-              box.appendChild(scaleWrapper);
-            }
-          });
         },
 
         closeWidgetsDrawer() {

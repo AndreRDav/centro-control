@@ -1668,15 +1668,57 @@
           projEl.className = 'text-theme-main font-medium font-mono';
         }
 
-        // Actualizar chips de resumen fino en la cabecera plegada de KPIs
+        // Actualizar mini-tarjetas horizontales en la cabecera plegada de 4 KPIs
         const chipScore = document.getElementById('kpiChipScore');
         const chipStudy = document.getElementById('kpiChipStudy');
         const chipAtt = document.getElementById('kpiChipAttendance');
         const chipExp = document.getElementById('kpiChipExpenses');
-        if (chipScore) chipScore.textContent = `Score: ${m.score}`;
-        if (chipStudy) chipStudy.textContent = `${formatHoursToHMin(m.studyReal)}`;
-        if (chipAtt) chipAtt.textContent = `${Math.round(m.attPct || 0)}%`;
-        if (chipExp) chipExp.textContent = `${m.spent.toFixed(0)}€`;
+        
+        const scoreVal = Math.round(m.score || 0);
+        if (chipScore) chipScore.textContent = `${scoreVal}/100`;
+        const scoreBar = document.getElementById('kpiSlimScoreBar');
+        if (scoreBar) {
+          scoreBar.style.width = `${Math.min(100, Math.max(0, scoreVal))}%`;
+          scoreBar.style.backgroundColor = getScoreColor(scoreVal);
+        }
+
+        const studyRealH = m.studyReal || 0;
+        const studyGoalH = m.studyGoal || (w.goals && w.goals.studyHours) || 20;
+        if (chipStudy) chipStudy.textContent = formatHoursToHMin(studyRealH);
+        const studyMeta = document.getElementById('kpiSlimStudyMeta');
+        if (studyMeta) studyMeta.textContent = `Meta: ${formatHoursToHMin(studyGoalH)}`;
+        const studyBar = document.getElementById('kpiSlimStudyBar');
+        if (studyBar) {
+          const studyPct = studyGoalH > 0 ? Math.min(100, Math.round((studyRealH / studyGoalH) * 100)) : 0;
+          studyBar.style.width = `${studyPct}%`;
+        }
+
+        const attPct = Math.round(m.attPct || 0);
+        if (chipAtt) chipAtt.textContent = `${attPct}%`;
+        const attBar = document.getElementById('kpiSlimAttendanceBar');
+        if (attBar) {
+          attBar.style.width = `${Math.min(100, Math.max(0, attPct))}%`;
+        }
+        const attCount = document.getElementById('kpiSlimAttendanceCount');
+        if (attCount) {
+          const totalClases = (m.classesTotal !== undefined) ? m.classesTotal : (m.classesDone || 0);
+          attCount.textContent = `${totalClases} ${totalClases === 1 ? 'clase' : 'clases'}`;
+        }
+
+        const spentVal = Number(m.spent) || 0;
+        const budgetVal = Number(m.budget) || (w.budget && w.budget.weekly) || 100;
+        if (chipExp) chipExp.textContent = `${spentVal.toFixed(2)}€`;
+        const expBudget = document.getElementById('kpiSlimExpensesBudget');
+        if (expBudget) {
+          const rem = Math.max(0, budgetVal - spentVal);
+          expBudget.textContent = `Restan: ${rem.toFixed(0)}€`;
+        }
+        const expBar = document.getElementById('kpiSlimExpensesBar');
+        if (expBar) {
+          const expPct = budgetVal > 0 ? Math.min(100, Math.round((spentVal / budgetVal) * 100)) : 0;
+          expBar.style.width = `${expPct}%`;
+          expBar.style.backgroundColor = (spentVal > budgetVal) ? 'var(--theme-negative, #ef4444)' : 'var(--theme-accent, #3b82f6)';
+        }
 
         // Actualizar modales de KPI en vivo si alguno está abierto
         if (document.getElementById('modalKpi1Blocks') && !document.getElementById('modalKpi1Blocks').classList.contains('hidden')) renderKpi1BlocksModal();
@@ -3076,11 +3118,20 @@
         const dockDisplay = document.getElementById('dockPomoDisplay');
         if (dockDisplay) {
           dockDisplay.textContent = timeStr;
-          document.getElementById('dockPomoEffective').textContent = effStr;
-          document.getElementById('dockPomoPhaseBadge').textContent = phaseText;
-          document.getElementById('dockPomoPlayBtn').textContent = playText;
-          document.getElementById('dockPomoPillTime').textContent = timeStr;
-          document.getElementById('dockPomoPillSubject').textContent = p.selectedSubject.replace('Estudio ', '');
+          const dockEff = document.getElementById('dockPomoEffective');
+          if (dockEff) dockEff.textContent = effStr;
+          const dockPhase = document.getElementById('dockPomoPhaseBadge');
+          if (dockPhase) dockPhase.textContent = phaseText;
+          const dockPlayBtn = document.getElementById('dockPomoPlayBtn');
+          if (dockPlayBtn) {
+            dockPlayBtn.innerHTML = p.isRunning
+              ? '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><rect x="6" y="4" width="4" height="16"/><rect x="14" y="4" width="4" height="16"/></svg> <span id="dockPomoPlayBtnLabel">Pausar</span>'
+              : '<svg class="w-3.5 h-3.5 fill-current" viewBox="0 0 24 24"><polygon points="5 3 19 12 5 21 5 3"/></svg> <span id="dockPomoPlayBtnLabel">Iniciar</span>';
+          }
+          const pillTime = document.getElementById('dockPomoPillTime');
+          if (pillTime) pillTime.textContent = timeStr;
+          const pillSub = document.getElementById('dockPomoPillSubject');
+          if (pillSub) pillSub.textContent = (p.selectedSubject || '').replace('Estudio ', '');
 
           const dockPing = document.getElementById('dockPomoLivePing');
           const dockDot = document.getElementById('dockPomoLiveDot');
@@ -6015,22 +6066,20 @@
           const statusText = document.getElementById('kpisSlimStatusText');
           const arrow = document.getElementById('kpisSlimArrow');
           const wrap = document.getElementById('topKpisWrapper');
-          const chipsRow = document.getElementById('kpisSlimChipsRow');
           if (!body) return;
           const isHidden = body.classList.toggle('hidden');
-          if (statusText) statusText.textContent = isHidden ? 'Mostrar' : 'Plegar';
+          if (statusText) statusText.textContent = isHidden ? 'Ver Desglose' : 'Plegar';
           if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
-          if (chipsRow) chipsRow.classList.toggle('hidden', !isHidden);
           if (!state.uiPreferences) state.uiPreferences = {};
           state.uiPreferences.kpisCollapsed = isHidden;
 
-          // Si topKpisWrapper está en el grid activo, actualizar su rowSpan en cascada a 1 fila exacta si está plegado
+          // Si topKpisWrapper está en el grid activo, actualizar su rowSpan en cascada
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
           if (ws && ws.grid && ws.grid['topKpisWrapper']) {
             const cfg = ws.grid['topKpisWrapper'];
             const measureFn = (window.GridEngine && window.GridEngine.measureNaturalRows) ? window.GridEngine.measureNaturalRows.bind(window.GridEngine) : null;
-            const newRows = measureFn && wrap ? measureFn(wrap) : (isHidden ? 1 : 4);
-            cfg.rowSpan = isHidden ? 1 : Math.max(3, newRows);
+            const newRows = measureFn && wrap ? measureFn(wrap) : (isHidden ? 2 : 5);
+            cfg.rowSpan = isHidden ? 2 : Math.max(4, newRows);
             cfg.minRows = cfg.rowSpan;
             cfg.manualRows = null;
             if (wrap) {
@@ -6218,8 +6267,8 @@
             }
             todayBox.classList.toggle('habits-matrix-collapsed', isCollapsed);
             todayBox.classList.remove('subview-week');
-            todayBox.style.removeProperty('--habits-today-pct');
-            todayBox.style.removeProperty('--habits-week-pct');
+            todayBox.style.setProperty('--habits-today-pct', savedSplit + '%');
+            todayBox.style.setProperty('--habits-week-pct', (100 - savedSplit) + '%');
           }
 
           if (window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
@@ -6236,11 +6285,92 @@
         },
 
         startHabitsSplitDrag(e) {
-          if (e && typeof e.preventDefault === 'function') e.preventDefault();
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
+          const todayBox = document.getElementById('todayFocusContainer');
+          const compoundBody = document.getElementById('habitsCompoundBody');
+          const splitter = document.getElementById('habitsSplitter');
+          if (!todayBox || !compoundBody || !splitter) return;
+
+          splitter.classList.add('is-dragging');
+          document.body.style.cursor = 'col-resize';
+          document.body.style.userSelect = 'none';
+
+          const rect = compoundBody.getBoundingClientRect();
+
+          const onMove = (moveEvt) => {
+            if (moveEvt) {
+              moveEvt.preventDefault();
+              moveEvt.stopPropagation();
+            }
+            const currentX = moveEvt.type && moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
+            const bodyWidth = compoundBody.offsetWidth;
+            if (bodyWidth <= 0) return;
+            const offsetX = currentX - rect.left;
+            let pct = Math.round((offsetX / bodyWidth) * 100);
+
+            // Blindaje de límites mínimos absolutos en píxeles:
+            // Hoy requiere mínimo 340px para tarjetas cómodas sin cortes; Semana requiere mínimo 480px para que las 7 columnas no generen scroll
+            const minHoyPct = Math.max(28, Math.round((340 / bodyWidth) * 100));
+            const maxHoyPct = Math.min(55, Math.round(((bodyWidth - 480) / bodyWidth) * 100));
+            const clampMin = Math.min(minHoyPct, maxHoyPct);
+            const clampMax = Math.max(minHoyPct, maxHoyPct);
+
+            pct = Math.max(clampMin, Math.min(clampMax, pct));
+
+            todayBox.style.setProperty('--habits-today-pct', pct + '%');
+            todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
+            if (!state.ui) state.ui = {};
+            state.ui.habitsSplitPercent = pct;
+            if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
+          };
+
+          const onEnd = () => {
+            splitter.classList.remove('is-dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+            if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+            else saveState();
+          };
+
+          window.addEventListener('mousemove', onMove, { passive: false });
+          window.addEventListener('mouseup', onEnd, { passive: false });
+          window.addEventListener('touchmove', onMove, { passive: false });
+          window.addEventListener('touchend', onEnd, { passive: false });
+        },
+
+        resetHabitsSplit() {
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (!todayBox) return;
+          const pct = 40;
+          todayBox.style.setProperty('--habits-today-pct', pct + '%');
+          todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
+          if (!state.ui) state.ui = {};
+          state.ui.habitsSplitPercent = pct;
+          if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
+          if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+          else saveState();
+          this.showToast('Proporción restablecida: 40% Hoy / 60% Semana', 'info', 1200);
         },
 
         setHabitsSplitPreset(pct) {
-          // Divisor retirado para blindar proporciones fijas sin desbordamiento ni cortes
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (!todayBox) return;
+          pct = Math.max(28, Math.min(55, Number(pct) || 40));
+          todayBox.style.setProperty('--habits-today-pct', pct + '%');
+          todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
+          if (!state.ui) state.ui = {};
+          state.ui.habitsSplitPercent = pct;
+          if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
+          if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+          else saveState();
+          this.showToast(`Proporción de Hábitos: ${pct}% Hoy / ${100 - pct}% Semana`, 'info', 1200);
         },
         setDailyViewMode(mode) {
           state.ui.dailyViewMode = mode;

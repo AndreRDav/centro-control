@@ -2724,24 +2724,87 @@
       display: none !important;
     }
 
-    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) - PROPORCIÓN EQUILIBRADA FIJA 40/60 */
+    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) - PROPORCIÓN CALIBRABLE CON TOPES SEGUROS */
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-compound-body {
       flex-direction: row;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
-      flex: 0 0 calc(40% - 6px) !important;
-      max-width: 42% !important;
+      flex: 0 0 calc(var(--habits-today-pct, 40%) - 6px) !important;
+      max-width: calc(var(--habits-today-pct, 40%) - 6px) !important;
       min-width: 0 !important;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
-      flex: 1 1 calc(60% - 6px) !important;
+      flex: 1 1 calc(var(--habits-week-pct, 60%) - 6px) !important;
       min-width: 0 !important;
       display: flex !important;
     }
 
-    /* Eliminación del Divisor Manual para Garantizar Cero Cortes y Cero Scroll */
+    /* Divisor Táctil Interactivo con Topes Seguros */
     .habits-splitter {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      width: 12px !important;
+      cursor: col-resize !important;
+      user-select: none !important;
+      align-self: stretch !important;
+      margin: 0 -4px !important;
+      z-index: 20 !important;
+      transition: background 0.15s ease !important;
+      flex-shrink: 0 !important;
+    }
+    .habits-splitter:hover,
+    .habits-splitter.is-dragging {
+      background: var(--theme-soft, rgba(0,0,0,0.06)) !important;
+      border-radius: 6px !important;
+    }
+    .habits-splitter-handle {
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 3px !important;
+      padding: 8px 2px !important;
+    }
+    .habits-splitter-handle span {
+      width: 4px !important;
+      height: 4px !important;
+      border-radius: 50% !important;
+      background-color: var(--theme-main, #3b82f6) !important;
+      opacity: 0.6 !important;
+      transition: transform 0.15s ease, opacity 0.15s ease !important;
+    }
+    .habits-splitter:hover .habits-splitter-handle span,
+    .habits-splitter.is-dragging .habits-splitter-handle span {
+      opacity: 1 !important;
+      transform: scale(1.2) !important;
+    }
+    #todayFocusContainer.habits-matrix-collapsed .habits-splitter,
+    #todayFocusContainer[data-cols="1"] .habits-splitter,
+    #todayFocusContainer[data-cols="2"] .habits-splitter,
+    #todayFocusContainer[data-cols="3"] .habits-splitter,
+    #todayFocusContainer[data-cols="4"] .habits-splitter,
+    #todayFocusContainer[data-cols="5"] .habits-splitter,
+    #todayFocusContainer[data-cols="6"] .habits-splitter {
       display: none !important;
+    }
+
+    /* Mini-tarjetas de la Banda Superior de 4 KPIs */
+    .kpi-slim-card {
+      transition: border-color 0.18s ease, transform 0.15s ease, box-shadow 0.18s ease !important;
+    }
+    .kpi-slim-card:hover {
+      transform: translateY(-1px) !important;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06) !important;
+    }
+    .dark .kpi-slim-card:hover {
+      box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35) !important;
+    }
+
+    /* Grilla de Asignaturas Adaptativa al Contenedor */
+    #tab4StudySubjectsGrid {
+      display: grid !important;
+      grid-template-columns: repeat(auto-fill, minmax(215px, 1fr)) !important;
+      gap: 0.625rem !important;
+      width: 100% !important;
     }
 
     /* Resaltado pulsante de alta intensidad para botón Localizar */
