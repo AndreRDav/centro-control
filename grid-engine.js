@@ -550,17 +550,13 @@ var GridEngine = {
         // SISTEMA UNIFICADO DE PERSONALIZACIÓN DEL TABLERO (IN-PLACE)
         // ========================================================
         safeToast(msg, type, duration) {
-          if (typeof app !== 'undefined' && typeof app.showToast === 'function') {
-            app.showToast(msg, type, duration);
-          } else if (typeof window !== 'undefined' && window.app && typeof window.app.showToast === 'function') {
-            window.app.showToast(msg, type, duration);
+          if (typeof window !== 'undefined' && typeof window.renderSystemToast === 'function') {
+            window.renderSystemToast(msg, type, duration);
+          } else if (typeof renderSystemToast === 'function') {
+            renderSystemToast(msg, type, duration);
           } else {
             console.log('[Toast ' + (type || 'info') + ']', msg);
           }
-        },
-
-        showToast(msg, type, duration) {
-          this.safeToast(msg, type, duration);
         },
 
         recordUndo(actionName = 'Ajustar tablero') {

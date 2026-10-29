@@ -5517,6 +5517,53 @@
         window.renderTab4 = renderTab4;
       }
 
+      // NOTIFICACIONES TOAST PLANAS Y DIRECTAS (CERO RECURSIÓN)
+      function renderSystemToast(message, type = 'info', duration = 3000) {
+        const container = document.getElementById('toastContainer');
+        if (!container) {
+          console.log('[Toast ' + type + ']:', message);
+          return;
+        }
+        const icons = {
+          info: '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
+          success: '<svg class="w-4 h-4 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
+          warning: '<svg class="w-4 h-4 shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
+          error: '<svg class="w-4 h-4 shrink-0 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
+        };
+        const borderColors = {
+          info: 'border-theme bg-theme-soft text-theme-main shadow-xl border',
+          success: 'border-theme bg-theme-soft text-theme-main shadow-xl border',
+          warning: 'border-theme-accent bg-theme-accent-soft text-theme-accent shadow-xl border',
+          error: 'border-theme-accent bg-theme-accent-soft text-theme-accent shadow-xl border',
+          emerald: 'border-theme bg-theme-soft text-theme-main shadow-xl border',
+          indigo: 'border-theme bg-theme-soft text-theme-main shadow-xl border'
+        };
+        const icon = icons[type] || icons.info;
+        const styleClass = borderColors[type] || borderColors.info;
+
+        const toast = document.createElement('div');
+        toast.className = `p-3 rounded-2xl border shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-xs font-semibold transition-all duration-300 pointer-events-auto cursor-pointer transform translate-y-2 opacity-0 ${styleClass}`;
+        toast.innerHTML = `<span class="shrink-0 flex items-center">${icon}</span><span class="flex-1 leading-snug">${message}</span>`;
+        toast.onclick = () => {
+          toast.classList.add('opacity-0', 'translate-y-2');
+          setTimeout(() => toast.remove(), 250);
+        };
+
+        container.appendChild(toast);
+        requestAnimationFrame(() => {
+          toast.classList.remove('opacity-0', 'translate-y-2');
+        });
+
+        setTimeout(() => {
+          if (toast.parentNode) {
+            toast.classList.add('opacity-0', '-translate-y-2');
+            setTimeout(() => toast.remove(), 250);
+          }
+        }, duration);
+      }
+      window.renderSystemToast = renderSystemToast;
+      window.showToast = renderSystemToast;
+
       // APP ACCIONES Y MÉTODOS PÚBLICOS
       const app = {
         enterWidgetMode() {
@@ -5548,42 +5595,7 @@
         },
 
         showToast(message, type = 'info', duration = 3000) {
-          const container = document.getElementById('toastContainer');
-          if (!container) return;
-          const toast = document.createElement('div');
-          const icons = {
-            info: '<svg class="w-4 h-4 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>',
-            success: '<svg class="w-4 h-4 shrink-0 text-emerald-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>',
-            warning: '<svg class="w-4 h-4 shrink-0 text-amber-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>',
-            error: '<svg class="w-4 h-4 shrink-0 text-rose-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>'
-          };
-          const borderColors = {
-            info: 'border-theme bg-theme-soft text-theme-main shadow-xl border',
-            success: 'border-theme bg-theme-soft text-theme-main shadow-xl border',
-            warning: 'border-theme-accent bg-theme-accent-soft text-theme-accent shadow-xl border',
-            error: 'border-theme-accent bg-theme-accent-soft text-theme-accent shadow-xl border'
-          };
-          const icon = icons[type] || icons.info;
-          const styleClass = borderColors[type] || borderColors.info;
-
-          toast.className = `p-3 rounded-2xl border shadow-2xl backdrop-blur-md flex items-center gap-2.5 text-xs font-semibold transition-all duration-300 pointer-events-auto cursor-pointer transform translate-y-2 opacity-0 ${styleClass}`;
-          toast.innerHTML = `<span class="shrink-0 flex items-center">${icon}</span><span class="flex-1 leading-snug">${message}</span>`;
-          toast.onclick = () => {
-            toast.classList.add('opacity-0', 'translate-y-2');
-            setTimeout(() => toast.remove(), 250);
-          };
-
-          container.appendChild(toast);
-          requestAnimationFrame(() => {
-            toast.classList.remove('opacity-0', 'translate-y-2');
-          });
-
-          setTimeout(() => {
-            if (toast.parentNode) {
-              toast.classList.add('opacity-0', '-translate-y-2');
-              setTimeout(() => toast.remove(), 250);
-            }
-          }, duration);
+          renderSystemToast(message, type, duration);
         },
 
         showConfirm({ title = '¿Estás seguro?', message = '', confirmText = 'Aceptar', cancelText = 'Cancelar', isDanger = false } = {}) {
@@ -10599,21 +10611,19 @@
           });
         },
         async connectGoogleDrive(forceSelectAccount = false) {
+          if (window.resetGdriveSyncLock) window.resetGdriveSyncLock();
           if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) {
             return this.showToast('Cargando servicios de Google... Revisa tu conexión a internet.', 'warning');
           }
-          initGsiClient();
-          if (tokenClient) {
-            const reqOpts = {};
-            if (forceSelectAccount || !gdriveUserEmail) {
-              reqOpts.prompt = 'select_account';
-            } else {
-              reqOpts.prompt = '';
-              reqOpts.hint = gdriveUserEmail;
-            }
-            tokenClient.requestAccessToken(reqOpts);
-          } else {
-            this.showToast('No se pudo inicializar la autenticación de Google.', 'error');
+          const tokenFn = window.ensureGdriveToken || (typeof ensureGdriveToken === 'function' ? ensureGdriveToken : null);
+          if (!tokenFn) {
+            return this.showToast('El módulo de autenticación no está listo.', 'error');
+          }
+          this.showToast('Iniciando conexión con Google Drive...', 'info', 2000);
+          const token = await tokenFn(true, forceSelectAccount);
+          if (token) {
+            const syncFn = window.syncGdriveCloud || (typeof syncGdriveCloud === 'function' ? syncGdriveCloud : null);
+            if (syncFn) await syncFn(true, false, false);
           }
         },
         async syncGoogleDriveNow() {
@@ -10629,12 +10639,13 @@
             return;
           }
           this.showToast('Sincronizando con Google Drive...', 'info', 2500);
-          const res = await syncGdriveCloud(true);
+          const syncFn = window.syncGdriveCloud || (typeof syncGdriveCloud === 'function' ? syncGdriveCloud : null);
+          const res = syncFn ? await syncFn(true, false, false) : null;
           if (res && res.success) {
             if (res.action === 'downloaded') {
-              this.showToast('Â¡Datos actualizados desde Google Drive!', 'success', 3000);
+              this.showToast('¡Datos actualizados desde Google Drive!', 'success', 3000);
             } else if (res.action === 'uploaded') {
-              this.showToast('Â¡Datos locales subidos a Google Drive!', 'success', 3000);
+              this.showToast('¡Datos locales subidos a Google Drive!', 'success', 3000);
             } else if (res.action === 'conflict') {
               // Ya se muestra el modal de conflicto
             } else {
@@ -10644,13 +10655,14 @@
             const reason = res ? res.reason : 'desconocida';
             if (reason === 'token_expired') {
               this.showToast('Tu sesión de Google expiró. Haz clic en Renovar Sesión.', 'warning', 4500);
-            } else {
+            } else if (reason !== 'throttled') {
               this.showToast('No se pudo completar la sincronización (' + reason + '). Revisa tu conexión.', 'error', 4500);
             }
           }
         },
 
         async forceUploadToDrive() {
+          if (window.resetGdriveSyncLock) window.resetGdriveSyncLock();
           if (!gdriveUserEmail) return this.connectGoogleDrive();
           const ok = await this.showConfirm({
             title: 'Forzar Subida a Google Drive',
@@ -10661,15 +10673,20 @@
           });
           if (!ok) return;
           this.showToast('Subiendo copia local forzada a Drive...', 'info', 3000);
-          const res = await syncGdriveCloud(false, true, false);
+          const syncFn = window.syncGdriveCloud || (typeof syncGdriveCloud === 'function' ? syncGdriveCloud : null);
+          const res = syncFn ? await syncFn(false, true, false) : null;
           if (res && res.success) {
-            this.showToast('¡Copia local guardada en Google Drive con éxito!', 'success', 3500);
+            // Éxito ya notificado en syncGdriveCloud
           } else {
-            this.showToast('Error al forzar subida a Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
+            const reason = res ? res.reason : 'desconocida';
+            if (reason !== 'token_expired') {
+              this.showToast('Error al forzar subida a Drive: ' + reason, 'error', 4500);
+            }
           }
         },
 
         async forceDownloadFromDrive() {
+          if (window.resetGdriveSyncLock) window.resetGdriveSyncLock();
           if (!gdriveUserEmail) return this.connectGoogleDrive();
           const ok = await this.showConfirm({
             title: 'Forzar Descarga de Google Drive',
@@ -10680,11 +10697,17 @@
           });
           if (!ok) return;
           this.showToast('Descargando archivo desde Google Drive...', 'info', 3000);
-          const res = await syncGdriveCloud(true, false, true);
+          const syncFn = window.syncGdriveCloud || (typeof syncGdriveCloud === 'function' ? syncGdriveCloud : null);
+          const res = syncFn ? await syncFn(true, false, true) : null;
           if (res && res.success) {
-            this.showToast('¡Copia de Google Drive cargada con éxito en este dispositivo!', 'success', 3500);
+            // applyCloudDownload ya emite el toast y actualiza UI
           } else {
-            this.showToast('Error al forzar bajada de Drive: ' + (res ? res.reason : 'error'), 'error', 4500);
+            const reason = res ? res.reason : 'desconocida';
+            if (reason === 'file_not_found') {
+              // Toast descriptivo ya emitido
+            } else if (reason !== 'token_expired') {
+              this.showToast('Error al forzar bajada de Drive: ' + reason, 'error', 4500);
+            }
           }
         },
 
@@ -11393,6 +11416,7 @@
         },
 
         async resolveSyncConflict(action) {
+          if (window.resetGdriveSyncLock) window.resetGdriveSyncLock();
           this.closeModal('modalSyncConflict');
           const conflictModal = document.getElementById('modalSyncConflict');
           if (conflictModal) conflictModal.classList.add('hidden');
