@@ -213,8 +213,8 @@ var GridEngine = {
               localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify(localLayout));
             } catch (_) {}
           }
-          if (showToast || (state.ui && state.ui.isBoardEditMode)) {
-            this.showToast('Tablero compactado hacia arriba (0 huecos y 0 solapamientos).', 'emerald');
+          if (showToast) {
+            this.safeToast('Tablero compactado hacia arriba (0 huecos).', 'emerald');
           }
         },
 
@@ -229,11 +229,10 @@ var GridEngine = {
         getDefaultGridLayout(tabKey) {
           const DEFAULTS = {
             tab1: {
-              todayFocusContainer: { col: 1, colSpan: 6, row: 1, minRows: 18, manualRows: null, rowSpan: 18, name: 'Hoy y Hábitos' },
-              notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
-              interactiveListsPanel: { col: 7, colSpan: 6, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
-              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' },
-              weekTableContainer: { col: 1, colSpan: 12, row: 23, minRows: 8, manualRows: null, rowSpan: 8, name: 'Matriz Semanal' }
+              todayFocusContainer: { col: 1, colSpan: 12, row: 1, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
+              notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 19, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
+              interactiveListsPanel: { col: 7, colSpan: 6, row: 19, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
+              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 27, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
             },
             tab2: {
               tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
@@ -274,7 +273,7 @@ var GridEngine = {
                 tab4: this.getDefaultGridLayout('tab4')
               },
               mobile: {
-                tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
+                tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel'],
                 tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
                 tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
                 tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection']
@@ -429,24 +428,18 @@ var GridEngine = {
         applyThreeInRowPreset(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
-          if (tabKey === 'tab1') {
-            layout.todayFocusContainer = { col: 1, colSpan: 6, row: 1, manualRows: null, name: 'Hoy y Hábitos' };
-            layout.notesMiniCalendarPanel = { col: 7, colSpan: 3, row: 1, manualRows: null, name: 'Calendario' };
-            layout.tab1RecentExpensesBar = { col: 10, colSpan: 3, row: 1, manualRows: null, name: 'Movimientos Recientes' };
-            layout.interactiveListsPanel = { col: 7, colSpan: 6, row: 9, manualRows: null, name: 'Listas y Tareas' };
-            layout.weekTableContainer = { col: 1, colSpan: 12, row: 20, manualRows: null, name: 'Matriz Semanal' };
-          } else {
-            const ids = Object.keys(layout);
-            if (ids.length >= 3) {
-              layout[ids[0]].col = 1; layout[ids[0]].colSpan = 4; layout[ids[0]].row = 1; layout[ids[0]].manualRows = null;
-              layout[ids[1]].col = 5; layout[ids[1]].colSpan = 4; layout[ids[1]].row = 1; layout[ids[1]].manualRows = null;
-              layout[ids[2]].col = 9; layout[ids[2]].colSpan = 4; layout[ids[2]].row = 1; layout[ids[2]].manualRows = null;
-              for (let i = 3; i < ids.length; i++) {
-                layout[ids[i]].col = 1; layout[ids[i]].colSpan = 12; layout[ids[i]].row = 20 + i * 10; layout[ids[i]].manualRows = null;
-              }
-            }
-          }
-          this.compactGrid(tabKey);
+          if (!layout) return;
+          this.recordUndo('Preset 3 en fila');
+          const ids = Object.keys(layout);
+          ids.sort((a, b) => (layout[a].row || 1) - (layout[b].row || 1) || (layout[a].col || 1) - (layout[b].col || 1));
+          ids.forEach((id, i) => {
+            const colIndex = i % 3;
+            layout[id].col = 1 + colIndex * 4;
+            layout[id].colSpan = 4;
+            layout[id].row = 1 + Math.floor(i / 3) * 12;
+            layout[id].manualRows = null;
+          });
+          this.compactGrid(tabKey, true);
           this.safeToast('Preset 3 en fila aplicado.', 'indigo');
         },
 
@@ -973,6 +966,20 @@ var GridEngine = {
           };
 
           const inactiveWidgets = Object.keys(catalog).filter(id => !isPlacedInWindow(id));
+          const placedWidgets = Object.keys(catalog).filter(id => isPlacedInWindow(id));
+
+          // Pre-renderizar vistas dinámicas para que los clones visuales contengan datos reales y no cuadros vacíos
+          if (typeof app !== 'undefined') {
+            if (typeof app.renderAcademic === 'function') {
+              try { app.renderAcademic(); } catch (_) {}
+            }
+            if (typeof app.renderFinance === 'function') {
+              try { app.renderFinance(); } catch (_) {}
+            }
+            if (typeof app.renderHabitsSection === 'function') {
+              try { app.renderHabitsSection(); } catch (_) {}
+            }
+          }
 
           const CATEGORIES = {
             all: 'Todos',
@@ -1050,14 +1057,27 @@ var GridEngine = {
                       <div class="space-y-1"><div class="h-1.5 w-4/5 rounded bg-theme-main/40"></div><div class="h-1.5 w-3/5 rounded bg-theme-main/30"></div></div>
                     </div>
                   `;
-                } else if (id === 'tab3ExpensesTableCard' || id === 'weekTableContainer' || id === 'tab3FixedExpensesCard') {
+                } else if (id === 'todayFocusContainer') {
+                  wireframeHtml = `
+                    <div class="p-1 h-full grid grid-cols-12 gap-1">
+                      <div class="col-span-5 rounded bg-theme-soft/70 border border-theme/30 p-1 flex flex-col justify-between">
+                        <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-theme-accent"></div><div class="h-1.5 w-3/4 rounded bg-theme-main/50"></div></div>
+                        <div class="space-y-0.5"><div class="h-1 rounded bg-theme-main/60 w-full"></div><div class="h-1 rounded bg-theme-soft/90 w-4/5"></div></div>
+                      </div>
+                      <div class="col-span-7 rounded bg-theme-soft/50 border border-theme/30 p-1 flex flex-col justify-between">
+                        <div class="grid grid-cols-7 gap-0.5"><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div></div>
+                        <div class="space-y-0.5"><div class="h-1 rounded bg-theme-soft/80 w-full"></div><div class="h-1 rounded bg-theme-soft/80 w-full"></div></div>
+                      </div>
+                    </div>
+                  `;
+                } else if (id === 'tab3ExpensesTableCard' || id === 'tab3FixedExpensesCard') {
                   wireframeHtml = `
                     <div class="p-1.5 h-full flex flex-col justify-between gap-1">
                       <div class="h-2 rounded bg-theme-main/30 border-b border-theme/40 w-full"></div>
                       <div class="space-y-1 flex-1 flex flex-col justify-around"><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div></div>
                     </div>
                   `;
-                } else if (id === 'todayFocusContainer' || id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
+                } else if (id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
                   wireframeHtml = `
                     <div class="p-1.5 h-full grid grid-cols-2 gap-1">
                       <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
@@ -1101,6 +1121,60 @@ var GridEngine = {
                   </div>
                 `;
               }).join('')}
+
+              ${placedWidgets.length > 0 ? `
+                <div class="pt-3 border-t border-theme/60 space-y-2.5 mt-4">
+                  <div class="flex items-center justify-between text-xs font-bold text-stone-800 dark:text-slate-200 px-0.5">
+                    <span class="flex items-center gap-1.5">
+                      <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span>Módulos en uso en esta ventana (${placedWidgets.length})</span>
+                    </span>
+                  </div>
+                  <div class="space-y-2">
+                    ${placedWidgets.map(id => {
+                      const def = catalog[id] || { name: id, iconSvg: '', defaultColSpan: 6, idealRows: 8 };
+                      const colSpan = def.defaultColSpan || 6;
+                      const idealRows = def.idealRows || 8;
+                      const boxHeight = Math.max(50, Math.min(140, Math.round(idealRows * 8.5))) + 'px';
+                      const widthPercent = Math.min(100, Math.max(45, Math.round((colSpan / 12) * 100))) + '%';
+
+                      let locBadge = '';
+                      if (activeGridIds.has(id)) {
+                        const cfg = gridLayout[id] || {};
+                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-theme-soft text-theme-main font-bold border border-theme/30">Cuadrícula (${cfg.colSpan || colSpan}c · ${cfg.rowSpan || idealRows}f)</span>`;
+                      } else if (activeSidebarIds.has(id)) {
+                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-blue-900/30 text-blue-400 font-bold border border-blue-700/40">Panel Lateral</span>`;
+                      } else if (activeDockIds.has(id)) {
+                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-amber-900/30 text-amber-400 font-bold border border-amber-700/40">Dock</span>`;
+                      }
+
+                      return `
+                        <div class="mini-card-item space-y-1 p-2 rounded-xl subpanel-bg border border-theme/40 opacity-95 hover:opacity-100 transition" data-placed-id="${id}">
+                          <div class="flex items-center justify-between text-[11px] font-bold text-stone-800 dark:text-slate-200 px-0.5">
+                            <span class="flex items-center gap-1.5 truncate">
+                              <span class="text-theme-main shrink-0">${def.iconSvg || ''}</span>
+                              <span class="truncate">${def.name}</span>
+                            </span>
+                            ${locBadge}
+                          </div>
+
+                          <div class="mini-card-box panel-bg border border-theme/30 rounded-lg overflow-hidden shadow-xs relative pointer-events-none" data-widget-preview="${id}" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;"></div>
+
+                          <div class="flex items-center justify-between gap-1 pt-1">
+                            <button type="button" onclick="app.locateWidgetOnBoard('${id}')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer flex items-center gap-1">
+                              <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/></svg>
+                              <span>Localizar</span>
+                            </button>
+                            <button type="button" onclick="app.sendWidgetToDrawer('${id}')" class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-500 hover:bg-rose-500 hover:text-white text-[10px] font-bold border border-rose-500/30 transition cursor-pointer">
+                              Inactivar
+                            </button>
+                          </div>
+                        </div>
+                      `;
+                    }).join('')}
+                  </div>
+                </div>
+              ` : ''}
             </div>
           `;
 
@@ -1118,6 +1192,14 @@ var GridEngine = {
               clone.style.userSelect = 'none';
               clone.style.width = '100%';
               clone.style.margin = '0';
+
+              if (wid === 'todayFocusContainer') {
+                clone.classList.remove('habits-matrix-collapsed', 'subview-week');
+                const wk = clone.querySelector('.habits-subpanel-week');
+                if (wk) wk.style.display = 'block';
+                const hy = clone.querySelector('.habits-subpanel-today');
+                if (hy) hy.style.display = 'block';
+              }
 
               const scaleWrapper = document.createElement('div');
               scaleWrapper.className = 'mini-card-scale-wrapper';
@@ -1145,6 +1227,31 @@ var GridEngine = {
             this.closeWidgetsDrawer();
           } else {
             this.renderWidgetsDrawer();
+          }
+        },
+
+        locateWidgetOnBoard(id) {
+          const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
+          if (ws && ws.dockWidgets && ws.dockWidgets.includes(id)) {
+            if (typeof app !== 'undefined' && app.openDockSidebar) app.openDockSidebar(id);
+            return;
+          }
+          if (ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(id)) {
+            const sb = document.getElementById('workspaceSidebar');
+            if (sb && sb.classList.contains('hidden')) {
+              if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
+            }
+          }
+          const el = document.getElementById(id);
+          if (el) {
+            el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            el.classList.add('ring-4', 'ring-theme-main', 'ring-offset-2', 'ring-offset-slate-900', 'transition-all', 'duration-500');
+            setTimeout(() => {
+              el.classList.remove('ring-4', 'ring-theme-main', 'ring-offset-2', 'ring-offset-slate-900');
+            }, 2000);
+            this.safeToast('Módulo localizado en el tablero.', 'emerald');
+          } else {
+            this.safeToast('El módulo no está visible en el tablero.', 'warning');
           }
         },
 
@@ -1349,6 +1456,9 @@ var GridEngine = {
           }
           if (ws.grid && ws.grid[widgetId]) delete ws.grid[widgetId];
           if (ws.sidebarWidgets) ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== widgetId);
+          if (window.WidgetsRegistry) {
+            window.WidgetsRegistry.parkWidget(widgetId);
+          }
           
           this.renderDockWidgets();
           this.compactGrid();
@@ -2175,7 +2285,7 @@ var GridEngine = {
             }, 80);
           });
 
-          ['todayFocusContainer', 'notesMiniCalendarPanel', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'weekTableContainer',
+          ['todayFocusContainer', 'notesMiniCalendarPanel', 'interactiveListsPanel', 'tab1RecentExpensesBar',
            'tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection',
            'tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3FixedExpensesCard', 'tab3ExpensesTableCard',
            'tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection'].forEach(id => {
@@ -2372,32 +2482,25 @@ var GridEngine = {
         rebalanceTab1Layout() {
           if (!state.uiPreferences) return;
           const p = state.uiPreferences;
-          const isMatrixCollapsed = (state.ui.weekTableCollapsed !== false) || (p.showWeekMatrix === false);
 
           const todayWrap = document.getElementById('todayFocusContainer');
           const listsP = document.getElementById('interactiveListsPanel');
           const miniCal = document.getElementById('notesMiniCalendarPanel');
           const recExp = document.getElementById('tab1RecentExpensesBar');
-          const matrixWrap = document.getElementById('weekTableContainer');
-          const toggleBtn = document.getElementById('toggleWeekTableBtn');
 
           const todayVisible = (p.showDailyCards !== false);
-          const matrixVisible = (p.showWeekMatrix !== false && state.ui.weekTableCollapsed !== true);
           const recExpVisible = (p.showRecentExpenses !== false);
           const miniCalVisible = (p.showMiniCalendar !== false);
           const listsVisible = (p.showListsPanel !== false);
 
           if (todayWrap) todayWrap.classList.toggle('hidden', !todayVisible);
-          if (matrixWrap) matrixWrap.classList.toggle('hidden', !matrixVisible);
-          if (toggleBtn) {
-            toggleBtn.classList.toggle('hidden', p.showWeekMatrix === false);
-            toggleBtn.innerHTML = isMatrixCollapsed
-              ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>'
-              : '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>';
-          }
           if (miniCal) miniCal.classList.toggle('hidden', !miniCalVisible);
           if (recExp) recExp.classList.toggle('hidden', !recExpVisible);
           if (listsP) listsP.classList.toggle('hidden', !listsVisible);
+
+          if (window.app && typeof window.app.syncHabitsCompoundLayout === 'function') {
+            window.app.syncHabitsCompoundLayout();
+          }
 
           this.applyGridLayout('tab1');
         },

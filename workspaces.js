@@ -16,11 +16,10 @@ const WorkspacesManager = (function() {
       order: 1,
       grid: {
         topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 2, isPinned: false, compact: false },
-        todayFocusContainer: { col: 1, colSpan: 6, row: 4, rowSpan: 18, isPinned: false, compact: false },
-        notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 4, rowSpan: 8, isPinned: false, compact: false },
-        interactiveListsPanel: { col: 7, colSpan: 6, row: 12, rowSpan: 14, isPinned: false, compact: false },
-        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 22, rowSpan: 4, isPinned: false, compact: false },
-        weekTableContainer: { col: 1, colSpan: 12, row: 26, rowSpan: 8, isPinned: false, compact: false }
+        todayFocusContainer: { col: 1, colSpan: 12, row: 3, rowSpan: 18, isPinned: false, compact: false },
+        notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 21, rowSpan: 8, isPinned: false, compact: false },
+        interactiveListsPanel: { col: 7, colSpan: 6, row: 21, rowSpan: 14, isPinned: false, compact: false },
+        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 29, rowSpan: 4, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []
@@ -400,10 +399,17 @@ const WorkspacesManager = (function() {
       const activeIds = Object.keys(activeWidgets);
       const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
       const dockWidgets = ws.dockWidgets || [];
-      const allActiveInWorkspace = new Set([...activeIds, ...sidebarWidgets, ...dockWidgets]);
+      const mountedInWorkspace = new Set([...activeIds, ...sidebarWidgets]);
 
-      // Parquea en el pool los widgets que no forman parte de este workspace (ni en grid, ni en sidebar, ni en dock)
-      window.WidgetsRegistry.parkInactiveWidgets(Array.from(allActiveInWorkspace));
+      // Parquea en el pool los widgets que no están montados activamente en el grid ni en el sidebar
+      window.WidgetsRegistry.parkInactiveWidgets(Array.from(mountedInWorkspace));
+
+      // Asegurar que los widgets del dock permanezcan aparcados en el pool hasta que el usuario abra su panel
+      dockWidgets.forEach(wId => {
+        if (!mountedInWorkspace.has(wId)) {
+          window.WidgetsRegistry.parkWidget(wId);
+        }
+      });
 
       // Monta cada widget en el grid
       activeIds.forEach(widgetId => {
@@ -563,64 +569,7 @@ const WorkspacesManager = (function() {
 
     // Configura listeners de atajos globales (teclas 1-9)
     setupKeyboardShortcuts() {
-      if (typeof window === 'undefined') return;
-
-      window.addEventListener('keydown', (e) => {
-        // Ignorar atajos si el usuario está escribiendo en un input, textarea o contenteditable
-        const activeTag = document.activeElement ? document.activeElement.tagName.toLowerCase() : '';
-        if (activeTag === 'input' || activeTag === 'textarea' || (document.activeElement && document.activeElement.isContentEditable)) {
-          return;
-        }
-
-        // Teclas numéricas 1 a 9 para conmutar ventanas
-        if (!e.ctrlKey && !e.altKey && !e.metaKey && e.key >= '1' && e.key <= '9') {
-          const targetIndex = parseInt(e.key, 10) - 1;
-          const workspaces = this.getWorkspaces();
-          if (workspaces[targetIndex]) {
-            e.preventDefault();
-            this.switchWorkspace(workspaces[targetIndex].id);
-          }
-          return;
-        }
-
-        // Atajos de widgets y paneles (N, Z, B, E)
-        if (!e.ctrlKey && !e.altKey && !e.metaKey) {
-          const k = e.key.toLowerCase();
-          if (k === 'n') {
-            e.preventDefault();
-            if (typeof app !== 'undefined' && app.toggleDockExpense) app.toggleDockExpense();
-          } else if (k === 'z') {
-            e.preventDefault();
-            if (typeof app !== 'undefined') {
-              if (e.shiftKey) {
-                if (app.toggleDockPomo) app.toggleDockPomo();
-              } else {
-                if (app.toggleZen) {
-                  const zenModal = document.getElementById('zenModal');
-                  const isOpen = zenModal && !zenModal.classList.contains('hidden');
-                  app.toggleZen(!isOpen);
-                }
-              }
-            }
-          } else if (k === 'b') {
-            e.preventDefault();
-            if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
-          } else if (k === 'e') {
-            e.preventDefault();
-            if (typeof app !== 'undefined' && app.toggleBoardEdit) {
-              app.toggleBoardEdit();
-            }
-          }
-        }
-
-        // Atajo Escape para salir del modo edición
-        if (e.key === 'Escape' && state && state.ui && state.ui.isBoardEditMode) {
-          e.preventDefault();
-          if (typeof app !== 'undefined' && app.toggleBoardEdit) {
-            app.toggleBoardEdit();
-          }
-        }
-      });
+      // Los atajos de teclado globales se centralizan en app.js para evitar dobles disparos
     }
   };
 })();

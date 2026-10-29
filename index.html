@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=2.5.2" />
+  <link rel="stylesheet" href="styles.css?v=2.5.4" />
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
@@ -3330,20 +3330,27 @@
       
       <!-- CUADRÍCULA TETRIS 12 COLUMNAS (TABLERO DIARIO) -->
       <div id="tab1MainGrid" class="dashboard-grid-12">
-        <div id="todayFocusContainer" class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden">
+        <div id="todayFocusContainer" class="editorial-card panel-bg border border-theme rounded-2xl p-4 shadow-xl space-y-3.5 relative overflow-hidden" data-cols="12">
           <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
           <div class="flex flex-wrap items-center justify-between gap-2 border-b pb-2.5 relative z-10">
             <div class="flex items-center gap-2">
-              <span class="px-2.5 py-1 rounded-lg bg-theme-accent text-white font-extrabold text-xs tracking-wider">HOY</span>
-              <h2 id="todayFocusTitle" class="font-serif font-bold text-base sm:text-lg tracking-tight">Enfoque y Hábitos de <span class="italic font-normal text-theme-accent">Hoy</span></h2>
+              <span class="px-2.5 py-1 rounded-lg bg-theme-accent text-white font-extrabold text-xs tracking-wider">HÁBITOS</span>
+              <h2 id="todayFocusTitle" class="font-serif font-bold text-base sm:text-lg tracking-tight">Enfoque y <span class="italic font-normal text-theme-accent">Hábitos</span></h2>
             </div>
             <div class="flex items-center gap-1.5 sm:gap-2">
               <span id="dailyScoreBadge" class="px-2 sm:px-2.5 py-1 rounded-xl bg-theme-soft text-theme-main border border-theme text-[11px] sm:text-xs font-bold font-mono">Score: 0 / 100</span>
+
+              <!-- Pestañas internas para modo estrecho (<= 6 cols o móvil) -->
+              <div id="habitsSubViewSwitcher" class="hidden flex items-center p-0.5 rounded-xl subpanel-bg border border-theme text-[11px] font-bold">
+                <button type="button" id="habitsSubViewTodayBtn" onclick="app.setHabitsSubView('today')" class="px-2.5 py-1 rounded-lg bg-theme-main text-white font-bold transition shadow-xs cursor-pointer">Hoy</button>
+                <button type="button" id="habitsSubViewWeekBtn" onclick="app.setHabitsSubView('week')" class="px-2.5 py-1 rounded-lg text-stone-600 dark:text-slate-300 hover:text-theme-main font-bold transition cursor-pointer">Semana</button>
+              </div>
+
               <button onclick="app.toggleCompactMode('todayFocusContainer')" id="todayFocusCompactBtn" class="flex px-2 sm:px-2.5 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-stone-700 dark:text-slate-300 font-bold text-[11px] sm:text-xs items-center gap-1 transition shadow-sm cursor-pointer" title="Alternar modo compacto">
                 <svg class="w-3.5 h-3.5 text-stone-500" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4 14 10 14 10 20"/><polyline points="20 10 14 10 14 4"/></svg>
                 <span class="hidden sm:inline">Compacto</span>
               </button>
-              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-[11px] sm:text-xs items-center gap-1 sm:gap-1.5 transition shadow-sm">
+              <button onclick="app.toggleWeekTable()" id="toggleWeekTableBtn" class="flex px-2 sm:px-3 py-1 sm:py-1.5 rounded-xl subpanel-bg border hover:border-theme-main text-theme-main font-bold text-[11px] sm:text-xs items-center gap-1 sm:gap-1.5 transition shadow-sm cursor-pointer" title="Plegar / desplegar matriz semanal">
                 <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg>
                 <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span>
                 <span class="text-[9px]">▼</span>
@@ -3351,23 +3358,50 @@
             </div>
           </div>
 
-          <!-- Bloque Superior de Días y Progreso (Agrupado 50% / 50% en Modo Compacto) -->
-          <div class="today-top-bars-wrap grid grid-cols-1 gap-2 relative z-10">
-            <!-- Selector Rápido de Días Lun-Dom -->
-            <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
-              <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">L</button>
-              <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">M</button>
-              <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">X</button>
-              <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">J</button>
-              <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">V</button>
-              <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">S</button>
-              <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">D</button>
-            </div>
-            <!-- Slot para la Barra de Progreso de Hoy -->
-            <div id="todayProgressBarSlot"></div>
-          </div>
+          <!-- Contenedor Maestro Compuesto: Hoy + Matriz Semanal -->
+          <div id="habitsCompoundBody" class="habits-compound-body flex flex-col xl:flex-row gap-4 items-start w-full relative z-10">
 
-          <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
+            <!-- Subpanel 1: Enfoque y Hábitos de Hoy -->
+            <div id="habitsTodaySubPanel" class="habits-subpanel-today flex-1 min-w-0 w-full space-y-3.5">
+              <!-- Bloque Superior de Días y Progreso (Agrupado 50% / 50% en Modo Compacto) -->
+              <div class="today-top-bars-wrap grid grid-cols-1 gap-2 relative z-10">
+                <!-- Selector Rápido de Días Lun-Dom -->
+                <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border" id="mobileDaySelectorPills">
+                  <button type="button" onclick="app.selectFocusDay(0)" id="mobileDayBtn_0" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">L</button>
+                  <button type="button" onclick="app.selectFocusDay(1)" id="mobileDayBtn_1" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">M</button>
+                  <button type="button" onclick="app.selectFocusDay(2)" id="mobileDayBtn_2" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">X</button>
+                  <button type="button" onclick="app.selectFocusDay(3)" id="mobileDayBtn_3" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">J</button>
+                  <button type="button" onclick="app.selectFocusDay(4)" id="mobileDayBtn_4" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">V</button>
+                  <button type="button" onclick="app.selectFocusDay(5)" id="mobileDayBtn_5" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">S</button>
+                  <button type="button" onclick="app.selectFocusDay(6)" id="mobileDayBtn_6" class="flex-1 py-1 rounded-lg font-bold text-[11px] sm:text-xs text-center transition">D</button>
+                </div>
+                <!-- Slot para la Barra de Progreso de Hoy -->
+                <div id="todayProgressBarSlot"></div>
+              </div>
+
+              <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
+            </div>
+
+            <!-- Subpanel 2: Matriz Semanal de Hábitos (Lunes a Domingo) -->
+            <div id="weekTableContainer" class="habits-subpanel-week rounded-xl border border-stone-200/80 dark:border-slate-800/80 subpanel-bg p-2.5 sm:p-3 space-y-2 relative overflow-hidden transition-all duration-300">
+              <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
+              <div class="flex items-center justify-between pb-1 border-b border-stone-200/80 dark:border-slate-800/80 relative z-10">
+                <span class="text-xs font-bold text-stone-600 dark:text-slate-300 uppercase tracking-wider">Matriz Semanal de Hábitos</span>
+                <button type="button" onclick="app.toggleWeekTable()" class="text-xs text-theme-main hover:opacity-80 font-bold flex items-center gap-1 cursor-pointer">
+                  <span>▲</span> Plegar matriz
+                </button>
+              </div>
+              <div class="w-full overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
+                <table class="w-full table-fixed border-collapse text-center relative z-10 text-[9.5px]">
+                  <thead>
+                    <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-stone-300 dark:border-slate-800"></tr>
+                  </thead>
+                  <tbody id="dailyTableBody" class="divide-y divide-stone-200/80 dark:divide-slate-800/80 text-xs"></tbody>
+                </table>
+              </div>
+            </div>
+
+          </div>
         </div>
 
         <div id="interactiveListsPanel" class="editorial-card panel-bg border rounded-2xl p-4 shadow-xl space-y-3 text-xs transition-all duration-300">
@@ -3525,23 +3559,6 @@
           </div>
         </div>
 
-        <div id="weekTableContainer" class="editorial-card panel-bg border rounded-2xl p-2.5 sm:p-3 shadow-xl space-y-2 relative overflow-hidden">
-          <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
-          <div class="flex items-center justify-between pb-1 border-b relative z-10">
-            <span class="text-xs font-bold text-slate-400 uppercase tracking-wider">Matriz Semanal de Hábitos (Lunes a Domingo)</span>
-            <button onclick="app.toggleWeekTable()" class="text-xs text-theme-main hover:opacity-80 font-bold flex items-center gap-1">
-              <span>▲</span> Plegar matriz
-            </button>
-          </div>
-          <div class="w-full overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
-            <table class="w-full table-fixed border-collapse text-center relative z-10 text-[9.5px]">
-              <thead>
-                <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-slate-800"></tr>
-              </thead>
-              <tbody id="dailyTableBody" class="divide-y divide-slate-800/80 text-xs"></tbody>
-            </table>
-          </div>
-        </div>
           <div id="notesMiniCalendarPanel" class="editorial-card panel-bg border rounded-2xl p-3 sm:p-3.5 shadow-xl text-xs space-y-2.5 transition-all">
           <div class="calendar-header-bar flex items-center justify-between">
             <div class="flex items-center gap-2 cursor-pointer select-none" onclick="app.toggleMiniCalendarCollapse()" title="Plegar / desplegar calendario">
@@ -4506,12 +4523,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.5.2"></script>
-  <script src="widgets-registry.js?v=2.5.2"></script>
-  <script src="polymorphic-cards.js?v=2.5.2"></script>
-  <script src="workspaces.js?v=2.5.2"></script>
-  <script src="grid-engine.js?v=2.5.2"></script>
-  <script src="app.js?v=2.5.2"></script>
+  <script src="state-sync.js?v=2.5.4"></script>
+  <script src="widgets-registry.js?v=2.5.4"></script>
+  <script src="polymorphic-cards.js?v=2.5.4"></script>
+  <script src="workspaces.js?v=2.5.4"></script>
+  <script src="grid-engine.js?v=2.5.4"></script>
+  <script src="app.js?v=2.5.4"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

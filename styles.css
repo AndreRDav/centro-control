@@ -1099,11 +1099,28 @@
       min-height: calc(100vh - 80px) !important;
       padding-top: 0.5rem !important;
       gap: 0.75rem !important;
+      flex: 1 1 0% !important;
+    }
+    #dockRightSidebarBody:has(#dockPomoWindow:not(.hidden)),
+    #dockRightSidebarBody:has(#dockExpenseWindow:not(.hidden)) {
+      justify-content: center !important;
     }
     #dockRightSidebarBody > *:not(.hidden) {
       margin-top: 0 !important;
       margin-bottom: 0 !important;
       width: 100% !important;
+    }
+    #dockRightSidebarCustomContent {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+    }
+    #dockRightSidebarCustomContent > *:not(.hidden) {
+      flex: 1 1 0% !important;
+      display: flex !important;
+      flex-direction: column !important;
+      min-height: 0 !important;
     }
     /* Pastilla activa en el Dock inferior */
     .dock-pill-active {
@@ -1369,9 +1386,9 @@
       user-select: none !important;
       pointer-events: auto !important;
     }
-    .blueprint-theme .board-edit-header-bar {
+    html.dark .board-edit-header-bar {
       background: #0f172a !important;
-      border-color: #10b981 !important;
+      border-color: var(--theme-500, #10b981) !important;
     }
 
     .board-edit-header-bar,
@@ -1404,8 +1421,9 @@
       text-overflow: ellipsis !important;
       max-width: 200px !important;
     }
-    .blueprint-theme .board-edit-header-bar .header-bar-title {
+    html.dark .board-edit-header-bar .header-bar-title {
       color: #f8fafc !important;
+      -webkit-text-fill-color: #f8fafc !important;
     }
     .board-edit-header-bar .header-bar-coords {
       font-family: var(--font-mono, monospace) !important;
@@ -1418,8 +1436,10 @@
       -webkit-text-fill-color: initial !important;
       flex-shrink: 0 !important;
     }
-    .blueprint-theme .board-edit-header-bar .header-bar-coords {
-      color: #6ee7b7 !important;
+    html.dark .board-edit-header-bar .header-bar-coords {
+      background: var(--theme-soft, rgba(16, 185, 129, 0.18)) !important;
+      color: var(--theme-500, #6ee7b7) !important;
+      -webkit-text-fill-color: var(--theme-500, #6ee7b7) !important;
     }
 
     .board-edit-header-bar .header-bar-actions {
@@ -1442,17 +1462,17 @@
       pointer-events: auto !important;
       transition: transform 0.1s, background 0.15s, color 0.15s !important;
     }
-    /* Modo Claro (apagado) */
+    /* Modo Claro (apagado: fondo neutro, icono con color del tema) */
     html:not(.dark) .board-edit-header-bar button.header-bar-btn {
-      background: rgba(0, 0, 0, 0.07) !important;
-      border: 1px solid rgba(0, 0, 0, 0.22) !important;
-      color: #1e293b !important;
+      background: rgba(0, 0, 0, 0.06) !important;
+      border: 1px solid rgba(0, 0, 0, 0.20) !important;
+      color: var(--theme-700, #047857) !important;
     }
-    /* Modo Oscuro (apagado) */
+    /* Modo Oscuro (apagado: fondo neutro sutil, icono con color vivo del tema) */
     html.dark .board-edit-header-bar button.header-bar-btn {
-      background: rgba(255, 255, 255, 0.10) !important;
-      border: 1px solid rgba(255, 255, 255, 0.25) !important;
-      color: #e2e8f0 !important;
+      background: rgba(255, 255, 255, 0.08) !important;
+      border: 1px solid rgba(255, 255, 255, 0.22) !important;
+      color: var(--theme-500, #10b981) !important;
     }
     .board-edit-header-bar button.header-bar-btn svg {
       stroke: currentColor !important;
@@ -1462,9 +1482,9 @@
     }
     .board-edit-header-bar button.header-bar-btn:hover {
       transform: scale(1.08) !important;
-      filter: brightness(1.15) !important;
+      filter: brightness(1.2) !important;
     }
-    /* Encendidos (activo pin y activo compacto) */
+    /* Encendidos (activo pin y activo compacto: fondo de acento, icono en blanco de alto contraste) */
     .board-edit-header-bar button.header-bar-btn.is-active-pin,
     .board-edit-header-bar button.header-bar-btn.is-active-compact {
       background-color: var(--theme-accent, #D93829) !important;
@@ -1493,7 +1513,7 @@
       cursor: pointer !important;
       pointer-events: auto !important;
     }
-    .blueprint-theme .board-edit-header-bar button.header-bar-btn-lateral {
+    html.dark .board-edit-header-bar button.header-bar-btn-lateral {
       color: #22d3ee !important;
       background: rgba(6, 182, 212, 0.2) !important;
     }
@@ -1569,9 +1589,9 @@
       color: var(--color-text, #1c1917) !important;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
     }
-    .blueprint-theme .board-card-menu-popover {
+    html.dark .board-card-menu-popover {
       background: #0f172a !important;
-      border-color: #10b981 !important;
+      border-color: var(--theme-500, #10b981) !important;
       color: #f8fafc !important;
     }
     .board-card-menu-popover button {
@@ -1579,20 +1599,27 @@
       align-items: center !important;
       gap: 0.5rem !important;
       width: 100% !important;
-      padding: 0.35rem 0.6rem !important;
+      padding: 0.4rem 0.65rem !important;
       border-radius: 0.5rem !important;
       font-size: 0.75rem !important;
       font-weight: 600 !important;
       text-align: left !important;
-      transition: background 0.15s ease !important;
+      transition: background 0.15s ease, color 0.15s ease !important;
       cursor: pointer !important;
-      color: inherit !important;
+      color: var(--color-text, #1c1917) !important;
       background: transparent !important;
       border: none !important;
+    }
+    html.dark .board-card-menu-popover button {
+      color: #e2e8f0 !important;
     }
     .board-card-menu-popover button:hover {
       background: var(--theme-soft, rgba(16, 185, 129, 0.15)) !important;
       color: var(--theme-main, #10b981) !important;
+    }
+    html.dark .board-card-menu-popover button:hover {
+      background: rgba(255, 255, 255, 0.12) !important;
+      color: #ffffff !important;
     }
 
     /* CAJÓN LATERAL IZQUIERDO: ESTUDIO DE MÓDULOS DE PANTALLA COMPLETA (100% VH) */
@@ -1632,7 +1659,7 @@
       box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.5), 10px 0 35px rgba(0, 0, 0, 0.45) !important;
       background: var(--color-subpanel, #e7dec8) !important;
     }
-    .blueprint-theme #widgetsDrawer.drawer-drop-highlight {
+    html.dark #widgetsDrawer.drawer-drop-highlight {
       background: #0b1329 !important;
     }
 
@@ -2469,4 +2496,133 @@
       display: flex !important;
       flex-direction: column !important;
       justify-content: center !important;
+    }
+
+    /* ========================================================
+       BLOQUE MAESTRO INTEGRAL DE HÁBITOS (Hoy + Matriz Semanal)
+       ======================================================== */
+    .habits-compound-body {
+      display: flex;
+      width: 100%;
+      gap: 1rem;
+      align-items: flex-start;
+    }
+
+    /* Subpaneles internos */
+    .habits-subpanel-today {
+      min-width: 0;
+      transition: all 0.25s ease-in-out;
+    }
+
+    .habits-subpanel-week {
+      min-width: 0;
+      transition: all 0.25s ease-in-out;
+    }
+
+    /* Estado Plegado / Colapsado: Hoy absorbe el 100% */
+    #todayFocusContainer.habits-matrix-collapsed .habits-subpanel-today {
+      width: 100% !important;
+      max-width: 100% !important;
+      flex: 1 1 100% !important;
+    }
+    #todayFocusContainer.habits-matrix-collapsed .habits-subpanel-week {
+      display: none !important;
+    }
+
+    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) */
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-compound-body {
+      flex-direction: row;
+    }
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
+      flex: 1 1 42%;
+      max-width: 48%;
+      min-width: 280px;
+    }
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
+      flex: 1.35 1 58%;
+      min-width: 320px;
+      display: block;
+    }
+
+    /* Ancho reducido: 1 a 6 columnas o móvil (Pestañas internas de conmutación Hoy / Semana) */
+    @media (max-width: 1023px) {
+      .habits-compound-body {
+        flex-direction: column !important;
+      }
+      #habitsSubViewSwitcher {
+        display: flex !important;
+      }
+      #toggleWeekTableBtn {
+        display: none !important;
+      }
+      #todayFocusContainer.subview-week .habits-subpanel-today {
+        display: none !important;
+      }
+      #todayFocusContainer.subview-week .habits-subpanel-week {
+        display: block !important;
+        width: 100% !important;
+      }
+      #todayFocusContainer:not(.subview-week) .habits-subpanel-week {
+        display: none !important;
+      }
+      #todayFocusContainer:not(.subview-week) .habits-subpanel-today {
+        display: block !important;
+        width: 100% !important;
+      }
+    }
+
+    /* En escritorio con data-cols <= 6 */
+    #todayFocusContainer[data-cols="1"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="2"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="3"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="4"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="5"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="6"] #habitsSubViewSwitcher {
+      display: flex !important;
+    }
+
+    #todayFocusContainer[data-cols="1"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="2"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="3"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="4"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="5"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="6"] #toggleWeekTableBtn {
+      display: none !important;
+    }
+
+    #todayFocusContainer[data-cols="1"] .habits-compound-body,
+    #todayFocusContainer[data-cols="2"] .habits-compound-body,
+    #todayFocusContainer[data-cols="3"] .habits-compound-body,
+    #todayFocusContainer[data-cols="4"] .habits-compound-body,
+    #todayFocusContainer[data-cols="5"] .habits-compound-body,
+    #todayFocusContainer[data-cols="6"] .habits-compound-body {
+      flex-direction: column !important;
+    }
+
+    #todayFocusContainer[data-cols="1"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="2"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="3"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="4"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="5"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-today {
+      display: none !important;
+    }
+
+    #todayFocusContainer[data-cols="1"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="2"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="3"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="4"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="5"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-week {
+      display: block !important;
+      width: 100% !important;
+    }
+
+    #todayFocusContainer[data-cols="1"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="2"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="3"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="4"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="5"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="6"]:not(.subview-week) .habits-subpanel-week {
+      display: none !important;
     }

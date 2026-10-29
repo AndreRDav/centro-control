@@ -843,11 +843,10 @@
           gridLayouts: {
             desktop: {
               tab1: {
-                todayFocusContainer: { col: 1, colSpan: 6, row: 1, minRows: 18, manualRows: null, rowSpan: 18, name: 'Hoy y Hábitos' },
-                notesMiniCalendarPanel: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
-                interactiveListsPanel: { col: 7, colSpan: 6, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
-                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 19, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' },
-                weekTableContainer: { col: 1, colSpan: 12, row: 23, minRows: 8, manualRows: null, rowSpan: 8, name: 'Matriz Semanal' }
+                todayFocusContainer: { col: 1, colSpan: 12, row: 1, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
+                notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 19, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
+                interactiveListsPanel: { col: 7, colSpan: 6, row: 19, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
+                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 27, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
               },
               tab2: {
                 tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
@@ -870,7 +869,7 @@
               }
             },
             mobile: {
-              tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel', 'weekTableContainer'],
+              tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel'],
               tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
               tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
               tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection']
@@ -2181,9 +2180,36 @@ var pendingCloudConflictJson = null;
         }
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
+        if (!s.ui.habitsSubView) s.ui.habitsSubView = 'today';
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
           // En móviles (<768px) inicia plegada por comodidad y espacio
           s.ui.weekTableCollapsed = true;
+        }
+
+        // Migración transparente: weekTableContainer ahora está integrado dentro de todayFocusContainer
+        if (Array.isArray(s.workspaces)) {
+          s.workspaces.forEach(ws => {
+            if (ws && ws.grid && ws.grid['weekTableContainer']) {
+              delete ws.grid['weekTableContainer'];
+            }
+            if (ws && Array.isArray(ws.sidebarWidgets)) {
+              ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== 'weekTableContainer');
+            }
+            if (ws && Array.isArray(ws.dockWidgets)) {
+              ws.dockWidgets = ws.dockWidgets.filter(id => id !== 'weekTableContainer');
+            }
+          });
+        }
+        if (s.deviceProfiles && typeof s.deviceProfiles === 'object') {
+          Object.values(s.deviceProfiles).forEach(prof => {
+            if (prof && prof.layouts) {
+              Object.values(prof.layouts).forEach(layout => {
+                if (layout && layout['weekTableContainer']) {
+                  delete layout['weekTableContainer'];
+                }
+              });
+            }
+          });
         }
         if (!s.pomo.sound) s.pomo.sound = 'bowl';
         s.dictionary = Object.assign({}, DEFAULT_STATE.dictionary, s.dictionary);

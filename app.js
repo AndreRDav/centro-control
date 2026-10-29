@@ -1711,7 +1711,6 @@
 
         const weekBox = document.getElementById('weekTableContainer');
         const todayBox = document.getElementById('todayFocusContainer');
-        const toggleBtn = document.getElementById('toggleWeekTableBtn');
 
         // Render Enfoque de Hoy como protagonista permanente
         if (todayBox) {
@@ -1724,29 +1723,18 @@
           }
         }
 
-        // Matriz Semanal Completa Colapsable (Columna derecha)
+        // Matriz Semanal Completa
         if (weekBox) {
-          const isHiddenByPref = state.uiPreferences && state.uiPreferences.showWeekMatrix === false;
-          if (isCollapsed || isHiddenByPref) {
-            weekBox.classList.add('hidden');
-            if (toggleBtn) {
-              toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>`;
-              if (isHiddenByPref) toggleBtn.classList.add('hidden');
-              else toggleBtn.classList.remove('hidden');
-            }
-          } else {
-            weekBox.classList.remove('hidden');
-            if (toggleBtn) {
-              toggleBtn.innerHTML = `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>`;
-              toggleBtn.classList.remove('hidden');
-            }
-            const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
-            try {
-              renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
-            } catch (errTable) {
-              console.error('Error al renderizar matriz semanal:', errTable);
-            }
+          const isOverdue = isWeekOverdue(w.weekNum) && !w.isClosed;
+          try {
+            renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
+          } catch (errTable) {
+            console.error('Error al renderizar matriz semanal:', errTable);
           }
+        }
+
+        if (window.app && typeof app.syncHabitsCompoundLayout === 'function') {
+          app.syncHabitsCompoundLayout();
         }
         if (window.app && typeof app.rebalanceTab1Layout === 'function') {
           app.rebalanceTab1Layout();
@@ -3371,7 +3359,7 @@
                       <button type="button" onclick="app.toggleSubtaskStatus('${cat}', '${sub.id}')" class="w-4 h-4 rounded-md flex items-center justify-center border transition shrink-0 ${sub.done ? 'bg-theme-main border-theme-main text-white' : 'border-stone-400 dark:border-slate-600 hover:border-theme-main'}" title="${sub.done ? 'Marcar pendiente' : 'Marcar completado'}">
                         ${sub.done ? '<svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : ''}
                       </button>
-                      <div class="flex-1 min-w-0 flex items-center gap-1.5">
+                      <div class="flex-1 min-w-0 flex flex-wrap items-center gap-1.5">
                         <span class="${sub.done ? 'line-through text-stone-400 dark:text-slate-500' : 'text-stone-800 dark:text-slate-200 font-semibold'} break-words">${escapeHtml(sub.title)}</span>
                         ${(sub.date || sub.time) ? getUrgencyBadge(sub.date, sub.time, sub.done || sub.status === 'done') : ''}
                         ${hasSubs ? `
@@ -3509,7 +3497,7 @@
                       <span class="cursor-pointer text-theme-main shrink-0 flex items-center" onclick="app.toggleCollapseListNode('${cat}', '${item.id}')" title="Plegar/Desplegar">
                         <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
                       </span>
-                      <div class="flex-1 min-w-0 flex items-center gap-1.5 cursor-pointer" onclick="app.toggleCollapseListNode('${cat}', '${item.id}')">
+                      <div class="flex-1 min-w-0 flex flex-wrap items-center gap-1.5 cursor-pointer" onclick="app.toggleCollapseListNode('${cat}', '${item.id}')">
                         <span class="font-extrabold text-stone-900 dark:text-white text-[13px] break-words">${escapeHtml(item.title)}</span>
                         ${isPinned ? `<span class="inline-flex items-center text-amber-500 shrink-0" title="Nota fijada"><svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><path d="M16 12V4h1V2H7v2h1v8l-2 2v2h5.2v6h1.6v-6H18v-2l-2-2z"/></svg></span>` : ''}
                         ${(item.date || item.time) ? getUrgencyBadge(item.date, item.time, allDone) : ''}
@@ -6018,9 +6006,69 @@
           } else {
             state.ui.weekTableCollapsed = !state.ui.weekTableCollapsed;
           }
+          this.syncHabitsCompoundLayout();
           renderDailyHabits();
           this.applyUiPreferences();
           saveState();
+        },
+
+        setHabitsSubView(view) {
+          if (!state.ui) state.ui = {};
+          state.ui.habitsSubView = view === 'week' ? 'week' : 'today';
+          this.syncHabitsCompoundLayout();
+          saveState();
+        },
+
+        syncHabitsCompoundLayout() {
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (!todayBox) return;
+          const toggleBtn = document.getElementById('toggleWeekTableBtn');
+          const switcher = document.getElementById('habitsSubViewSwitcher');
+          const todayBtn = document.getElementById('habitsSubViewTodayBtn');
+          const weekBtn = document.getElementById('habitsSubViewWeekBtn');
+
+          const cols = parseInt(todayBox.getAttribute('data-cols') || '12', 10);
+          const isNarrow = (cols <= 6) || (window.innerWidth < 1024);
+          const isCollapsed = state.ui.weekTableCollapsed !== false;
+          const currentSubView = state.ui.habitsSubView || 'today';
+
+          if (isNarrow) {
+            if (switcher) switcher.classList.remove('hidden');
+            if (toggleBtn) toggleBtn.classList.add('hidden');
+            if (todayBtn && weekBtn) {
+              if (currentSubView === 'week') {
+                todayBox.classList.add('subview-week');
+                weekBtn.className = 'px-2.5 py-1 rounded-lg bg-theme-main text-white font-bold transition shadow-xs cursor-pointer';
+                todayBtn.className = 'px-2.5 py-1 rounded-lg text-stone-600 dark:text-slate-300 hover:text-theme-main font-bold transition cursor-pointer';
+              } else {
+                todayBox.classList.remove('subview-week');
+                todayBtn.className = 'px-2.5 py-1 rounded-lg bg-theme-main text-white font-bold transition shadow-xs cursor-pointer';
+                weekBtn.className = 'px-2.5 py-1 rounded-lg text-stone-600 dark:text-slate-300 hover:text-theme-main font-bold transition cursor-pointer';
+              }
+            }
+          } else {
+            if (switcher) switcher.classList.add('hidden');
+            if (toggleBtn) {
+              toggleBtn.classList.remove('hidden');
+              toggleBtn.innerHTML = isCollapsed
+                ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Ver Matriz</span><span class="sm:hidden">Matriz</span> <span class="text-[9px]">▼</span>'
+                : '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/><path d="M3 15h18"/><path d="M9 3v18"/><path d="M15 3v18"/></svg> <span class="hidden sm:inline">Plegar Matriz</span><span class="sm:hidden">Plegar</span> <span class="text-[9px]">▲</span>';
+            }
+            todayBox.classList.toggle('habits-matrix-collapsed', isCollapsed);
+            todayBox.classList.remove('subview-week');
+          }
+
+          if (window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
+            const minReq = window.GridEngine.measureNaturalRows(todayBox);
+            const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+            if (ws && ws.grid && ws.grid['todayFocusContainer']) {
+              const cfg = ws.grid['todayFocusContainer'];
+              cfg.minRows = Math.max(12, minReq);
+              if (!cfg.manualRows || cfg.manualRows < cfg.minRows) {
+                cfg.rowSpan = cfg.minRows;
+              }
+            }
+          }
         },
         setDailyViewMode(mode) {
           state.ui.dailyViewMode = mode;
@@ -12588,6 +12636,27 @@
         },
         sendWidgetToDock(cardId) {
           if (window.GridEngine && window.GridEngine.sendWidgetToDock) return window.GridEngine.sendWidgetToDock(cardId);
+        },
+        compactGrid(tabKeyOrLayout, showToast = true) {
+          if (window.GridEngine && window.GridEngine.compactGrid) return window.GridEngine.compactGrid(tabKeyOrLayout, showToast);
+        },
+        applyThreeInRowPreset(tabKey) {
+          if (window.GridEngine && window.GridEngine.applyThreeInRowPreset) return window.GridEngine.applyThreeInRowPreset(tabKey);
+        },
+        applyFiftyFiftyPreset(tabKey) {
+          if (window.GridEngine && window.GridEngine.applyFiftyFiftyPreset) return window.GridEngine.applyFiftyFiftyPreset(tabKey);
+        },
+        applyFullWidthPreset(tabKey) {
+          if (window.GridEngine && window.GridEngine.applyFullWidthPreset) return window.GridEngine.applyFullWidthPreset(tabKey);
+        },
+        locateWidgetOnBoard(id) {
+          if (window.GridEngine && window.GridEngine.locateWidgetOnBoard) return window.GridEngine.locateWidgetOnBoard(id);
+        },
+        resetToDefaultLayout() {
+          if (window.GridEngine && window.GridEngine.resetToDefaultLayout) return window.GridEngine.resetToDefaultLayout();
+        },
+        restoreFactoryWorkspaces() {
+          if (window.WorkspacesManager && window.WorkspacesManager.restoreFactoryWorkspaces) return window.WorkspacesManager.restoreFactoryWorkspaces();
         }
       };
 
