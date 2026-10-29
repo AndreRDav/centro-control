@@ -1211,7 +1211,8 @@ var GridEngine = {
               clone.removeAttribute('id');
               clone.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
               clone.querySelectorAll('.board-edit-ctrl-overlay, .card-resize-handle, .board-edit-header-bar, .card-drag-shield').forEach(x => x.remove());
-              clone.classList.remove('card-edit-mode', 'widget-parked-inert');
+              clone.classList.remove('card-edit-mode', 'widget-parked-inert', 'hidden');
+              clone.style.display = 'block';
               clone.style.pointerEvents = 'none';
               clone.style.userSelect = 'none';
               clone.style.width = '100%';

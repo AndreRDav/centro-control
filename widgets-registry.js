@@ -318,6 +318,8 @@ const WidgetsRegistry = (function() {
       if (el && pool && el.parentElement !== pool) {
         pool.appendChild(el);
         el.classList.add('widget-parked-inert');
+        el.classList.remove('hidden');
+        el.style.display = '';
       }
     },
 
@@ -326,7 +328,8 @@ const WidgetsRegistry = (function() {
       const el = document.getElementById(widgetId);
       if (!el || !targetContainer) return null;
 
-      el.classList.remove('widget-parked-inert');
+      el.classList.remove('widget-parked-inert', 'hidden');
+      el.style.display = '';
       if (el.parentElement !== targetContainer) {
         targetContainer.appendChild(el);
       }

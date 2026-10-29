@@ -1675,7 +1675,7 @@
         const chipExp = document.getElementById('kpiChipExpenses');
         if (chipScore) chipScore.textContent = `Score: ${m.score}`;
         if (chipStudy) chipStudy.textContent = `${formatHoursToHMin(m.studyReal)}`;
-        if (chipAtt) chipAtt.textContent = `${Math.round(m.academicReal)}%`;
+        if (chipAtt) chipAtt.textContent = `${Math.round(m.attPct || 0)}%`;
         if (chipExp) chipExp.textContent = `${m.spent.toFixed(0)}€`;
 
         // Actualizar modales de KPI en vivo si alguno está abierto
@@ -2401,20 +2401,20 @@
         const theHeader = document.getElementById(headerId);
         if (theHeader) {
           theHeader.innerHTML = `
-            <th class="py-1 px-0.5 text-left w-[13%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
+            <th class="py-1.5 px-1 text-left w-[18%] min-w-[130px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 z-20 panel-bg">Hábito</th>
             ${DAYS.map((d, i) => {
               const isToday = i === todayDayIndex;
               const isPast = i < todayDayIndex;
-              const thClass = isToday ? 'today-header font-bold w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+              const thClass = isToday ? 'today-header font-bold w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
               return `
-                <th class="py-0.5 px-0.2 text-center ${thClass}">
-                  <div class="text-[9px] font-bold leading-tight">${d}</div>
-                  <div class="text-[7.5px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
-                  ${isToday ? `<span class="inline-block text-[7px] bg-theme-accent text-white font-black px-0.5 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
+                <th class="py-1 px-0.5 text-center ${thClass}">
+                  <div class="text-[9.5px] font-bold leading-tight">${d}</div>
+                  <div class="text-[8px] text-stone-400 dark:text-slate-400 font-mono">${dateRange.daysDates[i]}</div>
+                  ${isToday ? `<span class="inline-block text-[7px] bg-theme-accent text-white font-black px-1 rounded-full tracking-wider mt-0.5 shadow-2xs">HOY</span>` : ''}
                 </th>
               `;
             }).join('')}
-            <th class="py-1 px-0.5 text-center w-[13.5%] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">Progreso</th>
+            <th class="py-1.5 px-1 text-center w-[12%] min-w-[70px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider">Progreso</th>
           `;
         }
 
@@ -2423,15 +2423,15 @@
         tbody.innerHTML = '';
 
         // 1. Gym
-        let gymHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
+        let gymHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           const s = day.gym.sessions;
 
           gymHtml += `
-            <td class="py-1 px-0.5 ${colClass} align-top">
+            <td class="py-1.5 px-0.5 ${colClass} align-middle">
               <div class="space-y-0.5">
                 <div class="flex items-center gap-0.5">
                   <button onclick="app.cycleGymSessionCount(${dIdx})" class="flex-1 py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
@@ -2462,24 +2462,24 @@
           `;
         });
         gymHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.gymPct, `${m.gymReal}/${w.goals.gymSessions}s`, streaks.gym)}
           </td>
         `;
 
         // 2. Running
-        let runHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
+        let runHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           const s = day.run.sessions;
           const km1 = Number(day.run.s1?.km) || 0;
           const km2 = Number(day.run.s2?.km) || 0;
           const dayKmTotal = s >= 2 ? (km1 + km2) : (km1 || Number(day.run.km) || 0);
 
           runHtml += `
-            <td class="py-1 px-0.5 ${colClass} align-top">
+            <td class="py-1.5 px-0.5 ${colClass} align-middle">
               <div class="space-y-0.5">
                 <div class="flex items-center gap-0.5">
                   <button onclick="app.cycleRunSessionCount(${dIdx})" class="flex-1 py-0.5 rounded text-[9px] font-bold ${s > 0 ? 'bg-theme-main text-white' : 'subpanel-bg border text-stone-500 dark:text-slate-400'}">
@@ -2518,19 +2518,19 @@
           `;
         });
         runHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.runPct, `${m.runKmReal.toFixed(1)}k`, streaks.run)}
           </td>
         `;
 
         // 3. Estudio
-        let studyHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
+        let studyHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           studyHtml += `
-            <td class="py-1 px-0.5 ${colClass} align-top">
+            <td class="py-1.5 px-0.5 ${colClass} align-middle">
               <div class="space-y-0.5">
                 <span class="text-[8.5px] text-stone-500 dark:text-slate-400 block">${Number(w.studyHoursPlan[dIdx]||0).toFixed(1)}h</span>
                 <input type="number" step="0.5" value="${Number(w.studyRealHours[dIdx])||''}" placeholder="0.0" onchange="app.setDailyStudyReal(${dIdx}, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px]" />
@@ -2543,20 +2543,20 @@
           `;
         });
         studyHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.studyPct, `${formatHoursToHMin(m.studyReal)}`, streaks.study)}
           </td>
         `;
 
         // 4. Asistencia
-        let attHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
+        let attHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           const classes = day.attendance || [];
           attHtml += `
-            <td class="py-1 px-0.5 ${colClass} align-top">
+            <td class="py-1.5 px-0.5 ${colClass} align-middle">
               <div class="space-y-0.5">
                 ${classes.length === 0 ? `<span class="text-[8.5px] text-slate-400 block py-0.5">—</span>` : ''}
                 ${classes.map((c, cIdx) => {
@@ -2584,18 +2584,18 @@
           `;
         });
         attHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.attPct, `${Math.round(m.attPct)}%`, streaks.att)}
           </td>
         `;
 
         // 5. Nutrición
         const curNutriMargin = w.goals.nutri?.margin || 150;
-        let nutriHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
+        let nutriHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           const ev = evalNutritionStatus(day.nutritionKcal, w.goals.nutri?.kcal, w.goals.nutri?.phase, curNutriMargin);
           let badgeIcon = '<span class="w-2 h-2 rounded-xs border border-stone-400 dark:border-slate-500 inline-block"></span>';
           if (ev.status !== 'pending') {
@@ -2606,7 +2606,7 @@
           const diffText = ev.status === 'pending' ? '—' : (ev.diff > 0 ? `+${ev.diff}` : `${ev.diff}`);
 
           nutriHtml += `
-            <td class="py-1 px-0.5 ${colClass} align-top text-center">
+            <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
               <div class="space-y-0.5">
                 <input type="number" step="50" min="500" max="8000" placeholder="Kcal" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] outline-none focus:border-theme" title="Escribir Kcal consumidas hoy" />
                 <button type="button" onclick="app.cycleNutrition(${dIdx})" class="w-full py-0.5 rounded border text-[8px] flex items-center justify-center gap-1 ${ev.badgeClass}" title="${ev.label} (Clic para alternar estado)">
@@ -2619,22 +2619,22 @@
         });
         const validNutriDays = w.days.filter(d => (d.nutritionScore !== undefined ? d.nutritionScore >= 0.8 : d.nutrition === 'success')).length;
         nutriHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.nutriPct, `${validNutriDays}/${w.goals.nutri?.minDays || 6}d`, streaks.nutri)}
           </td>
         `;
 
         // 6. Gasto Día
-        let spendHtml = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%]"><div class="flex items-center gap-1"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
+        let spendHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
         w.days.forEach((_, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
-          const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+          const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
           const daySpend = w.expenses.filter(e => Number(e.dayIndex) === dIdx).reduce((a, b) => a + Number(b.amount), 0);
-          spendHtml += `<td class="py-1 px-0.5 ${colClass} align-middle font-mono font-bold text-[10px]">${daySpend > 0 ? `${daySpend.toFixed(1)}€` : '—'}</td>`;
+          spendHtml += `<td class="py-1.5 px-0.5 ${colClass} align-middle font-mono font-bold text-[10px]">${daySpend > 0 ? `${daySpend.toFixed(1)}€` : '—'}</td>`;
         });
         spendHtml += `
-          <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
             ${renderProgressCell(m.finPct, `${m.spent.toFixed(1)}€`, streaks.fin)}
           </td>
         `;
@@ -2655,8 +2655,8 @@
           const borderLClass = isReminder ? 'border-l-3 border-l-amber-500 pl-1.5' : 'border-l-3 border-l-theme-main pl-1.5';
           const iconColorClass = isReminder ? 'text-amber-500' : 'text-theme-main';
 
-          let hRow = `<td class="py-1.5 px-0.5 text-left font-bold sticky left-0 z-20 panel-bg w-[13%] ${borderLClass}">
-            <div class="flex items-center gap-1">
+          let hRow = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[130px] ${borderLClass}">
+            <div class="flex items-center gap-1.5">
               <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center ${iconColorClass} shrink-0">
                 ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3 h-3 ${iconColorClass}`)}
               </span>
@@ -2672,21 +2672,21 @@
           w.days.forEach((_, dIdx) => {
             const isToday = dIdx === todayDayIndex;
             const isPast = dIdx < todayDayIndex;
-            const colClass = isToday ? 'today-col w-[11.5%]' : (isPast ? 'past-col w-[10.5%]' : 'w-[10.5%]');
+            const colClass = isToday ? 'today-col w-[10%] min-w-[38px]' : (isPast ? 'past-col w-[10%] min-w-[38px]' : 'w-[10%] min-w-[38px]');
             const val = rawDays[dIdx];
 
             if (h.type === 'max_limit') {
               const cur = val !== null && val !== undefined ? Number(val) : '';
               const isOver = cur !== '' && Number(cur) > Number(h.targetDaily);
               hRow += `
-                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                   <input type="number" step="0.1" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] ${isOver ? 'text-theme-accent border-theme-accent' : ''}" />
                 </td>
               `;
             } else if (h.type === 'min_accum') {
               const cur = val !== null && val !== undefined ? Number(val) : '';
               hRow += `
-                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                   <input type="number" step="0.5" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px]" />
                 </td>
               `;
@@ -2697,7 +2697,7 @@
 
               if (!isScheduledDay) {
                 hRow += `
-                  <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                  <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                     <span class="text-stone-400 dark:text-slate-500 font-mono text-xs font-semibold select-none">—</span>
                   </td>
                 `;
@@ -2716,7 +2716,7 @@
                   const isLate = (isRealToday && slotHour && currentHourStr > slotHour && !isChk);
 
                   hRow += `
-                    <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                    <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                       <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-6 h-6 min-w-[24px] min-h-[24px] max-w-[24px] max-h-[24px] mx-auto rounded-md border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
                         ${isChk ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span>' : '')}
                       </button>
@@ -2728,7 +2728,7 @@
                     : 'w-[20px] h-[20px] min-w-[20px] min-h-[20px] max-w-[20px] max-h-[20px] rounded';
 
                   hRow += `
-                    <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                    <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                       <div class="flex items-center justify-center gap-1.5 flex-nowrap py-0.5">
                         ${Array.from({length: daySlots}).map((_, sIdx) => {
                           const isSlotChk = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1));
@@ -2749,7 +2749,7 @@
               const cur = val !== null && val !== undefined ? Number(val) : '';
               const inRange = cur !== '' && Math.abs(Number(cur) - Number(h.targetCenter)) <= Number(h.targetMargin);
               hRow += `
-                <td class="py-1 px-0.5 ${colClass} align-middle text-center">
+                <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
                   <input type="number" step="0.5" placeholder="—" value="${cur}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] ${cur !== '' ? (inRange ? 'text-theme-main border-theme' : 'text-theme-accent border-theme-accent') : ''}" />
                 </td>
               `;
@@ -2776,7 +2776,7 @@
 
           if (isReminder) {
             hRow += `
-              <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+              <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
                 <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-stone-200/60 dark:bg-slate-800/80 text-stone-600 dark:text-stone-300 border border-stone-300/80 dark:border-slate-700">
                   <span>${summaryLabel}</span>
                 </div>
@@ -2785,13 +2785,13 @@
             `;
           } else {
             hRow += `
-              <td class="py-1.5 px-0.5 text-center align-middle w-[13.5%]">
+              <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[70px]">
                 ${renderProgressCell(hPct, summaryLabel, null)}
               </td>
             `;
           }
 
-          return `<tr class="border-b border-black/5 dark:border-white/5 ${isReminder ? 'bg-amber-500/[0.015] hover:bg-amber-500/[0.035]' : 'bg-theme-main/[0.015] hover:bg-theme-main/[0.04]'} transition-colors">${hRow}</tr>`;
+          return `<tr class="${isReminder ? 'bg-amber-500/[0.02] hover:bg-amber-500/[0.04]' : 'bg-theme-main/[0.02] hover:bg-theme-main/[0.05]'} transition-colors">${hRow}</tr>`;
         }
 
         // 1. Hábitos métricos: juntos directamente con los módulos base sin cabecera separadora
@@ -6038,7 +6038,8 @@
           const isNarrow = (cols <= 6) || (window.innerWidth < 1024);
           const isCollapsed = state.ui.weekTableCollapsed !== false;
           const currentSubView = state.ui.habitsSubView || 'today';
-          const savedSplit = (state.ui && state.ui.habitsSplitPercent) ? state.ui.habitsSplitPercent : 42;
+          const rawSplit = (state.ui && state.ui.habitsSplitPercent) || (state.uiPreferences && state.uiPreferences.habitsSplitPercent) || 42;
+          const savedSplit = Math.max(28, Math.min(58, Number(rawSplit) || 42));
 
           if (isNarrow) {
             if (switcher) switcher.classList.remove('hidden');
@@ -6084,7 +6085,10 @@
         },
 
         startHabitsSplitDrag(e) {
-          e.preventDefault();
+          if (e) {
+            e.preventDefault();
+            e.stopPropagation();
+          }
           const todayBox = document.getElementById('todayFocusContainer');
           const compoundBody = document.getElementById('habitsCompoundBody');
           const splitter = document.getElementById('habitsSplitter');
@@ -6097,17 +6101,30 @@
           const rect = compoundBody.getBoundingClientRect();
 
           const onMove = (moveEvt) => {
-            const currentX = moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
+            if (moveEvt) {
+              moveEvt.preventDefault();
+              moveEvt.stopPropagation();
+            }
+            const currentX = moveEvt.type && moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
             const bodyWidth = compoundBody.offsetWidth;
             if (bodyWidth <= 0) return;
             const offsetX = currentX - rect.left;
             let pct = Math.round((offsetX / bodyWidth) * 100);
-            pct = Math.max(25, Math.min(75, pct));
+
+            // Blindaje de límites mínimos absolutos en píxeles:
+            // Hoy requiere mínimo 280px para tarjetas cómodas; Semana requiere mínimo 460px para matriz legible
+            const minHoyPct = Math.max(28, Math.round((280 / bodyWidth) * 100));
+            const maxHoyPct = Math.min(58, Math.round(((bodyWidth - 460) / bodyWidth) * 100));
+            const clampMin = Math.min(minHoyPct, maxHoyPct);
+            const clampMax = Math.max(minHoyPct, maxHoyPct);
+
+            pct = Math.max(clampMin, Math.min(clampMax, pct));
 
             todayBox.style.setProperty('--habits-today-pct', pct + '%');
             todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
             if (!state.ui) state.ui = {};
             state.ui.habitsSplitPercent = pct;
+            if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
           };
 
           const onEnd = () => {
@@ -6118,7 +6135,8 @@
             window.removeEventListener('mouseup', onEnd);
             window.removeEventListener('touchmove', onMove);
             window.removeEventListener('touchend', onEnd);
-            saveState();
+            if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+            else saveState();
           };
 
           window.addEventListener('mousemove', onMove, { passive: false });
@@ -6130,12 +6148,14 @@
         setHabitsSplitPreset(pct) {
           const todayBox = document.getElementById('todayFocusContainer');
           if (!todayBox) return;
-          pct = Math.max(25, Math.min(75, Number(pct) || 42));
+          pct = Math.max(28, Math.min(58, Number(pct) || 42));
           todayBox.style.setProperty('--habits-today-pct', pct + '%');
           todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
           if (!state.ui) state.ui = {};
           state.ui.habitsSplitPercent = pct;
-          saveState();
+          if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
+          if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+          else saveState();
           this.showToast(`Proporción de Hábitos: ${pct}% Hoy / ${100 - pct}% Semana`, 'info', 1200);
         },
         setDailyViewMode(mode) {
@@ -12104,79 +12124,9 @@
           }
 
           // ---------------------------------------------------------
-          // TAB 2: SECCIONES DE METAS Y HORARIO (100% ANCHO FLUIDO)
-          // ---------------------------------------------------------
-          const t2Goals = document.getElementById('tab2ModularHabitsSection');
-          if (t2Goals) t2Goals.classList.toggle('hidden', p.tab2ShowGoals === false);
-
-          const t2Schedule = document.getElementById('tab2ScheduleSection');
-          if (t2Schedule) t2Schedule.classList.toggle('hidden', p.tab2ShowSchedule === false);
-
-          const t2Att = document.getElementById('tab2AttendanceRulesSection');
-          if (t2Att) t2Att.classList.toggle('hidden', p.tab2ShowAttendance === false);
-
-          // ---------------------------------------------------------
-          // TAB 3: SECCIONES DE FINANZAS CON AUTO-EXPANSIÓN 100% (SIN HUECOS BLANCOS)
-          // ---------------------------------------------------------
-          const t3Budget = document.getElementById('tab3BudgetConfigCard');
-          const t3Savings = document.getElementById('tab3SavingsGoalsCard');
-
-          const bVisible = (p.tab3ShowBudget !== false);
-          const sVisible = (p.tab3ShowSavingsGoals !== false);
-
-          if (t3Budget) {
-            t3Budget.classList.toggle('hidden', !bVisible);
-            t3Budget.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            t3Budget.classList.add(!sVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-          if (t3Savings) {
-            t3Savings.classList.toggle('hidden', !sVisible);
-            t3Savings.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            t3Savings.classList.add(!bVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-
-          const t3Fixed = document.getElementById('tab3FixedExpensesCard');
-          const t3Table = document.getElementById('tab3ExpensesTableCard');
-
-          const fVisible = (p.tab3ShowFixedExpenses !== false);
-          const expTVisible = (p.tab3ShowExpensesTable !== false);
-
-          if (t3Fixed) {
-            t3Fixed.classList.toggle('hidden', !fVisible);
-            t3Fixed.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            t3Fixed.classList.add(!expTVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-          if (t3Table) {
-            t3Table.classList.toggle('hidden', !expTVisible);
-            t3Table.classList.remove('lg:col-span-6', 'lg:col-span-12');
-            t3Table.classList.add(!fVisible ? 'lg:col-span-12' : 'lg:col-span-6');
-          }
-
-          const t3Piggy = document.getElementById('tab3PiggyCard');
-          if (t3Piggy) t3Piggy.classList.toggle('hidden', p.tab3ShowPiggy === false);
-
-          const t3Charts = document.getElementById('tab3ExpenseChartsSection');
-          if (t3Charts) t3Charts.classList.toggle('hidden', p.tab3ShowExpenseCharts === false);
-
-          // ---------------------------------------------------------
-          // TAB 4: SECCIONES DE ESTADÍSTICAS
-          // ---------------------------------------------------------
-          const t4Study = document.getElementById('tab4StudyAuditSection');
-          if (t4Study) t4Study.classList.toggle('hidden', p.tab4ShowStudyAudit === false);
-
-          const t4Habits = document.getElementById('tab4CustomHabitsSection');
-          if (t4Habits) t4Habits.classList.toggle('hidden', p.tab4ShowCustomHabits === false);
-
-          const t4Anat = document.getElementById('tab4AnatomyCard');
-          if (t4Anat) t4Anat.classList.toggle('hidden', p.tab4ShowBiometrics === false);
-          const t4Radar = document.getElementById('tab4RunningRadarCard');
-          if (t4Radar) t4Radar.classList.toggle('hidden', p.tab4ShowBiometrics === false);
-
-          const t4Evol = document.getElementById('tab4EvolutionSection');
-          if (t4Evol) t4Evol.classList.toggle('hidden', p.tab4ShowEvolution === false);
-
-          // ---------------------------------------------------------
           // APLICAR CUADRÍCULA TETRIS 12×H AL TABLERO ACTIVO
+          // (La visibilidad y posición de los módulos es gobernada
+          // exclusivamente por el Gestor de Workspaces y WidgetsRegistry)
           // ---------------------------------------------------------
           this.applyGridLayout('tab' + (state.activeTab || 1));
           this.initGridAutoObservers();

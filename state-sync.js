@@ -2155,6 +2155,22 @@ var pendingCloudConflictJson = null;
           kpisCollapsed: true,
           welcomeDismissed: false
         }, (loaded && loaded.uiPreferences) || s.uiPreferences || {});
+
+        // Garantizar que ningún módulo o tarjeta del catálogo quede oculto por flags legadas
+        s.uiPreferences.tab2ShowGoals = true;
+        s.uiPreferences.tab2ShowSchedule = true;
+        s.uiPreferences.tab2ShowAttendance = true;
+        s.uiPreferences.tab3ShowBudget = true;
+        s.uiPreferences.tab3ShowSavingsGoals = true;
+        s.uiPreferences.tab3ShowPiggy = true;
+        s.uiPreferences.tab3ShowFixedExpenses = true;
+        s.uiPreferences.tab3ShowExpensesTable = true;
+        s.uiPreferences.tab3ShowExpenseCharts = true;
+        s.uiPreferences.tab4ShowStudyAudit = true;
+        s.uiPreferences.tab4ShowCustomHabits = true;
+        s.uiPreferences.tab4ShowBiometrics = true;
+        s.uiPreferences.tab4ShowEvolution = true;
+        s.uiPreferences.habitsSplitPercent = Math.max(28, Math.min(58, Number(s.uiPreferences.habitsSplitPercent) || 42));
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         if (s.ui && s.ui.dismissedBanners) delete s.ui.dismissedBanners;
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
@@ -2181,7 +2197,7 @@ var pendingCloudConflictJson = null;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
         if (!s.ui.habitsSubView) s.ui.habitsSubView = 'today';
-        if (!s.ui.habitsSplitPercent) s.ui.habitsSplitPercent = 42;
+        s.ui.habitsSplitPercent = Math.max(28, Math.min(58, Number(s.ui.habitsSplitPercent) || 42));
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
           // En móviles (<768px) inicia plegada por comodidad y espacio
           s.ui.weekTableCollapsed = true;

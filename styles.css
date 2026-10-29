@@ -1086,41 +1086,54 @@
       border-bottom: none !important;
       border-radius: 0 !important;
       z-index: 40 !important;
+      display: flex !important;
+      flex-direction: column !important;
       animation: slideInSidebarRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #dockRightSidebar.hidden {
       display: none !important;
     }
+    #dockRightSidebar > div:first-child {
+      flex-shrink: 0 !important;
+    }
     #dockRightSidebarBody {
       display: flex !important;
       flex-direction: column !important;
-      justify-content: flex-start !important;
-      align-items: stretch !important;
-      min-height: calc(100vh - 80px) !important;
-      padding-top: 0.5rem !important;
-      gap: 0.75rem !important;
-      flex: 1 1 0% !important;
-    }
-    #dockRightSidebarBody:has(#dockPomoWindow:not(.hidden)),
-    #dockRightSidebarBody:has(#dockExpenseWindow:not(.hidden)) {
       justify-content: center !important;
+      justify-content: safe center !important;
+      align-items: stretch !important;
+      min-height: 0 !important;
+      flex: 1 1 0% !important;
+      overflow-y: auto !important;
+      padding: 0.5rem 0 !important;
+      gap: 0.75rem !important;
     }
     #dockRightSidebarBody > *:not(.hidden) {
-      margin-top: 0 !important;
-      margin-bottom: 0 !important;
+      margin-top: auto !important;
+      margin-bottom: auto !important;
       width: 100% !important;
+      flex-shrink: 0 !important;
     }
     #dockRightSidebarCustomContent {
       display: flex !important;
       flex-direction: column !important;
-      flex: 1 1 0% !important;
+      justify-content: center !important;
+      justify-content: safe center !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
+      width: 100% !important;
+      gap: 0.75rem !important;
     }
     #dockRightSidebarCustomContent > *:not(.hidden) {
-      flex: 1 1 0% !important;
-      display: flex !important;
-      flex-direction: column !important;
-      min-height: 0 !important;
+      margin-top: auto !important;
+      margin-bottom: auto !important;
+      width: 100% !important;
+      max-height: calc(100vh - 110px) !important;
+      overflow-y: auto !important;
+    }
+    #dockRightSidebarCustomContent #listItemsTree {
+      max-height: 45vh !important;
+      overflow-y: auto !important;
     }
     /* Pastilla activa en el Dock inferior */
     .dock-pill-active {
@@ -1148,11 +1161,34 @@
       border-left: none !important;
       border-radius: 0 !important;
       z-index: 40 !important;
+      display: flex !important;
+      flex-direction: column !important;
       animation: slideInSidebarLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #workspaceSidebar.collapsed,
     #workspaceSidebar.hidden {
       display: none !important;
+    }
+    #workspaceSidebar > div:first-child {
+      flex-shrink: 0 !important;
+    }
+    #sidebarWidgetsContainer {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      justify-content: center !important;
+      justify-content: safe center !important;
+      gap: 0.75rem !important;
+      overflow-y: auto !important;
+    }
+    #sidebarWidgetsContainer > *:not(.hidden) {
+      margin-top: auto !important;
+      margin-bottom: auto !important;
+      width: 100% !important;
+      flex-shrink: 0 !important;
+      max-height: calc(100vh - 110px) !important;
+      overflow-y: auto !important;
     }
 
     /* Pestaña Flotante Lateral Izquierda (Pull-Tab) */
@@ -1746,11 +1782,28 @@
       }
     }
 
-    /* KPI BARRA SUPERIOR PLEGADA: AJUSTE EXACTO DE ALTURA SIN ESPACIO VACÍO */
+    /* KPI BARRA SUPERIOR PLEGADA: AJUSTE EXACTO DE ALTURA (40PX) SIN SOLAPAMIENTO CON LA FILA SIGUIENTE */
+    #topKpisWrapper {
+      box-sizing: border-box !important;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+    }
     #topKpisWrapper:has(#kpisCollapsibleBody.hidden) {
-      min-height: 0 !important;
-      height: auto !important;
-      padding-bottom: 0.5rem !important;
+      min-height: 40px !important;
+      max-height: 40px !important;
+      height: 40px !important;
+      padding: 0 14px !important;
+      display: flex !important;
+      align-items: center !important;
+      overflow: hidden !important;
+      box-sizing: border-box !important;
+    }
+    #topKpisWrapper:has(#kpisCollapsibleBody.hidden) #kpisSlimHeaderBar {
+      width: 100% !important;
+      height: 100% !important;
+      padding: 0 !important;
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
     }
 
     /* TIRADORES DE REDIMENSIÓN EN LOS 4 BORDES Y ESQUINA INFERIOR DERECHA */
@@ -2278,10 +2331,30 @@
       [data-cols="12"].card-mode-compact .adaptive-internal-grid {
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
       }
-      /* Si la matriz semanal está abierta en paralelo con Hoy, Hoy usa 2 columnas limpias para evitar solapamientos */
+      /* Subpanel de Hoy con reorganización inteligente (Reorganizar -> Escalar -> Interespaciado) */
       #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
-        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
         gap: 0.5rem !important;
+      }
+      @container hoypanel (max-width: 359px) {
+        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+          grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
+        }
+      }
+      @container hoypanel (min-width: 360px) and (max-width: 539px) {
+        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+          grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+        }
+      }
+      @container hoypanel (min-width: 540px) and (max-width: 779px) {
+        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+      }
+      @container hoypanel (min-width: 780px) {
+        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+          grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+        }
       }
       /* Si la matriz semanal está plegada, Hoy absorbe el 100% y se expande a 3 o 4 columnas según ancho */
       #todayFocusContainer.habits-matrix-collapsed[data-cols="11"] .adaptive-internal-grid,
@@ -2430,7 +2503,7 @@
       margin-bottom: 0 !important;
     }
 
-    /* Topología A: Cuadrícula interna de items y hábitos (Enfoque de Hoy, Metas, etc.) */
+    /* Topología A: Cuadrícula interna de items y hábitos (Enfoque de Hoy, Metas, etc.) - REORGANIZAR -> ESCALAR (1fr) -> INTERESPACIADO */
     .editorial-card.card-has-extra-height #todayFocusContent {
       flex: 1 1 auto !important;
       min-height: 0 !important;
@@ -2445,18 +2518,19 @@
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
       flex: 1 1 auto !important;
       display: grid !important;
-      grid-auto-rows: minmax(110px, 165px) !important;
-      align-content: space-evenly !important;
-      row-gap: 0.85rem !important;
+      grid-auto-rows: 1fr !important;
+      align-content: stretch !important;
+      row-gap: 0.75rem !important;
       column-gap: 0.75rem !important;
     }
     .editorial-card.card-has-extra-height.card-mode-compact #todayFocusContent .adaptive-internal-grid {
-      grid-auto-rows: minmax(68px, 105px) !important;
+      grid-auto-rows: 1fr !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
-      height: auto !important;
+      height: 100% !important;
       display: flex !important;
       flex-direction: column !important;
+      justify-content: space-between !important;
     }
     .editorial-card.card-has-extra-height #tab2GoalsGrid,
     .editorial-card.card-has-extra-height #tab2ModularHabitsSection > .grid,
@@ -2513,25 +2587,135 @@
       justify-content: center !important;
     }
 
+    /* Topología E: Matriz Semanal de Hábitos (weekTableContainer) - Escalar tabla y expandir filas proporcionalmente */
+    .editorial-card.card-has-extra-height #weekTableContainer {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .editorial-card.card-has-extra-height #weekTableContainer > .overflow-x-auto {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
+    .editorial-card.card-has-extra-height #weekTableContainer table {
+      flex: 1 1 auto !important;
+      height: 100% !important;
+    }
+    .editorial-card.card-has-extra-height #dailyTableBody {
+      height: 100% !important;
+    }
+    .editorial-card.card-has-extra-height #dailyTableBody tr {
+      height: 1fr !important;
+    }
+    .editorial-card.card-has-extra-height #dailyTableBody td {
+      vertical-align: middle !important;
+      padding: 0.65rem 0.25rem !important;
+    }
+
     /* ========================================================
        BLOQUE MAESTRO INTEGRAL DE HÁBITOS (Hoy + Matriz Semanal)
        ======================================================== */
     .habits-compound-body {
       display: flex;
       width: 100%;
-      gap: 1rem;
-      align-items: flex-start;
+      gap: 0.75rem;
+      align-items: stretch !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
     }
 
     /* Subpaneles internos */
     .habits-subpanel-today {
       min-width: 0;
       transition: all 0.25s ease-in-out;
+      display: flex !important;
+      flex-direction: column !important;
+      justify-content: flex-start !important;
+      height: 100% !important;
+      container-type: inline-size;
+      container-name: hoypanel;
+    }
+    .habits-subpanel-today > .today-top-bars-wrap {
+      flex-shrink: 0 !important;
+    }
+    #todayFocusContent {
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
+      display: flex !important;
+      flex-direction: column !important;
+      gap: 0.65rem !important;
     }
 
+    /* Subpanel Semana con expansión vertical y tabla proporcionada */
     .habits-subpanel-week {
       min-width: 0;
       transition: all 0.25s ease-in-out;
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      height: 100% !important;
+    }
+    #weekTableContainer {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      height: 100% !important;
+    }
+    #weekTableContainer > .overflow-x-auto {
+      display: flex !important;
+      flex-direction: column !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      overflow-x: auto !important;
+      overflow-y: auto !important;
+    }
+    #weekTableContainer table {
+      width: 100% !important;
+      min-width: 520px !important;
+      flex: 1 1 auto !important;
+      height: 100% !important;
+      border-collapse: separate !important;
+      border-spacing: 0 6px !important;
+    }
+    #dailyTableBody {
+      height: 100% !important;
+    }
+    #dailyTableBody tr {
+      height: 1fr !important;
+      background-color: rgba(255, 255, 255, 0.45);
+      transition: background-color 0.15s ease;
+    }
+    html.dark #dailyTableBody tr {
+      background-color: rgba(15, 23, 42, 0.45);
+    }
+    #dailyTableBody tr:hover {
+      background-color: rgba(255, 255, 255, 0.85);
+    }
+    html.dark #dailyTableBody tr:hover {
+      background-color: rgba(30, 41, 59, 0.7);
+    }
+    #dailyTableBody tr > td:first-child {
+      border-top-left-radius: 8px;
+      border-bottom-left-radius: 8px;
+      border-left: 1px solid var(--color-border);
+    }
+    #dailyTableBody tr > td:last-child {
+      border-top-right-radius: 8px;
+      border-bottom-right-radius: 8px;
+      border-right: 1px solid var(--color-border);
+    }
+    #dailyTableBody tr > td {
+      border-top: 1px solid var(--color-border);
+      border-bottom: 1px solid var(--color-border);
+      vertical-align: middle !important;
+      padding: 0.45rem 0.25rem !important;
     }
 
     /* Estado Plegado / Colapsado: Hoy absorbe el 100% */
@@ -2549,46 +2733,73 @@
       flex-direction: row;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
-      flex: 0 0 calc(var(--habits-today-pct, 42%) - 8px);
-      max-width: 75%;
-      min-width: 260px;
+      flex: 0 0 calc(var(--habits-today-pct, 44%) - 9px);
+      max-width: 62%;
+      min-width: 280px;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
       flex: 1 1 0%;
-      min-width: 300px;
-      display: block;
+      min-width: 460px;
+      display: flex !important;
     }
 
-    /* Tirador Divisor Deslizable entre Hoy y Semana */
+    /* Tirador Divisor Deslizable entre Hoy y Semana (Interactuable en Modo Normal y Modo Edición) */
     .habits-splitter {
-      width: 10px;
-      margin: 0 -2px;
+      width: 16px;
+      margin: 0 -8px;
       cursor: col-resize;
       background: transparent;
       display: flex;
       align-items: center;
       justify-content: center;
       position: relative;
-      z-index: 25;
+      z-index: 60 !important;
       user-select: none;
       flex-shrink: 0;
       align-self: stretch;
       touch-action: none;
+      pointer-events: auto !important;
     }
     .habits-splitter::after {
       content: '';
-      width: 2px;
-      height: 52px;
+      width: 3px;
+      height: 64px;
       border-radius: 9999px;
       background-color: var(--color-border, rgba(148, 163, 184, 0.4));
-      transition: background-color 0.15s ease, height 0.15s ease, width 0.15s ease;
+      transition: background-color 0.15s ease, height 0.15s ease, width 0.15s ease, box-shadow 0.15s ease;
     }
     .habits-splitter:hover::after,
     .habits-splitter.is-dragging::after {
       background-color: var(--theme-accent, #06b6d4);
-      height: 100px;
-      width: 3.5px;
+      height: 120px;
+      width: 4.5px;
+      box-shadow: 0 0 12px var(--theme-accent, #06b6d4);
+    }
+    .habits-splitter .habits-splitter-pill {
+      opacity: 0.8;
+      transition: all 0.15s ease;
+    }
+    .habits-splitter:hover .habits-splitter-pill,
+    .habits-splitter.is-dragging .habits-splitter-pill {
+      opacity: 1;
+      border-color: var(--theme-accent, #06b6d4) !important;
       box-shadow: 0 0 10px var(--theme-accent, #06b6d4);
+      transform: scale(1.15);
+    }
+    /* Indicador claro en modo edición de tablero */
+    body.board-edit-active .habits-splitter {
+      background: rgba(16, 185, 129, 0.08);
+      border-radius: 9999px;
+    }
+    body.board-edit-active .habits-splitter .habits-splitter-pill {
+      border-color: #10b981 !important;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+    }
+    body.board-edit-active .habits-splitter::after {
+      background-color: #10b981;
+      height: 80px;
+      width: 3.5px;
+      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
     }
     #todayFocusContainer.habits-matrix-collapsed .habits-splitter {
       display: none !important;
@@ -2614,46 +2825,6 @@
       z-index: 9999 !important;
       outline: 3px solid var(--theme-accent, #06b6d4) !important;
       outline-offset: 4px !important;
-    }
-
-    /* Dock Sidebar 100% Altura y Centrado Vertical */
-    #dockRightSidebar {
-      height: 100vh !important;
-      max-height: 100vh !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    #dockRightSidebarBody {
-      display: flex !important;
-      flex-direction: column !important;
-      flex: 1 1 0% !important;
-      min-height: 0 !important;
-      overflow-y: auto !important;
-    }
-    #dockRightSidebarBody.dock-body-centered {
-      justify-content: center !important;
-    }
-    #dockRightSidebarBody:not(.dock-body-centered) {
-      justify-content: flex-start !important;
-    }
-    #dockRightSidebarCustomContent {
-      flex: 1 1 0% !important;
-      min-height: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    #dockRightSidebarCustomContent > .editorial-card {
-      flex: 1 1 0% !important;
-      height: 100% !important;
-      min-height: 0 !important;
-      display: flex !important;
-      flex-direction: column !important;
-    }
-    #dockRightSidebarCustomContent #listItemsTree {
-      flex: 1 1 0% !important;
-      max-height: none !important;
-      min-height: 140px !important;
-      overflow-y: auto !important;
     }
 
     /* Ancho reducido: 1 a 6 columnas o móvil (Pestañas internas de conmutación Hoy / Semana) */
