@@ -3387,15 +3387,6 @@
               <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
             </div>
 
-            <!-- Tirador Divisor Deslizable (Arrastra para calibrar % entre Hoy y Semana) -->
-            <div id="habitsSplitter" class="habits-splitter" title="Arrastra hacia los lados para calibrar tamaño de Semana" onmousedown="app.startHabitsSplitDrag(event)" ontouchstart="app.startHabitsSplitDrag(event)">
-              <div class="habits-splitter-pill pointer-events-none flex flex-col items-center justify-center gap-1 w-3 h-8 rounded-full subpanel-bg border border-theme/60 shadow-xs">
-                <span class="w-1 h-1 rounded-full bg-theme-main"></span>
-                <span class="w-1 h-1 rounded-full bg-theme-main"></span>
-                <span class="w-1 h-1 rounded-full bg-theme-main"></span>
-              </div>
-            </div>
-
             <!-- Subpanel 2: Matriz Semanal de Hábitos (Lunes a Domingo) -->
             <div id="weekTableContainer" class="habits-subpanel-week rounded-xl border border-stone-200/80 dark:border-slate-800/80 subpanel-bg p-2.5 sm:p-3 space-y-2 relative overflow-hidden transition-all duration-300">
               <div class="pointer-events-none select-none blueprint-dots absolute top-0 right-0 w-36 h-28 opacity-70"></div>
@@ -3405,7 +3396,7 @@
                   <span>▲</span> Plegar matriz
                 </button>
               </div>
-              <div class="w-full flex-1 min-h-0 flex flex-col overflow-x-auto no-scrollbar -mx-0.5 px-0.5">
+              <div class="w-full flex-1 min-h-0 flex flex-col overflow-hidden -mx-0.5 px-0.5">
                 <table class="w-full text-center relative z-10 text-[9.5px]">
                   <thead>
                     <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-stone-300 dark:border-slate-800"></tr>
@@ -4460,7 +4451,7 @@
         </div>
 
         <!-- CONTENEDOR PARA WIDGETS DINÁMICOS DEL DOCK -->
-        <div id="dockRightSidebarCustomContent" class="space-y-3 min-h-[100px]"></div>
+        <div id="dockRightSidebarCustomContent" class="hidden space-y-3 min-h-0"></div>
       </div>
     </aside>
 
@@ -4537,12 +4528,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.5.7"></script>
-  <script src="widgets-registry.js?v=2.5.7"></script>
-  <script src="polymorphic-cards.js?v=2.5.7"></script>
-  <script src="workspaces.js?v=2.5.7"></script>
-  <script src="grid-engine.js?v=2.5.7"></script>
-  <script src="app.js?v=2.5.7"></script>
+  <script src="state-sync.js?v=2.5.8"></script>
+  <script src="widgets-registry.js?v=2.5.8"></script>
+  <script src="polymorphic-cards.js?v=2.5.8"></script>
+  <script src="workspaces.js?v=2.5.8"></script>
+  <script src="grid-engine.js?v=2.5.8"></script>
+  <script src="app.js?v=2.5.8"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

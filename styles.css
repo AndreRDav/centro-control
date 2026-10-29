@@ -1119,10 +1119,18 @@
       flex-direction: column !important;
       justify-content: center !important;
       justify-content: safe center !important;
-      flex: 1 1 auto !important;
+      align-items: stretch !important;
+      flex: 0 0 auto !important;
       min-height: 0 !important;
       width: 100% !important;
+      margin-top: auto !important;
+      margin-bottom: auto !important;
       gap: 0.75rem !important;
+    }
+    #dockRightSidebarCustomContent.hidden,
+    #dockPomoWindow.hidden,
+    #dockExpenseWindow.hidden {
+      display: none !important;
     }
     #dockRightSidebarCustomContent > *:not(.hidden) {
       margin-top: auto !important;
@@ -1767,21 +1775,6 @@
       }
     }
 
-    /* En pantallas grandes (>=1024px), si el panel lateral izquierdo o derecho está visible, centramos el dock respecto al área visible del tablero */
-    @media (min-width: 1024px) {
-      body.sidebar-view-open:not(.dock-sidebar-open) #floatingDock,
-      body:has(#workspaceSidebar:not(.hidden):not(.collapsed)):not(.dock-sidebar-open) #floatingDock {
-        left: calc(50% + 160px) !important;
-      }
-      body.dock-sidebar-open:not(.sidebar-view-open) #floatingDock,
-      body:has(#dockRightSidebar:not(.hidden)):not(.sidebar-view-open) #floatingDock {
-        left: calc(50% - 170px) !important;
-      }
-      body.sidebar-view-open.dock-sidebar-open #floatingDock {
-        left: 50% !important;
-      }
-    }
-
     /* KPI BARRA SUPERIOR PLEGADA: AJUSTE EXACTO DE ALTURA (40PX) SIN SOLAPAMIENTO CON LA FILA SIGUIENTE */
     #topKpisWrapper {
       box-sizing: border-box !important;
@@ -2118,15 +2111,16 @@
     .editorial-card.card-mode-compact#tab2ScheduleSection {
       padding: 0.5rem 0.75rem !important;
     }
-    .editorial-card.card-mode-compact #tab2ScheduleSection #scheduleDaysContainer {
-      display: grid !important;
-      grid-template-columns: repeat(7, 1fr) !important;
-      gap: 0.25rem !important;
-    }
-    .editorial-card.card-mode-compact #tab2ScheduleSection .schedule-day-column {
-      padding: 0.25rem 0.2rem !important;
-      min-height: 50px !important;
-      border-radius: 0.5rem !important;
+    #sidebarWidgetsContainer #tab2ScheduleSection #scheduleDaysGrid,
+    #dockRightSidebarCustomContent #tab2ScheduleSection #scheduleDaysGrid,
+    [data-cols="1"] #scheduleDaysGrid,
+    [data-cols="2"] #scheduleDaysGrid,
+    [data-cols="3"] #scheduleDaysGrid,
+    [data-cols="4"] #scheduleDaysGrid {
+      display: flex !important;
+      flex-direction: column !important;
+      width: 100% !important;
+      min-width: 0 !important;
     }
 
     /* 8. REGLAS DE ASISTENCIA Y CLASES (tab2AttendanceRulesSection) */
@@ -2668,21 +2662,23 @@
       min-height: 0 !important;
       height: 100% !important;
     }
-    #weekTableContainer > .overflow-x-auto {
+    #weekTableContainer > .overflow-x-auto,
+    #weekTableContainer > div {
       display: flex !important;
       flex-direction: column !important;
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      overflow-x: auto !important;
+      overflow-x: hidden !important;
       overflow-y: auto !important;
     }
     #weekTableContainer table {
       width: 100% !important;
-      min-width: 520px !important;
+      min-width: 0 !important;
+      table-layout: auto !important;
       flex: 1 1 auto !important;
       height: 100% !important;
       border-collapse: separate !important;
-      border-spacing: 0 6px !important;
+      border-spacing: 0 5px !important;
     }
     #dailyTableBody {
       height: 100% !important;
@@ -2728,80 +2724,23 @@
       display: none !important;
     }
 
-    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) */
+    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) - PROPORCIÓN EQUILIBRADA FIJA 40/60 */
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-compound-body {
       flex-direction: row;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
-      flex: 0 0 calc(var(--habits-today-pct, 44%) - 9px);
-      max-width: 62%;
-      min-width: 280px;
+      flex: 0 0 calc(40% - 6px) !important;
+      max-width: 42% !important;
+      min-width: 0 !important;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
-      flex: 1 1 0%;
-      min-width: 460px;
+      flex: 1 1 calc(60% - 6px) !important;
+      min-width: 0 !important;
       display: flex !important;
     }
 
-    /* Tirador Divisor Deslizable entre Hoy y Semana (Interactuable en Modo Normal y Modo Edición) */
+    /* Eliminación del Divisor Manual para Garantizar Cero Cortes y Cero Scroll */
     .habits-splitter {
-      width: 16px;
-      margin: 0 -8px;
-      cursor: col-resize;
-      background: transparent;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      position: relative;
-      z-index: 60 !important;
-      user-select: none;
-      flex-shrink: 0;
-      align-self: stretch;
-      touch-action: none;
-      pointer-events: auto !important;
-    }
-    .habits-splitter::after {
-      content: '';
-      width: 3px;
-      height: 64px;
-      border-radius: 9999px;
-      background-color: var(--color-border, rgba(148, 163, 184, 0.4));
-      transition: background-color 0.15s ease, height 0.15s ease, width 0.15s ease, box-shadow 0.15s ease;
-    }
-    .habits-splitter:hover::after,
-    .habits-splitter.is-dragging::after {
-      background-color: var(--theme-accent, #06b6d4);
-      height: 120px;
-      width: 4.5px;
-      box-shadow: 0 0 12px var(--theme-accent, #06b6d4);
-    }
-    .habits-splitter .habits-splitter-pill {
-      opacity: 0.8;
-      transition: all 0.15s ease;
-    }
-    .habits-splitter:hover .habits-splitter-pill,
-    .habits-splitter.is-dragging .habits-splitter-pill {
-      opacity: 1;
-      border-color: var(--theme-accent, #06b6d4) !important;
-      box-shadow: 0 0 10px var(--theme-accent, #06b6d4);
-      transform: scale(1.15);
-    }
-    /* Indicador claro en modo edición de tablero */
-    body.board-edit-active .habits-splitter {
-      background: rgba(16, 185, 129, 0.08);
-      border-radius: 9999px;
-    }
-    body.board-edit-active .habits-splitter .habits-splitter-pill {
-      border-color: #10b981 !important;
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
-    }
-    body.board-edit-active .habits-splitter::after {
-      background-color: #10b981;
-      height: 80px;
-      width: 3.5px;
-      box-shadow: 0 0 8px rgba(16, 185, 129, 0.6);
-    }
-    #todayFocusContainer.habits-matrix-collapsed .habits-splitter {
       display: none !important;
     }
 

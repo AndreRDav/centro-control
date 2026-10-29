@@ -1005,6 +1005,147 @@ var GridEngine = {
             }
           }
 
+          // Genera un wireframe técnico blueprint proporcional para cada módulo del catálogo
+          const getWidgetWireframe = (id) => {
+            if (id === 'topKpisWrapper') {
+              return `
+                <div class="grid grid-cols-4 gap-1 p-1 h-full">
+                  <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                  <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                  <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                  <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
+                </div>
+              `;
+            } else if (id === 'interactiveListsPanel') {
+              return `
+                <div class="space-y-1.5 p-1.5 h-full flex flex-col justify-around">
+                  <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/50 flex-1"></div></div>
+                  <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/40 flex-1"></div></div>
+                  <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/30 flex-1"></div></div>
+                </div>
+              `;
+            } else if (id === 'notesMiniCalendarPanel') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="grid grid-cols-7 gap-0.5"><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-main/50"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div></div>
+                  <div class="space-y-1"><div class="h-1.5 w-4/5 rounded bg-theme-main/40"></div><div class="h-1.5 w-3/5 rounded bg-theme-main/30"></div></div>
+                </div>
+              `;
+            } else if (id === 'todayFocusContainer') {
+              return `
+                <div class="p-1 h-full grid grid-cols-12 gap-1">
+                  <div class="col-span-5 rounded bg-theme-soft/70 border border-theme/30 p-1 flex flex-col justify-between">
+                    <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-theme-accent"></div><div class="h-1.5 w-3/4 rounded bg-theme-main/50"></div></div>
+                    <div class="space-y-0.5"><div class="h-1 rounded bg-theme-main/60 w-full"></div><div class="h-1 rounded bg-theme-soft/90 w-4/5"></div></div>
+                  </div>
+                  <div class="col-span-7 rounded bg-theme-soft/50 border border-theme/30 p-1 flex flex-col justify-between">
+                    <div class="grid grid-cols-7 gap-0.5"><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div></div>
+                    <div class="space-y-0.5"><div class="h-1 rounded bg-theme-soft/80 w-full"></div><div class="h-1 rounded bg-theme-soft/80 w-full"></div></div>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab2ScheduleSection') {
+              return `
+                <div class="p-1 h-full flex flex-col justify-between gap-1">
+                  <div class="grid grid-cols-7 gap-0.5"><div class="h-1.5 rounded-xs bg-theme-main/60"></div><div class="h-1.5 rounded-xs bg-theme-main/60"></div><div class="h-1.5 rounded-xs bg-theme-main/60"></div><div class="h-1.5 rounded-xs bg-theme-main/60"></div><div class="h-1.5 rounded-xs bg-theme-main/60"></div><div class="h-1.5 rounded-xs bg-theme-soft/70"></div><div class="h-1.5 rounded-xs bg-theme-soft/70"></div></div>
+                  <div class="grid grid-cols-7 gap-0.5 flex-1">
+                    <div class="rounded-xs bg-theme-soft/50 border border-theme/20 p-0.5 space-y-0.5"><div class="h-2 rounded bg-theme-main/40"></div><div class="h-1 rounded bg-theme-soft"></div></div>
+                    <div class="rounded-xs bg-theme-soft/50 border border-theme/20 p-0.5 space-y-0.5"><div class="h-2 rounded bg-theme-main/40"></div></div>
+                    <div class="rounded-xs bg-theme-soft/50 border border-theme/20 p-0.5 space-y-0.5"><div class="h-2 rounded bg-theme-main/40"></div><div class="h-1.5 rounded bg-theme-accent/40"></div></div>
+                    <div class="rounded-xs bg-theme-soft/50 border border-theme/20 p-0.5 space-y-0.5"><div class="h-2 rounded bg-theme-main/40"></div></div>
+                    <div class="rounded-xs bg-theme-soft/50 border border-theme/20 p-0.5 space-y-0.5"><div class="h-2 rounded bg-theme-main/40"></div></div>
+                    <div class="rounded-xs bg-theme-soft/20 border border-dashed border-theme/20"></div>
+                    <div class="rounded-xs bg-theme-soft/20 border border-dashed border-theme/20"></div>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab2AttendanceRulesSection') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/2 rounded bg-theme-main/50"></div><div class="h-2 w-8 rounded-full bg-theme-soft border border-theme/40"></div></div>
+                  <div class="space-y-1 flex-1 flex flex-col justify-around">
+                    <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex items-center justify-between"><div class="h-1.5 w-1/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-6 rounded bg-theme-positive/60"></div></div>
+                    <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex items-center justify-between"><div class="h-1.5 w-1/3 rounded bg-theme-main/60"></div><div class="h-1.5 w-6 rounded bg-theme-warning/60"></div></div>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab3BudgetConfigCard') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-1.5 w-1/2 rounded bg-theme-main/50"></div><div class="h-2 w-8 rounded bg-theme-accent/60"></div></div>
+                  <div class="h-2 w-full rounded-full bg-theme-soft border border-theme/30 overflow-hidden"><div class="h-full bg-theme-main/60 w-2/3"></div></div>
+                  <div class="flex justify-between"><div class="h-1 w-1/4 rounded bg-theme-soft/80"></div><div class="h-1 w-1/4 rounded bg-theme-soft/80"></div></div>
+                </div>
+              `;
+            } else if (id === 'tab3SavingsGoalsCard') {
+              return `
+                <div class="p-1.5 h-full grid grid-cols-2 gap-1">
+                  <div class="rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/50"></div><div class="h-1 w-full rounded bg-theme-main/70"></div></div>
+                  <div class="rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/50"></div><div class="h-1 w-full rounded bg-theme-main/70"></div></div>
+                </div>
+              `;
+            } else if (id === 'tab3PiggyCard') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="flex items-center justify-between"><div class="h-2 w-1/3 rounded bg-theme-main/60"></div><div class="h-2.5 w-12 rounded bg-theme-main/80"></div></div>
+                  <div class="grid grid-cols-2 gap-1 flex-1">
+                    <div class="rounded bg-theme-soft/50 border border-theme/20 p-1 flex flex-col justify-center gap-1"><div class="h-1 w-full rounded bg-theme-main/50"></div></div>
+                    <div class="rounded bg-theme-soft/50 border border-theme/20 p-1 flex items-center justify-center"><div class="h-1.5 w-3/4 rounded bg-theme-accent/50"></div></div>
+                  </div>
+                </div>
+              `;
+            } else if (id === 'tab1RecentExpensesBar') {
+              return `
+                <div class="p-1.5 h-full flex items-center justify-between gap-1">
+                  <div class="flex items-center gap-1"><div class="w-2 h-2 rounded-full bg-theme-main/60"></div><div class="h-1.5 w-12 rounded bg-theme-main/50"></div></div>
+                  <div class="flex items-center gap-1"><div class="h-2 w-8 rounded bg-theme-soft/80"></div><div class="h-2 w-8 rounded bg-theme-soft/80"></div></div>
+                </div>
+              `;
+            } else if (id === 'tab3ExpensesTableCard' || id === 'tab3FixedExpensesCard') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="h-2 rounded bg-theme-main/30 border-b border-theme/40 w-full"></div>
+                  <div class="space-y-1 flex-1 flex flex-col justify-around"><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div></div>
+                </div>
+              `;
+            } else if (id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
+              return `
+                <div class="p-1.5 h-full grid grid-cols-2 gap-1">
+                  <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
+                  <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
+                </div>
+              `;
+            } else if (id === 'tab4StudyAuditSection') {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between gap-1">
+                  <div class="h-1.5 w-1/2 rounded bg-theme-main/50"></div>
+                  <div class="grid grid-cols-7 gap-0.5 flex-1 items-end">
+                    <div class="h-2/3 rounded-xs bg-theme-main/60"></div>
+                    <div class="h-full rounded-xs bg-theme-main/70"></div>
+                    <div class="h-1/2 rounded-xs bg-theme-main/50"></div>
+                    <div class="h-3/4 rounded-xs bg-theme-main/60"></div>
+                    <div class="h-4/5 rounded-xs bg-theme-main/70"></div>
+                    <div class="h-1/4 rounded-xs bg-theme-soft/80"></div>
+                    <div class="h-1/3 rounded-xs bg-theme-soft/80"></div>
+                  </div>
+                </div>
+              `;
+            } else if (id.includes('Evolution') || id.includes('Radar') || id.includes('Anatomy')) {
+              return `
+                <div class="p-1 h-full flex items-center justify-center">
+                  <svg class="w-full h-full text-theme-main/50" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="5,35 25,20 45,28 65,12 85,18 95,5"/></svg>
+                </div>
+              `;
+            } else {
+              return `
+                <div class="p-1.5 h-full flex flex-col justify-between">
+                  <div class="h-2 w-1/2 rounded bg-theme-main/40"></div>
+                  <div class="space-y-1"><div class="h-2 rounded bg-theme-soft/60"></div><div class="h-2 rounded bg-theme-soft/60"></div></div>
+                </div>
+              `;
+            }
+          };
+
           const CATEGORIES = {
             all: 'Todos',
             agenda: 'Notas & Listas',
@@ -1055,73 +1196,7 @@ var GridEngine = {
                 const idealRows = def.idealRows || 8;
                 const boxHeight = Math.max(54, Math.min(165, Math.round(idealRows * 9.5))) + 'px';
                 const widthPercent = Math.min(100, Math.max(45, Math.round((colSpan / 12) * 100))) + '%';
-
-                let wireframeHtml = '';
-                if (id === 'topKpisWrapper') {
-                  wireframeHtml = `
-                    <div class="grid grid-cols-4 gap-1 p-1 h-full">
-                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
-                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
-                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
-                      <div class="h-full rounded bg-theme-soft/60 border border-theme/30 p-1 flex flex-col justify-between"><div class="h-1.5 w-4 rounded bg-theme-main/40"></div><div class="h-2 w-6 rounded bg-theme-main/70"></div></div>
-                    </div>
-                  `;
-                } else if (id === 'interactiveListsPanel') {
-                  wireframeHtml = `
-                    <div class="space-y-1.5 p-1.5 h-full flex flex-col justify-around">
-                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/50 flex-1"></div></div>
-                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/40 flex-1"></div></div>
-                      <div class="flex items-center gap-1.5"><div class="w-2.5 h-2.5 rounded border border-theme/60 bg-theme-soft"></div><div class="h-2 rounded bg-theme-main/30 flex-1"></div></div>
-                    </div>
-                  `;
-                } else if (id === 'notesMiniCalendarPanel') {
-                  wireframeHtml = `
-                    <div class="p-1.5 h-full flex flex-col justify-between gap-1">
-                      <div class="grid grid-cols-7 gap-0.5"><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-main/50"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div><div class="h-1.5 rounded-xs bg-theme-soft/80"></div></div>
-                      <div class="space-y-1"><div class="h-1.5 w-4/5 rounded bg-theme-main/40"></div><div class="h-1.5 w-3/5 rounded bg-theme-main/30"></div></div>
-                    </div>
-                  `;
-                } else if (id === 'todayFocusContainer') {
-                  wireframeHtml = `
-                    <div class="p-1 h-full grid grid-cols-12 gap-1">
-                      <div class="col-span-5 rounded bg-theme-soft/70 border border-theme/30 p-1 flex flex-col justify-between">
-                        <div class="flex items-center gap-1"><div class="w-1.5 h-1.5 rounded-full bg-theme-accent"></div><div class="h-1.5 w-3/4 rounded bg-theme-main/50"></div></div>
-                        <div class="space-y-0.5"><div class="h-1 rounded bg-theme-main/60 w-full"></div><div class="h-1 rounded bg-theme-soft/90 w-4/5"></div></div>
-                      </div>
-                      <div class="col-span-7 rounded bg-theme-soft/50 border border-theme/30 p-1 flex flex-col justify-between">
-                        <div class="grid grid-cols-7 gap-0.5"><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div><div class="h-1 rounded bg-theme-main/50"></div></div>
-                        <div class="space-y-0.5"><div class="h-1 rounded bg-theme-soft/80 w-full"></div><div class="h-1 rounded bg-theme-soft/80 w-full"></div></div>
-                      </div>
-                    </div>
-                  `;
-                } else if (id === 'tab3ExpensesTableCard' || id === 'tab3FixedExpensesCard') {
-                  wireframeHtml = `
-                    <div class="p-1.5 h-full flex flex-col justify-between gap-1">
-                      <div class="h-2 rounded bg-theme-main/30 border-b border-theme/40 w-full"></div>
-                      <div class="space-y-1 flex-1 flex flex-col justify-around"><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div><div class="h-1.5 rounded bg-theme-soft/60 w-full"></div></div>
-                    </div>
-                  `;
-                } else if (id === 'tab2ModularHabitsSection' || id === 'tab4CustomHabitsSection') {
-                  wireframeHtml = `
-                    <div class="p-1.5 h-full grid grid-cols-2 gap-1">
-                      <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
-                      <div class="rounded bg-theme-soft/60 border border-theme/20 p-1 flex flex-col justify-between"><div class="h-1.5 w-3/4 rounded bg-theme-main/40"></div><div class="h-1 w-full rounded bg-theme-main/60"></div></div>
-                    </div>
-                  `;
-                } else if (id.includes('Evolution') || id.includes('Radar') || id.includes('Anatomy')) {
-                  wireframeHtml = `
-                    <div class="p-1 h-full flex items-center justify-center">
-                      <svg class="w-full h-full text-theme-main/50" viewBox="0 0 100 40" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="5,35 25,20 45,28 65,12 85,18 95,5"/></svg>
-                    </div>
-                  `;
-                } else {
-                  wireframeHtml = `
-                    <div class="p-1.5 h-full flex flex-col justify-between">
-                      <div class="h-2 w-1/2 rounded bg-theme-main/40"></div>
-                      <div class="space-y-1"><div class="h-2 rounded bg-theme-soft/60"></div><div class="h-2 rounded bg-theme-soft/60"></div></div>
-                    </div>
-                  `;
-                }
+                const wireframeHtml = getWidgetWireframe(id);
 
                 return `
                   <div class="mini-card-item space-y-1" data-cat="${def.category || 'all'}" data-id="${id}">
@@ -1182,7 +1257,9 @@ var GridEngine = {
                             ${locBadge}
                           </div>
 
-                          <div class="mini-card-box panel-bg border border-theme/30 rounded-lg overflow-hidden shadow-xs relative pointer-events-none" data-widget-preview="${id}" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;"></div>
+                          <div class="mini-card-box panel-bg border border-theme/30 rounded-lg overflow-hidden shadow-xs relative pointer-events-none" data-widget-preview="${id}" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;">
+                            ${getWidgetWireframe(id)}
+                          </div>
 
                           <div class="flex items-center justify-between gap-1 pt-1">
                             <button type="button" onclick="app.locateWidgetOnBoard('${id}')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer flex items-center gap-1">
@@ -1202,11 +1279,18 @@ var GridEngine = {
             </div>
           `;
 
-          // Inyectar clon visual auténtico a escala reducida para cada cuadro disponible
+          // Inyectar clon visual auténtico a escala reducida si el cuadro está vivo y visible en el tablero
           drawer.querySelectorAll('[data-widget-preview]').forEach(box => {
             const wid = box.getAttribute('data-widget-preview');
             const realEl = document.getElementById(wid);
-            if (realEl) {
+            const isMountedAndVisible = realEl &&
+              !realEl.classList.contains('widget-parked-inert') &&
+              !realEl.classList.contains('hidden') &&
+              !realEl.closest('#widgetsPool') &&
+              !realEl.closest('.hidden') &&
+              realEl.offsetHeight > 40;
+
+            if (isMountedAndVisible) {
               const clone = realEl.cloneNode(true);
               clone.removeAttribute('id');
               clone.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));

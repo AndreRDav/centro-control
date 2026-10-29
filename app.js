@@ -3651,6 +3651,127 @@
         renderNotesMiniCalendar();
       }
 
+      // RENDERIZADO POLIMÓRFICO ADAPTATIVO DEL HORARIO SEMANAL
+      function renderScheduleGrid() {
+        const container = document.getElementById('scheduleDaysGrid');
+        if (!container) return;
+        const card = document.getElementById('tab2ScheduleSection');
+        const inSidebar = !!(card && card.closest('#sidebarWidgetsContainer'));
+        const inDock = !!(card && card.closest('#dockRightSidebar'));
+        const cols = card ? parseInt(card.getAttribute('data-cols') || '12', 10) : 12;
+        const isNarrow = inSidebar || inDock || (cols <= 4) || (window.innerWidth < 1024);
+
+        if (isNarrow) {
+          container.className = 'flex flex-col gap-2.5 w-full text-xs';
+          let selDay = (typeof state.ui?.selectedScheduleDay === 'number')
+            ? state.ui.selectedScheduleDay
+            : ((new Date().getDay() + 6) % 7);
+          if (selDay < 0 || selDay > 6) selDay = 0;
+
+          const shortDays = ['L', 'M', 'X', 'J', 'V', 'S', 'D'];
+          const dayClasses = (state.scheduleTemplate && state.scheduleTemplate[selDay]) || [];
+
+          let pillsHtml = `
+            <div class="flex items-center justify-between gap-1 p-1 rounded-xl subpanel-bg border border-theme/30 mb-1 w-full">
+              ${shortDays.map((sd, dIdx) => {
+                const isAct = (dIdx === selDay);
+                const count = ((state.scheduleTemplate && state.scheduleTemplate[dIdx]) || []).length;
+                return `
+                  <button type="button" onclick="app.selectScheduleDay(${dIdx})" class="flex-1 py-1 rounded-lg text-center font-bold text-[11px] transition cursor-pointer relative ${isAct ? 'bg-theme-main text-white shadow-xs' : 'text-stone-600 dark:text-slate-300 hover:text-theme-main hover:bg-theme-soft/50'}" title="${DAY_FULL[dIdx]} (${count} clases)">
+                    <span>${sd}</span>
+                    ${count > 0 ? `<span class="w-1.5 h-1.5 rounded-full absolute bottom-0.5 left-1/2 -translate-x-1/2 ${isAct ? 'bg-white' : 'bg-theme-main'}"></span>` : ''}
+                  </button>
+                `;
+              }).join('')}
+            </div>
+          `;
+
+          let contentHtml = `
+            <div class="p-2.5 rounded-xl subpanel-bg border border-theme/40 space-y-2.5 w-full">
+              <div class="flex items-center justify-between border-b border-theme/30 pb-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-extrabold text-sm text-theme-main font-serif truncate">${DAY_FULL[selDay]}</span>
+                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono shrink-0">(${dayClasses.length} ${dayClasses.length === 1 ? 'clase' : 'clases'})</span>
+                </div>
+                <button type="button" onclick="app.openAddClassScheduleModal(${selDay})" class="px-2.5 py-1 rounded-lg bg-theme-main hover:opacity-90 text-white font-bold text-xs border border-theme shadow-xs active:translate-y-0.5 transition flex items-center gap-1 cursor-pointer shrink-0">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                  <span>Clase</span>
+                </button>
+              </div>
+
+              <div class="space-y-1.5 min-h-[90px]">
+                ${dayClasses.length === 0 ? `<div class="text-stone-500 dark:text-slate-400 text-xs py-6 text-center italic">— Sin clases asignadas para el ${DAY_FULL[selDay]} —</div>` : ''}
+                ${dayClasses.map((c, cIdx) => `
+                  <div data-class-id="${selDay}_${cIdx}" oncontextmenu="app.openClassActionsMenu(event, ${selDay}, ${cIdx}); return false;" class="p-2 rounded-xl panel-bg border border-theme/30 text-xs space-y-1 min-w-0 transition hover:border-theme/70 shadow-2xs">
+                    <div class="flex items-center justify-between gap-1.5 min-w-0">
+                      <div class="min-w-0 flex-1 cursor-pointer hover:text-theme-main transition-colors flex items-center gap-1.5" onclick="app.openEditClassScheduleModal(${selDay}, ${cIdx})" title="Editar clase: ${escapeHtml(c.subject)}">
+                        <span class="font-bold text-stone-900 dark:text-white truncate flex-1 min-w-0">${escapeHtml(c.subject)}</span>
+                        <span class="text-[9.5px] px-1.5 py-0.5 rounded font-mono font-bold shrink-0 ${c.type === 'P' ? 'bg-theme-accent-soft text-theme-accent border border-theme-accent/30' : (c.type === 'G' ? 'bg-theme-accent text-white' : 'bg-theme-soft text-theme-main border border-theme')}">[${c.type || 'T'}]</span>
+                      </div>
+                      <div class="flex items-center gap-0.5 shrink-0">
+                        <button type="button" onclick="app.openEditClassScheduleModal(${selDay}, ${cIdx})" class="text-stone-400 hover:text-theme-main p-1 transition" title="Editar clase">
+                          <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                        </button>
+                        <button type="button" onclick="app.deleteClassFromSchedule(${selDay}, ${cIdx})" class="text-stone-400 hover:text-theme-accent font-bold p-1 text-xs transition" title="Eliminar clase">✕</button>
+                        <button type="button" onclick="app.openClassActionsMenu(event, ${selDay}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${selDay}, ${cIdx}); return false;" class="text-stone-400 hover:text-stone-900 dark:hover:text-white p-1 font-bold text-xs" title="Más opciones">•••</button>
+                      </div>
+                    </div>
+                    ${c.time ? `
+                      <div class="flex items-center gap-1 text-[10px] text-stone-500 dark:text-slate-400 font-mono">
+                        <svg class="w-3 h-3 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                        <span class="truncate">${escapeHtml(c.time)}</span>
+                      </div>
+                    ` : ''}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+
+          container.innerHTML = pillsHtml + contentHtml;
+        } else {
+          // Modo Amplio: cuadrícula de 7 columnas
+          container.className = 'grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-7 gap-2.5 text-xs';
+          container.innerHTML = DAYS.map((d, dIdx) => {
+            const classes = (state.scheduleTemplate && state.scheduleTemplate[dIdx]) || [];
+            return `
+              <div class="p-2.5 rounded-xl subpanel-bg border space-y-2 ${dIdx === 6 ? 'col-span-2 sm:col-span-1' : ''}">
+                <div class="flex justify-between items-center border-b pb-1">
+                  <span class="font-extrabold text-theme-main">${d}</span>
+                  <button onclick="app.openAddClassScheduleModal(${dIdx})" class="px-2 py-0.5 rounded-lg bg-theme-main hover:opacity-90 text-white font-bold text-[10px] border border-theme/60 active:translate-y-0.5 transition">+ Clase</button>
+                </div>
+                <div class="space-y-1.5 min-h-[90px]">
+                  ${classes.length === 0 ? `<div class="text-slate-500 text-[10px] py-4 text-center">— Libre —</div>` : ''}
+                  ${classes.map((c, cIdx) => `
+                    <div data-class-id="${dIdx}_${cIdx}" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0 cursor-pointer">
+                      <div class="flex items-center justify-between gap-1 min-w-0">
+                        <div class="min-w-0 flex-1 cursor-pointer hover:text-theme-main transition-colors flex items-center gap-1.5" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" title="Editar clase: ${escapeHtml(c.subject)}">
+                          <span class="font-bold text-stone-900 dark:text-white truncate flex-1 min-w-0" title="${escapeHtml(c.subject)}">${escapeHtml(c.subject)}</span>
+                          <span class="text-[9px] px-1 py-0.2 rounded font-mono font-bold shrink-0 ${c.type === 'P' ? 'bg-theme-accent-soft text-theme-accent border border-theme-accent/30' : (c.type === 'G' ? 'bg-theme-accent text-white' : 'bg-theme-soft text-theme-main border border-theme')}">[${c.type || 'T'}]</span>
+                        </div>
+                        <div class="flex items-center gap-0.5 shrink-0">
+                          <button onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-main p-0.5 transition" title="Editar clase">
+                            <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                          </button>
+                          <button onclick="app.deleteClassFromSchedule(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-accent font-bold px-0.5 text-xs" title="Eliminar clase">✕</button>
+                          <button type="button" onclick="app.openClassActionsMenu(event, ${dIdx}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="text-slate-400 hover:text-stone-900 dark:hover:text-white p-0.5 font-bold text-xs" title="Más opciones">•••</button>
+                        </div>
+                      </div>
+                      ${c.time ? `
+                        <div class="flex items-center gap-1 text-[9.5px] text-stone-500 dark:text-slate-400 font-mono">
+                          <svg class="w-2.5 h-2.5 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+                          <span class="truncate">${escapeHtml(c.time)}</span>
+                        </div>
+                      ` : ''}
+                    </div>
+                  `).join('')}
+                </div>
+              </div>
+            `;
+          }).join('');
+        }
+      }
+
       // RENDER PESTAÑA 2: METAS Y HORARIO
       function renderTab2() {
         const w = getActiveWeek();
@@ -3710,66 +3831,40 @@
           ` : '');
         }
 
-        document.getElementById('goalGymInput').value = g.gymSessions;
-        document.getElementById('goalRunKmInput').value = g.runKm;
-        document.getElementById('goalNutriPhase').value = g.nutri?.phase || 'volumen';
+        const gymEl = document.getElementById('goalGymInput');
+        if (gymEl) gymEl.value = g.gymSessions || 4;
+        const runEl = document.getElementById('goalRunKmInput');
+        if (runEl) runEl.value = g.runKm || 15;
+        const nutriPhaseEl = document.getElementById('goalNutriPhase');
+        if (nutriPhaseEl) nutriPhaseEl.value = g.nutri?.phase || 'volumen';
         const kcalEl = document.getElementById('goalNutriKcal');
         if (kcalEl) kcalEl.value = g.nutri?.kcal || 2800;
         const marginEl = document.getElementById('goalNutriMargin');
         if (marginEl) marginEl.value = g.nutri?.margin || 150;
-        document.getElementById('goalNutriDays').value = g.nutri?.minDays || 6;
-        document.getElementById('goalAttPercentInput').value = g.academic?.attMinPercent || 85;
+        const nutriDaysEl = document.getElementById('goalNutriDays');
+        if (nutriDaysEl) nutriDaysEl.value = g.nutri?.minDays || 6;
+        const attPercentEl = document.getElementById('goalAttPercentInput');
+        if (attPercentEl) attPercentEl.value = g.academic?.attMinPercent || 85;
 
         // Horas estudio inputs
-        document.getElementById('studyPlanInputsGrid').innerHTML = DAYS.map((d, i) => `
-          <div class="space-y-1 text-center">
-            <span class="text-[10px] text-slate-400 font-bold">${d}</span>
-            <input type="number" step="0.5" value="${w.studyHoursPlan[i] || 0}" onchange="app.setStudyPlanDay(${i}, this.value)" class="w-full input-bg border rounded-lg py-1 text-center font-mono font-bold text-xs" />
-          </div>
-        `).join('');
-
-        // Grid Horario Lunes a Domingo
-        document.getElementById('scheduleDaysGrid').innerHTML = DAYS.map((d, dIdx) => {
-          const classes = state.scheduleTemplate[dIdx] || [];
-          return `
-            <div class="p-2.5 rounded-xl subpanel-bg border space-y-2 ${dIdx === 6 ? 'col-span-2 sm:col-span-1' : ''}">
-              <div class="flex justify-between items-center border-b pb-1">
-                <span class="font-extrabold text-theme-main">${d}</span>
-                <button onclick="app.openAddClassScheduleModal(${dIdx})" class="px-2 py-0.5 rounded-lg bg-theme-main hover:opacity-90 text-white font-bold text-[10px] border border-theme/60 active:translate-y-0.5 transition">+ Clase</button>
-              </div>
-              <div class="space-y-1.5 min-h-[90px]">
-                ${classes.length === 0 ? `<div class="text-slate-500 text-[10px] py-4 text-center">— Libre —</div>` : ''}
-                ${classes.map((c, cIdx) => `
-                  <div data-class-id="${dIdx}_${cIdx}" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0 cursor-pointer">
-                    <div class="flex items-center justify-between gap-1 min-w-0">
-                      <div class="min-w-0 flex-1 cursor-pointer hover:text-theme-main transition-colors flex items-center gap-1.5" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" title="Editar clase: ${c.subject}">
-                        <span class="font-bold text-stone-900 dark:text-white truncate flex-1 min-w-0" title="${c.subject}">${c.subject}</span>
-                        <span class="text-[9px] px-1 py-0.2 rounded font-mono font-bold shrink-0 ${c.type === 'P' ? 'bg-theme-accent-soft text-theme-accent border border-theme-accent/30' : (c.type === 'G' ? 'bg-theme-accent text-white' : 'bg-theme-soft text-theme-main border border-theme')}">[${c.type || 'T'}]</span>
-                      </div>
-                      <div class="flex items-center gap-0.5 shrink-0">
-                        <button onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-main p-0.5 transition" title="Editar clase">
-                          <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                        </button>
-                        <button onclick="app.deleteClassFromSchedule(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-accent font-bold px-0.5 text-xs" title="Eliminar clase">✕</button>
-                        <button type="button" onclick="app.openClassActionsMenu(event, ${dIdx}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="text-slate-400 hover:text-stone-900 dark:hover:text-white p-0.5 font-bold text-xs" title="Más opciones">•••</button>
-                      </div>
-                    </div>
-                    ${c.time ? `
-                      <div class="flex items-center gap-1 text-[9.5px] text-stone-500 dark:text-slate-400 font-mono">
-                        <svg class="w-2.5 h-2.5 shrink-0 opacity-70" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
-                        <span class="truncate">${c.time}</span>
-                      </div>
-                    ` : ''}
-                  </div>
-                `).join('')}
-              </div>
+        const studyPlanGrid = document.getElementById('studyPlanInputsGrid');
+        if (studyPlanGrid) {
+          studyPlanGrid.innerHTML = DAYS.map((d, i) => `
+            <div class="space-y-1 text-center">
+              <span class="text-[10px] text-slate-400 font-bold">${d}</span>
+              <input type="number" step="0.5" value="${(w.studyHoursPlan && w.studyHoursPlan[i]) || 0}" onchange="app.setStudyPlanDay(${i}, this.value)" class="w-full input-bg border rounded-lg py-1 text-center font-mono font-bold text-xs" />
             </div>
-          `;
-        }).join('');
+          `).join('');
+        }
+
+        // Renderizado adaptativo del horario semanal
+        renderScheduleGrid();
 
         // Colchón de Faltas con Semáforo de Riesgo
-        const subjects = Object.keys(state.subjectRules);
+        const subjects = Object.keys(state.subjectRules || {});
         const container = document.getElementById('subjectRulesCardsGrid');
+        if (!container) return;
+
         if (subjects.length === 0) {
           container.innerHTML = `
             <div class="col-span-full p-6 text-center text-slate-400 subpanel-bg rounded-xl border border-dashed border-slate-700">
@@ -4595,17 +4690,24 @@
         const w = getActiveWeek();
         const s = state.financeSettings;
 
-        document.getElementById('finModeManualBtn').className = s.mode === 'manual' ? 'px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs' : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition';
-        document.getElementById('finModeAutoBtn').className = s.mode === 'auto' ? 'px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs' : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition';
+        const finManBtn = document.getElementById('finModeManualBtn');
+        if (finManBtn) finManBtn.className = s.mode === 'manual' ? 'px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs' : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition';
+        const finAutoBtn = document.getElementById('finModeAutoBtn');
+        if (finAutoBtn) finAutoBtn.className = s.mode === 'auto' ? 'px-2.5 py-1 rounded-lg font-bold bg-theme-main text-white shadow-xs' : 'px-2.5 py-1 rounded-lg font-bold text-slate-400 hover:text-white transition';
 
-        document.getElementById('tab3ManualBudgetInput').value = s.manualBudget;
-        document.getElementById('tab3MonthlyIncome').value = s.monthlyIncome;
-        document.getElementById('tab3MonthlySavings').value = s.monthlySavingsGoal;
-        document.getElementById('tab3AntThreshold').value = s.antThreshold;
+        const manBudInp = document.getElementById('tab3ManualBudgetInput');
+        if (manBudInp) manBudInp.value = s.manualBudget;
+        const monIncInp = document.getElementById('tab3MonthlyIncome');
+        if (monIncInp) monIncInp.value = s.monthlyIncome;
+        const monSavInp = document.getElementById('tab3MonthlySavings');
+        if (monSavInp) monSavInp.value = s.monthlySavingsGoal;
+        const antThInp = document.getElementById('tab3AntThreshold');
+        if (antThInp) antThInp.value = s.antThreshold;
 
         // Saldo, Meta Mensual de Ahorro y Evolución de Fondo (Hucha)
         const piggyBal = Number(state.piggyBank.balance) || 0;
-        document.getElementById('tab3PiggyBalanceDisplay').textContent = `${piggyBal.toFixed(2)} €`;
+        const piggyBalDisplay = document.getElementById('tab3PiggyBalanceDisplay');
+        if (piggyBalDisplay) piggyBalDisplay.textContent = `${piggyBal.toFixed(2)} €`;
 
         const savingsGoal = Number(s.monthlySavingsGoal) || 100;
         const now = new Date();
@@ -4698,73 +4800,87 @@
         }
 
         const fixedTotal = state.monthlyFixedItems.reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
-        document.getElementById('tab3FixedTotalDisplay').textContent = `${fixedTotal.toFixed(2)} €`;
+        const fixedTotalDisplay = document.getElementById('tab3FixedTotalDisplay');
+        if (fixedTotalDisplay) fixedTotalDisplay.textContent = `${fixedTotal.toFixed(2)} €`;
 
         // Gastos Semanales (Líneas Editoriales Hairline)
         const totalSpend = (w.expenses || []).reduce((acc, it) => acc + (Number(it.amount) || 0), 0);
-        document.getElementById('tab3WeekTotalSpend').textContent = `Total Gastado: ${totalSpend.toFixed(2)} € de ${Number(w.budgetLimit).toFixed(2)} €`;
+        const weekTotalSpend = document.getElementById('tab3WeekTotalSpend');
+        if (weekTotalSpend) weekTotalSpend.textContent = `Total Gastado: ${totalSpend.toFixed(2)} € de ${Number(w.budgetLimit).toFixed(2)} €`;
 
         const expContainer = document.getElementById('tab3ExpensesTableContainer');
-        if (w.expenses.length === 0) {
-          expContainer.innerHTML = `<span class="text-stone-400 dark:text-slate-500 text-center block py-4 text-xs italic">No hay gastos en esta semana.</span>`;
-        } else {
-          expContainer.innerHTML = [...w.expenses].reverse().map(e => {
-            const emoji = (e.category || '📦').split(' ')[0] || '📦';
-            return `
-              <div data-expense-id="${e.id}" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer">
-                <div class="flex items-center gap-2 truncate">
-                  <span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-cyan-300 border border-stone-300 dark:border-slate-700 shrink-0">${DAYS[e.dayIndex] || 'LUN'}</span>
-                  <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
-                  <span class="font-bold text-slate-100 dark:text-white truncate">${e.concept}</span>
-                  <span class="text-[10px] text-stone-400 dark:text-slate-400 truncate hidden sm:inline">${(e.category || '').replace(/^[^\s]+\s*/, '')}</span>
-                </div>
-                <div class="flex items-center gap-2.5 shrink-0">
-                  <span class="font-mono font-extrabold text-emerald-500 dark:text-emerald-400">${Number(e.amount).toFixed(2)} €</span>
-                  <div class="hairline-actions flex items-center gap-1">
-                    <button onclick="app.openEditExpenseModal('${e.id}')" class="p-1 rounded text-stone-400 hover:text-cyan-400 transition" title="Editar gasto">
-                      <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                    </button>
-                    <button onclick="app.deleteExpense('${e.id}')" class="p-1 rounded text-stone-400 hover:text-rose-400 transition" title="Eliminar gasto">✕</button>
-                    <button type="button" onclick="app.openExpenseActionsMenu(event, '${e.id}')" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+        if (expContainer) {
+          if (w.expenses.length === 0) {
+            expContainer.innerHTML = `<span class="text-stone-400 dark:text-slate-500 text-center block py-4 text-xs italic">No hay gastos en esta semana.</span>`;
+          } else {
+            expContainer.innerHTML = [...w.expenses].reverse().map(e => {
+              const emoji = (e.category || '📦').split(' ')[0] || '📦';
+              return `
+                <div data-expense-id="${e.id}" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer">
+                  <div class="flex items-center gap-2 truncate">
+                    <span class="px-1.5 py-0.5 rounded font-mono font-bold text-[10px] bg-stone-200 dark:bg-slate-800 text-stone-700 dark:text-cyan-300 border border-stone-300 dark:border-slate-700 shrink-0">${DAYS[e.dayIndex] || 'LUN'}</span>
+                    <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
+                    <span class="font-bold text-slate-100 dark:text-white truncate">${escapeHtml(e.concept)}</span>
+                    <span class="text-[10px] text-stone-400 dark:text-slate-400 truncate hidden sm:inline">${escapeHtml((e.category || '').replace(/^[^\s]+\s*/, ''))}</span>
+                  </div>
+                  <div class="flex items-center gap-2.5 shrink-0">
+                    <span class="font-mono font-extrabold text-emerald-500 dark:text-emerald-400">${Number(e.amount).toFixed(2)} €</span>
+                    <div class="hairline-actions flex items-center gap-1">
+                      <button onclick="app.openEditExpenseModal('${e.id}')" class="p-1 rounded text-stone-400 hover:text-cyan-400 transition" title="Editar gasto">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                      </button>
+                      <button onclick="app.deleteExpense('${e.id}')" class="p-1 rounded text-stone-400 hover:text-rose-400 transition" title="Eliminar gasto">✕</button>
+                      <button type="button" onclick="app.openExpenseActionsMenu(event, '${e.id}')" oncontextmenu="app.openExpenseActionsMenu(event, '${e.id}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+                    </div>
                   </div>
                 </div>
-              </div>
-            `;
-          }).join('');
+              `;
+            }).join('');
+          }
         }
 
         // Formulario inline categorías y sugerencias frecuentes en Pestaña 3
         const inlineCat = document.getElementById('tab3InlineCategory');
-        inlineCat.innerHTML = (state.financeSettings.customCategories || []).map(c => `<option value="${c.emoji} ${c.name}">${c.emoji} ${c.name}</option>`).join('');
+        if (inlineCat) {
+          inlineCat.innerHTML = (state.financeSettings.customCategories || []).map(c => `<option value="${c.emoji} ${c.name}">${c.emoji} ${c.name}</option>`).join('');
+        }
 
-        app.renderTab3ConceptChips(document.getElementById('tab3InlineConcept')?.value || '');
+        if (typeof app.renderTab3ConceptChips === 'function') {
+          app.renderTab3ConceptChips(document.getElementById('tab3InlineConcept')?.value || '');
+        }
 
         // Gráfica de Distribución de Gastos Diarios por Categoría (Lunes a Domingo)
-        renderDailyExpenseChart(w, totalSpend);
+        if (typeof renderDailyExpenseChart === 'function') {
+          renderDailyExpenseChart(w, totalSpend);
+        }
 
         // Analítica Gastos Hormiga por Categoría y Concepto
         const antTh = Number(s.antThreshold) || 5.0;
-        const antExpenses = w.expenses.filter(e => Number(e.amount) <= antTh);
+        const antExpenses = (w.expenses || []).filter(e => Number(e.amount) <= antTh);
         const antSum = antExpenses.reduce((a, b) => a + Number(b.amount), 0);
-        document.getElementById('tab3AntPercentageBadge').textContent = `${antSum.toFixed(2)} € (${totalSpend > 0 ? ((antSum/totalSpend)*100).toFixed(1) : 0}% del gasto)`;
+        const antBadge = document.getElementById('tab3AntPercentageBadge');
+        if (antBadge) antBadge.textContent = `${antSum.toFixed(2)} € (${totalSpend > 0 ? ((antSum/totalSpend)*100).toFixed(1) : 0}% del gasto)`;
 
-        document.getElementById('tab3AntSummaryCards').innerHTML = `
-          <div class="p-3 rounded-xl subpanel-bg border">
-            <span class="text-stone-500 dark:text-slate-400 text-[11px]">Micro-pagos Hormiga:</span>
-            <div class="text-xl font-extrabold font-mono text-stone-900 dark:text-white">${antExpenses.length} <span class="text-xs text-stone-500 dark:text-slate-400 font-normal">de ${w.expenses.length} compras</span></div>
-            <div class="text-[10px] text-theme-main font-semibold">${((antExpenses.length / (w.expenses.length || 1)) * 100).toFixed(0)}% del volumen total</div>
-          </div>
-          <div class="p-3 rounded-xl subpanel-bg border">
-            <span class="text-stone-500 dark:text-slate-400 text-[11px]">Impacto Económico:</span>
-            <div class="text-xl font-extrabold text-theme-accent font-mono">${antSum.toFixed(2)} €</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">${((antSum / (w.budgetLimit || 1)) * 100).toFixed(1)}% del tope semanal</div>
-          </div>
-          <div class="col-span-2 sm:col-span-1 p-3 rounded-xl subpanel-bg border">
-            <span class="text-stone-500 dark:text-slate-400 text-[11px]">Ticket Promedio Hormiga:</span>
-            <div class="text-xl font-extrabold text-theme-main font-mono">${antExpenses.length > 0 ? (antSum / antExpenses.length).toFixed(2) : '0.00'} €</div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400">Media por micro-compra</div>
-          </div>
-        `;
+        const antCards = document.getElementById('tab3AntSummaryCards');
+        if (antCards) {
+          antCards.innerHTML = `
+            <div class="p-3 rounded-xl subpanel-bg border">
+              <span class="text-stone-500 dark:text-slate-400 text-[11px]">Micro-pagos Hormiga:</span>
+              <div class="text-xl font-extrabold font-mono text-stone-900 dark:text-white">${antExpenses.length} <span class="text-xs text-stone-500 dark:text-slate-400 font-normal">de ${(w.expenses || []).length} compras</span></div>
+              <div class="text-[10px] text-theme-main font-semibold">${((antExpenses.length / ((w.expenses && w.expenses.length) || 1)) * 100).toFixed(0)}% del volumen total</div>
+            </div>
+            <div class="p-3 rounded-xl subpanel-bg border">
+              <span class="text-stone-500 dark:text-slate-400 text-[11px]">Impacto Económico:</span>
+              <div class="text-xl font-extrabold text-theme-accent font-mono">${antSum.toFixed(2)} €</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">${((antSum / (w.budgetLimit || 1)) * 100).toFixed(1)}% del tope semanal</div>
+            </div>
+            <div class="col-span-2 sm:col-span-1 p-3 rounded-xl subpanel-bg border">
+              <span class="text-stone-500 dark:text-slate-400 text-[11px]">Ticket Promedio Hormiga:</span>
+              <div class="text-xl font-extrabold text-theme-main font-mono">${antExpenses.length > 0 ? (antSum / antExpenses.length).toFixed(2) : '0.00'} €</div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400">Media por micro-compra</div>
+            </div>
+          `;
+        }
 
         // 1. Fuga de Dinero por Categoría
         const catMap = {};
@@ -4776,48 +4892,54 @@
         });
 
         const sortedCats = Object.entries(catMap).sort((a, b) => b[1].sum - a[1].sum);
-        document.getElementById('tab3AntCategoryBreakdown').innerHTML = sortedCats.length === 0 ? `<span class="text-slate-400 text-xs">Sin micro-gastos registrados.</span>` : sortedCats.map(([cat, info]) => {
-          const pct = antSum > 0 ? (info.sum / antSum) * 100 : 0;
-          return `
-            <div class="p-2 rounded-xl subpanel-bg border space-y-1">
-              <div class="flex justify-between items-center text-xs">
-                <span class="font-bold text-stone-900 dark:text-white">${cat}</span>
-                <span class="font-mono font-extrabold text-theme-accent">${info.sum.toFixed(2)} € (${pct.toFixed(0)}%)</span>
+        const antCategoryEl = document.getElementById('tab3AntCategoryBreakdown');
+        if (antCategoryEl) {
+          antCategoryEl.innerHTML = sortedCats.length === 0 ? `<span class="text-slate-400 text-xs">Sin micro-gastos registrados.</span>` : sortedCats.map(([cat, info]) => {
+            const pct = antSum > 0 ? (info.sum / antSum) * 100 : 0;
+            return `
+              <div class="p-2 rounded-xl subpanel-bg border space-y-1">
+                <div class="flex justify-between items-center text-xs">
+                  <span class="font-bold text-stone-900 dark:text-white">${cat}</span>
+                  <span class="font-mono font-extrabold text-theme-accent">${info.sum.toFixed(2)} € (${pct.toFixed(0)}%)</span>
+                </div>
+                <div class="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
+                  <div style="width: ${pct}%" class="h-full bg-theme-accent rounded-full"></div>
+                </div>
               </div>
-              <div class="h-2 w-full bg-slate-900 rounded-full overflow-hidden border border-slate-800">
-                <div style="width: ${pct}%" class="h-full bg-theme-accent rounded-full"></div>
-              </div>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
 
         // 2. Ranking de Conceptos con Insignia de Categoría (Líneas Editoriales Hairline con botón ↗)
         const conceptRanking = {};
         antExpenses.forEach(e => {
-          const key = e.concept.trim().toLowerCase();
+          const key = (e.concept || '').trim().toLowerCase();
           if (!conceptRanking[key]) conceptRanking[key] = { label: e.concept, category: e.category, count: 0, sum: 0 };
           conceptRanking[key].count++;
           conceptRanking[key].sum += Number(e.amount);
         });
 
         const sortedRanking = Object.values(conceptRanking).sort((a, b) => b.sum - a.sum);
-        document.getElementById('tab3AntRanking').innerHTML = sortedRanking.length === 0 ? `<span class="text-stone-400 dark:text-slate-500 text-xs py-2 block italic">No hay micro-gastos registrados.</span>` : sortedRanking.map((item, idx) => {
-          const emoji = (item.category || '📦').split(' ')[0] || '📦';
-          return `
-            <div class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer" oncontextmenu="app.toggleFixedPaid('${item.id}'); return false;">
-              <div class="flex items-center gap-2.5 truncate">
-                <span class="catalog-idx w-5">${String(idx + 1).padStart(2, '0')}</span>
-                <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
-                <span class="font-bold text-slate-100 dark:text-white truncate">${item.label}</span>
-                <span class="px-1.5 py-0.2 rounded font-mono text-[9px] bg-stone-200 dark:bg-slate-800 text-cyan-700 dark:text-cyan-300 font-bold border border-stone-300 dark:border-slate-700 shrink-0">x${item.count}</span>
+        const antRankingEl = document.getElementById('tab3AntRanking');
+        if (antRankingEl) {
+          antRankingEl.innerHTML = sortedRanking.length === 0 ? `<span class="text-stone-400 dark:text-slate-500 text-xs py-2 block italic">No hay micro-gastos registrados.</span>` : sortedRanking.map((item, idx) => {
+            const emoji = (item.category || '📦').split(' ')[0] || '📦';
+            return `
+              <div class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer" oncontextmenu="app.toggleFixedPaid('${item.id}'); return false;">
+                <div class="flex items-center gap-2.5 truncate">
+                  <span class="catalog-idx w-5">${String(idx + 1).padStart(2, '0')}</span>
+                  <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
+                  <span class="font-bold text-slate-100 dark:text-white truncate">${escapeHtml(item.label)}</span>
+                  <span class="px-1.5 py-0.2 rounded font-mono text-[9px] bg-stone-200 dark:bg-slate-800 text-cyan-700 dark:text-cyan-300 font-bold border border-stone-300 dark:border-slate-700 shrink-0">x${item.count}</span>
+                </div>
+                <div class="flex items-center gap-3 shrink-0">
+                  <span class="font-mono font-bold text-rose-500 dark:text-rose-400">${item.sum.toFixed(2)} €</span>
+                  <button type="button" onclick="app.fillTab3Concept('${item.label.replace(/'/g, "\\'")}')" class="w-6 h-6 rounded-full subpanel-bg border border-stone-300 dark:border-slate-700 hover:border-cyan-400 text-stone-400 hover:text-cyan-400 flex items-center justify-center font-bold text-xs transition" title="Registrar otro gasto de este concepto">↗</button>
+                </div>
               </div>
-              <div class="flex items-center gap-3 shrink-0">
-                <span class="font-mono font-bold text-rose-500 dark:text-rose-400">${item.sum.toFixed(2)} €</span>
-                <button type="button" onclick="app.fillTab3Concept('${item.label.replace(/'/g, "\\'")}')" class="w-6 h-6 rounded-full subpanel-bg border border-stone-300 dark:border-slate-700 hover:border-cyan-400 text-stone-400 hover:text-cyan-400 flex items-center justify-center font-bold text-xs transition" title="Registrar otro gasto de este concepto">↗</button>
-              </div>
-            </div>
-          `;
-        }).join('');
+            `;
+          }).join('');
+        }
 
         // Metas de Ahorro Individuales
         renderSavingsGoals();
@@ -5229,11 +5351,20 @@
       // RENDER PESTAÑA 4: ESTADÍSTICAS Y LAB
       function renderTab4() {
         const isWeek = state.ui.labScope === 'week';
-        document.getElementById('labScopeWeekBtn').className = isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
-        document.getElementById('labScopeHistBtn').className = !isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
+        const labWeekBtn = document.getElementById('labScopeWeekBtn');
+        if (labWeekBtn) {
+          labWeekBtn.className = isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
+        }
+        const labHistBtn = document.getElementById('labScopeHistBtn');
+        if (labHistBtn) {
+          labHistBtn.className = !isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
+        }
 
         // Siluetas Anatómicas Detalladas
-        document.getElementById('anatomySvgContainer').innerHTML = renderSvgAnatomy();
+        const anatomyBox = document.getElementById('anatomySvgContainer');
+        if (anatomyBox) {
+          anatomyBox.innerHTML = renderSvgAnatomy();
+        }
 
         // Estadísticas y Registro de Estudio por Asignatura
         renderTab4StudySubjects(isWeek);
@@ -5285,31 +5416,36 @@
         });
 
         // Radar Chart Tri-Sistema
-        document.getElementById('runningRadarSvgContainer').innerHTML = renderTriSystemRadar(seriesCount, rodajeCount, tiradaCount, totalKm);
+        const radarBox = document.getElementById('runningRadarSvgContainer');
+        if (radarBox) {
+          radarBox.innerHTML = renderTriSystemRadar(seriesCount, rodajeCount, tiradaCount, totalKm);
+        }
 
         // Diagnóstico Fisiológico en vivo
         const diagBox = document.getElementById('runningDiagnosisBox');
-        if (totalKm === 0) {
-          diagBox.innerHTML = `<span class="text-slate-400">Sin sesiones de carrera en este periodo.</span>`;
-        } else {
-          let diagText = 'Balance aeróbico óptimo con base sólida.';
-          let diagColor = 'text-theme-main';
-          if (seriesCount > rodajeCount && seriesCount > 0) {
-            diagText = 'Alta carga anaeróbica (VO2 Max). Se aconseja meter más rodaje suave para regenerar.';
-            diagColor = 'text-theme-accent';
-          } else if (tiradaCount > 0 && totalKm >= 20) {
-            diagText = 'Excelente fondo muscular. Gran adaptación a esfuerzos prolongados.';
-            diagColor = 'text-theme-main';
+        if (diagBox) {
+          if (totalKm === 0) {
+            diagBox.innerHTML = `<span class="text-slate-400">Sin sesiones de carrera en este periodo.</span>`;
+          } else {
+            let diagText = 'Balance aeróbico óptimo con base sólida.';
+            let diagColor = 'text-theme-main';
+            if (seriesCount > rodajeCount && seriesCount > 0) {
+              diagText = 'Alta carga anaeróbica (VO2 Max). Se aconseja meter más rodaje suave para regenerar.';
+              diagColor = 'text-theme-accent';
+            } else if (tiradaCount > 0 && totalKm >= 20) {
+              diagText = 'Excelente fondo muscular. Gran adaptación a esfuerzos prolongados.';
+              diagColor = 'text-theme-main';
+            }
+            diagBox.innerHTML = `
+              <div class="font-bold ${diagColor} flex items-center gap-1.5">
+                <svg class="w-3.5 h-3.5 ${diagColor} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  ${seriesCount > rodajeCount && seriesCount > 0 ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<polyline points="20 6 9 17 4 12"/>'}
+                </svg>
+                <span>${diagText}</span>
+              </div>
+              <div class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${seriesCount} ses. series • ${rodajeCount} rodajes • ${tiradaCount} tiradas largas</div>
+            `;
           }
-          diagBox.innerHTML = `
-            <div class="font-bold ${diagColor} flex items-center gap-1.5">
-              <svg class="w-3.5 h-3.5 ${diagColor} shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                ${seriesCount > rodajeCount && seriesCount > 0 ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<polyline points="20 6 9 17 4 12"/>'}
-              </svg>
-              <span>${diagText}</span>
-            </div>
-            <div class="text-[10px] text-stone-500 dark:text-slate-400 font-mono">${seriesCount} ses. series • ${rodajeCount} rodajes • ${tiradaCount} tiradas largas</div>
-          `;
         }
 
         // Pista de atletismo
@@ -5317,8 +5453,14 @@
         const curMetrics = calculateWeekMetrics(curWk);
         const curKm = curMetrics.runKmReal;
         const goalKm = curWk.goals.runKm || 15;
-        document.getElementById('trackDistanceBadge').textContent = `${curKm.toFixed(1)} / ${goalKm.toFixed(1)} km`;
-        document.getElementById('runningTrackSvgContainer').innerHTML = renderSvgTrack(curKm, goalKm);
+        const trackBadge = document.getElementById('trackDistanceBadge');
+        if (trackBadge) {
+          trackBadge.textContent = `${curKm.toFixed(1)} / ${goalKm.toFixed(1)} km`;
+        }
+        const trackBox = document.getElementById('runningTrackSvgContainer');
+        if (trackBox) {
+          trackBox.innerHTML = renderSvgTrack(curKm, goalKm);
+        }
 
         // Gráfico de Evolución
         const metric = state.ui.evolMetric || 'score';
@@ -5340,44 +5482,53 @@
           }).join('');
         }
 
-        document.getElementById('evolutionChartContainer').innerHTML = renderEvolutionLineChart(metric);
+        const evolChartBox = document.getElementById('evolutionChartContainer');
+        if (evolChartBox) {
+          evolChartBox.innerHTML = renderEvolutionLineChart(metric);
+        }
 
         // Heatmap
         const weeks = Object.values(state.weeks).sort((a, b) => a.weekNum - b.weekNum);
-        document.getElementById('consistencyHeatmapGrid').innerHTML = `
-          <div class="grid grid-cols-${Math.min(12, Math.max(4, weeks.length))} gap-1.5 min-w-[320px]">
-            ${weeks.map(wk => {
-              const m = calculateWeekMetrics(wk);
-              const color = getScoreColor(m.score);
-              return `
-                <div class="p-2 rounded-xl subpanel-bg border text-center space-y-1">
-                  <span class="text-[10px] font-bold text-slate-400">S${wk.weekNum}</span>
-                  <div style="background-color: ${color}" class="w-full h-5 rounded-md flex items-center justify-center font-mono font-black text-[10px] text-white shadow-2xs">${m.score}</div>
-                </div>
-              `;
-            }).join('')}
-          </div>
-        `;
-
-        // Historial Editable (Líneas Editoriales Hairline con botón ↗)
-        document.getElementById('historyWeeksList').innerHTML = weeks.map(wk => {
-          const m = calculateWeekMetrics(wk);
-          return `
-            <div class="hairline-row flex items-center justify-between text-xs py-2.5 px-1">
-              <div class="flex items-center gap-3">
-                <span class="catalog-idx font-mono font-bold text-xs text-theme-accent">S${String(wk.weekNum).padStart(2, '0')}</span>
-                <div>
-                  <span class="font-extrabold text-slate-100 dark:text-white">Semana #${wk.weekNum}</span>
-                  <span class="text-[10px] text-stone-400 dark:text-slate-400 ml-2 font-mono">Score: <strong class="text-theme-main">${m.score}/100</strong> • Gasto: ${m.spent.toFixed(1)}€</span>
-                </div>
-              </div>
-              <button onclick="app.loadWeekForEditing(${wk.weekNum})" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme font-semibold text-theme-main flex items-center gap-1.5 transition text-xs">
-                <span>Editar</span>
-                <span class="text-xs">↗</span>
-              </button>
+        const heatmapBox = document.getElementById('consistencyHeatmapGrid');
+        if (heatmapBox) {
+          heatmapBox.innerHTML = `
+            <div class="grid grid-cols-${Math.min(12, Math.max(4, weeks.length))} gap-1.5 min-w-[320px]">
+              ${weeks.map(wk => {
+                const m = calculateWeekMetrics(wk);
+                const color = getScoreColor(m.score);
+                return `
+                  <div class="p-2 rounded-xl subpanel-bg border text-center space-y-1">
+                    <span class="text-[10px] font-bold text-slate-400">S${wk.weekNum}</span>
+                    <div style="background-color: ${color}" class="w-full h-5 rounded-md flex items-center justify-center font-mono font-black text-[10px] text-white shadow-2xs">${m.score}</div>
+                  </div>
+                `;
+              }).join('')}
             </div>
           `;
-        }).join('');
+        }
+
+        // Historial Editable (Líneas Editoriales Hairline con botón ↗)
+        const histListBox = document.getElementById('historyWeeksList');
+        if (histListBox) {
+          histListBox.innerHTML = weeks.map(wk => {
+            const m = calculateWeekMetrics(wk);
+            return `
+              <div class="hairline-row flex items-center justify-between text-xs py-2.5 px-1">
+                <div class="flex items-center gap-3">
+                  <span class="catalog-idx font-mono font-bold text-xs text-theme-accent">S${String(wk.weekNum).padStart(2, '0')}</span>
+                  <div>
+                    <span class="font-extrabold text-slate-100 dark:text-white">Semana #${wk.weekNum}</span>
+                    <span class="text-[10px] text-stone-400 dark:text-slate-400 ml-2 font-mono">Score: <strong class="text-theme-main">${m.score}/100</strong> • Gasto: ${m.spent.toFixed(1)}€</span>
+                  </div>
+                </div>
+                <button onclick="app.loadWeekForEditing(${wk.weekNum})" class="px-2.5 py-1 rounded-xl subpanel-bg border hover:border-theme font-semibold text-theme-main flex items-center gap-1.5 transition text-xs">
+                  <span>Editar</span>
+                  <span class="text-xs">↗</span>
+                </button>
+              </div>
+            `;
+          }).join('');
+        }
       }
 
       
@@ -6067,8 +6218,8 @@
             }
             todayBox.classList.toggle('habits-matrix-collapsed', isCollapsed);
             todayBox.classList.remove('subview-week');
-            todayBox.style.setProperty('--habits-today-pct', savedSplit + '%');
-            todayBox.style.setProperty('--habits-week-pct', (100 - savedSplit) + '%');
+            todayBox.style.removeProperty('--habits-today-pct');
+            todayBox.style.removeProperty('--habits-week-pct');
           }
 
           if (window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
@@ -6085,78 +6236,11 @@
         },
 
         startHabitsSplitDrag(e) {
-          if (e) {
-            e.preventDefault();
-            e.stopPropagation();
-          }
-          const todayBox = document.getElementById('todayFocusContainer');
-          const compoundBody = document.getElementById('habitsCompoundBody');
-          const splitter = document.getElementById('habitsSplitter');
-          if (!todayBox || !compoundBody || !splitter) return;
-
-          splitter.classList.add('is-dragging');
-          document.body.style.cursor = 'col-resize';
-          document.body.style.userSelect = 'none';
-
-          const rect = compoundBody.getBoundingClientRect();
-
-          const onMove = (moveEvt) => {
-            if (moveEvt) {
-              moveEvt.preventDefault();
-              moveEvt.stopPropagation();
-            }
-            const currentX = moveEvt.type && moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
-            const bodyWidth = compoundBody.offsetWidth;
-            if (bodyWidth <= 0) return;
-            const offsetX = currentX - rect.left;
-            let pct = Math.round((offsetX / bodyWidth) * 100);
-
-            // Blindaje de límites mínimos absolutos en píxeles:
-            // Hoy requiere mínimo 280px para tarjetas cómodas; Semana requiere mínimo 460px para matriz legible
-            const minHoyPct = Math.max(28, Math.round((280 / bodyWidth) * 100));
-            const maxHoyPct = Math.min(58, Math.round(((bodyWidth - 460) / bodyWidth) * 100));
-            const clampMin = Math.min(minHoyPct, maxHoyPct);
-            const clampMax = Math.max(minHoyPct, maxHoyPct);
-
-            pct = Math.max(clampMin, Math.min(clampMax, pct));
-
-            todayBox.style.setProperty('--habits-today-pct', pct + '%');
-            todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
-            if (!state.ui) state.ui = {};
-            state.ui.habitsSplitPercent = pct;
-            if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
-          };
-
-          const onEnd = () => {
-            splitter.classList.remove('is-dragging');
-            document.body.style.cursor = '';
-            document.body.style.userSelect = '';
-            window.removeEventListener('mousemove', onMove);
-            window.removeEventListener('mouseup', onEnd);
-            window.removeEventListener('touchmove', onMove);
-            window.removeEventListener('touchend', onEnd);
-            if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
-            else saveState();
-          };
-
-          window.addEventListener('mousemove', onMove, { passive: false });
-          window.addEventListener('mouseup', onEnd, { passive: false });
-          window.addEventListener('touchmove', onMove, { passive: false });
-          window.addEventListener('touchend', onEnd, { passive: false });
+          if (e && typeof e.preventDefault === 'function') e.preventDefault();
         },
 
         setHabitsSplitPreset(pct) {
-          const todayBox = document.getElementById('todayFocusContainer');
-          if (!todayBox) return;
-          pct = Math.max(28, Math.min(58, Number(pct) || 42));
-          todayBox.style.setProperty('--habits-today-pct', pct + '%');
-          todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
-          if (!state.ui) state.ui = {};
-          state.ui.habitsSplitPercent = pct;
-          if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
-          if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
-          else saveState();
-          this.showToast(`Proporción de Hábitos: ${pct}% Hoy / ${100 - pct}% Semana`, 'info', 1200);
+          // Divisor retirado para blindar proporciones fijas sin desbordamiento ni cortes
         },
         setDailyViewMode(mode) {
           state.ui.dailyViewMode = mode;
@@ -6850,9 +6934,8 @@
           }
 
           const bodyEl = document.getElementById('dockRightSidebarBody');
-          const isShortTool = (mode === 'pomo' || mode === 'expense' || mode === 'tab1RecentExpensesBar');
           if (bodyEl) {
-            bodyEl.classList.toggle('dock-body-centered', isShortTool);
+            bodyEl.classList.add('dock-body-centered');
           }
 
           if (mode === 'pomo') {
@@ -6888,8 +6971,10 @@
                   mountedEl.style.gridColumn = '';
                   mountedEl.style.gridRow = '';
                   mountedEl.style.width = '100%';
-                  mountedEl.style.height = '100%';
-                  mountedEl.style.flex = '1 1 0%';
+                  mountedEl.style.height = 'auto';
+                  mountedEl.style.maxHeight = 'calc(100vh - 120px)';
+                  mountedEl.style.margin = 'auto 0';
+                  mountedEl.style.flex = '0 0 auto';
                   if (mode === 'interactiveListsPanel' && typeof renderListsTree === 'function') {
                     renderListsTree();
                   }
@@ -6915,8 +7000,13 @@
           document.querySelectorAll('#floatingDock button, #floatingDock [data-dock-pill-id]').forEach(btn => {
             btn.classList.remove('dock-pill-active');
           });
+          const pomoWin = document.getElementById('dockPomoWindow');
+          const expWin = document.getElementById('dockExpenseWindow');
+          if (pomoWin) pomoWin.classList.add('hidden');
+          if (expWin) expWin.classList.add('hidden');
           const customBox = document.getElementById('dockRightSidebarCustomContent');
           if (customBox) {
+            customBox.classList.add('hidden');
             Array.from(customBox.children).forEach(child => {
               if (child && child.id && window.WidgetsRegistry) {
                 window.WidgetsRegistry.parkWidget(child.id);
@@ -9381,10 +9471,19 @@
           this.showToast(`Plan de estudio ajustado a ${perDay}h al día (L-V).`, 'success');
         },
 
+        selectScheduleDay(dayIdx) {
+          if (!state.ui) state.ui = {};
+          state.ui.selectedScheduleDay = dayIdx;
+          renderScheduleGrid();
+          if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
+        },
+        renderScheduleGrid() {
+          renderScheduleGrid();
+        },
         // NUEVO: Modal Añadir o Editar Clase en Horario con chips y tipo General [G]
         openAddClassScheduleModal(dayIdx) {
           activeScheduleAddContext = { dayIdx, classType: 'T' };
-          document.getElementById('modalAddClassTitle').innerHTML = `<span>🏫</span> Añadir Clase al ${DAY_FULL[dayIdx]}`;
+          document.getElementById('modalAddClassTitle').innerHTML = `<svg class="w-4 h-4 text-theme-main inline-block mr-1" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> <span>Añadir Clase al ${DAY_FULL[dayIdx]}</span>`;
           document.getElementById('newClassSubjectInput').value = '';
           document.getElementById('newClassTimeInput').value = '';
           app.selectClassTypeRadio('T');
