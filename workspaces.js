@@ -261,11 +261,33 @@ const WorkspacesManager = (function() {
           if (ws.id !== currentWs.id) {
             if (!ws.grid) ws.grid = {};
             ws.grid[widgetId] = JSON.parse(JSON.stringify(cardCfg));
+            if (window.GridEngine) {
+              try {
+                window.GridEngine.resolveGridCollisions(ws.grid, widgetId);
+                window.GridEngine.compactGrid(ws.grid);
+              } catch (_) {}
+            }
+          }
+        });
+      } else {
+        // Desfijar en todas las demás ventanas
+        state.workspaces.forEach(ws => {
+          if (ws.id !== currentWs.id && ws.grid && ws.grid[widgetId]) {
+            ws.grid[widgetId].isPinned = false;
           }
         });
       }
 
-      if (typeof app !== 'undefined' && app.renderBoardEditHandles) {
+      if (window.GridEngine) {
+        try {
+          window.GridEngine.resolveGridCollisions(currentWs.grid, widgetId);
+          window.GridEngine.compactGrid(currentWs.grid);
+          window.GridEngine.applyGridLayout();
+          if (state.ui && state.ui.isBoardEditMode) {
+            window.GridEngine.renderBoardEditHandles();
+          }
+        } catch (_) {}
+      } else if (typeof app !== 'undefined' && app.renderBoardEditHandles) {
         app.renderBoardEditHandles();
       }
       if (typeof saveState === 'function') saveState();
@@ -280,6 +302,12 @@ const WorkspacesManager = (function() {
           targetWs.grid[widgetId] = JSON.parse(JSON.stringify(currentWs.grid[widgetId]));
         }
       });
+      if (window.GridEngine) {
+        try {
+          window.GridEngine.resolveGridCollisions(targetWs.grid, null);
+          window.GridEngine.compactGrid(targetWs.grid);
+        } catch (_) {}
+      }
     },
 
     // Transición suave entre ventanas con View Transitions API o FLIP
@@ -341,6 +369,16 @@ const WorkspacesManager = (function() {
         // Fallback directo sin parpadeos
         applyDomChanges();
       }
+    },
+
+    switchWorkspaceByIndex(index) {
+      this.ensureWorkspaces();
+      const workspaces = this.getWorkspaces();
+      if (workspaces && workspaces[index]) {
+        this.switchWorkspace(workspaces[index].id);
+        return true;
+      }
+      return false;
     },
 
     // Monta los widgets de la ventana activa en el grid principal mediante Reparenting
@@ -422,6 +460,14 @@ const WorkspacesManager = (function() {
           }
         }
       }
+
+      if (state.ui && state.ui.isBoardEditMode && window.GridEngine) {
+        try {
+          if (window.GridEngine.renderBoardEditHandles) window.GridEngine.renderBoardEditHandles();
+          if (window.GridEngine.renderWidgetsDrawer) window.GridEngine.renderWidgetsDrawer();
+          if (window.GridEngine.renderDockWidgets) window.GridEngine.renderDockWidgets();
+        } catch (_) {}
+      }
     },
 
     // Renderiza la barra superior de ventanas
@@ -463,6 +509,37 @@ const WorkspacesManager = (function() {
       addBtn.className = 'w-7 h-7 rounded-xl bg-theme-soft/30 hover:bg-theme-soft text-theme-main hover:text-white border border-theme/30 flex items-center justify-center font-bold text-sm transition cursor-pointer';
       addBtn.innerHTML = '+';
       navContainer.appendChild(addBtn);
+
+      // Renderizar también en la barra flotante de Modo Edición si está presente
+      const editNavContainer = document.getElementById('boardEditWorkspacesTabs');
+      if (editNavContainer) {
+        editNavContainer.innerHTML = '';
+        workspaces.forEach((ws, idx) => {
+          const isActive = ws.id === state.activeWorkspaceId;
+          const btn = document.createElement('button');
+          btn.type = 'button';
+          btn.onclick = () => this.switchWorkspace(ws.id);
+          btn.oncontextmenu = (e) => {
+            e.preventDefault();
+            if (typeof app !== 'undefined' && app.openWorkspaceTabContextMenu) {
+              app.openWorkspaceTabContextMenu(e, ws.id);
+            }
+          };
+          btn.className = isActive
+            ? 'px-2 py-0.5 rounded-lg bg-theme-main text-white font-bold text-[11px] flex items-center gap-1 shadow-xs border border-theme transition cursor-pointer'
+            : 'px-2 py-0.5 rounded-lg bg-theme-soft text-stone-700 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white font-semibold text-[11px] flex items-center gap-1 border border-theme/20 transition cursor-pointer';
+          btn.innerHTML = `<span class="truncate max-w-[80px]">${ws.name}</span><kbd class="px-1 rounded bg-black/20 text-[9px] font-mono opacity-70">${idx + 1}</kbd>`;
+          editNavContainer.appendChild(btn);
+        });
+
+        const addEditBtn = document.createElement('button');
+        addEditBtn.type = 'button';
+        addEditBtn.onclick = () => this.promptCreateWorkspace();
+        addEditBtn.title = 'Crear nueva ventana';
+        addEditBtn.className = 'w-5 h-5 rounded-lg bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white border border-theme/30 flex items-center justify-center font-bold text-xs transition cursor-pointer';
+        addEditBtn.innerHTML = '+';
+        editNavContainer.appendChild(addEditBtn);
+      }
     },
 
     promptCreateWorkspace() {
@@ -506,7 +583,7 @@ const WorkspacesManager = (function() {
           return;
         }
 
-        // Atajos de widgets y paneles (N, Z, B)
+        // Atajos de widgets y paneles (N, Z, B, E)
         if (!e.ctrlKey && !e.altKey && !e.metaKey) {
           const k = e.key.toLowerCase();
           if (k === 'n') {
@@ -514,7 +591,17 @@ const WorkspacesManager = (function() {
             if (typeof app !== 'undefined' && app.toggleDockExpense) app.toggleDockExpense();
           } else if (k === 'z') {
             e.preventDefault();
-            if (typeof app !== 'undefined' && app.toggleDockPomo) app.toggleDockPomo();
+            if (typeof app !== 'undefined') {
+              if (e.shiftKey) {
+                if (app.toggleDockPomo) app.toggleDockPomo();
+              } else {
+                if (app.toggleZen) {
+                  const zenModal = document.getElementById('zenModal');
+                  const isOpen = zenModal && !zenModal.classList.contains('hidden');
+                  app.toggleZen(!isOpen);
+                }
+              }
+            }
           } else if (k === 'b') {
             e.preventDefault();
             if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();

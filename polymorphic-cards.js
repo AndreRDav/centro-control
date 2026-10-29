@@ -79,8 +79,9 @@ const PolymorphicCards = (function() {
         }
       }
 
-      // Recalcular dimensiones con el nuevo modo compacto
-      if (typeof app !== 'undefined' && app.measureNaturalRows) {
+      // Recalcular dimensiones con el nuevo modo compacto solo si estamos en modo edición
+      const isEdit = (typeof app !== 'undefined' && typeof app.isBoardEditMode === 'function') ? app.isBoardEditMode() : false;
+      if (isEdit && typeof app !== 'undefined' && app.measureNaturalRows) {
         const newMin = app.measureNaturalRows(el);
         if (window.WorkspacesManager) {
           const ws = window.WorkspacesManager.getActiveWorkspace();

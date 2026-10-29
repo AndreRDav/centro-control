@@ -131,10 +131,17 @@ var GridEngine = {
           });
         },
 
-        // 3. GRAVEDAD Y COMPACTACIÓN SKYLINE DE 12 COLUMNAS (0 HUECOS Y 0 SOLAPAMIENTOS)
-        compactGrid(tabKey, showToast = false) {
-          tabKey = tabKey || ('tab' + (state.activeTab || 1));
-          const layout = this.getGridLayout(tabKey);
+        // 3. GRAVEDAD Y COMPACTACIÓN INTELIGENTE (RESPETANDO PINNED Y 0 HUECOS)
+        compactGrid(tabKeyOrLayout, showToast = false) {
+          let layout;
+          let tabKey = null;
+          if (tabKeyOrLayout && typeof tabKeyOrLayout === 'object') {
+            layout = tabKeyOrLayout;
+          } else {
+            tabKey = tabKeyOrLayout || ('tab' + (state.activeTab || 1));
+            layout = this.getGridLayout(tabKey);
+          }
+          if (!layout) return;
 
           // 1. Recalcular minRows para todas las tarjetas visibles
           Object.keys(layout).forEach(id => {
@@ -149,26 +156,45 @@ var GridEngine = {
               : (layout[id].minRows || 2);
           });
 
-          // 2. Algoritmo Skyline de 12 columnas (horizonte de filas libres)
-          const cards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
-          cards.sort((a, b) => a.row - b.row || a.col - b.col);
+          // 2. Separar tarjetas fijadas (isPinned) y no fijadas
+          const allCards = Object.keys(layout).map(id => ({ id, ...layout[id] }));
+          const pinnedCards = allCards.filter(c => !!c.isPinned);
+          const unpinnedCards = allCards.filter(c => !c.isPinned);
 
-          const skyline = new Array(13).fill(1); // Columnas 1 a 12
+          // Las tarjetas fijadas conservan inamovible su fila actual
+          const placedCards = [...pinnedCards];
 
-          cards.forEach(item => {
-            const slice = skyline.slice(item.col, item.col + item.colSpan);
-            const newRow = Math.max(...slice);
-            item.row = newRow;
+          // Ordenar unpinnedCards por fila y columna original para preservar el orden natural de lectura
+          unpinnedCards.sort((a, b) => (a.row || 1) - (b.row || 1) || (a.col || 1) - (b.col || 1));
 
-            const newTop = item.row + item.rowSpan;
-            for (let c = item.col; c < item.col + item.colSpan; c++) {
-              skyline[c] = newTop;
+          unpinnedCards.forEach(item => {
+            let candidateRow = 1;
+            let fits = false;
+            while (!fits) {
+              fits = true;
+              for (let p = 0; p < placedCards.length; p++) {
+                const placed = placedCards[p];
+                const colsOverlap = Math.max(item.col, placed.col) < Math.min(item.col + item.colSpan, placed.col + placed.colSpan);
+                const rowsOverlap = Math.max(candidateRow, placed.row) < Math.min(candidateRow + item.rowSpan, placed.row + placed.rowSpan);
+                if (colsOverlap && rowsOverlap) {
+                  candidateRow = placed.row + placed.rowSpan;
+                  fits = false;
+                  break;
+                }
+              }
+            }
+            item.row = candidateRow;
+            placedCards.push(item);
+          });
+
+          placedCards.forEach(c => {
+            if (layout[c.id]) {
+              layout[c.id].row = c.row;
             }
           });
 
-          cards.forEach(c => {
-            layout[c.id].row = c.row;
-          });
+          // Cascada de seguridad final para garantizar 0 solapamientos
+          this.resolveGridCollisions(layout, null);
 
           this.applyGridLayout(tabKey);
           if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
@@ -644,16 +670,26 @@ var GridEngine = {
             el.classList.add('card-edit-mode');
             const cfg = layout[id];
 
-            // Escudo protector de arrastre
+            // Escudo protector de arrastre con soporte para clic derecho
             const shield = document.createElement('div');
             shield.className = 'card-drag-shield board-edit-ctrl-overlay';
-            shield.title = 'Arrastra para mover este cuadro de posición o arrástralo al panel lateral';
+            shield.title = 'Arrastra para mover este cuadro de posición o clic derecho para más opciones';
             shield.onpointerdown = (e) => this.startCardDrag(e, id);
+            shield.oncontextmenu = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.toggleBoardCardMenu(id, e, false);
+            };
             el.appendChild(shield);
 
             // Barra superior de herramientas sobre la tarjeta con nombre humano real y botones nítidos
             const bar = document.createElement('div');
             bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
+            bar.oncontextmenu = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.toggleBoardCardMenu(id, e, false);
+            };
 
             const isPinned = cfg.isPinned || false;
             const isCompact = cfg.compact || el.classList.contains('card-mode-compact');
@@ -709,15 +745,25 @@ var GridEngine = {
             if (!el) return;
             el.classList.add('card-edit-mode');
 
-            // Escudo de arrastre para mover del sidebar a la cuadrícula
+            // Escudo de arrastre para mover del sidebar a la cuadrícula con soporte para clic derecho
             const sidebarShield = document.createElement('div');
             sidebarShield.className = 'card-drag-shield board-edit-ctrl-overlay';
-            sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero';
+            sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero o clic derecho para opciones';
             sidebarShield.onpointerdown = (e) => this.startCardDrag(e, id);
+            sidebarShield.oncontextmenu = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.toggleBoardCardMenu(id, e, true);
+            };
             el.appendChild(sidebarShield);
 
             const bar = document.createElement('div');
             bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
+            bar.oncontextmenu = (e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              this.toggleBoardCardMenu(id, e, true);
+            };
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
             const cardTitle = def.name || id;
             bar.innerHTML = `
@@ -810,15 +856,28 @@ var GridEngine = {
             `;
           }
 
+          let left, top;
           const popoverW = 210;
-          let left = btnRect.right - popoverW;
-          if (left < 10) left = btnRect.left;
-          let top = btnRect.bottom + 6;
+          if (event && event.type === 'contextmenu') {
+            left = event.clientX;
+            top = event.clientY;
+          } else if (event && event.currentTarget && event.currentTarget.getBoundingClientRect) {
+            const btnRect = event.currentTarget.getBoundingClientRect();
+            left = btnRect.right - popoverW;
+            if (left < 10) left = btnRect.left;
+            top = btnRect.bottom + 6;
+          } else {
+            left = 100;
+            top = 100;
+          }
           if (top + 220 > window.innerHeight) {
-            top = btnRect.top - 220;
+            top = window.innerHeight - 230;
+          }
+          if (left + popoverW > window.innerWidth - 10) {
+            left = window.innerWidth - popoverW - 10;
           }
 
-          popover.style.left = Math.max(10, Math.min(window.innerWidth - popoverW - 10, left)) + 'px';
+          popover.style.left = Math.max(10, left) + 'px';
           popover.style.top = Math.max(10, top) + 'px';
         },
 
@@ -883,14 +942,18 @@ var GridEngine = {
           if (!ws || !ws.grid || !ws.grid[cardId]) return;
           const el = document.getElementById(cardId);
           if (!el) return;
-          const idealRows = window.PolymorphicCards.computeIdealRows(el);
-          ws.grid[cardId].rowSpan = idealRows;
-          ws.grid[cardId].manualRows = idealRows;
-          this.compactGrid();
+          const naturalMin = this.measureNaturalRows(el);
+          const ideal = window.PolymorphicCards.computeIdealRows(el);
+          const targetRows = Math.max(2, ideal, naturalMin);
+          ws.grid[cardId].minRows = targetRows;
+          ws.grid[cardId].rowSpan = targetRows;
+          ws.grid[cardId].manualRows = targetRows;
+          this.resolveGridCollisions(ws.grid, cardId);
+          this.compactGrid(ws.grid);
           this.applyGridLayout();
           this.renderBoardEditHandles();
           if (typeof saveState === 'function') saveState();
-          this.safeToast('Módulo ajustado a ' + idealRows + ' filas.', 'emerald');
+          this.safeToast('Módulo ajustado a ' + targetRows + ' filas.', 'emerald');
         },
 
         renderWidgetsDrawer(selectedCategory = 'all') {
@@ -1030,7 +1093,7 @@ var GridEngine = {
                       <span class="text-[9px] font-mono px-1 rounded bg-theme-soft text-theme-main font-bold border border-theme/30">${colSpan}c · ${idealRows}f</span>
                     </div>
 
-                    <div class="mini-card-box cursor-grab panel-bg border border-theme/50 rounded-lg overflow-hidden shadow-xs hover:border-theme-main transition" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;">
+                    <div class="mini-card-box cursor-grab panel-bg border border-theme/50 rounded-lg overflow-hidden shadow-xs hover:border-theme-main transition relative" data-widget-preview="${id}" onpointerdown="app.startMiniWidgetDrag(event, '${id}')" title="Haz clic y arrastra al tablero para agrandar" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;">
                       ${wireframeHtml}
                     </div>
 
@@ -1044,6 +1107,33 @@ var GridEngine = {
               }).join('')}
             </div>
           `;
+
+          // Inyectar clon visual auténtico a escala reducida para cada cuadro disponible
+          drawer.querySelectorAll('[data-widget-preview]').forEach(box => {
+            const wid = box.getAttribute('data-widget-preview');
+            const realEl = document.getElementById(wid);
+            if (realEl) {
+              const clone = realEl.cloneNode(true);
+              clone.removeAttribute('id');
+              clone.querySelectorAll('[id]').forEach(x => x.removeAttribute('id'));
+              clone.querySelectorAll('.board-edit-ctrl-overlay, .card-resize-handle, .board-edit-header-bar, .card-drag-shield').forEach(x => x.remove());
+              clone.classList.remove('card-edit-mode', 'widget-parked-inert');
+              clone.style.pointerEvents = 'none';
+              clone.style.userSelect = 'none';
+              clone.style.width = '100%';
+              clone.style.margin = '0';
+
+              const scaleWrapper = document.createElement('div');
+              scaleWrapper.className = 'mini-card-scale-wrapper';
+              const innerScaler = document.createElement('div');
+              innerScaler.className = 'mini-cloned-preview';
+              innerScaler.appendChild(clone);
+              scaleWrapper.appendChild(innerScaler);
+
+              box.innerHTML = '';
+              box.appendChild(scaleWrapper);
+            }
+          });
         },
 
         closeWidgetsDrawer() {
@@ -1337,6 +1427,10 @@ var GridEngine = {
         toggleWidgetPin(cardId) {
           if (window.WorkspacesManager) {
             window.WorkspacesManager.toggleWidgetPin(cardId);
+            this.applyGridLayout();
+            if (state.ui && state.ui.isBoardEditMode) {
+              this.renderBoardEditHandles();
+            }
             this.safeToast('Estado de fijado actualizado para este cuadro.', 'emerald');
           }
         },

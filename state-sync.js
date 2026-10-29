@@ -1486,6 +1486,8 @@ var gdriveDebounceTimer = null;
         }
       }
 
+      let pendingForceAction = null;
+
       function initGsiClient() {
         if (!window.google || !window.google.accounts || !window.google.accounts.oauth2) return;
         if (!tokenClient) {
@@ -1517,8 +1519,16 @@ var gdriveDebounceTimer = null;
               } catch (_) {}
 
               updateGdriveUI();
-              app.showToast('Â¡Conectado a Google Drive! Sincronizando datos...', 'success');
-              await syncGdriveCloud(true); // Pull y Push inicial
+              app.showToast('¡Conectado a Google Drive! Sincronizando datos...', 'success');
+              if (pendingForceAction === 'download') {
+                pendingForceAction = null;
+                await syncGdriveCloud(true, false, true);
+              } else if (pendingForceAction === 'upload') {
+                pendingForceAction = null;
+                await syncGdriveCloud(false, true, false);
+              } else {
+                await syncGdriveCloud(true, false, false);
+              }
             }
           });
         }
@@ -1624,6 +1634,8 @@ var pendingCloudConflictJson = null;
         try {
           const conflictModal = document.getElementById('modalSyncConflict');
           if (conflictModal) conflictModal.classList.add('hidden');
+          const backupModal = document.getElementById('backupModal');
+          if (backupModal) backupModal.classList.add('hidden');
         } catch (_) {}
 
         // Conservar el layout local activo de este dispositivo
@@ -1633,12 +1645,15 @@ var pendingCloudConflictJson = null;
           try { localLayout = JSON.parse(localLayoutRaw); } catch(_) {}
         }
 
+        const cloudHasValidWorkspaces = cloudJson && Array.isArray(cloudJson.workspaces) && cloudJson.workspaces.length > 0;
+
         state = sanitizeState(cloudJson);
         state.deviceId = myDeviceId; // Mantener siempre la identidad del dispositivo físico actual
         state.lastSyncedCloudUpdatedAt = cloudTimestamp;
+        state.viewingWeek = state.currentWeek || 1;
 
-        // Restaurar layout local del dispositivo si existe
-        if (localLayout) {
+        // Si la nube NO trae workspaces válidos pero tenemos layout local, restaurar local
+        if (!cloudHasValidWorkspaces && localLayout) {
           if (localLayout.workspaces && Array.isArray(localLayout.workspaces) && localLayout.workspaces.length > 0) {
             state.workspaces = localLayout.workspaces;
           }
@@ -1655,6 +1670,13 @@ var pendingCloudConflictJson = null;
         localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
         pendingCloudConflictJson = null;
 
+        if (window.WorkspacesManager) {
+          try {
+            window.WorkspacesManager.ensureWorkspaces();
+            window.WorkspacesManager.mountActiveWorkspace();
+          } catch (_) {}
+        }
+
         if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
           try { window.renderApp(); } catch (rErr) { console.warn('Error en renderApp tras descarga:', rErr); }
         } else if (typeof renderApp === 'function') {
@@ -1663,6 +1685,9 @@ var pendingCloudConflictJson = null;
         if (typeof app !== 'undefined' && app.applyGridLayout) {
           try { app.applyGridLayout(); } catch (_) {}
         }
+        if (typeof app !== 'undefined' && app.showToast) {
+          app.showToast('Datos de Google Drive descargados y aplicados.', 'success');
+        }
         updateGdriveUI();
         isGdriveSyncing = false;
         return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
@@ -1670,6 +1695,12 @@ var pendingCloudConflictJson = null;
 
       async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
         if (isGdriveSyncing) return { success: false, reason: 'already_syncing' };
+
+        if (!isGdriveConnected()) {
+          if (forceDownload) pendingForceAction = 'download';
+          else if (forceUpload) pendingForceAction = 'upload';
+        }
+
         const token = isGdriveConnected() ? gdriveAccessToken : await ensureGdriveToken(true);
         if (!token) {
           updateGdriveUI();
@@ -1711,6 +1742,11 @@ var pendingCloudConflictJson = null;
                   const cloudHasData = hasUserData(cloudJson);
                   const localHasData = hasUserData(state);
 
+                  // Si se solicita forzar descarga de forma explícita, se aplica de inmediato sin saltar a conflicto
+                  if (forceDownload) {
+                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
+                  }
+
                   // CASO A (Dispositivo Virgen/Recién Iniciado): Si local no tiene datos reales y la nube sí, descarga siempre
                   if (!forceUpload && !localHasData && cloudHasData) {
                     return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
@@ -1730,8 +1766,8 @@ var pendingCloudConflictJson = null;
                     return { success: true, action: 'conflict' };
                   }
 
-                  // CASO B (Descarga Limpia): Si la nube es más reciente o forzamos descarga o allowPull:
-                  if (forceDownload || cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
+                  // CASO B (Descarga Limpia): Si la nube es más reciente o allowPull:
+                  if (cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
                     return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
                   }
                 }

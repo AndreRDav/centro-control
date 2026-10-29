@@ -1061,6 +1061,15 @@
     /* ========================================================
        PANEL LATERAL DERECHO DEL DOCK (100% VH)
        ======================================================== */
+    @keyframes slideInSidebarLeft {
+      from { transform: translateX(-100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    @keyframes slideInSidebarRight {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
     #dockRightSidebar {
       width: 340px !important;
       max-width: 85vw !important;
@@ -1077,7 +1086,7 @@
       border-bottom: none !important;
       border-radius: 0 !important;
       z-index: 40 !important;
-      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+      animation: slideInSidebarRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #dockRightSidebar.hidden {
       display: none !important;
@@ -1085,12 +1094,16 @@
     #dockRightSidebarBody {
       display: flex !important;
       flex-direction: column !important;
-      justify-content: center !important;
+      justify-content: flex-start !important;
+      align-items: stretch !important;
       min-height: calc(100vh - 80px) !important;
+      padding-top: 0.5rem !important;
+      gap: 0.75rem !important;
     }
     #dockRightSidebarBody > *:not(.hidden) {
-      margin-top: auto;
-      margin-bottom: auto;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
+      width: 100% !important;
     }
     /* Pastilla activa en el Dock inferior */
     .dock-pill-active {
@@ -1118,7 +1131,7 @@
       border-left: none !important;
       border-radius: 0 !important;
       z-index: 40 !important;
-      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1), opacity 0.25s ease !important;
+      animation: slideInSidebarLeft 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #workspaceSidebar.collapsed,
     #workspaceSidebar.hidden {
@@ -1454,10 +1467,16 @@
     /* Encendidos (activo pin y activo compacto) */
     .board-edit-header-bar button.header-bar-btn.is-active-pin,
     .board-edit-header-bar button.header-bar-btn.is-active-compact {
-      background: var(--theme-main) !important;
-      border-color: var(--theme-main) !important;
+      background-color: var(--theme-accent, #D93829) !important;
+      border-color: var(--theme-accent, #D93829) !important;
       color: #ffffff !important;
-      box-shadow: 0 0 10px var(--theme-100) !important;
+      -webkit-text-fill-color: #ffffff !important;
+      box-shadow: 0 0 10px var(--theme-accent-soft, rgba(217, 56, 41, 0.4)) !important;
+    }
+    .board-edit-header-bar button.header-bar-btn.is-active-pin svg,
+    .board-edit-header-bar button.header-bar-btn.is-active-compact svg {
+      stroke: #ffffff !important;
+      color: #ffffff !important;
     }
     .board-edit-header-bar button.header-bar-btn-lateral {
       padding: 0.15rem 0.4rem !important;
@@ -1504,7 +1523,7 @@
       margin-left: 0 !important;
       margin-right: 0 !important;
       padding-bottom: 4.5rem !important;
-      transition: padding 0.25s ease, margin 0.25s ease !important;
+      transition: none !important;
     }
 
     @media (min-width: 1280px) {
@@ -1516,7 +1535,7 @@
       /* Al abrir el panel lateral izquierdo (#workspaceSidebar o #widgetsDrawer), se libera el margen izquierdo */
       body.sidebar-view-open #appMainViewport,
       body.drawer-studio-open #appMainViewport,
-      body:has(#workspaceSidebar:not(.hidden)) #appMainViewport,
+      body:has(#workspaceSidebar:not(.hidden):not(.collapsed):not(.sidebar-collapsed)) #appMainViewport,
       body:has(#widgetsDrawer:not(.hidden)) #appMainViewport {
         margin-left: 0 !important;
       }
@@ -1525,6 +1544,22 @@
       body:has(#dockRightSidebar:not(.hidden)) #appMainViewport {
         margin-right: 0 !important;
       }
+    }
+
+    /* MINIATURAS ESCALADAS EN EL CAJÓN DE MÓDULOS */
+    .mini-card-scale-wrapper {
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: relative;
+      pointer-events: none;
+    }
+    .mini-cloned-preview {
+      width: 360%;
+      transform: scale(0.275);
+      transform-origin: top left;
+      pointer-events: none;
+      user-select: none;
     }
 
     /* MENÚ POPOVER DE OPCIONES SECUNDARIAS DE TARJETA EN MODO EDICIÓN */

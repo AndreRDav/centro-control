@@ -2318,7 +2318,7 @@
             : `<span class="font-mono font-bold text-theme-main">${Math.round(m.customHabitsPct?.[h.id] || 0)}%</span>`;
 
           const cardHtml = `
-            <div class="${cardClass}">
+            <div class="${cardClass}" oncontextmenu="app.openCustomHabitActionsMenu(event, '${h.id}'); return false;">
               <div class="flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="${iconSealClass}">
@@ -4681,7 +4681,7 @@
           fixedContainer.innerHTML = `<span class="text-stone-400 dark:text-slate-500 text-xs py-3 block text-center italic">Sin recibos fijos mensuales.</span>`;
         } else {
           fixedContainer.innerHTML = state.monthlyFixedItems.map((item, idx) => `
-            <div class="hairline-row flex items-center justify-between text-xs py-2 px-1">
+            <div class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer" oncontextmenu="app.toggleFixedPaid('${item.id}'); return false;">
               <div class="flex items-center gap-2.5 min-w-0">
                 <span class="catalog-idx w-5">${String(idx + 1).padStart(2, '0')}</span>
                 <button onclick="app.toggleFixedPaid('${item.id}')" class="w-4 h-4 rounded flex items-center justify-center transition-all ${item.paid ? 'bg-theme-main text-white' : 'border border-stone-300 dark:border-slate-700 hover:border-theme-main text-transparent'}" title="${item.paid ? 'Marcado como pagado' : 'Pendiente de pago'}">
@@ -4806,7 +4806,7 @@
         document.getElementById('tab3AntRanking').innerHTML = sortedRanking.length === 0 ? `<span class="text-stone-400 dark:text-slate-500 text-xs py-2 block italic">No hay micro-gastos registrados.</span>` : sortedRanking.map((item, idx) => {
           const emoji = (item.category || '📦').split(' ')[0] || '📦';
           return `
-            <div class="hairline-row flex items-center justify-between text-xs py-2 px-1">
+            <div class="hairline-row flex items-center justify-between text-xs py-2 px-1 cursor-pointer" oncontextmenu="app.toggleFixedPaid('${item.id}'); return false;">
               <div class="flex items-center gap-2.5 truncate">
                 <span class="catalog-idx w-5">${String(idx + 1).padStart(2, '0')}</span>
                 <span class="emoji-sticker text-[11px] shrink-0">${emoji}</span>
@@ -6688,11 +6688,16 @@
             btn.classList.remove('dock-pill-active');
           });
 
-          // Ocultar todos los paneles internos por defecto
+          // Ocultar todos los paneles internos por defecto y aparcar widgets de forma segura
           if (pomoWin) pomoWin.classList.add('hidden');
           if (expWin) expWin.classList.add('hidden');
           if (customBox) {
             customBox.classList.add('hidden');
+            Array.from(customBox.children).forEach(child => {
+              if (child && child.id && window.WidgetsRegistry) {
+                window.WidgetsRegistry.parkWidget(child.id);
+              }
+            });
             customBox.innerHTML = '';
           }
 
@@ -6726,6 +6731,9 @@
                 if (mountedEl) {
                   mountedEl.setAttribute('data-cols', '3');
                   mountedEl.classList.add('card-mode-compact');
+                  mountedEl.style.gridColumn = '';
+                  mountedEl.style.gridRow = '';
+                  mountedEl.style.width = '100%';
                 }
               }
             }
@@ -6750,6 +6758,11 @@
           });
           const customBox = document.getElementById('dockRightSidebarCustomContent');
           if (customBox) {
+            Array.from(customBox.children).forEach(child => {
+              if (child && child.id && window.WidgetsRegistry) {
+                window.WidgetsRegistry.parkWidget(child.id);
+              }
+            });
             customBox.innerHTML = '';
           }
           if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
@@ -6759,22 +6772,22 @@
           }
         },
 
-        toggleDockPomo() {
+        toggleDockPomo(forceOpen = null) {
           const sidebar = document.getElementById('dockRightSidebar');
           const isVisible = sidebar && !sidebar.classList.contains('hidden');
-          if (isVisible && this.activeDockTool === 'pomo') {
+          if (forceOpen === false || (forceOpen === null && isVisible && this.activeDockTool === 'pomo')) {
             this.closeDockSidebar();
-          } else {
+          } else if (forceOpen === true || (forceOpen === null && (!isVisible || this.activeDockTool !== 'pomo'))) {
             this.openDockSidebar('pomo');
           }
         },
 
-        toggleDockExpense() {
+        toggleDockExpense(forceOpen = null) {
           const sidebar = document.getElementById('dockRightSidebar');
           const isVisible = sidebar && !sidebar.classList.contains('hidden');
-          if (isVisible && this.activeDockTool === 'expense') {
+          if (forceOpen === false || (forceOpen === null && isVisible && this.activeDockTool === 'expense')) {
             this.closeDockSidebar();
-          } else {
+          } else if (forceOpen === true || (forceOpen === null && (!isVisible || this.activeDockTool !== 'expense'))) {
             this.openDockSidebar('expense');
           }
         },
@@ -12533,6 +12546,24 @@
           renderDailyHabits();
           renderHeaderAndKPIs();
           saveState();
+        },
+
+        toggleWidgetPin(cardId) {
+          if (window.GridEngine && window.GridEngine.toggleWidgetPin) return window.GridEngine.toggleWidgetPin(cardId);
+          if (window.WorkspacesManager) return window.WorkspacesManager.toggleWidgetPin(cardId);
+        },
+        toggleCompactMode(cardId) {
+          if (window.GridEngine && window.GridEngine.toggleCompactMode) return window.GridEngine.toggleCompactMode(cardId);
+          if (window.PolymorphicCards) return window.PolymorphicCards.toggleCompactMode(cardId);
+        },
+        snapCardToIdeal(cardId) {
+          if (window.GridEngine && window.GridEngine.snapCardToIdeal) return window.GridEngine.snapCardToIdeal(cardId);
+        },
+        sendWidgetToDrawer(cardId) {
+          if (window.GridEngine && window.GridEngine.sendWidgetToDrawer) return window.GridEngine.sendWidgetToDrawer(cardId);
+        },
+        sendWidgetToDock(cardId) {
+          if (window.GridEngine && window.GridEngine.sendWidgetToDock) return window.GridEngine.sendWidgetToDock(cardId);
         }
       };
 
@@ -12685,6 +12716,10 @@
           app.closeModal('modalBulkEditListItems');
           app.toggleZen(false);
           if (app.closeDockSidebar) app.closeDockSidebar();
+          if (app.closeWidgetsDrawer) app.closeWidgetsDrawer();
+          if (state.ui && state.ui.isBoardEditMode && app.toggleBoardEdit) {
+            app.toggleBoardEdit();
+          }
           app.closeModal('closeWeekModal');
           app.closeModal('backupModal');
           app.closeModal('customMuscleModal');
