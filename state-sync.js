@@ -2181,6 +2181,7 @@ var pendingCloudConflictJson = null;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
         if (!s.ui.habitsSubView) s.ui.habitsSubView = 'today';
+        if (!s.ui.habitsSplitPercent) s.ui.habitsSplitPercent = 42;
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
           // En móviles (<768px) inicia plegada por comodidad y espacio
           s.ui.weekTableCollapsed = true;
@@ -2189,8 +2190,26 @@ var pendingCloudConflictJson = null;
         // Migración transparente: weekTableContainer ahora está integrado dentro de todayFocusContainer
         if (Array.isArray(s.workspaces)) {
           s.workspaces.forEach(ws => {
-            if (ws && ws.grid && ws.grid['weekTableContainer']) {
-              delete ws.grid['weekTableContainer'];
+            if (ws && ws.grid) {
+              if (ws.grid['weekTableContainer']) {
+                delete ws.grid['weekTableContainer'];
+              }
+              if (ws.grid['topKpisWrapper'] && s.uiPreferences && s.uiPreferences.kpisCollapsed) {
+                ws.grid['topKpisWrapper'].rowSpan = 1;
+                ws.grid['topKpisWrapper'].minRows = 1;
+              }
+              if (ws.grid['todayFocusContainer']) {
+                const hCfg = ws.grid['todayFocusContainer'];
+                if (hCfg.colSpan === 6 && !ws.grid['weekTableContainer']) {
+                  hCfg.colSpan = 12;
+                  hCfg.col = 1;
+                }
+                if (ws.grid['topKpisWrapper'] && ws.grid['topKpisWrapper'].row === 1 && ws.grid['topKpisWrapper'].rowSpan === 1) {
+                  if (hCfg.row > 2 && Object.keys(ws.grid).length <= 6) {
+                    hCfg.row = 2;
+                  }
+                }
+              }
             }
             if (ws && Array.isArray(ws.sidebarWidgets)) {
               ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== 'weekTableContainer');

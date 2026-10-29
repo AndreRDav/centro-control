@@ -1668,6 +1668,16 @@
           projEl.className = 'text-theme-main font-medium font-mono';
         }
 
+        // Actualizar chips de resumen fino en la cabecera plegada de KPIs
+        const chipScore = document.getElementById('kpiChipScore');
+        const chipStudy = document.getElementById('kpiChipStudy');
+        const chipAtt = document.getElementById('kpiChipAttendance');
+        const chipExp = document.getElementById('kpiChipExpenses');
+        if (chipScore) chipScore.textContent = `Score: ${m.score}`;
+        if (chipStudy) chipStudy.textContent = `${formatHoursToHMin(m.studyReal)}`;
+        if (chipAtt) chipAtt.textContent = `${Math.round(m.academicReal)}%`;
+        if (chipExp) chipExp.textContent = `${m.spent.toFixed(0)}€`;
+
         // Actualizar modales de KPI en vivo si alguno está abierto
         if (document.getElementById('modalKpi1Blocks') && !document.getElementById('modalKpi1Blocks').classList.contains('hidden')) renderKpi1BlocksModal();
         if (document.getElementById('modalKpi3Attendance') && !document.getElementById('modalKpi3Attendance').classList.contains('hidden')) renderKpi3AttendanceModal();
@@ -5458,17 +5468,12 @@
         try { renderHeaderAndKPIs(); } catch (e) { console.error('Error in renderHeaderAndKPIs:', e); }
         try { renderDockExpenseUI(); } catch (e) { console.error('Error in renderDockExpenseUI:', e); }
         try { renderPomodoroUI(); } catch (e) { console.error('Error in renderPomodoroUI:', e); }
-        if (state.activeTab === 1) {
-          try { renderDailyHabits(); } catch (e) { console.error('Error in renderDailyHabits:', e); }
-          try { renderQuickExpensesUI(); } catch (e) { console.error('Error in renderQuickExpensesUI:', e); }
-          try { renderListsTree(); } catch (e) { console.error('Error in renderListsTree:', e); }
-        } else if (state.activeTab === 2) {
-          try { renderTab2(); } catch (e) { console.error('Error in renderTab2:', e); }
-        } else if (state.activeTab === 3) {
-          try { renderTab3(); } catch (e) { console.error('Error in renderTab3:', e); }
-        } else if (state.activeTab === 4) {
-          try { renderTab4(); } catch (e) { console.error('Error in renderTab4:', e); }
-        }
+        try { renderDailyHabits(); } catch (e) { console.error('Error in renderDailyHabits:', e); }
+        try { renderQuickExpensesUI(); } catch (e) { console.error('Error in renderQuickExpensesUI:', e); }
+        try { renderListsTree(); } catch (e) { console.error('Error in renderListsTree:', e); }
+        try { renderTab2(); } catch (e) { console.error('Error in renderTab2:', e); }
+        try { renderTab3(); } catch (e) { console.error('Error in renderTab3:', e); }
+        try { renderTab4(); } catch (e) { console.error('Error in renderTab4:', e); }
 
         // Renderizado reactivo de soporte para widgets anatómicos o de biometría en cualquier ventana
         const anatContainer = document.getElementById('anatomySvgContainer');
@@ -5859,20 +5864,22 @@
           const statusText = document.getElementById('kpisSlimStatusText');
           const arrow = document.getElementById('kpisSlimArrow');
           const wrap = document.getElementById('topKpisWrapper');
+          const chipsRow = document.getElementById('kpisSlimChipsRow');
           if (!body) return;
           const isHidden = body.classList.toggle('hidden');
           if (statusText) statusText.textContent = isHidden ? 'Mostrar' : 'Plegar';
           if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
+          if (chipsRow) chipsRow.classList.toggle('hidden', !isHidden);
           if (!state.uiPreferences) state.uiPreferences = {};
           state.uiPreferences.kpisCollapsed = isHidden;
 
-          // Si topKpisWrapper está en el grid activo, actualizar su rowSpan en cascada
+          // Si topKpisWrapper está en el grid activo, actualizar su rowSpan en cascada a 1 fila exacta si está plegado
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
           if (ws && ws.grid && ws.grid['topKpisWrapper']) {
             const cfg = ws.grid['topKpisWrapper'];
-            const measureFn = (window.GridEngine && window.GridEngine.measureNaturalRows) ? window.GridEngine.measureNaturalRows.bind(window.GridEngine) : (app.measureNaturalRows ? app.measureNaturalRows.bind(app) : null);
-            const newRows = measureFn && wrap ? measureFn(wrap) : (isHidden ? 2 : 5);
-            cfg.rowSpan = Math.max(2, newRows);
+            const measureFn = (window.GridEngine && window.GridEngine.measureNaturalRows) ? window.GridEngine.measureNaturalRows.bind(window.GridEngine) : null;
+            const newRows = measureFn && wrap ? measureFn(wrap) : (isHidden ? 1 : 4);
+            cfg.rowSpan = isHidden ? 1 : Math.max(3, newRows);
             cfg.minRows = cfg.rowSpan;
             cfg.manualRows = null;
             if (wrap) {
@@ -6031,10 +6038,13 @@
           const isNarrow = (cols <= 6) || (window.innerWidth < 1024);
           const isCollapsed = state.ui.weekTableCollapsed !== false;
           const currentSubView = state.ui.habitsSubView || 'today';
+          const savedSplit = (state.ui && state.ui.habitsSplitPercent) ? state.ui.habitsSplitPercent : 42;
 
           if (isNarrow) {
             if (switcher) switcher.classList.remove('hidden');
             if (toggleBtn) toggleBtn.classList.add('hidden');
+            todayBox.style.removeProperty('--habits-today-pct');
+            todayBox.style.removeProperty('--habits-week-pct');
             if (todayBtn && weekBtn) {
               if (currentSubView === 'week') {
                 todayBox.classList.add('subview-week');
@@ -6056,6 +6066,8 @@
             }
             todayBox.classList.toggle('habits-matrix-collapsed', isCollapsed);
             todayBox.classList.remove('subview-week');
+            todayBox.style.setProperty('--habits-today-pct', savedSplit + '%');
+            todayBox.style.setProperty('--habits-week-pct', (100 - savedSplit) + '%');
           }
 
           if (window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
@@ -6069,6 +6081,62 @@
               }
             }
           }
+        },
+
+        startHabitsSplitDrag(e) {
+          e.preventDefault();
+          const todayBox = document.getElementById('todayFocusContainer');
+          const compoundBody = document.getElementById('habitsCompoundBody');
+          const splitter = document.getElementById('habitsSplitter');
+          if (!todayBox || !compoundBody || !splitter) return;
+
+          splitter.classList.add('is-dragging');
+          document.body.style.cursor = 'col-resize';
+          document.body.style.userSelect = 'none';
+
+          const rect = compoundBody.getBoundingClientRect();
+
+          const onMove = (moveEvt) => {
+            const currentX = moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
+            const bodyWidth = compoundBody.offsetWidth;
+            if (bodyWidth <= 0) return;
+            const offsetX = currentX - rect.left;
+            let pct = Math.round((offsetX / bodyWidth) * 100);
+            pct = Math.max(25, Math.min(75, pct));
+
+            todayBox.style.setProperty('--habits-today-pct', pct + '%');
+            todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
+            if (!state.ui) state.ui = {};
+            state.ui.habitsSplitPercent = pct;
+          };
+
+          const onEnd = () => {
+            splitter.classList.remove('is-dragging');
+            document.body.style.cursor = '';
+            document.body.style.userSelect = '';
+            window.removeEventListener('mousemove', onMove);
+            window.removeEventListener('mouseup', onEnd);
+            window.removeEventListener('touchmove', onMove);
+            window.removeEventListener('touchend', onEnd);
+            saveState();
+          };
+
+          window.addEventListener('mousemove', onMove, { passive: false });
+          window.addEventListener('mouseup', onEnd, { passive: false });
+          window.addEventListener('touchmove', onMove, { passive: false });
+          window.addEventListener('touchend', onEnd, { passive: false });
+        },
+
+        setHabitsSplitPreset(pct) {
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (!todayBox) return;
+          pct = Math.max(25, Math.min(75, Number(pct) || 42));
+          todayBox.style.setProperty('--habits-today-pct', pct + '%');
+          todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
+          if (!state.ui) state.ui = {};
+          state.ui.habitsSplitPercent = pct;
+          saveState();
+          this.showToast(`Proporción de Hábitos: ${pct}% Hoy / ${100 - pct}% Semana`, 'info', 1200);
         },
         setDailyViewMode(mode) {
           state.ui.dailyViewMode = mode;
@@ -6761,6 +6829,12 @@
             customBox.innerHTML = '';
           }
 
+          const bodyEl = document.getElementById('dockRightSidebarBody');
+          const isShortTool = (mode === 'pomo' || mode === 'expense' || mode === 'tab1RecentExpensesBar');
+          if (bodyEl) {
+            bodyEl.classList.toggle('dock-body-centered', isShortTool);
+          }
+
           if (mode === 'pomo') {
             if (pomoWin) pomoWin.classList.remove('hidden');
             if (titleEl) titleEl.textContent = 'Enfoque Pomodoro';
@@ -6794,6 +6868,11 @@
                   mountedEl.style.gridColumn = '';
                   mountedEl.style.gridRow = '';
                   mountedEl.style.width = '100%';
+                  mountedEl.style.height = '100%';
+                  mountedEl.style.flex = '1 1 0%';
+                  if (mode === 'interactiveListsPanel' && typeof renderListsTree === 'function') {
+                    renderListsTree();
+                  }
                 }
               }
             }

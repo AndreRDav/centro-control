@@ -65,7 +65,8 @@ var GridEngine = {
           overlays.forEach(el => { el.style.display = ''; });
 
           const requiredRows = Math.ceil((naturalHeightPx + 12) / 52);
-          return Math.max(2, requiredRows);
+          const minAllowed = (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed) ? 1 : 2;
+          return Math.max(minAllowed, requiredRows);
         },
 
         // 2. RESOLUCIÓN DE COLISIONES 2D EN CASCADA (CASCADE PUSH) CON PRIORIDAD PARA RECUADROS FIJADOS (PIN)
@@ -842,6 +843,23 @@ var GridEngine = {
                 <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
                 <span>Mover al Dock</span>
               </button>
+              ${cardId === 'todayFocusContainer' ? `
+                <div class="border-t border-theme/40 my-1 pt-1 space-y-0.5">
+                  <div class="px-2 py-0.5 text-[10px] text-stone-500 dark:text-slate-400 font-bold uppercase tracking-wider">Proporción Hoy / Semana</div>
+                  <button type="button" onclick="app.setHabitsSplitPreset(40); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');" class="w-full text-left px-2 py-1 rounded hover:bg-theme-soft text-theme-main flex items-center justify-between text-xs cursor-pointer">
+                    <span>40% Hoy · 60% Semana</span>
+                    <span class="text-[10px] font-mono">40/60</span>
+                  </button>
+                  <button type="button" onclick="app.setHabitsSplitPreset(50); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');" class="w-full text-left px-2 py-1 rounded hover:bg-theme-soft text-theme-main flex items-center justify-between text-xs cursor-pointer">
+                    <span>50% Hoy · 50% Semana</span>
+                    <span class="text-[10px] font-mono">50/50</span>
+                  </button>
+                  <button type="button" onclick="app.setHabitsSplitPreset(60); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');" class="w-full text-left px-2 py-1 rounded hover:bg-theme-soft text-theme-main flex items-center justify-between text-xs cursor-pointer">
+                    <span>60% Hoy · 40% Semana</span>
+                    <span class="text-[10px] font-mono">60/40</span>
+                  </button>
+                </div>
+              ` : ''}
             `;
           }
 
@@ -946,6 +964,12 @@ var GridEngine = {
         },
 
         renderWidgetsDrawer(selectedCategory = 'all') {
+          // Pre-renderizar todas las pestañas para que ningún módulo del catálogo aparezca vacío
+          if (typeof renderDailyHabits === 'function') { try { renderDailyHabits(); } catch(e){} }
+          if (typeof renderTab2 === 'function') { try { renderTab2(); } catch(e){} }
+          if (typeof renderTab3 === 'function') { try { renderTab3(); } catch(e){} }
+          if (typeof renderTab4 === 'function') { try { renderTab4(); } catch(e){} }
+
           let drawer = document.getElementById('widgetsDrawer');
           if (!drawer) {
             drawer = document.createElement('div');
@@ -1245,10 +1269,10 @@ var GridEngine = {
           const el = document.getElementById(id);
           if (el) {
             el.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            el.classList.add('ring-4', 'ring-theme-main', 'ring-offset-2', 'ring-offset-slate-900', 'transition-all', 'duration-500');
+            el.classList.add('widget-locate-highlight');
             setTimeout(() => {
-              el.classList.remove('ring-4', 'ring-theme-main', 'ring-offset-2', 'ring-offset-slate-900');
-            }, 2000);
+              el.classList.remove('widget-locate-highlight');
+            }, 2400);
             this.safeToast('Módulo localizado en el tablero.', 'emerald');
           } else {
             this.safeToast('El módulo no está visible en el tablero.', 'warning');

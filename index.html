@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=2.5.4" />
+  <link rel="stylesheet" href="styles.css?v=2.5.5" />
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
@@ -3199,13 +3199,18 @@
     <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
       <!-- Barra Fina de Métricas y KPIs Semanales (Plegable en 1 Clic para que Hoy sea el protagonista) -->
       <div id="kpisSlimHeaderBar" class="p-1 flex items-center justify-between hover:text-theme-main transition cursor-pointer select-none" onclick="app.toggleKpisAccordion()">
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-2 min-w-0">
           <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
           </div>
-          <div class="text-left flex items-center gap-2">
-            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight">Métricas & 4 KPIs Semanales</span>
-            <span class="text-[9.5px] text-stone-500 dark:text-slate-400 font-mono sm:inline hidden">Hábitos • Estudio • Clases • Finanzas</span>
+          <div class="text-left flex items-center gap-2 min-w-0">
+            <span class="text-[11px] font-bold text-stone-900 dark:text-white leading-tight truncate">Métricas & 4 KPIs</span>
+            <div id="kpisSlimChipsRow" class="hidden sm:flex items-center gap-1.5 font-mono text-[9.5px]">
+              <span id="kpiChipScore" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-theme-main font-bold">Score: 0</span>
+              <span id="kpiChipStudy" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-cyan-600 dark:text-cyan-400 font-bold">0h</span>
+              <span id="kpiChipAttendance" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-emerald-600 dark:text-emerald-400 font-bold">0%</span>
+              <span id="kpiChipExpenses" class="px-1.5 py-0.5 rounded-md subpanel-bg border border-theme text-amber-600 dark:text-amber-400 font-bold">0€</span>
+            </div>
           </div>
         </div>
         <div class="flex items-center gap-1.5 px-2 py-0.5 rounded-lg bg-theme-soft border border-theme text-theme-main font-bold text-[10px] shrink-0">
@@ -3381,6 +3386,9 @@
 
               <div id="todayFocusContent" class="space-y-3 text-xs relative z-10"></div>
             </div>
+
+            <!-- Tirador Divisor Deslizable (Arrastra para calibrar % entre Hoy y Semana) -->
+            <div id="habitsSplitter" class="habits-splitter" title="Arrastra para ajustar proporción" onmousedown="app.startHabitsSplitDrag(event)" ontouchstart="app.startHabitsSplitDrag(event)"></div>
 
             <!-- Subpanel 2: Matriz Semanal de Hábitos (Lunes a Domingo) -->
             <div id="weekTableContainer" class="habits-subpanel-week rounded-xl border border-stone-200/80 dark:border-slate-800/80 subpanel-bg p-2.5 sm:p-3 space-y-2 relative overflow-hidden transition-all duration-300">
@@ -4523,12 +4531,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.5.4"></script>
-  <script src="widgets-registry.js?v=2.5.4"></script>
-  <script src="polymorphic-cards.js?v=2.5.4"></script>
-  <script src="workspaces.js?v=2.5.4"></script>
-  <script src="grid-engine.js?v=2.5.4"></script>
-  <script src="app.js?v=2.5.4"></script>
+  <script src="state-sync.js?v=2.5.5"></script>
+  <script src="widgets-registry.js?v=2.5.5"></script>
+  <script src="polymorphic-cards.js?v=2.5.5"></script>
+  <script src="workspaces.js?v=2.5.5"></script>
+  <script src="grid-engine.js?v=2.5.5"></script>
+  <script src="app.js?v=2.5.5"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->
