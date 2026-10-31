@@ -3197,23 +3197,23 @@
          BLOQUE SUPERIOR DE MÉTRICAS Y 4 KPIS SEMANALES (WIDGET PAQUETE)
          ======================================================== -->
     <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
-      <!-- Barra Superior de Métricas y 4 KPIs (Aprovecha el 100% del Ancho en Modo Sintético) -->
-      <div id="kpisSlimHeaderBar" class="flex flex-col gap-2 select-none transition-all">
-        <div class="flex items-center justify-between pb-1 border-b border-theme/20">
+      <!-- Barra Superior de Métricas y 4 KPIs (Aprovecha el 100% del Ancho en Fila Integrada) -->
+      <div id="kpisSlimHeaderBar" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 select-none transition-all w-full">
+        <div class="flex items-center sm:flex-col sm:items-start justify-between sm:justify-center gap-1 sm:gap-1.5 shrink-0 sm:w-44 md:w-48 pr-2 sm:border-r border-theme/20 pb-1 sm:pb-0">
           <div class="flex items-center gap-2 min-w-0">
             <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
               <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
             </div>
-            <span class="text-xs font-bold text-stone-900 dark:text-white leading-tight font-serif tracking-wide truncate">Métricas & Síntesis Semanal</span>
+            <span class="text-xs font-bold text-stone-900 dark:text-white leading-tight font-serif tracking-wide truncate">Métricas & KPIs</span>
           </div>
-          <button type="button" id="kpisAccordionToggleBtn" onclick="app.toggleKpisAccordion()" class="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-bold text-[10.5px] shrink-0 transition cursor-pointer shadow-xs active:translate-y-0.5" title="Conmutar entre vista sintética de 4 tarjetas y desglose grande">
+          <button type="button" id="kpisAccordionToggleBtn" onclick="app.toggleKpisAccordion()" class="flex items-center gap-1 px-2.5 py-0.5 rounded-lg bg-theme-soft hover:bg-theme-main hover:text-white border border-theme text-theme-main font-bold text-[10px] shrink-0 transition cursor-pointer shadow-xs active:translate-y-0.5" title="Conmutar entre vista sintética de 4 tarjetas y desglose grande">
             <span id="kpisSlimStatusText">Ver Desglose</span>
             <span id="kpisSlimArrow" class="text-[9px]">▼</span>
           </button>
         </div>
 
         <!-- Fila de 4 Paneles Horizontales Equilibrados (Aprovecha el 100% del ancho con acceso directo) -->
-        <div id="kpisSlimGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 w-full pt-0.5">
+        <div id="kpisSlimGrid" class="grid grid-cols-2 lg:grid-cols-4 gap-2 flex-1 min-w-0 w-full">
           <!-- 01. Score Semanal -->
           <div onclick="event.stopPropagation(); app.openKpi1BlocksModal()" class="kpi-slim-card p-2 sm:p-2.5 rounded-xl subpanel-bg border border-theme/40 hover:border-theme-main flex flex-col justify-between gap-1.5 transition cursor-pointer shadow-2xs group" title="Haz clic para ver desglose y diagnóstico de los 6 bloques">
             <div class="flex items-center justify-between">
@@ -4604,12 +4604,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.5.9"></script>
-  <script src="widgets-registry.js?v=2.5.9"></script>
-  <script src="polymorphic-cards.js?v=2.5.9"></script>
-  <script src="workspaces.js?v=2.5.9"></script>
-  <script src="grid-engine.js?v=2.5.9"></script>
-  <script src="app.js?v=2.5.9"></script>
+  <script src="state-sync.js?v=2.6.0"></script>
+  <script src="widgets-registry.js?v=2.6.0"></script>
+  <script src="polymorphic-cards.js?v=2.6.0"></script>
+  <script src="workspaces.js?v=2.6.0"></script>
+  <script src="grid-engine.js?v=2.6.0"></script>
+  <script src="app.js?v=2.6.0"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

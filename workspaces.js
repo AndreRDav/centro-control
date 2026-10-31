@@ -15,11 +15,11 @@ const WorkspacesManager = (function() {
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
       order: 1,
       grid: {
-        topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 1, isPinned: false, compact: false },
-        todayFocusContainer: { col: 1, colSpan: 12, row: 2, rowSpan: 18, isPinned: false, compact: false },
-        notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 20, rowSpan: 8, isPinned: false, compact: false },
-        interactiveListsPanel: { col: 7, colSpan: 6, row: 20, rowSpan: 14, isPinned: false, compact: false },
-        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 28, rowSpan: 4, isPinned: false, compact: false }
+        topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 2, minRows: 2, isPinned: false, compact: false },
+        todayFocusContainer: { col: 1, colSpan: 12, row: 3, rowSpan: 18, minRows: 12, isPinned: false, compact: false },
+        notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 21, rowSpan: 8, isPinned: false, compact: false },
+        interactiveListsPanel: { col: 7, colSpan: 6, row: 21, rowSpan: 14, isPinned: false, compact: false },
+        tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 29, rowSpan: 4, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []

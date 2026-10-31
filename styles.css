@@ -1775,19 +1775,19 @@
       }
     }
 
-    /* KPI BARRA SUPERIOR PLEGADA: AJUSTE EXACTO DE ALTURA (40PX) SIN SOLAPAMIENTO CON LA FILA SIGUIENTE */
+    /* KPI BARRA SUPERIOR PLEGADA: FILA ÚNICA INTEGRADA (~72PX) CON 4 TARJETAS AL 100% DE ANCHO */
     #topKpisWrapper {
       box-sizing: border-box !important;
       transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #topKpisWrapper:has(#kpisCollapsibleBody.hidden) {
-      min-height: 40px !important;
-      max-height: 40px !important;
-      height: 40px !important;
-      padding: 0 14px !important;
+      min-height: 68px !important;
+      max-height: none !important;
+      height: auto !important;
+      padding: 0.5rem 0.85rem !important;
       display: flex !important;
       align-items: center !important;
-      overflow: hidden !important;
+      overflow: visible !important;
       box-sizing: border-box !important;
     }
     #topKpisWrapper:has(#kpisCollapsibleBody.hidden) #kpisSlimHeaderBar {
@@ -1796,7 +1796,13 @@
       padding: 0 !important;
       display: flex !important;
       align-items: center !important;
-      justify-content: space-between !important;
+      justify-content: flex-start !important;
+    }
+    .kpi-slim-card {
+      transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    }
+    .kpi-slim-card:hover {
+      transform: translateY(-1px);
     }
 
     /* TIRADORES DE REDIMENSIÓN EN LOS 4 BORDES Y ESQUINA INFERIOR DERECHA */
@@ -2674,11 +2680,39 @@
     #weekTableContainer table {
       width: 100% !important;
       min-width: 0 !important;
-      table-layout: auto !important;
+      table-layout: fixed !important;
       flex: 1 1 auto !important;
       height: 100% !important;
       border-collapse: separate !important;
-      border-spacing: 0 5px !important;
+      border-spacing: 0 4px !important;
+    }
+    #dailyTableHeader th {
+      position: sticky !important;
+      top: 0 !important;
+      z-index: 20 !important;
+      background: var(--color-panel, #ffffff) !important;
+    }
+    html.dark #dailyTableHeader th {
+      background: var(--color-panel, #0f172a) !important;
+    }
+    #dailyTableHeader th:first-child {
+      position: sticky !important;
+      left: 0 !important;
+      top: 0 !important;
+      z-index: 30 !important;
+      background: var(--color-panel, #ffffff) !important;
+    }
+    html.dark #dailyTableHeader th:first-child {
+      background: var(--color-panel, #0f172a) !important;
+    }
+    #dailyTableBody td:first-child {
+      position: sticky !important;
+      left: 0 !important;
+      z-index: 25 !important;
+      background: var(--color-panel, #ffffff) !important;
+    }
+    html.dark #dailyTableBody td:first-child {
+      background: var(--color-panel, #0f172a) !important;
     }
     #dailyTableBody {
       height: 100% !important;
@@ -2711,7 +2745,33 @@
       border-top: 1px solid var(--color-border);
       border-bottom: 1px solid var(--color-border);
       vertical-align: middle !important;
-      padding: 0.45rem 0.25rem !important;
+      padding: 0.25rem 0.15rem !important;
+      overflow: hidden !important;
+      text-overflow: ellipsis !important;
+    }
+    #weekTableContainer select {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding: 1px 2px !important;
+      font-size: 8px !important;
+      text-align: center !important;
+      appearance: none !important;
+      -webkit-appearance: none !important;
+      background-image: none !important;
+      text-overflow: ellipsis !important;
+      white-space: nowrap !important;
+      overflow: hidden !important;
+      border-radius: 4px !important;
+    }
+    #weekTableContainer input[type="number"],
+    #weekTableContainer input[type="text"] {
+      width: 100% !important;
+      max-width: 100% !important;
+      min-width: 0 !important;
+      padding: 1px 2px !important;
+      font-size: 8.5px !important;
+      text-align: center !important;
     }
 
     /* Estado Plegado / Colapsado: Hoy absorbe el 100% */
@@ -2729,12 +2789,12 @@
       flex-direction: row;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
-      flex: 0 0 calc(var(--habits-today-pct, 40%) - 6px) !important;
-      max-width: calc(var(--habits-today-pct, 40%) - 6px) !important;
+      flex: 0 0 calc(var(--habits-today-pct, 38%) - 6px) !important;
+      max-width: calc(var(--habits-today-pct, 38%) - 6px) !important;
       min-width: 0 !important;
     }
     #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
-      flex: 1 1 calc(var(--habits-week-pct, 60%) - 6px) !important;
+      flex: 1 1 calc(var(--habits-week-pct, 62%) - 6px) !important;
       min-width: 0 !important;
       display: flex !important;
     }

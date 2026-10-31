@@ -839,14 +839,16 @@
           tab4ShowEvolution: true,
           density: 'cozy',
           kpisCollapsed: true,
+          habitsSplitPercent: 38,
           welcomeDismissed: false,
           gridLayouts: {
             desktop: {
               tab1: {
-                todayFocusContainer: { col: 1, colSpan: 12, row: 1, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
-                notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 19, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
-                interactiveListsPanel: { col: 7, colSpan: 6, row: 19, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
-                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 27, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
+                topKpisWrapper: { col: 1, colSpan: 12, row: 1, minRows: 2, manualRows: null, rowSpan: 2, name: 'Métricas & 4 KPIs Semanales' },
+                todayFocusContainer: { col: 1, colSpan: 12, row: 3, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
+                notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 21, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
+                interactiveListsPanel: { col: 7, colSpan: 6, row: 21, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
+                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 29, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
               },
               tab2: {
                 tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
@@ -976,6 +978,8 @@
         },
         ui: {
           dailyViewMode: 'today', // 'week' | 'today'
+          habitsSubView: 'today',
+          habitsSplitPercent: 38,
           weekTableCollapsed: true,
           listTab: 'entregas',
           listSort: 'manual',
@@ -2170,7 +2174,7 @@ var pendingCloudConflictJson = null;
         s.uiPreferences.tab4ShowCustomHabits = true;
         s.uiPreferences.tab4ShowBiometrics = true;
         s.uiPreferences.tab4ShowEvolution = true;
-        s.uiPreferences.habitsSplitPercent = Math.max(28, Math.min(58, Number(s.uiPreferences.habitsSplitPercent) || 42));
+        s.uiPreferences.habitsSplitPercent = Math.max(28, Math.min(52, Number(s.uiPreferences.habitsSplitPercent) || 38));
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         if (s.ui && s.ui.dismissedBanners) delete s.ui.dismissedBanners;
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
@@ -2197,7 +2201,7 @@ var pendingCloudConflictJson = null;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
         if (!s.ui.habitsSubView) s.ui.habitsSubView = 'today';
-        s.ui.habitsSplitPercent = Math.max(28, Math.min(58, Number(s.ui.habitsSplitPercent) || 42));
+        s.ui.habitsSplitPercent = Math.max(28, Math.min(52, Number(s.ui.habitsSplitPercent) || 38));
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
           // En móviles (<768px) inicia plegada por comodidad y espacio
           s.ui.weekTableCollapsed = true;
@@ -2210,9 +2214,11 @@ var pendingCloudConflictJson = null;
               if (ws.grid['weekTableContainer']) {
                 delete ws.grid['weekTableContainer'];
               }
-              if (ws.grid['topKpisWrapper'] && s.uiPreferences && s.uiPreferences.kpisCollapsed) {
-                ws.grid['topKpisWrapper'].rowSpan = 1;
-                ws.grid['topKpisWrapper'].minRows = 1;
+              if (ws.grid['topKpisWrapper']) {
+                if (s.uiPreferences && s.uiPreferences.kpisCollapsed) {
+                  ws.grid['topKpisWrapper'].rowSpan = 2;
+                  ws.grid['topKpisWrapper'].minRows = 2;
+                }
               }
               if (ws.grid['todayFocusContainer']) {
                 const hCfg = ws.grid['todayFocusContainer'];
@@ -2220,9 +2226,10 @@ var pendingCloudConflictJson = null;
                   hCfg.colSpan = 12;
                   hCfg.col = 1;
                 }
-                if (ws.grid['topKpisWrapper'] && ws.grid['topKpisWrapper'].row === 1 && ws.grid['topKpisWrapper'].rowSpan === 1) {
-                  if (hCfg.row > 2 && Object.keys(ws.grid).length <= 6) {
-                    hCfg.row = 2;
+                if (ws.grid['topKpisWrapper'] && ws.grid['topKpisWrapper'].row === 1) {
+                  const kpiRows = ws.grid['topKpisWrapper'].rowSpan || 2;
+                  if (hCfg.row <= kpiRows) {
+                    hCfg.row = kpiRows + 1;
                   }
                 }
               }
