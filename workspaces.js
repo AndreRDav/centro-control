@@ -557,6 +557,14 @@ const WorkspacesManager = (function() {
         }
       }
 
+      // Compactación automática (gravedad 0 huecos) al montar la ventana
+      if (window.GridEngine && typeof window.GridEngine.compactGrid === 'function') {
+        try {
+          window.GridEngine.compactGrid(ws.grid, false);
+          window.GridEngine.applyGridLayout();
+        } catch (_) {}
+      }
+
       if (state.ui && state.ui.isBoardEditMode && window.GridEngine) {
         try {
           if (window.GridEngine.renderBoardEditHandles) window.GridEngine.renderBoardEditHandles();

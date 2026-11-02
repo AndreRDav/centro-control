@@ -345,8 +345,10 @@ var GridEngine = {
                   tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
                   tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
                   tab3PiggyCard: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
-                  tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
-                  tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false }
+                  tab3FixedExpensesCard: { col: 1, colSpan: 6, row: 17, rowSpan: 8, isPinned: false, compact: false },
+                  tab3ExpensesTableCard: { col: 7, colSpan: 6, row: 17, rowSpan: 8, isPinned: false, compact: false },
+                  tab3ExpenseChartsSection: { col: 1, colSpan: 6, row: 25, rowSpan: 8, isPinned: false, compact: false },
+                  tab3AntExpensesCard: { col: 7, colSpan: 6, row: 25, rowSpan: 8, isPinned: false, compact: false }
                 },
                 sidebarWidgets: [],
                 dockWidgets: []
@@ -375,22 +377,35 @@ var GridEngine = {
               }
             ];
 
-            const match = FACTORY_WORKSPACES.find(w => ws && w.id === ws.id) || FACTORY_WORKSPACES[0];
-            if (ws) {
-              ws.grid = JSON.parse(JSON.stringify(match.grid));
-              ws.sidebarWidgets = JSON.parse(JSON.stringify(match.sidebarWidgets || []));
-              ws.dockWidgets = JSON.parse(JSON.stringify(match.dockWidgets || []));
+            const factoryList = (window.WorkspacesManager && window.WorkspacesManager.FACTORY_WORKSPACES)
+              ? window.WorkspacesManager.FACTORY_WORKSPACES
+              : FACTORY_WORKSPACES;
+            let match = factoryList.find(w => ws && w.id === ws.id);
+            if (!match) {
+              const wsIdx = (state.workspaces || []).findIndex(w => ws && w.id === ws.id);
+              if (wsIdx >= 0 && factoryList[wsIdx]) {
+                match = factoryList[wsIdx];
+              } else {
+                match = factoryList[0];
+              }
             }
 
-            if (state.uiPreferences && state.uiPreferences.gridLayouts && state.uiPreferences.gridLayouts.desktop) {
-              state.uiPreferences.gridLayouts.desktop[tabKey] = JSON.parse(JSON.stringify(match.grid));
+            if (ws && match) {
+              ws.grid = JSON.parse(JSON.stringify(match.grid));
+              ws.dockWidgets = JSON.parse(JSON.stringify(match.dockWidgets || []));
+
+              // Quitar de la barra lateral global los módulos pertenecientes a esta plantilla predeterminada
+              if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
+                const defaultGridIds = new Set(Object.keys(match.grid));
+                state.globalSidebar.widgets = state.globalSidebar.widgets.filter(wId => !defaultGridIds.has(wId));
+              }
             }
 
             if (window.WorkspacesManager && typeof window.WorkspacesManager.mountActiveWorkspace === 'function') {
               window.WorkspacesManager.mountActiveWorkspace();
             }
 
-            this.compactGrid(tabKey);
+            this.compactGrid(ws ? ws.grid : null, false);
             this.applyGridLayout(tabKey);
             this.renderBoardEditHandles(tabKey);
             this.renderWidgetsDrawer();
@@ -436,30 +451,94 @@ var GridEngine = {
           this.recordUndo('Preset 3 en fila');
           const ids = Object.keys(layout);
           ids.sort((a, b) => (layout[a].row || 1) - (layout[b].row || 1) || (layout[a].col || 1) - (layout[b].col || 1));
-          ids.forEach((id, i) => {
-            const colIndex = i % 3;
-            layout[id].col = 1 + colIndex * 4;
-            layout[id].colSpan = 4;
-            layout[id].row = 1 + Math.floor(i / 3) * 12;
-            layout[id].manualRows = null;
+
+          let currentRow = 1;
+          let currentCol = 1;
+
+          ids.forEach(id => {
+            const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(id) : null;
+            const minCol = (def && def.minColSpan) || 3;
+
+            if (minCol > 4) {
+              // Si requiere más de 4 columnas (ej. 6, 8 o 12), ocupa su propia fila en ancho completo (o minCol)
+              if (currentCol > 1) {
+                currentRow += 10;
+                currentCol = 1;
+              }
+              layout[id].col = 1;
+              layout[id].colSpan = Math.max(minCol, 12);
+              layout[id].row = currentRow;
+              layout[id].manualRows = null;
+              currentRow += 10;
+              currentCol = 1;
+            } else {
+              // Módulo que soporta 4 columnas (3 en fila)
+              if (currentCol > 9) {
+                currentRow += 10;
+                currentCol = 1;
+              }
+              layout[id].col = currentCol;
+              layout[id].colSpan = 4;
+              layout[id].row = currentRow;
+              layout[id].manualRows = null;
+              currentCol += 4;
+            }
           });
-          this.compactGrid(tabKey, true);
-          this.safeToast('Preset 3 en fila aplicado.', 'indigo');
+
+          this.compactGrid(layout, false);
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          if (typeof saveState === 'function') saveState();
+          this.safeToast('Preset 3 en fila aplicado respetando anchos mínimos.', 'indigo');
         },
 
         applyFiftyFiftyPreset(tabKey) {
           tabKey = tabKey || ('tab' + (state.activeTab || 1));
           const layout = this.getGridLayout(tabKey);
+          if (!layout) return;
+          this.recordUndo('Preset 50/50');
           const ids = Object.keys(layout);
-          ids.forEach((id, i) => {
-            const isLeft = (i % 2 === 0);
-            layout[id].col = isLeft ? 1 : 7;
-            layout[id].colSpan = 6;
-            layout[id].row = 1 + Math.floor(i / 2) * 15;
-            layout[id].manualRows = null;
+          ids.sort((a, b) => (layout[a].row || 1) - (layout[b].row || 1) || (layout[a].col || 1) - (layout[b].col || 1));
+
+          let currentRow = 1;
+          let isLeft = true;
+
+          ids.forEach(id => {
+            const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(id) : null;
+            const minCol = (def && def.minColSpan) || 3;
+
+            if (minCol > 6) {
+              // Si requiere más de 6 columnas (ej. 8 o 12), ocupa su propia fila en ancho completo
+              if (!isLeft) {
+                currentRow += 10;
+                isLeft = true;
+              }
+              layout[id].col = 1;
+              layout[id].colSpan = 12;
+              layout[id].row = currentRow;
+              layout[id].manualRows = null;
+              currentRow += 10;
+              isLeft = true;
+            } else {
+              // Módulo que soporta 6 columnas (50%)
+              layout[id].col = isLeft ? 1 : 7;
+              layout[id].colSpan = 6;
+              layout[id].row = currentRow;
+              layout[id].manualRows = null;
+              if (!isLeft) {
+                currentRow += 10;
+                isLeft = true;
+              } else {
+                isLeft = false;
+              }
+            }
           });
-          this.compactGrid(tabKey);
-          this.safeToast('Preset 50% / 50% aplicado.', 'emerald');
+
+          this.compactGrid(layout, false);
+          this.applyGridLayout(tabKey);
+          if (state.ui && state.ui.isBoardEditMode) this.renderBoardEditHandles(tabKey);
+          if (typeof saveState === 'function') saveState();
+          this.safeToast('Preset 50% / 50% aplicado respetando anchos mínimos.', 'emerald');
         },
 
         applyFullWidthPreset(tabKey) {
@@ -615,7 +694,6 @@ var GridEngine = {
             try { this.resolveGridCollisions(tabKey, null); } catch (e) { console.warn('resolveGridCollisions:', e); }
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
             try { this.renderBoardEditHandles(tabKey); } catch (e) { console.warn('renderBoardEditHandles:', e); }
-            try { this.renderWidgetsDrawer(); } catch (e) { console.warn('renderWidgetsDrawer:', e); }
             try { this.renderDockWidgets(); } catch (e) { console.warn('renderDockWidgets:', e); }
             this.safeToast('Modo Diseño activado: Ajusta y mueve los cuadros en el tablero.', 'emerald');
           } else {
@@ -921,7 +999,7 @@ var GridEngine = {
           if (sidebarContainer && window.WidgetsRegistry) {
             window.WidgetsRegistry.mountWidget(cardId, sidebarContainer);
           }
-          this.compactGrid();
+          this.compactGrid(ws.grid, false);
           this.applyGridLayout();
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
@@ -1256,6 +1334,16 @@ var GridEngine = {
                 const def = catalog[id];
                 return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
               });
+
+          if (window.innerWidth < 1440) {
+            const sidebar = document.getElementById('workspaceSidebar');
+            if (sidebar && sidebar.classList.contains('sidebar-open')) {
+              sidebar.classList.remove('sidebar-open');
+              sidebar.classList.add('hidden', 'sidebar-collapsed');
+              document.body.classList.remove('sidebar-view-open');
+              if (state && state.globalSidebar) state.globalSidebar.isOpen = false;
+            }
+          }
 
           drawer.className = 'w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col drawer-open';
           drawer.classList.remove('hidden');
@@ -1631,7 +1719,7 @@ var GridEngine = {
           }
           
           this.renderDockWidgets();
-          this.compactGrid();
+          this.compactGrid(ws.grid, false);
           this.applyGridLayout();
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
@@ -1726,25 +1814,17 @@ var GridEngine = {
             }
             const isEdit = (typeof this.isBoardEditMode === 'function') ? this.isBoardEditMode() : false;
             const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-            if (ws && ws.grid && ws.grid[cardId]) {
+            if (ws && ws.grid && ws.grid[cardId] && el) {
               const cfg = ws.grid[cardId];
               cfg.compact = isComp;
-              if (isEdit) {
-                if (isComp) {
-                  const liveCompRows = this.measureNaturalRows(el);
-                  const compactRows = Math.max(2, liveCompRows);
-                  cfg.rowSpan = compactRows;
-                  cfg.manualRows = compactRows;
-                } else {
-                  const liveNormRows = this.measureNaturalRows(el);
-                  cfg.rowSpan = Math.max(3, liveNormRows);
-                  cfg.manualRows = null;
-                }
-              }
+              const newRows = Math.max(2, this.measureNaturalRows(el));
+              cfg.minRows = newRows;
+              cfg.rowSpan = newRows;
+              cfg.manualRows = null;
             }
+            this.compactGrid();
+            this.applyGridLayout();
             if (isEdit) {
-              this.compactGrid();
-              this.applyGridLayout();
               this.renderBoardEditHandles();
             }
             if (cardId === 'todayFocusContainer') {
@@ -1778,7 +1858,7 @@ var GridEngine = {
             if (def) cardName = def.name;
             window.WidgetsRegistry.parkWidget(cardId);
           }
-          this.compactGrid();
+          this.compactGrid(ws ? ws.grid : null, false);
           this.applyGridLayout();
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();

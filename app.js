@@ -1548,17 +1548,20 @@
         // Sincronizar estado del acordeón de KPIs (Exclusión mutua entre resumen y detalle)
         const kpiBody = document.getElementById('kpisCollapsibleBody');
         const kpiSlimGrid = document.getElementById('kpisSlimGrid');
+        const kpiTitleBox = document.getElementById('kpisSlimTitleBox');
         const kpiTxt = document.getElementById('kpisSlimStatusText');
         const kpiArr = document.getElementById('kpisSlimArrow');
         if (kpiBody && state.uiPreferences && state.uiPreferences.kpisCollapsed !== undefined) {
           if (state.uiPreferences.kpisCollapsed) {
             kpiBody.classList.add('hidden');
             if (kpiSlimGrid) kpiSlimGrid.classList.remove('hidden');
+            if (kpiTitleBox) kpiTitleBox.className = 'flex items-center sm:flex-col sm:items-start justify-between sm:justify-center gap-1 sm:gap-1.5 shrink-0 sm:w-44 md:w-48 pr-2 sm:border-r border-theme/20 pb-1 sm:pb-0';
             if (kpiTxt) kpiTxt.textContent = 'Ver Desglose';
             if (kpiArr) kpiArr.textContent = '▼';
           } else {
             kpiBody.classList.remove('hidden');
             if (kpiSlimGrid) kpiSlimGrid.classList.add('hidden');
+            if (kpiTitleBox) kpiTitleBox.className = 'w-full flex items-center justify-between border-b border-theme/20 pb-2';
             if (kpiTxt) kpiTxt.textContent = 'Plegar';
             if (kpiArr) kpiArr.textContent = '▲';
           }
@@ -2171,9 +2174,9 @@
                   </div>
                   <span class="font-bold text-xs">Clases para Hoy</span>
                 </div>
-                <div class="flex items-center gap-2">
-                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono compact-hide">${(day.attendance || []).length} asignaturas</span>
-                  <span class="font-mono font-bold text-theme-main text-[10px] hidden compact-inline">${Math.round(m.attPct)}% global</span>
+                <div class="flex items-center gap-2 shrink-0">
+                  <span class="text-[10px] text-stone-500 dark:text-slate-400 font-mono compact-hide whitespace-nowrap">${(day.attendance || []).length} asignaturas</span>
+                  <span class="font-mono font-bold text-theme-main text-[10px] hidden compact-inline whitespace-nowrap">${Math.round(m.attPct)}% global</span>
                 </div>
               </div>
               <div class="academic-classes-grid space-y-1.5 flex-1 flex flex-col justify-center">
@@ -2199,9 +2202,9 @@
                   `;
                 }).join('')}
               </div>
-              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
-                <span>Asistencia requerida: ${w.goals.academic?.attMinPercent || 85}%</span>
-                <span class="font-mono font-bold text-theme-main">${Math.round(m.attPct)}% global</span>
+              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between whitespace-nowrap gap-1">
+                <span class="whitespace-nowrap">Asistencia requerida: ${w.goals.academic?.attMinPercent || 85}%</span>
+                <span class="font-mono font-bold text-theme-main whitespace-nowrap">${Math.round(m.attPct)}% global</span>
               </div>
             </div>
           `;
@@ -2214,19 +2217,19 @@
           studyCardHtml = `
             <!-- Horas de Estudio de Hoy -->
             <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
-                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
+              <div class="flex items-center justify-between gap-1.5">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
                   </div>
-                  <div>
-                    <span class="font-bold block text-xs">Estudio de Hoy</span>
-                    <span class="text-[10px] text-stone-500 dark:text-slate-400">Plan: ${formatHoursToHMin(studyPlan)} · Semanal: ${formatHoursToHMin(totalWeeklyStudy)}</span>
+                  <div class="min-w-0">
+                    <span class="font-bold block text-xs truncate">Estudio de Hoy</span>
+                    <span class="text-[10px] text-stone-500 dark:text-slate-400 block truncate">Plan: ${formatHoursToHMin(studyPlan)} · Semanal: ${formatHoursToHMin(totalWeeklyStudy)}</span>
                   </div>
                 </div>
-                <div class="flex items-center gap-1.5 shrink-0">
-                  <span class="text-xs font-extrabold font-mono text-theme-main">${formatHoursToHMin(studyDone)}</span>
-                  <span class="text-[9.5px] font-mono font-bold text-stone-400">(${studyPct}%)</span>
+                <div class="flex items-center gap-1.5 shrink-0 whitespace-nowrap">
+                  <span class="text-xs font-extrabold font-mono text-theme-main whitespace-nowrap">${formatHoursToHMin(studyDone)}</span>
+                  <span class="text-[9.5px] font-mono font-bold text-stone-400 whitespace-nowrap">(${studyPct}%)</span>
                 </div>
               </div>
               <div class="h-1.5 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
@@ -2277,23 +2280,23 @@
             const badgeLabel = curVal === null ? 'Sin registrar' : (isExceeded ? `Excedido (+${(curVal - maxDaily).toFixed(1)})` : 'Bajo límite (OK)');
 
             bodyHtml = `
-              <div class="flex items-center justify-between gap-2 pt-1">
-                <div class="flex items-center gap-2 flex-1">
-                  <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                  <span class="text-[10px] font-semibold text-stone-500">${h.unit || 'h'} (máx ${maxDaily})</span>
+              <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
+                <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                  <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">${h.unit || 'h'} (máx ${maxDaily})</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
               </div>
             `;
           } else if (h.type === 'min_accum') {
             const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : 0;
             bodyHtml = `
-              <div class="flex items-center justify-between gap-2 pt-1">
-                <div class="flex items-center gap-2 flex-1">
-                  <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
-                  <span class="text-[10px] font-semibold text-stone-500">${h.unit || ''} hoy</span>
+              <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
+                <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                  <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">${h.unit || ''} hoy</span>
                 </div>
-                <div class="flex gap-1">
+                <div class="flex gap-1 shrink-0">
                   <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 1)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+1</button>
                   <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 5)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+5</button>
                 </div>
@@ -2360,12 +2363,12 @@
             const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + margin) ? 'Por encima' : 'Por debajo'));
 
             bodyHtml = `
-              <div class="flex items-center justify-between gap-2 pt-1">
-                <div class="flex items-center gap-2 flex-1">
-                  <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-20 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                  <span class="text-[10px] font-semibold text-stone-500">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
+              <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
+                <div class="flex items-center gap-1.5 flex-1 min-w-0">
+                  <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold ${badgeClass}">${badgeLabel}</span>
+                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
               </div>
             `;
           }
@@ -2480,7 +2483,7 @@
         const theHeader = document.getElementById(headerId);
         if (theHeader) {
           theHeader.innerHTML = `
-            <th class="py-1 px-1 text-left w-[18%] min-w-[90px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 top-0 z-30 panel-bg">Hábito</th>
+            <th class="py-1 px-1 text-left w-[15%] min-w-[76px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky left-0 top-0 z-30 panel-bg">Hábito</th>
             ${DAYS.map((d, i) => {
               const isToday = i === todayDayIndex;
               const isPast = i < todayDayIndex;
@@ -2493,7 +2496,7 @@
                 </th>
               `;
             }).join('')}
-            <th class="py-1 px-1 text-center w-[12%] min-w-[55px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky top-0 z-20 panel-bg">Progreso</th>
+            <th class="py-1 px-1 text-center w-[11%] min-w-[48px] text-stone-500 dark:text-slate-400 text-[9px] uppercase font-bold tracking-wider sticky top-0 z-20 panel-bg">Progreso</th>
           `;
         }
 
@@ -2502,7 +2505,7 @@
         tbody.innerHTML = '';
 
         // 1. Gym
-        let gymHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
+        let gymHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg></div><span class="text-[11px] truncate">Gym</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.gymSessions}s</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2541,13 +2544,13 @@
           `;
         });
         gymHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.gymPct, `${m.gymReal}/${w.goals.gymSessions}s`, streaks.gym)}
           </td>
         `;
 
         // 2. Running
-        let runHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
+        let runHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg></div><span class="text-[11px] truncate">Run</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.runKm}k</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2597,13 +2600,13 @@
           `;
         });
         runHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.runPct, `${m.runKmReal.toFixed(1)}k`, streaks.run)}
           </td>
         `;
 
         // 3. Estudio
-        let studyHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
+        let studyHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg></div><span class="text-[11px] truncate">Estudio</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Plan/Real</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2622,13 +2625,13 @@
           `;
         });
         studyHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.studyPct, `${formatHoursToHMin(m.studyReal)}`, streaks.study)}
           </td>
         `;
 
         // 4. Asistencia
-        let attHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
+        let attHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg></div><span class="text-[11px] truncate">Clases</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.academic?.attMinPercent || 85}%</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2663,14 +2666,14 @@
           `;
         });
         attHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.attPct, `${Math.round(m.attPct)}%`, streaks.att)}
           </td>
         `;
 
         // 5. Nutrición
         const curNutriMargin = w.goals.nutri?.margin || 150;
-        let nutriHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
+        let nutriHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg></div><span class="text-[11px] truncate">Nutri</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">${w.goals.nutri?.minDays || 6}d</div></td>`;
         w.days.forEach((day, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2698,13 +2701,13 @@
         });
         const validNutriDays = w.days.filter(d => (d.nutritionScore !== undefined ? d.nutritionScore >= 0.8 : d.nutrition === 'success')).length;
         nutriHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.nutriPct, `${validNutriDays}/${w.goals.nutri?.minDays || 6}d`, streaks.nutri)}
           </td>
         `;
 
         // 6. Gasto Día
-        let spendHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
+        let spendHtml = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px]"><div class="flex items-center gap-1.5"><div class="vector-seal bg-theme-main text-white w-4 h-4 shadow-xs shrink-0"><svg class="w-2.5 h-2.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="4" width="20" height="16" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg></div><span class="text-[11px] truncate">Gasto</span></div><div class="text-[8.5px] text-stone-400 dark:text-slate-400 font-normal pl-5 truncate">Suma €</div></td>`;
         w.days.forEach((_, dIdx) => {
           const isToday = dIdx === todayDayIndex;
           const isPast = dIdx < todayDayIndex;
@@ -2713,7 +2716,7 @@
           spendHtml += `<td class="py-1.5 px-0.5 ${colClass} align-middle font-mono font-bold text-[10px]">${daySpend > 0 ? `${daySpend.toFixed(1)}€` : '—'}</td>`;
         });
         spendHtml += `
-          <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+          <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
             ${renderProgressCell(m.finPct, `${m.spent.toFixed(1)}€`, streaks.fin)}
           </td>
         `;
@@ -2734,7 +2737,7 @@
           const borderLClass = isReminder ? 'border-l-3 border-l-amber-500 pl-1.5' : 'border-l-3 border-l-theme-main pl-1.5';
           const iconColorClass = isReminder ? 'text-amber-500' : 'text-theme-main';
 
-          let hRow = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[18%] min-w-[90px] ${borderLClass}">
+          let hRow = `<td class="py-2 px-1 text-left font-bold sticky left-0 z-20 panel-bg w-[15%] min-w-[76px] ${borderLClass}">
             <div class="flex items-center gap-1.5">
               <span class="w-4 h-4 rounded subpanel-bg flex items-center justify-center ${iconColorClass} shrink-0">
                 ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3 h-3 ${iconColorClass}`)}
@@ -2855,7 +2858,7 @@
 
           if (isReminder) {
             hRow += `
-              <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+              <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
                 <div class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9.5px] font-mono font-bold bg-stone-200/60 dark:bg-slate-800/80 text-stone-600 dark:text-stone-300 border border-stone-300/80 dark:border-slate-700">
                   <span>${summaryLabel}</span>
                 </div>
@@ -2864,7 +2867,7 @@
             `;
           } else {
             hRow += `
-              <td class="py-2 px-1 text-center align-middle w-[12%] min-w-[55px]">
+              <td class="py-2 px-1 text-center align-middle w-[11%] min-w-[48px]">
                 ${renderProgressCell(hPct, summaryLabel, null)}
               </td>
             `;
@@ -3831,17 +3834,17 @@
                 <div class="space-y-1.5 min-h-[90px]">
                   ${classes.length === 0 ? `<div class="text-slate-500 text-[10px] py-4 text-center">— Libre —</div>` : ''}
                   ${classes.map((c, cIdx) => `
-                    <div data-class-id="${dIdx}_${cIdx}" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0 cursor-pointer">
+                    <div data-class-id="${dIdx}_${cIdx}" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="p-1.5 rounded-lg panel-bg border text-[11px] space-y-1 min-w-0 cursor-pointer group hover:border-theme/70 transition shadow-2xs">
                       <div class="flex items-center justify-between gap-1 min-w-0">
-                        <div class="min-w-0 flex-1 cursor-pointer hover:text-theme-main transition-colors flex items-center gap-1.5" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" title="Editar clase: ${escapeHtml(c.subject)}">
-                          <span class="font-bold text-stone-900 dark:text-white truncate flex-1 min-w-0" title="${escapeHtml(c.subject)}">${escapeHtml(c.subject)}</span>
+                        <div class="min-w-0 flex-1 flex items-center gap-1">
+                          <span class="font-bold text-stone-900 dark:text-white line-clamp-1 flex-1 min-w-0" title="${escapeHtml(c.subject)}">${escapeHtml(c.subject)}</span>
                           <span class="text-[9px] px-1 py-0.2 rounded font-mono font-bold shrink-0 ${c.type === 'P' ? 'bg-theme-accent-soft text-theme-accent border border-theme-accent/30' : (c.type === 'G' ? 'bg-theme-accent text-white' : 'bg-theme-soft text-theme-main border border-theme')}">[${c.type || 'T'}]</span>
                         </div>
-                        <div class="flex items-center gap-0.5 shrink-0">
-                          <button onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-main p-0.5 transition" title="Editar clase">
+                        <div class="hidden group-hover:flex items-center gap-0.5 shrink-0" onclick="event.stopPropagation()">
+                          <button type="button" onclick="app.openEditClassScheduleModal(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-main p-0.5 transition" title="Editar clase">
                             <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
                           </button>
-                          <button onclick="app.deleteClassFromSchedule(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-accent font-bold px-0.5 text-xs" title="Eliminar clase">✕</button>
+                          <button type="button" onclick="app.deleteClassFromSchedule(${dIdx}, ${cIdx})" class="text-slate-400 hover:text-theme-accent font-bold px-0.5 text-xs" title="Eliminar clase">✕</button>
                           <button type="button" onclick="app.openClassActionsMenu(event, ${dIdx}, ${cIdx})" oncontextmenu="app.openClassActionsMenu(event, ${dIdx}, ${cIdx}); return false;" class="text-slate-400 hover:text-stone-900 dark:hover:text-white p-0.5 font-bold text-xs" title="Más opciones">•••</button>
                         </div>
                       </div>
@@ -6141,6 +6144,9 @@
           const shouldOpen = forceOpen !== null ? forceOpen : !isCurrentlyOpen;
 
           if (shouldOpen) {
+            if (window.innerWidth < 1440 && window.GridEngine && typeof window.GridEngine.closeWidgetsDrawer === 'function') {
+              window.GridEngine.closeWidgetsDrawer();
+            }
             sidebar.classList.remove('hidden', 'collapsed', 'sidebar-collapsed');
             sidebar.classList.add('sidebar-open');
             document.body.classList.add('sidebar-view-open');
@@ -6180,6 +6186,7 @@
         toggleKpisAccordion() {
           const body = document.getElementById('kpisCollapsibleBody');
           const slimGrid = document.getElementById('kpisSlimGrid');
+          const titleBox = document.getElementById('kpisSlimTitleBox');
           const statusText = document.getElementById('kpisSlimStatusText');
           const arrow = document.getElementById('kpisSlimArrow');
           const wrap = document.getElementById('topKpisWrapper');
@@ -6188,6 +6195,13 @@
           if (slimGrid) {
             if (isHidden) slimGrid.classList.remove('hidden');
             else slimGrid.classList.add('hidden');
+          }
+          if (titleBox) {
+            if (isHidden) {
+              titleBox.className = 'flex items-center sm:flex-col sm:items-start justify-between sm:justify-center gap-1 sm:gap-1.5 shrink-0 sm:w-44 md:w-48 pr-2 sm:border-r border-theme/20 pb-1 sm:pb-0';
+            } else {
+              titleBox.className = 'w-full flex items-center justify-between border-b border-theme/20 pb-2';
+            }
           }
           if (statusText) statusText.textContent = isHidden ? 'Ver Desglose' : 'Plegar';
           if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
@@ -6337,6 +6351,21 @@
           this.syncHabitsCompoundLayout();
           renderDailyHabits();
           this.applyUiPreferences();
+
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (todayBox && window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
+            const newRows = Math.max(4, window.GridEngine.measureNaturalRows(todayBox));
+            const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+            if (ws && ws.grid && ws.grid['todayFocusContainer']) {
+              const cfg = ws.grid['todayFocusContainer'];
+              cfg.minRows = newRows;
+              cfg.rowSpan = newRows;
+              cfg.manualRows = null;
+            }
+            window.GridEngine.compactGrid();
+            window.GridEngine.applyGridLayout();
+          }
+
           saveState();
         },
 
@@ -6344,6 +6373,21 @@
           if (!state.ui) state.ui = {};
           state.ui.habitsSubView = view === 'week' ? 'week' : 'today';
           this.syncHabitsCompoundLayout();
+
+          const todayBox = document.getElementById('todayFocusContainer');
+          if (todayBox && window.GridEngine && typeof window.GridEngine.measureNaturalRows === 'function') {
+            const newRows = Math.max(4, window.GridEngine.measureNaturalRows(todayBox));
+            const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+            if (ws && ws.grid && ws.grid['todayFocusContainer']) {
+              const cfg = ws.grid['todayFocusContainer'];
+              cfg.minRows = newRows;
+              cfg.rowSpan = newRows;
+              cfg.manualRows = null;
+            }
+            window.GridEngine.compactGrid();
+            window.GridEngine.applyGridLayout();
+          }
+
           saveState();
         },
 
@@ -6357,11 +6401,11 @@
 
           const cols = parseInt(todayBox.getAttribute('data-cols') || '12', 10);
           const boxWidth = todayBox.offsetWidth || 0;
-          const isNarrow = (cols <= 6) || (window.innerWidth < 1024) || (boxWidth > 0 && boxWidth < 770);
+          const isNarrow = (cols <= 8) || (window.innerWidth < 1024) || (boxWidth > 0 && boxWidth < 960);
           const isCollapsed = state.ui.weekTableCollapsed !== false;
           const currentSubView = state.ui.habitsSubView || 'today';
-          const rawSplit = (state.ui && state.ui.habitsSplitPercent) || (state.uiPreferences && state.uiPreferences.habitsSplitPercent) || 38;
-          const savedSplit = Math.max(28, Math.min(52, Number(rawSplit) || 38));
+          const rawSplit = (state.ui && state.ui.habitsSplitPercent) || (state.uiPreferences && state.uiPreferences.habitsSplitPercent) || 42;
+          const savedSplit = Math.max(38, Math.min(54, Number(rawSplit) || 42));
 
           if (isNarrow) {
             if (switcher) switcher.classList.remove('hidden');
@@ -6430,22 +6474,16 @@
             const currentX = moveEvt.type && moveEvt.type.startsWith('touch') ? moveEvt.touches[0].clientX : moveEvt.clientX;
             const bodyWidth = compoundBody.offsetWidth;
             if (bodyWidth <= 0) return;
-            if (bodyWidth < 770) {
-              // Menor a 770px: forzar modo pestañas para prevenir cortes
+            if (bodyWidth < 960) {
+              // Menor a 960px: forzar modo pestañas para prevenir cortes
               app.syncHabitsCompoundLayout();
               return;
             }
             const offsetX = currentX - rect.left;
             let pct = Math.round((offsetX / bodyWidth) * 100);
 
-            // Blindaje de límites mínimos absolutos en píxeles:
-            // Hoy requiere mínimo 320px para tarjetas cómodas sin cortes; Semana requiere mínimo 450px para las 7 columnas
-            const minHoyPct = Math.ceil((320 / bodyWidth) * 100);
-            const maxHoyPct = Math.floor(((bodyWidth - 450) / bodyWidth) * 100);
-            const clampMin = Math.min(minHoyPct, maxHoyPct);
-            const clampMax = Math.max(minHoyPct, maxHoyPct);
-
-            pct = Math.max(clampMin, Math.min(clampMax, pct));
+            // Blindaje estricto entre 38% (mínimo para Hoy) y 54% (máximo para Hoy, dejando al menos 46% para Semana)
+            pct = Math.max(38, Math.min(54, pct));
 
             todayBox.style.setProperty('--habits-today-pct', pct + '%');
             todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');

@@ -1047,30 +1047,28 @@
       from { transform: translateX(-100%); opacity: 0; }
       to { transform: translateX(0); opacity: 1; }
     }
-    @keyframes slideInSidebarRight {
-      from { transform: translateX(100%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
+    @keyframes slideInDockFloat {
+      from { transform: translateY(12px) scale(0.98); opacity: 0; }
+      to { transform: translateY(0) scale(1); opacity: 1; }
     }
 
     #dockRightSidebar {
-      width: 340px !important;
-      max-width: 85vw !important;
-      flex-shrink: 0 !important;
-      position: sticky !important;
-      top: 0 !important;
-      height: 100vh !important;
-      max-height: 100vh !important;
+      position: fixed !important;
+      bottom: 4.5rem !important;
+      right: 1.5rem !important;
+      width: 22rem !important;
+      max-width: calc(100vw - 2rem) !important;
+      height: auto !important;
+      max-height: 80vh !important;
       overflow-y: auto !important;
       background: var(--color-panel, #f3ede2) !important;
-      border-left: 1px solid var(--color-border, #d6cbb8) !important;
-      border-right: none !important;
-      border-top: none !important;
-      border-bottom: none !important;
-      border-radius: 0 !important;
-      z-index: 40 !important;
+      border: 1px solid var(--color-border, #d6cbb8) !important;
+      border-radius: 1rem !important;
+      box-shadow: 0 20px 48px rgba(0, 0, 0, 0.45) !important;
+      z-index: 50 !important;
       display: flex !important;
       flex-direction: column !important;
-      animation: slideInSidebarRight 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      animation: slideInDockFloat 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
     #dockRightSidebar.hidden {
       display: none !important;
@@ -1179,6 +1177,47 @@
       flex-shrink: 0 !important;
       max-height: calc(100vh - 110px) !important;
       overflow-y: auto !important;
+    }
+
+    /* CABECERAS Y CONTROLES ADAPTATIVOS EN PANEL LATERAL, DOCK Y CUADROS ESTRECHOS (<= 4 COLS) */
+    #sidebarWidgetsContainer .editorial-card > div.border-b,
+    #dockRightSidebar .editorial-card > div.border-b,
+    .editorial-card[data-cols="1"] > div.border-b,
+    .editorial-card[data-cols="2"] > div.border-b,
+    .editorial-card[data-cols="3"] > div.border-b,
+    .editorial-card[data-cols="4"] > div.border-b {
+      flex-wrap: wrap !important;
+      gap: 0.5rem !important;
+    }
+
+    #sidebarWidgetsContainer .compact-hide,
+    #dockRightSidebar .compact-hide,
+    .editorial-card[data-cols="1"] .compact-hide,
+    .editorial-card[data-cols="2"] .compact-hide,
+    .editorial-card[data-cols="3"] .compact-hide,
+    .editorial-card[data-cols="4"] .compact-hide,
+    #sidebarWidgetsContainer .editorial-card h3 + span,
+    #dockRightSidebar .editorial-card h3 + span,
+    .editorial-card[data-cols="1"] h3 + span,
+    .editorial-card[data-cols="2"] h3 + span,
+    .editorial-card[data-cols="3"] h3 + span,
+    .editorial-card[data-cols="4"] h3 + span {
+      display: none !important;
+    }
+
+    #sidebarWidgetsContainer .editorial-card > div.border-b > div:last-child,
+    #dockRightSidebar .editorial-card > div.border-b > div:last-child,
+    .editorial-card[data-cols="1"] > div.border-b > div:last-child,
+    .editorial-card[data-cols="2"] > div.border-b > div:last-child,
+    .editorial-card[data-cols="3"] > div.border-b > div:last-child,
+    .editorial-card[data-cols="4"] > div.border-b > div:last-child {
+      width: 100% !important;
+      display: flex !important;
+      flex-wrap: wrap !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      gap: 0.35rem !important;
+      padding-top: 0.25rem !important;
     }
 
     /* Pestaña Flotante Lateral Izquierda (Pull-Tab) */
@@ -2610,17 +2649,17 @@
       display: none !important;
     }
 
-    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 7 columnas) - PROPORCIÓN CALIBRABLE CON TOPES SEGUROS */
-    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-compound-body {
+    /* Estado Desplegado en Pantallas / Cuadros Amplios (>= 9 columnas) - PROPORCIÓN CALIBRABLE CON TOPES SEGUROS */
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]):not([data-cols="7"]):not([data-cols="8"]) .habits-compound-body {
       flex-direction: row;
     }
-    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-today {
-      flex: 0 0 calc(var(--habits-today-pct, 38%) - 6px) !important;
-      max-width: calc(var(--habits-today-pct, 38%) - 6px) !important;
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]):not([data-cols="7"]):not([data-cols="8"]) .habits-subpanel-today {
+      flex: 0 0 calc(var(--habits-today-pct, 42%) - 6px) !important;
+      max-width: calc(var(--habits-today-pct, 42%) - 6px) !important;
       min-width: 0 !important;
     }
-    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]) .habits-subpanel-week {
-      flex: 1 1 calc(var(--habits-week-pct, 62%) - 6px) !important;
+    #todayFocusContainer:not(.habits-matrix-collapsed):not([data-cols="1"]):not([data-cols="2"]):not([data-cols="3"]):not([data-cols="4"]):not([data-cols="5"]):not([data-cols="6"]):not([data-cols="7"]):not([data-cols="8"]) .habits-subpanel-week {
+      flex: 1 1 calc(var(--habits-week-pct, 58%) - 6px) !important;
       min-width: 0 !important;
       display: flex !important;
     }
@@ -2767,13 +2806,15 @@
       }
     }
 
-    /* En escritorio con data-cols <= 6 */
+    /* En escritorio con data-cols <= 8 o pantallas estrechas */
     #todayFocusContainer[data-cols="1"] #habitsSubViewSwitcher,
     #todayFocusContainer[data-cols="2"] #habitsSubViewSwitcher,
     #todayFocusContainer[data-cols="3"] #habitsSubViewSwitcher,
     #todayFocusContainer[data-cols="4"] #habitsSubViewSwitcher,
     #todayFocusContainer[data-cols="5"] #habitsSubViewSwitcher,
-    #todayFocusContainer[data-cols="6"] #habitsSubViewSwitcher {
+    #todayFocusContainer[data-cols="6"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="7"] #habitsSubViewSwitcher,
+    #todayFocusContainer[data-cols="8"] #habitsSubViewSwitcher {
       display: flex !important;
     }
 
@@ -2782,7 +2823,9 @@
     #todayFocusContainer[data-cols="3"] #toggleWeekTableBtn,
     #todayFocusContainer[data-cols="4"] #toggleWeekTableBtn,
     #todayFocusContainer[data-cols="5"] #toggleWeekTableBtn,
-    #todayFocusContainer[data-cols="6"] #toggleWeekTableBtn {
+    #todayFocusContainer[data-cols="6"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="7"] #toggleWeekTableBtn,
+    #todayFocusContainer[data-cols="8"] #toggleWeekTableBtn {
       display: none !important;
     }
 
@@ -2791,8 +2834,21 @@
     #todayFocusContainer[data-cols="3"] .habits-compound-body,
     #todayFocusContainer[data-cols="4"] .habits-compound-body,
     #todayFocusContainer[data-cols="5"] .habits-compound-body,
-    #todayFocusContainer[data-cols="6"] .habits-compound-body {
+    #todayFocusContainer[data-cols="6"] .habits-compound-body,
+    #todayFocusContainer[data-cols="7"] .habits-compound-body,
+    #todayFocusContainer[data-cols="8"] .habits-compound-body {
       flex-direction: column !important;
+    }
+
+    #todayFocusContainer[data-cols="1"] .habits-splitter,
+    #todayFocusContainer[data-cols="2"] .habits-splitter,
+    #todayFocusContainer[data-cols="3"] .habits-splitter,
+    #todayFocusContainer[data-cols="4"] .habits-splitter,
+    #todayFocusContainer[data-cols="5"] .habits-splitter,
+    #todayFocusContainer[data-cols="6"] .habits-splitter,
+    #todayFocusContainer[data-cols="7"] .habits-splitter,
+    #todayFocusContainer[data-cols="8"] .habits-splitter {
+      display: none !important;
     }
 
     #todayFocusContainer[data-cols="1"].subview-week .habits-subpanel-today,
@@ -2800,7 +2856,9 @@
     #todayFocusContainer[data-cols="3"].subview-week .habits-subpanel-today,
     #todayFocusContainer[data-cols="4"].subview-week .habits-subpanel-today,
     #todayFocusContainer[data-cols="5"].subview-week .habits-subpanel-today,
-    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-today {
+    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="7"].subview-week .habits-subpanel-today,
+    #todayFocusContainer[data-cols="8"].subview-week .habits-subpanel-today {
       display: none !important;
     }
 
@@ -2809,7 +2867,9 @@
     #todayFocusContainer[data-cols="3"].subview-week .habits-subpanel-week,
     #todayFocusContainer[data-cols="4"].subview-week .habits-subpanel-week,
     #todayFocusContainer[data-cols="5"].subview-week .habits-subpanel-week,
-    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-week {
+    #todayFocusContainer[data-cols="6"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="7"].subview-week .habits-subpanel-week,
+    #todayFocusContainer[data-cols="8"].subview-week .habits-subpanel-week {
       display: block !important;
       width: 100% !important;
     }
@@ -2819,7 +2879,9 @@
     #todayFocusContainer[data-cols="3"]:not(.subview-week) .habits-subpanel-week,
     #todayFocusContainer[data-cols="4"]:not(.subview-week) .habits-subpanel-week,
     #todayFocusContainer[data-cols="5"]:not(.subview-week) .habits-subpanel-week,
-    #todayFocusContainer[data-cols="6"]:not(.subview-week) .habits-subpanel-week {
+    #todayFocusContainer[data-cols="6"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="7"]:not(.subview-week) .habits-subpanel-week,
+    #todayFocusContainer[data-cols="8"]:not(.subview-week) .habits-subpanel-week {
       display: none !important;
     }
 

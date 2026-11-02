@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=2.5.6" />
+  <link rel="stylesheet" href="styles.css?v=2.7.1" />
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
@@ -3225,7 +3225,7 @@
     <div id="topKpisWrapper" class="editorial-card panel-bg border border-theme rounded-2xl p-3.5 shadow-xl space-y-2 relative" data-widget-type="kpis">
       <!-- Barra Superior de Métricas y 4 KPIs (Aprovecha el 100% del Ancho en Fila Integrada) -->
       <div id="kpisSlimHeaderBar" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3 select-none transition-all w-full">
-        <div class="flex items-center sm:flex-col sm:items-start justify-between sm:justify-center gap-1 sm:gap-1.5 shrink-0 sm:w-44 md:w-48 pr-2 sm:border-r border-theme/20 pb-1 sm:pb-0">
+        <div id="kpisSlimTitleBox" class="flex items-center sm:flex-col sm:items-start justify-between sm:justify-center gap-1 sm:gap-1.5 shrink-0 sm:w-44 md:w-48 pr-2 sm:border-r border-theme/20 pb-1 sm:pb-0">
           <div class="flex items-center gap-2 min-w-0">
             <div class="vector-seal bg-theme-main text-white w-5 h-5 shadow-2xs shrink-0">
               <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
@@ -3341,7 +3341,7 @@
         <!-- Tier 2: Fila Central Protagonista -->
         <div class="flex items-center justify-between gap-1 py-0.5">
           <div class="min-w-0">
-            <div id="kpi2Numbers" class="text-base sm:text-2xl font-black font-mono tracking-tight text-stone-900 dark:text-white truncate">0m / 15h</div>
+            <div id="kpi2Numbers" class="text-base sm:text-lg lg:text-xl font-black font-mono tracking-tight text-stone-900 dark:text-white truncate">0m / 15h</div>
             <div id="kpi2Compensate" class="text-[9px] sm:text-[10px] text-theme-main font-medium truncate">Al día con el plan</div>
           </div>
           <div id="kpi2RingBox" class="relative w-8 h-8 sm:w-11 sm:h-11 shrink-0 flex items-center justify-center"></div>
@@ -3892,7 +3892,7 @@
           </button>
         </div>
 
-        <div id="subjectRulesCardsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-2.5 text-xs"></div>
+        <div id="subjectRulesCardsGrid" class="grid gap-2.5 text-xs" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));"></div>
       </div>
       </div>
     </section>
@@ -4238,7 +4238,7 @@
             </div>
             <div>
               <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Estadísticas y Registro de Estudio por Asignatura</h3>
-              <span class="text-[10px] text-stone-500 dark:text-slate-400">Horas acumuladas y ajuste manual directo (+ / - / edición directa)</span>
+              <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Horas acumuladas y ajuste manual directo (+ / - / edición directa)</span>
             </div>
           </div>
           <div class="flex items-center gap-2">
@@ -4268,7 +4268,7 @@
             </div>
             <div>
               <h3 class="font-serif font-bold text-sm sm:text-base tracking-tight">Rendimiento de Hábitos Personalizados</h3>
-              <span class="text-[10px] text-stone-500 dark:text-slate-400">Progreso semanal y acumulado histórico por tipo de meta</span>
+              <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Progreso semanal y acumulado histórico por tipo de meta</span>
             </div>
           </div>
           <button type="button" onclick="app.openManageHabitsModal()" class="px-3 py-1 rounded-xl subpanel-bg border hover:border-theme text-xs text-theme-main font-bold transition flex items-center gap-1.5 shadow-sm">
@@ -4415,7 +4415,7 @@
     <!-- ========================================================
          COLUMNA DERECHA AUXILIAR: PANEL LATERAL DEL DOCK (100% VH)
          ======================================================== -->
-    <aside id="dockRightSidebar" class="hidden w-80 sm:w-88 shrink-0 sticky top-0 h-screen overflow-y-auto z-40 border-l border-theme panel-bg p-3.5 space-y-3 shadow-2xl flex flex-col transition-all duration-200" aria-label="Panel Lateral Derecho del Dock">
+    <aside id="dockRightSidebar" class="hidden fixed bottom-16 right-4 sm:right-6 z-50 w-80 sm:w-88 max-h-[80vh] rounded-2xl border border-theme shadow-2xl panel-bg overflow-y-auto h-auto p-3.5 space-y-3 flex flex-col transition-all duration-200" aria-label="Panel Flotante del Dock">
       <!-- Cabecera de la Sidebar Derecha -->
       <div class="flex items-center justify-between pb-2 border-b border-theme shrink-0">
         <div class="flex items-center gap-2 min-w-0">
@@ -4644,12 +4644,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.7.0"></script>
-  <script src="widgets-registry.js?v=2.7.0"></script>
-  <script src="polymorphic-cards.js?v=2.7.0"></script>
-  <script src="workspaces.js?v=2.7.0"></script>
-  <script src="grid-engine.js?v=2.7.0"></script>
-  <script src="app.js?v=2.7.0"></script>
+  <script src="state-sync.js?v=2.7.1"></script>
+  <script src="widgets-registry.js?v=2.7.1"></script>
+  <script src="polymorphic-cards.js?v=2.7.1"></script>
+  <script src="workspaces.js?v=2.7.1"></script>
+  <script src="grid-engine.js?v=2.7.1"></script>
+  <script src="app.js?v=2.7.1"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->
