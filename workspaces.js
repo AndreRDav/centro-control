@@ -7,8 +7,8 @@
 const WorkspacesManager = (function() {
   'use strict';
 
-  // Configuración de las 4 ventanas de fábrica (predeterminadas)
-  const FACTORY_WORKSPACES = [
+  // Configuración de las 4 ventanas de fábrica según factor de forma (Ordenador vs Móvil)
+  const FACTORY_WORKSPACES_DESKTOP = [
     {
       id: 'ws-1',
       name: 'Hoy y Enfoque',
@@ -47,7 +47,9 @@ const WorkspacesManager = (function() {
         tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, rowSpan: 8, isPinned: false, compact: false },
         tab3PiggyCard: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
         tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
-        tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false }
+        tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false },
+        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, rowSpan: 4, isPinned: false, compact: false },
+        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, rowSpan: 4, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []
@@ -69,6 +71,73 @@ const WorkspacesManager = (function() {
     }
   ];
 
+  const FACTORY_WORKSPACES_MOBILE = [
+    {
+      id: 'ws-1',
+      name: 'Hoy y Enfoque',
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>',
+      order: 1,
+      grid: {
+        topKpisWrapper: { col: 1, colSpan: 12, row: 1, rowSpan: 2, minRows: 2, isPinned: false, compact: false },
+        todayFocusContainer: { col: 1, colSpan: 12, row: 3, rowSpan: 16, minRows: 12, isPinned: false, compact: false },
+        interactiveListsPanel: { col: 1, colSpan: 12, row: 19, rowSpan: 12, isPinned: false, compact: false },
+        tab1RecentExpensesBar: { col: 1, colSpan: 12, row: 31, rowSpan: 4, isPinned: false, compact: false },
+        notesMiniCalendarPanel: { col: 1, colSpan: 12, row: 35, rowSpan: 8, isPinned: false, compact: false }
+      },
+      sidebarWidgets: [],
+      dockWidgets: []
+    },
+    {
+      id: 'ws-2',
+      name: 'Horario y Metas',
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/></svg>',
+      order: 2,
+      grid: {
+        tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
+        tab2ScheduleSection: { col: 1, colSpan: 12, row: 9, rowSpan: 14, isPinned: false, compact: false },
+        tab2AttendanceRulesSection: { col: 1, colSpan: 12, row: 23, rowSpan: 10, isPinned: false, compact: false }
+      },
+      sidebarWidgets: [],
+      dockWidgets: []
+    },
+    {
+      id: 'ws-3',
+      name: 'Finanzas Pro',
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>',
+      order: 3,
+      grid: {
+        tab3BudgetConfigCard: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
+        tab3SavingsGoalsCard: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
+        tab3PiggyCard: { col: 1, colSpan: 12, row: 17, rowSpan: 8, isPinned: false, compact: false },
+        tab3FixedExpensesCard: { col: 1, colSpan: 12, row: 25, rowSpan: 8, isPinned: false, compact: false },
+        tab3ExpensesTableCard: { col: 1, colSpan: 12, row: 33, rowSpan: 8, isPinned: false, compact: false },
+        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 41, rowSpan: 4, isPinned: false, compact: false },
+        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 45, rowSpan: 4, isPinned: false, compact: false }
+      },
+      sidebarWidgets: [],
+      dockWidgets: []
+    },
+    {
+      id: 'ws-4',
+      name: 'Rendimiento',
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>',
+      order: 4,
+      grid: {
+        tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, rowSpan: 8, isPinned: false, compact: false },
+        tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
+        tab4AnatomyCard: { col: 1, colSpan: 12, row: 17, rowSpan: 8, isPinned: false, compact: false },
+        tab4RunningRadarCard: { col: 1, colSpan: 12, row: 25, rowSpan: 8, isPinned: false, compact: false },
+        tab4EvolutionSection: { col: 1, colSpan: 12, row: 33, rowSpan: 12, isPinned: false, compact: false }
+      },
+      sidebarWidgets: [],
+      dockWidgets: []
+    }
+  ];
+
+  const FACTORY_WORKSPACES = (typeof window !== 'undefined' && window.innerWidth < 1024)
+    ? FACTORY_WORKSPACES_MOBILE
+    : FACTORY_WORKSPACES_DESKTOP;
+
   return {
     // Inicialización y migración transparente sin pérdida de datos
     ensureWorkspaces() {
@@ -86,6 +155,26 @@ const WorkspacesManager = (function() {
           if (desk.tab4 && state.workspaces[3]) state.workspaces[3].grid = Object.assign({}, state.workspaces[3].grid, desk.tab4);
         }
       }
+
+      // Garantizar que la Barra Lateral sea 100% global e invariante entre ventanas
+      if (!state.globalSidebar || typeof state.globalSidebar !== 'object') {
+        state.globalSidebar = { isOpen: false, position: 'right', widgets: [] };
+      }
+      if (!Array.isArray(state.globalSidebar.widgets)) {
+        state.globalSidebar.widgets = [];
+      }
+
+      // Migrar módulos huérfanos de ws.sidebarWidgets al almacén global
+      state.workspaces.forEach(ws => {
+        if (ws && Array.isArray(ws.sidebarWidgets) && ws.sidebarWidgets.length > 0) {
+          ws.sidebarWidgets.forEach(wId => {
+            if (!state.globalSidebar.widgets.includes(wId)) {
+              state.globalSidebar.widgets.push(wId);
+            }
+          });
+          ws.sidebarWidgets = [];
+        }
+      });
 
       if (!state.activeWorkspaceId) {
         state.activeWorkspaceId = state.workspaces[0] ? state.workspaces[0].id : 'ws-1';
@@ -397,7 +486,7 @@ const WorkspacesManager = (function() {
 
       const activeWidgets = ws.grid || {};
       const activeIds = Object.keys(activeWidgets);
-      const sidebarWidgets = (ws.sidebarWidgets || []).concat((state.globalSidebar && state.globalSidebar.widgets) || []);
+      const sidebarWidgets = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
       const dockWidgets = ws.dockWidgets || [];
       const mountedInWorkspace = new Set([...activeIds, ...sidebarWidgets]);
 
@@ -425,7 +514,7 @@ const WorkspacesManager = (function() {
         }
       });
 
-      // Monta widgets en la barra lateral (si los hay)
+      // Monta widgets en la barra lateral global (invariante entre ventanas)
       const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
       const sidebar = document.getElementById('workspaceSidebar');
       if (sidebarContainer) {
@@ -438,7 +527,8 @@ const WorkspacesManager = (function() {
       }
 
       if (sidebar && !(state.ui && state.ui.isBoardEditMode)) {
-        if (sidebarWidgets.length > 0) {
+        const isOpen = !!(state.globalSidebar && state.globalSidebar.isOpen);
+        if (isOpen) {
           sidebar.classList.remove('hidden', 'sidebar-collapsed');
           sidebar.classList.add('sidebar-open');
           document.body.classList.add('sidebar-view-open');

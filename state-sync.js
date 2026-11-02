@@ -860,7 +860,9 @@
                 tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
                 tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
                 tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
-                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' }
+                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
+                tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 3, manualRows: null, rowSpan: 4, name: 'Evolución y Dinámica de Gastos' },
+                tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, minRows: 3, manualRows: null, rowSpan: 4, name: 'Analítica de Gastos Hormiga' }
               },
               tab4: {
                 tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
@@ -873,7 +875,7 @@
             mobile: {
               tab1: ['todayFocusContainer', 'interactiveListsPanel', 'tab1RecentExpensesBar', 'notesMiniCalendarPanel'],
               tab2: ['tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection'],
-              tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard'],
+              tab3: ['tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3ExpensesTableCard', 'tab3FixedExpensesCard', 'tab3ExpenseChartsSection', 'tab3AntExpensesCard'],
               tab4: ['tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection']
             }
           }
@@ -1032,7 +1034,152 @@
 
       function playTickSound() { playTone(880, 0.04, 'sine', 0.08); }
 
+      // SINTETIZADOR DE AUDIO WAV EN MEMORIA (Inmunidad al reposo y segundo plano en móviles)
+      function createToneWavDataUri(type = 'silence', durationMs = 1500, volume = 0.8) {
+        const sampleRate = 22050;
+        const numSamples = Math.floor(sampleRate * (durationMs / 1000));
+        const samples = new Float32Array(numSamples);
+
+        if (type === 'silence') {
+          // Micro-dither inaudible para mantener activo el bus de audio sin apagado de pantalla en iOS
+          for (let i = 0; i < numSamples; i++) {
+            samples[i] = (Math.random() - 0.5) * 0.0002;
+          }
+        } else if (type === 'bowl') {
+          const freqs = [261.63, 392.00, 523.25];
+          for (let i = 0; i < numSamples; i++) {
+            const t = i / sampleRate;
+            const decay = Math.exp(-t * 2.0);
+            let s = 0;
+            freqs.forEach((f, idx) => {
+              s += Math.sin(2 * Math.PI * f * t) * (0.4 / (idx + 1));
+            });
+            samples[i] = s * decay * volume;
+          }
+        } else if (type === 'bell') {
+          const freqs = [587.33, 880, 1174.66, 1760];
+          for (let i = 0; i < numSamples; i++) {
+            const t = i / sampleRate;
+            const decay = Math.exp(-t * 3.0);
+            let s = 0;
+            freqs.forEach((f, idx) => {
+              s += Math.sin(2 * Math.PI * f * t) * (0.35 / (idx + 1));
+            });
+            samples[i] = s * decay * volume;
+          }
+        } else if (type === 'chord') {
+          const freqs = [440, 554.37, 659.25, 880];
+          for (let i = 0; i < numSamples; i++) {
+            const t = i / sampleRate;
+            const decay = Math.exp(-t * 2.5);
+            let s = 0;
+            freqs.forEach(f => {
+              s += (2 / Math.PI) * Math.asin(Math.sin(2 * Math.PI * f * t)) * 0.25;
+            });
+            samples[i] = s * decay * volume;
+          }
+        } else if (type === 'pulse') {
+          for (let i = 0; i < numSamples; i++) {
+            const t = i / sampleRate;
+            const f = t < 0.15 ? 784 : (t < 0.3 ? 0 : 987.77);
+            const amp = (t < 0.12 || (t > 0.3 && t < 0.45)) ? 0.3 : 0;
+            samples[i] = (Math.sin(2 * Math.PI * f * t) >= 0 ? 1 : -1) * amp * volume;
+          }
+        } else {
+          for (let i = 0; i < numSamples; i++) {
+            const t = i / sampleRate;
+            samples[i] = Math.sin(2 * Math.PI * 440 * t) * Math.exp(-t * 3) * volume;
+          }
+        }
+
+        const buffer = new ArrayBuffer(44 + numSamples * 2);
+        const view = new DataView(buffer);
+        function writeString(v, off, str) {
+          for (let j = 0; j < str.length; j++) v.setUint8(off + j, str.charCodeAt(j));
+        }
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + numSamples * 2, true);
+        writeString(view, 8, 'WAVE');
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeString(view, 36, 'data');
+        view.setUint32(40, numSamples * 2, true);
+
+        let offset = 44;
+        for (let i = 0; i < numSamples; i++) {
+          const s = Math.max(-1, Math.min(1, samples[i]));
+          view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+          offset += 2;
+        }
+        let binary = '';
+        const bytes = new Uint8Array(buffer);
+        for (let i = 0; i < bytes.length; i++) binary += String.fromCharCode(bytes[i]);
+        return 'data:audio/wav;base64,' + (typeof btoa === 'function' ? btoa(binary) : Buffer.from(binary, 'binary').toString('base64'));
+      }
+      window.createToneWavDataUri = createToneWavDataUri;
+
+      let pomoKeepAliveAudio = null;
+      let pomoAlarmAudio = null;
+
+      function startPomoKeepAlive() {
+        try {
+          if (!pomoKeepAliveAudio) {
+            pomoKeepAliveAudio = new Audio();
+            pomoKeepAliveAudio.loop = true;
+            pomoKeepAliveAudio.src = createToneWavDataUri('silence', 2000);
+          }
+          pomoKeepAliveAudio.play().catch(() => {});
+        } catch (_) {}
+      }
+      window.startPomoKeepAlive = startPomoKeepAlive;
+
+      function stopPomoKeepAlive() {
+        try {
+          if (pomoKeepAliveAudio) {
+            pomoKeepAliveAudio.pause();
+            pomoKeepAliveAudio.currentTime = 0;
+          }
+        } catch (_) {}
+      }
+      window.stopPomoKeepAlive = stopPomoKeepAlive;
+
+      function playPomoAlarmAudio(type) {
+        stopPomoKeepAlive();
+        try {
+          const volFactor = ((state && state.pomo && state.pomo.volume !== undefined) ? state.pomo.volume : 80) / 100;
+          if (volFactor <= 0 || type === 'silent') return;
+          if (!pomoAlarmAudio) pomoAlarmAudio = new Audio();
+          pomoAlarmAudio.src = createToneWavDataUri(type || state?.pomo?.sound || 'bowl', 2500, volFactor);
+          pomoAlarmAudio.play().catch(() => {});
+        } catch (_) {}
+      }
+      window.playPomoAlarmAudio = playPomoAlarmAudio;
+
+      function syncPomoImmediate() {
+        saveState();
+        if (typeof syncGdriveCloud === 'function' && typeof isGdriveConnected === 'function' && isGdriveConnected()) {
+          syncGdriveCloud(false, true); // forzar subida inmediata
+        }
+      }
+      window.syncPomoImmediate = syncPomoImmediate;
+
+      // Polling liviano cada 10 segundos en primer plano para sincronización multi-dispositivo en tiempo real
+      if (typeof window !== 'undefined') {
+        setInterval(() => {
+          if (document.visibilityState === 'visible' && typeof isGdriveConnected === 'function' && isGdriveConnected() && !isGdriveSyncing) {
+            syncGdriveCloud(true); // comprobar si la versión remota es más nueva
+          }
+        }, 10000);
+      }
+
       function playSoundAlarm(type = 'bowl') {
+        playPomoAlarmAudio(type);
         try {
           const ctx = getAudioContext();
           if (type === 'silent') {
@@ -1161,7 +1308,9 @@
               clearInterval(pomoTimerInterval);
               pomoTimerInterval = null;
             }
+            stopPomoKeepAlive();
             releasePomoWakeLock();
+            playPomoAlarmAudio(p.sound);
             triggerPomoAlert(expiredPhase, p.sound);
 
             // Avanzar a la siguiente fase
@@ -1202,7 +1351,9 @@
             clearInterval(pomoTimerInterval);
             pomoTimerInterval = null;
           }
+          stopPomoKeepAlive();
           releasePomoWakeLock();
+          playPomoAlarmAudio(p.sound);
           triggerPomoAlert(expiredPhase, p.sound);
 
           // Avanzar a la siguiente fase
@@ -1227,6 +1378,7 @@
             p.lastTick = now;
             if (pomoTimerInterval) clearInterval(pomoTimerInterval);
             requestPomoWakeLock();
+            startPomoKeepAlive();
             pomoTimerInterval = setInterval(() => {
               syncPomoTime();
             }, 1000);
@@ -1239,7 +1391,9 @@
               clearInterval(pomoTimerInterval);
               pomoTimerInterval = null;
             }
+            stopPomoKeepAlive();
             releasePomoWakeLock();
+            playPomoAlarmAudio(p.sound);
             triggerPomoAlert(p.phase, p.sound);
           }
           renderPomodoroUI();
@@ -1712,7 +1866,8 @@ var pendingCloudConflictJson = null;
         state.viewingWeek = state.currentWeek || 1;
 
         try {
-          localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify({
+          const devLayoutKey = (typeof window !== 'undefined' && window.innerWidth < 1024) ? 'CC_LOCAL_DEVICE_LAYOUT_MOBILE' : 'CC_LOCAL_DEVICE_LAYOUT_DESKTOP';
+          localStorage.setItem(devLayoutKey, JSON.stringify({
             workspaces: state.workspaces,
             gridLayouts: state.uiPreferences?.gridLayouts,
             globalSidebar: state.globalSidebar
@@ -2234,8 +2389,22 @@ var pendingCloudConflictJson = null;
                 }
               }
             }
+            if (ws && (ws.id === 'ws-3' || ws.id === 'tab3') && ws.grid) {
+              if (!ws.grid['tab3ExpenseChartsSection']) {
+                ws.grid['tab3ExpenseChartsSection'] = { col: 1, colSpan: 12, row: 25, rowSpan: 4, minRows: 3, isPinned: false, compact: false, name: 'Evolución y Dinámica de Gastos' };
+              }
+              if (!ws.grid['tab3AntExpensesCard']) {
+                ws.grid['tab3AntExpensesCard'] = { col: 1, colSpan: 12, row: 29, rowSpan: 4, minRows: 3, isPinned: false, compact: false, name: 'Analítica de Gastos Hormiga' };
+              }
+            }
             if (ws && Array.isArray(ws.sidebarWidgets)) {
               ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== 'weekTableContainer');
+              if (ws.sidebarWidgets.length > 0 && s.globalSidebar && Array.isArray(s.globalSidebar.widgets)) {
+                ws.sidebarWidgets.forEach(wId => {
+                  if (!s.globalSidebar.widgets.includes(wId)) s.globalSidebar.widgets.push(wId);
+                });
+                ws.sidebarWidgets = [];
+              }
             }
             if (ws && Array.isArray(ws.dockWidgets)) {
               ws.dockWidgets = ws.dockWidgets.filter(id => id !== 'weekTableContainer');
@@ -2480,7 +2649,8 @@ var pendingCloudConflictJson = null;
           state.updatedAt = Date.now();
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
           try {
-            localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify({
+            const devLayoutKey = (typeof window !== 'undefined' && window.innerWidth < 1024) ? 'CC_LOCAL_DEVICE_LAYOUT_MOBILE' : 'CC_LOCAL_DEVICE_LAYOUT_DESKTOP';
+            localStorage.setItem(devLayoutKey, JSON.stringify({
               workspaces: state.workspaces,
               gridLayouts: state.uiPreferences?.gridLayouts,
               globalSidebar: state.globalSidebar

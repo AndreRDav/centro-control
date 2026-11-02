@@ -189,6 +189,36 @@ const WidgetsRegistry = (function() {
       polymorphic: false,
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>'
     },
+    tab3ExpenseChartsSection: {
+      id: 'tab3ExpenseChartsSection',
+      name: 'Evolución y Dinámica de Gastos',
+      category: 'finance',
+      shortcut: 'E',
+      allowedZones: ['grid', 'sidebar'],
+      defaultZone: 'grid',
+      minRows: 3,
+      idealRows: 4,
+      defaultColSpan: 12,
+      minColSpan: 6,
+      supportsCompact: true,
+      polymorphic: false,
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>'
+    },
+    tab3AntExpensesCard: {
+      id: 'tab3AntExpensesCard',
+      name: 'Analítica de Gastos Hormiga',
+      category: 'finance',
+      shortcut: 'A',
+      allowedZones: ['grid', 'sidebar'],
+      defaultZone: 'grid',
+      minRows: 3,
+      idealRows: 4,
+      defaultColSpan: 12,
+      minColSpan: 4,
+      supportsCompact: true,
+      polymorphic: false,
+      iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2a5 5 0 0 0-5 5v3H6a2 2 0 0 0-2 2v2a2 2 0 0 0 2 2h1v1a5 5 0 0 0 10 0v-1h1a2 2 0 0 0 2-2v-2a2 2 0 0 0-2-2h-1V7a5 5 0 0 0-5-5z"/></svg>'
+    },
     tab4StudyAuditSection: {
       id: 'tab4StudyAuditSection',
       name: 'Auditoría de Estudio',

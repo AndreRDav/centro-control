@@ -211,7 +211,8 @@ var GridEngine = {
                 gridLayouts: state.uiPreferences?.gridLayouts,
                 globalSidebar: state.globalSidebar
               };
-              localStorage.setItem('CC_LOCAL_DEVICE_LAYOUT', JSON.stringify(localLayout));
+              const devKey = (typeof window !== 'undefined' && window.innerWidth < 1024) ? 'CC_LOCAL_DEVICE_LAYOUT_MOBILE' : 'CC_LOCAL_DEVICE_LAYOUT_DESKTOP';
+              localStorage.setItem(devKey, JSON.stringify(localLayout));
             } catch (_) {}
           }
           if (showToast) {
@@ -245,7 +246,9 @@ var GridEngine = {
               tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
               tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
               tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
-              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' }
+              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
+              tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 3, manualRows: null, rowSpan: 4, name: 'Evolución y Dinámica de Gastos' },
+              tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, minRows: 3, manualRows: null, rowSpan: 4, name: 'Analítica de Gastos Hormiga' }
             },
             tab4: {
               tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
@@ -596,8 +599,8 @@ var GridEngine = {
               sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
               document.body.classList.add('sidebar-view-open');
               const sContainer = document.getElementById('sidebarWidgetsContainer');
-              const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-              if (sContainer && (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0)) {
+              const gSidebarWidgets = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
+              if (sContainer && gSidebarWidgets.length === 0) {
                 let emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
                 if (!emptyDrop) {
                   emptyDrop = document.createElement('div');
@@ -628,8 +631,8 @@ var GridEngine = {
               sidebar.classList.remove('sidebar-edit-active');
               const emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
               if (emptyDrop) emptyDrop.remove();
-              const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-              if (!ws || !ws.sidebarWidgets || ws.sidebarWidgets.length === 0) {
+              const gSidebarWidgets = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
+              if (gSidebarWidgets.length === 0 || !state.globalSidebar.isOpen) {
                 sidebar.classList.remove('sidebar-open');
                 sidebar.classList.add('hidden', 'sidebar-collapsed');
                 document.body.classList.remove('sidebar-view-open');
@@ -660,17 +663,21 @@ var GridEngine = {
             el.classList.add('card-edit-mode');
             const cfg = layout[id];
 
-            // Escudo protector de arrastre con soporte para clic derecho
-            const shield = document.createElement('div');
-            shield.className = 'card-drag-shield board-edit-ctrl-overlay';
-            shield.title = 'Arrastra para mover este cuadro de posición o clic derecho para más opciones';
-            shield.onpointerdown = (e) => this.startCardDrag(e, id);
-            shield.oncontextmenu = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.toggleBoardCardMenu(id, e, false);
-            };
-            el.appendChild(shield);
+            const isMobile = (window.innerWidth < 1024);
+
+            // Escudo protector de arrastre exclusivo para escritorio (en móvil el scroll nativo tiene prioridad absoluta)
+            if (!isMobile) {
+              const shield = document.createElement('div');
+              shield.className = 'card-drag-shield board-edit-ctrl-overlay';
+              shield.title = 'Arrastra para mover este cuadro de posición o clic derecho para más opciones';
+              shield.onpointerdown = (e) => this.startCardDrag(e, id);
+              shield.oncontextmenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleBoardCardMenu(id, e, false);
+              };
+              el.appendChild(shield);
+            }
 
             // Barra superior de herramientas sobre la tarjeta con nombre humano real y botones nítidos
             const bar = document.createElement('div');
@@ -687,6 +694,12 @@ var GridEngine = {
             const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id, iconSvg: '' };
             const cardTitle = def.name || cfg.name || id;
 
+            const mobileControls = isMobile ? `
+              <button type="button" onclick="event.stopPropagation(); app.moveMobileCardOrder('${id}', -1)" title="Subir posición" class="header-bar-btn font-mono font-bold text-xs">▲</button>
+              <button type="button" onclick="event.stopPropagation(); app.moveMobileCardOrder('${id}', 1)" title="Bajar posición" class="header-bar-btn font-mono font-bold text-xs">▼</button>
+              <span class="header-bar-btn cursor-grab select-none text-xs font-mono opacity-80" style="touch-action: none;" title="Tirador táctil">⠿</span>
+            ` : '';
+
             bar.innerHTML = `
               <div class="header-bar-left">
                 <span class="header-bar-icon">${def.iconSvg || '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'}</span>
@@ -694,6 +707,7 @@ var GridEngine = {
                 <span class="header-bar-coords">${cfg.colSpan}/12c · ${cfg.rowSpan || 4}f</span>
               </div>
               <div class="header-bar-actions">
+                ${mobileControls}
                 <button type="button" onclick="event.stopPropagation(); app.toggleWidgetPin('${id}')" title="${isPinned ? 'Desfijar de otras ventanas' : 'Fijar en todas las ventanas'}" class="header-bar-btn ${isPinned ? 'is-active-pin' : ''}">
                   <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="17" x2="12" y2="22"/><path d="M5 17h14l-1.5-6h-11L5 17z"/><path d="M9 11V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v7"/></svg>
                 </button>
@@ -710,42 +724,46 @@ var GridEngine = {
             `;
             el.insertBefore(bar, el.firstChild);
 
-            // Tiradores de redimensión en los 4 bordes y esquina
-            const dirMap = { s: 'resize-b', e: 'resize-r', w: 'resize-l', n: 'resize-t', se: 'resize-br' };
-            ['s', 'e', 'w', 'n', 'se'].forEach(dir => {
-              const handle = document.createElement('div');
-              handle.className = 'card-resize-handle ' + dirMap[dir] + ' board-edit-ctrl-overlay';
-              handle.title = dir === 'se' ? 'Arrastra para cambiar ancho y altura' : (dir === 'e' || dir === 'w' ? 'Arrastra para cambiar ancho' : 'Arrastra para cambiar altura (Doble clic para ceñir al contenido)');
-              handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
-              if (dir === 's') {
-                handle.ondblclick = (e) => {
-                  e.stopPropagation();
-                  this.resetCardManualHeight(id);
-                };
-              }
-              el.appendChild(handle);
-            });
+            // Tiradores de redimensión exclusivos para escritorio (en móvil el ancho es siempre 100%)
+            if (!isMobile) {
+              const dirMap = { s: 'resize-b', e: 'resize-r', w: 'resize-l', n: 'resize-t', se: 'resize-br' };
+              ['s', 'e', 'w', 'n', 'se'].forEach(dir => {
+                const handle = document.createElement('div');
+                handle.className = 'card-resize-handle ' + dirMap[dir] + ' board-edit-ctrl-overlay';
+                handle.title = dir === 'se' ? 'Arrastra para cambiar ancho y altura' : (dir === 'e' || dir === 'w' ? 'Arrastra para cambiar ancho' : 'Arrastra para cambiar altura (Doble clic para ceñir al contenido)');
+                handle.onpointerdown = (e) => this.startCardResize(e, id, dir);
+                if (dir === 's') {
+                  handle.ondblclick = (e) => {
+                    e.stopPropagation();
+                    this.resetCardManualHeight(id);
+                  };
+                }
+                el.appendChild(handle);
+              });
+            }
           });
 
           // Renderizar controles en tarjetas del panel lateral
-          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-          const sidebarCards = (ws && ws.sidebarWidgets) ? ws.sidebarWidgets : [];
+          const isMobileView = (window.innerWidth < 1024);
+          const sidebarCards = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
           sidebarCards.forEach(id => {
             const el = document.getElementById(id);
             if (!el) return;
             el.classList.add('card-edit-mode');
 
-            // Escudo de arrastre para mover del sidebar a la cuadrícula con soporte para clic derecho
-            const sidebarShield = document.createElement('div');
-            sidebarShield.className = 'card-drag-shield board-edit-ctrl-overlay';
-            sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero o clic derecho para opciones';
-            sidebarShield.onpointerdown = (e) => this.startCardDrag(e, id);
-            sidebarShield.oncontextmenu = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.toggleBoardCardMenu(id, e, true);
-            };
-            el.appendChild(sidebarShield);
+            // Escudo de arrastre exclusivo de escritorio
+            if (!isMobileView) {
+              const sidebarShield = document.createElement('div');
+              sidebarShield.className = 'card-drag-shield board-edit-ctrl-overlay';
+              sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero o clic derecho para opciones';
+              sidebarShield.onpointerdown = (e) => this.startCardDrag(e, id);
+              sidebarShield.oncontextmenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleBoardCardMenu(id, e, true);
+              };
+              el.appendChild(sidebarShield);
+            }
 
             const bar = document.createElement('div');
             bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
@@ -893,10 +911,11 @@ var GridEngine = {
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
           this.recordUndo('Mover a panel lateral');
-          if (!ws.sidebarWidgets) ws.sidebarWidgets = [];
+          if (!state.globalSidebar) state.globalSidebar = { isOpen: true, position: 'right', widgets: [] };
+          if (!Array.isArray(state.globalSidebar.widgets)) state.globalSidebar.widgets = [];
           delete ws.grid[cardId];
-          if (!ws.sidebarWidgets.includes(cardId)) {
-            ws.sidebarWidgets.push(cardId);
+          if (!state.globalSidebar.widgets.includes(cardId)) {
+            state.globalSidebar.widgets.push(cardId);
           }
           const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
           if (sidebarContainer && window.WidgetsRegistry) {
@@ -915,7 +934,8 @@ var GridEngine = {
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
           this.recordUndo('Mover a cuadrícula');
-          ws.sidebarWidgets = (ws.sidebarWidgets || []).filter(id => id !== cardId);
+          if (!state.globalSidebar) state.globalSidebar = { isOpen: false, position: 'right', widgets: [] };
+          state.globalSidebar.widgets = (state.globalSidebar.widgets || []).filter(id => id !== cardId);
           const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(cardId) : {};
           const maxRow = Object.values(ws.grid || {}).reduce((max, c) => Math.max(max, (c.row || 1) + (c.rowSpan || 6)), 1);
           if (!ws.grid) ws.grid = {};
@@ -980,7 +1000,7 @@ var GridEngine = {
           const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
           const gridLayout = this.getGridLayout();
           const activeGridIds = new Set(Object.keys(gridLayout || {}));
-          const activeSidebarIds = new Set((ws && ws.sidebarWidgets) ? ws.sidebarWidgets : []);
+          const activeSidebarIds = new Set((state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : []);
           const activeDockIds = new Set((ws && ws.dockWidgets) ? ws.dockWidgets : []);
           const catalog = (window.WidgetsRegistry) ? window.WidgetsRegistry.getCatalog() : {};
 
@@ -1240,6 +1260,9 @@ var GridEngine = {
           drawer.className = 'w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col drawer-open';
           drawer.classList.remove('hidden');
           document.body.classList.add('drawer-studio-open');
+          if (typeof app !== 'undefined' && app.updateMobileSheetBackdrop) {
+            app.updateMobileSheetBackdrop();
+          }
 
           drawer.innerHTML = `
             <div class="p-3 border-b border-theme flex items-center justify-between shrink-0 subpanel-bg">
@@ -1362,6 +1385,9 @@ var GridEngine = {
             drawer.className = 'hidden w-80 shrink-0 sticky top-0 h-screen overflow-y-auto z-50 border-r border-theme panel-bg shadow-2xl flex flex-col';
           }
           document.body.classList.remove('drawer-studio-open');
+          if (typeof app !== 'undefined' && app.updateMobileSheetBackdrop) {
+            app.updateMobileSheetBackdrop();
+          }
         },
 
         toggleWidgetsDrawer() {
@@ -1378,10 +1404,10 @@ var GridEngine = {
             if (typeof app !== 'undefined' && app.openDockSidebar) app.openDockSidebar(id);
             return;
           }
-          if (ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(id)) {
+          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(id)) {
             const sb = document.getElementById('workspaceSidebar');
-            if (sb && sb.classList.contains('hidden')) {
-              if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar();
+            if (sb && (sb.classList.contains('hidden') || !state.globalSidebar.isOpen)) {
+              if (typeof app !== 'undefined' && app.toggleSidebar) app.toggleSidebar(true);
             }
           }
           const el = document.getElementById(id);
@@ -1597,7 +1623,9 @@ var GridEngine = {
             ws.dockWidgets.push(widgetId);
           }
           if (ws.grid && ws.grid[widgetId]) delete ws.grid[widgetId];
-          if (ws.sidebarWidgets) ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== widgetId);
+          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
+            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(x => x !== widgetId);
+          }
           if (window.WidgetsRegistry) {
             window.WidgetsRegistry.parkWidget(widgetId);
           }
@@ -1739,8 +1767,8 @@ var GridEngine = {
             cardName = layout[cardId].name || cardId;
             delete layout[cardId];
           }
-          if (ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(cardId)) {
-            ws.sidebarWidgets = ws.sidebarWidgets.filter(x => x !== cardId);
+          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(cardId)) {
+            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(x => x !== cardId);
           }
           if (ws && ws.dockWidgets && ws.dockWidgets.includes(cardId)) {
             ws.dockWidgets = ws.dockWidgets.filter(x => x !== cardId);
@@ -1787,8 +1815,8 @@ var GridEngine = {
           };
 
           const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
-          if (ws && ws.sidebarWidgets) {
-            ws.sidebarWidgets = ws.sidebarWidgets.filter(id => id !== widgetId);
+          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
+            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(id => id !== widgetId);
           }
           if (ws && ws.dockWidgets) {
             ws.dockWidgets = ws.dockWidgets.filter(id => id !== widgetId);
@@ -1901,7 +1929,7 @@ var GridEngine = {
           if (!el) return;
 
           const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-          const isFromSidebar = ws && ws.sidebarWidgets && ws.sidebarWidgets.includes(cardId);
+          const isFromSidebar = state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(cardId);
 
           const container = document.getElementById('tab1MainGrid') || el.parentElement || el;
           const cardRect = el.getBoundingClientRect();

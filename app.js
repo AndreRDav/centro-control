@@ -528,9 +528,24 @@
         `;
       }
 
+      function isCustomHabitDoneOnDay(h, val) {
+        if (val === null || val === undefined || val === '') return false;
+        if (h.type === 'binary_check') return !!val;
+        const num = Number(val);
+        if (isNaN(num)) return false;
+        if (h.type === 'min_daily') return num >= (Number(h.targetDaily) || 1);
+        if (h.type === 'min_accum') return num > 0;
+        if (h.type === 'target_range') {
+          const c = Number(h.targetCenter) || 0;
+          const mg = Number(h.targetMargin) || 0;
+          return num >= (c - mg) && num <= (c + mg);
+        }
+        return num > 0;
+      }
+
       // MAPA MUSCULAR ANATÓMICO ULTRA-DETALLADO (Frontal y Posterior) CON INSPECTOR ACTIVO
       function getMuscleStimulusHits() {
-        const scope = state.ui.labScope;
+        const scope = state.labScope || state.ui?.labScope || 'week';
         const weeksToScan = scope === 'week' ? [getActiveWeek()] : Object.values(state.weeks);
         const hits = {
           chest: 0, delts: 0, biceps: 0, triceps: 0, forearms: 0,
@@ -581,6 +596,20 @@
               hits.quads += 0.5; logs.quads.push(`${DAY_FULL[dIdx]}: Running (${d.run.km || 0}k) ➔ +0.5`);
               hits.hams += 0.5; logs.hams.push(`${DAY_FULL[dIdx]}: Running (${d.run.km || 0}k) ➔ +0.5`);
             }
+
+            // Escaneo de hábitos personalizados con estímulo muscular vinculado
+            (state.customHabits || []).forEach(h => {
+              if (!h || !Array.isArray(h.linkedMuscles) || h.linkedMuscles.length === 0) return;
+              const dayVals = w.customHabitsData?.[h.id] || [];
+              if (isCustomHabitDoneOnDay(h, dayVals[dIdx])) {
+                h.linkedMuscles.forEach(mId => {
+                  if (hits[mId] !== undefined) {
+                    hits[mId] += 1;
+                    logs[mId].push(`${DAY_FULL[dIdx]}: Hábito "${h.name}" ➔ +1`);
+                  }
+                });
+              }
+            });
           });
         });
 
@@ -1516,17 +1545,20 @@
         // Widget de Próximo Hito Académico y Personal (Alta Visibilidad en Hero Banner y Cabecera)
         renderMilestoneWidget();
 
-        // Sincronizar estado del acordeón de KPIs
+        // Sincronizar estado del acordeón de KPIs (Exclusión mutua entre resumen y detalle)
         const kpiBody = document.getElementById('kpisCollapsibleBody');
+        const kpiSlimGrid = document.getElementById('kpisSlimGrid');
         const kpiTxt = document.getElementById('kpisSlimStatusText');
         const kpiArr = document.getElementById('kpisSlimArrow');
         if (kpiBody && state.uiPreferences && state.uiPreferences.kpisCollapsed !== undefined) {
           if (state.uiPreferences.kpisCollapsed) {
             kpiBody.classList.add('hidden');
-            if (kpiTxt) kpiTxt.textContent = 'Mostrar';
+            if (kpiSlimGrid) kpiSlimGrid.classList.remove('hidden');
+            if (kpiTxt) kpiTxt.textContent = 'Ver Desglose';
             if (kpiArr) kpiArr.textContent = '▼';
           } else {
             kpiBody.classList.remove('hidden');
+            if (kpiSlimGrid) kpiSlimGrid.classList.add('hidden');
             if (kpiTxt) kpiTxt.textContent = 'Plegar';
             if (kpiArr) kpiArr.textContent = '▲';
           }
@@ -5406,7 +5438,8 @@
 
       // RENDER PESTAÑA 4: ESTADÍSTICAS Y LAB
       function renderTab4() {
-        const isWeek = state.ui.labScope === 'week';
+        const activeScope = state.labScope || state.ui?.labScope || 'week';
+        const isWeek = activeScope === 'week';
         const labWeekBtn = document.getElementById('labScopeWeekBtn');
         if (labWeekBtn) {
           labWeekBtn.className = isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
@@ -5415,6 +5448,14 @@
         if (labHistBtn) {
           labHistBtn.className = !isWeek ? 'px-3 py-1 rounded-lg bg-theme-main text-white font-bold shadow-xs' : 'px-3 py-1 rounded-lg text-slate-400 hover:text-white transition';
         }
+
+        // Sincronizar todos los selectores de alcance en cabeceras de tarjetas
+        document.querySelectorAll('.lab-scope-week-btn').forEach(btn => {
+          btn.className = 'lab-scope-week-btn px-2 py-0.5 rounded transition font-mono font-bold text-[10px] ' + (isWeek ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white');
+        });
+        document.querySelectorAll('.lab-scope-hist-btn').forEach(btn => {
+          btn.className = 'lab-scope-hist-btn px-2 py-0.5 rounded transition font-mono font-bold text-[10px] ' + (!isWeek ? 'bg-theme-main text-white shadow-xs' : 'text-stone-500 hover:text-stone-900 dark:hover:text-white');
+        });
 
         // Siluetas Anatómicas Detalladas
         const anatomyBox = document.getElementById('anatomySvgContainer');
@@ -5433,7 +5474,7 @@
         let seriesCount = 0, rodajeCount = 0, tiradaCount = 0, totalKm = 0;
         weeksToScan.forEach(w => {
           if (!w) return;
-          w.days.forEach(d => {
+          w.days.forEach((d, dIdx) => {
             if (d.run && d.run.sessions > 0) {
               const checkRun = (sess) => {
                 if (!sess) return;
@@ -5468,6 +5509,17 @@
               checkGymCardio(d.gym.s1);
               if (d.gym.sessions >= 2) checkGymCardio(d.gym.s2);
             }
+
+            // Hábitos personalizados vinculados a sistemas fisiológicos de running
+            (state.customHabits || []).forEach(h => {
+              if (!h || !h.linkedRunSystem || h.linkedRunSystem === 'none') return;
+              const dayVals = w.customHabitsData?.[h.id] || [];
+              if (isCustomHabitDoneOnDay(h, dayVals[dIdx])) {
+                if (h.linkedRunSystem === 'series') seriesCount++;
+                else if (h.linkedRunSystem === 'rodaje') rodajeCount++;
+                else if (h.linkedRunSystem === 'tirada') tiradaCount++;
+              }
+            });
           });
         });
 
@@ -6023,6 +6075,64 @@
           }
         },
 
+        updateMobileSheetBackdrop() {
+          const backdrop = document.getElementById('mobileSheetBackdrop');
+          if (!backdrop) return;
+          if (window.innerWidth >= 1024) {
+            backdrop.classList.add('hidden');
+            return;
+          }
+          const isDrawerOpen = document.getElementById('widgetsDrawer')?.classList.contains('drawer-open') && !document.getElementById('widgetsDrawer')?.classList.contains('hidden');
+          const isSidebarOpen = document.getElementById('workspaceSidebar')?.classList.contains('sidebar-open') && !document.getElementById('workspaceSidebar')?.classList.contains('hidden');
+          const isDockOpen = document.getElementById('dockRightSidebar') && !document.getElementById('dockRightSidebar')?.classList.contains('hidden');
+          if (isDrawerOpen || isSidebarOpen || isDockOpen) {
+            backdrop.classList.remove('hidden');
+          } else {
+            backdrop.classList.add('hidden');
+          }
+        },
+
+        closeMobileSheets() {
+          if (this.toggleSidebar) this.toggleSidebar(false);
+          if (this.closeDockSidebar) this.closeDockSidebar();
+          if (window.GridEngine && window.GridEngine.closeWidgetsDrawer) {
+            window.GridEngine.closeWidgetsDrawer();
+          }
+          const backdrop = document.getElementById('mobileSheetBackdrop');
+          if (backdrop) backdrop.classList.add('hidden');
+        },
+
+        moveMobileCardOrder(id, delta) {
+          const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+          if (!ws || !ws.grid || !ws.grid[id]) return;
+          const grid = ws.grid;
+          const cards = Object.keys(grid).map(k => ({ id: k, row: grid[k].row || 1 })).sort((a, b) => a.row - b.row);
+          const curIdx = cards.findIndex(c => c.id === id);
+          if (curIdx === -1) return;
+          const targetIdx = curIdx + delta;
+          if (targetIdx < 0 || targetIdx >= cards.length) return;
+
+          const targetId = cards[targetIdx].id;
+          const tempRow = grid[id].row;
+          grid[id].row = grid[targetId].row;
+          grid[targetId].row = tempRow;
+
+          if (grid[id].row === grid[targetId].row) {
+            if (delta > 0) {
+              grid[id].row += (grid[targetId].rowSpan || 6);
+            } else {
+              grid[targetId].row += (grid[id].rowSpan || 6);
+            }
+          }
+
+          if (window.GridEngine) {
+            window.GridEngine.compactGrid();
+            window.GridEngine.applyGridLayout();
+            window.GridEngine.renderBoardEditHandles();
+          }
+          if (typeof saveState === 'function') saveState();
+        },
+
         toggleSidebar(forceOpen = null) {
           const sidebar = document.getElementById('workspaceSidebar');
           const pullTab = document.getElementById('sidebarPullTab');
@@ -6045,6 +6155,7 @@
           if (state && state.globalSidebar) {
             state.globalSidebar.isOpen = shouldOpen;
           }
+          this.updateMobileSheetBackdrop();
           if (typeof saveUiOnly === 'function') saveUiOnly();
           else if (typeof saveState === 'function') saveState();
         },
@@ -6068,11 +6179,16 @@
 
         toggleKpisAccordion() {
           const body = document.getElementById('kpisCollapsibleBody');
+          const slimGrid = document.getElementById('kpisSlimGrid');
           const statusText = document.getElementById('kpisSlimStatusText');
           const arrow = document.getElementById('kpisSlimArrow');
           const wrap = document.getElementById('topKpisWrapper');
           if (!body) return;
           const isHidden = body.classList.toggle('hidden');
+          if (slimGrid) {
+            if (isHidden) slimGrid.classList.remove('hidden');
+            else slimGrid.classList.add('hidden');
+          }
           if (statusText) statusText.textContent = isHidden ? 'Ver Desglose' : 'Plegar';
           if (arrow) arrow.textContent = isHidden ? '▼' : '▲';
           if (!state.uiPreferences) state.uiPreferences = {};
@@ -6741,25 +6857,25 @@
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
           pushUndo('Modificar horas de estudio');
           const w = getActiveWeek();
-          w.studyRealHours[dayIdx] = Math.max(0, parseFloat(val) || 0);
+          if (!w) return;
+          const oldDayVal = Number(w.studyRealHours[dayIdx]) || 0;
+          const newDayVal = Math.max(0, parseFloat(val) || 0);
+          const diff = parseFloat((newDayVal - oldDayVal).toFixed(1));
+          w.studyRealHours[dayIdx] = newDayVal;
 
-          // Invariante de coherencia: las horas por asignatura no pueden exceder el total semanal de horas de estudio
-          if (w.studyBySubject) {
-            const totalReal = w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
-            const totalSubs = Object.values(w.studyBySubject).reduce((acc, h) => acc + (Number(h) || 0), 0);
-            if (totalSubs > totalReal && totalReal > 0) {
-              const ratio = totalReal / totalSubs;
-              Object.keys(w.studyBySubject).forEach(k => {
-                w.studyBySubject[k] = parseFloat((Number(w.studyBySubject[k]) * ratio).toFixed(1));
-              });
-            } else if (totalReal === 0) {
-              Object.keys(w.studyBySubject).forEach(k => {
-                w.studyBySubject[k] = 0;
-              });
-            }
+          if (!w.studyBySubject) w.studyBySubject = {};
+          const subjectKeys = Object.keys(w.studyBySubject);
+          let targetSub = state.pomo?.subjectId || state.pomo?.selectedSubject;
+          if (!targetSub || !w.studyBySubject[targetSub]) {
+            targetSub = subjectKeys.length > 0 ? subjectKeys[0] : 'Estudio General';
           }
+          const curSubHrs = Number(w.studyBySubject[targetSub]) || 0;
+          w.studyBySubject[targetSub] = Math.max(0, parseFloat((curSubHrs + diff).toFixed(1)));
 
-          renderApp();
+          renderHeaderAndKPIs();
+          renderDailyHabits();
+          renderPomodoroUI();
+          renderTab4();
           saveState();
         },
         addStudyToDay(dayIdx, hrs, optionalSubject) {
@@ -6767,12 +6883,21 @@
           pushUndo('Añadir horas de estudio');
           playTickSound();
           const w = getActiveWeek();
+          if (!w) return;
           const cur = Number(w.studyRealHours[dayIdx]) || 0;
           w.studyRealHours[dayIdx] = parseFloat((cur + hrs).toFixed(1));
           if (!w.studyBySubject) w.studyBySubject = {};
-          const sub = optionalSubject || state.pomo?.selectedSubject || 'Estudio General';
-          w.studyBySubject[sub] = parseFloat(((Number(w.studyBySubject[sub]) || 0) + hrs).toFixed(1));
-          renderApp();
+          let sub = optionalSubject || state.pomo?.subjectId || state.pomo?.selectedSubject;
+          const subjectKeys = Object.keys(w.studyBySubject);
+          if (!sub || (!w.studyBySubject[sub] && subjectKeys.length > 0 && !optionalSubject)) {
+            sub = subjectKeys.length > 0 ? subjectKeys[0] : 'Estudio General';
+          }
+          w.studyBySubject[sub] = Math.max(0, parseFloat(((Number(w.studyBySubject[sub]) || 0) + hrs).toFixed(1)));
+
+          renderHeaderAndKPIs();
+          renderDailyHabits();
+          renderPomodoroUI();
+          renderTab4();
           saveState();
         },
 
@@ -6787,7 +6912,7 @@
 
           const oldVal = Number(w.studyBySubject[sub]) || 0;
           const num = Math.max(0, parseFloat(Number(val).toFixed(1)) || 0);
-          const diff = num - oldVal;
+          const diff = parseFloat((num - oldVal).toFixed(1));
 
           pushUndo(`Ajustar horas de ${sub}`);
           w.studyBySubject[sub] = num;
@@ -6800,8 +6925,8 @@
           renderHeaderAndKPIs();
           renderDailyHabits();
           renderPomodoroUI();
-          if (state.activeTab === 4) renderTab4();
-          renderSubjectStudyStatsModal();
+          renderTab4();
+          if (typeof renderSubjectStudyStatsModal === 'function') renderSubjectStudyStatsModal();
           saveState();
           this.showToast(`Horas de "${sub}": ${num.toFixed(1)}h`, 'blue');
         },
@@ -7055,6 +7180,7 @@
           this.activeDockTool = mode;
           sidebar.classList.remove('hidden');
           document.body.classList.add('dock-sidebar-open');
+          this.updateMobileSheetBackdrop();
 
           // Desactivar pastillas previas
           document.querySelectorAll('#floatingDock button, #floatingDock [data-dock-pill-id]').forEach(btn => {
@@ -7138,6 +7264,7 @@
           if (sidebar) sidebar.classList.add('hidden');
           this.activeDockTool = null;
           document.body.classList.remove('dock-sidebar-open');
+          this.updateMobileSheetBackdrop();
           document.querySelectorAll('#floatingDock button, #floatingDock [data-dock-pill-id]').forEach(btn => {
             btn.classList.remove('dock-pill-active');
           });
@@ -7249,6 +7376,7 @@
             p.lastTick = Date.now();
             p.targetEndTime = Date.now() + (p.timeLeft * 1000);
             requestPomoWakeLock();
+            if (typeof startPomoKeepAlive === 'function') startPomoKeepAlive();
             if (pomoTimerInterval) clearInterval(pomoTimerInterval);
             pomoTimerInterval = setInterval(() => {
               syncPomoTime();
@@ -7260,10 +7388,12 @@
               clearInterval(pomoTimerInterval);
               pomoTimerInterval = null;
             }
+            if (typeof stopPomoKeepAlive === 'function') stopPomoKeepAlive();
             releasePomoWakeLock();
           }
           renderPomodoroUI();
-          saveState();
+          if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
+          else saveState();
         },
 
         commitStudyToToday() {
@@ -10654,7 +10784,7 @@
           renderApp();
           saveState();
         },
-        setLabScope(scope) { state.ui.labScope = scope; renderTab4(); saveState(); },
+        setLabScope(scope) { state.labScope = scope; if (!state.ui) state.ui = {}; state.ui.labScope = scope; renderTab4(); saveState(); },
         setEvolMetric(metric) { state.ui.evolMetric = metric; renderTab4(); saveState(); },
 
         // --- TOUR GUIADO INTERACTIVO POR LA PÁGINA (SPOTLIGHT & TOOLTIP FLOTANTE) ---
@@ -12448,9 +12578,21 @@
           }
         },
 
+        renderCustomHabitsMusclesGrid(selectedMuscles = []) {
+          const gridEl = document.getElementById('habitLinkedMusclesGrid');
+          if (!gridEl || typeof ALL_MUSCLE_GROUPS === 'undefined') return;
+          gridEl.innerHTML = ALL_MUSCLE_GROUPS.map(m => `
+            <label class="flex items-center gap-1.5 p-1 rounded subpanel-bg border cursor-pointer hover:border-theme">
+              <input type="checkbox" value="${m.id}" ${selectedMuscles.includes(m.id) ? 'checked' : ''} class="habit-linked-muscle-chk accent-theme-main" />
+              <span class="truncate">${m.label.split('/')[0].trim()}</span>
+            </label>
+          `).join('');
+        },
+
         openManageHabitsModal() {
           this.resetHabitForm();
           this.renderCustomHabitsList();
+          this.renderCustomHabitsMusclesGrid([]);
           this.openModal('modalManageHabits');
         },
 
@@ -12638,6 +12780,8 @@
           const icon = document.getElementById('habitIconInput')?.value || 'star';
           const emoji = document.getElementById('habitEmojiInput')?.value || '⭐';
           const isReminderOnly = !!document.getElementById('habitIsReminderOnly')?.checked;
+          const linkedRunSystem = document.getElementById('habitLinkedRunSystem')?.value || 'none';
+          const linkedMuscles = Array.from(document.querySelectorAll('.habit-linked-muscle-chk:checked')).map(el => el.value);
 
           if (!state.customHabits) state.customHabits = [];
 
@@ -12649,7 +12793,9 @@
             iconId: icon,
             emoji,
             active: true,
-            isReminderOnly
+            isReminderOnly,
+            linkedRunSystem,
+            linkedMuscles
           };
 
           if (type === 'max_limit') {
@@ -12717,6 +12863,7 @@
           renderDailyHabits();
           renderTab2();
           renderHeaderAndKPIs();
+          renderTab4();
           updateHeaderDailyProgress();
           saveState();
         },
@@ -12737,6 +12884,9 @@
           if (cancelBtn) cancelBtn.classList.remove('hidden');
           if (submitBtn) submitBtn.textContent = 'Actualizar Hábito';
           if (remChk) remChk.checked = !!h.isReminderOnly;
+          const runSysEl = document.getElementById('habitLinkedRunSystem');
+          if (runSysEl) runSysEl.value = h.linkedRunSystem || 'none';
+          this.renderCustomHabitsMusclesGrid(h.linkedMuscles || []);
 
           const iconInput = document.getElementById('habitIconInput');
           const emojiInput = document.getElementById('habitEmojiInput');
@@ -12765,6 +12915,9 @@
           if (submitBtn) submitBtn.textContent = 'Guardar Hábito';
           if (remChk) remChk.checked = false;
           if (nameInp) nameInp.value = '';
+          const runSysEl = document.getElementById('habitLinkedRunSystem');
+          if (runSysEl) runSysEl.value = 'none';
+          this.renderCustomHabitsMusclesGrid([]);
 
           const iconInput = document.getElementById('habitIconInput');
           const emojiInput = document.getElementById('habitEmojiInput');
