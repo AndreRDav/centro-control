@@ -144,10 +144,50 @@ var GridEngine = {
           }
           if (!layout) return;
 
-          // 1. Recalcular minRows para todas las tarjetas visibles
-          Object.keys(layout).forEach(id => {
+          // 1. Normalizar tarjetas huérfanas desplazadas a la derecha sin compañeras en su fila
+          const cardKeys = Object.keys(layout);
+          cardKeys.forEach(id => {
+            const c = layout[id];
+            if (!c || c.isPinned) return;
+            if (c.col > 1) {
+              const hasRowNeighbor = cardKeys.some(otherId => {
+                if (otherId === id) return false;
+                const o = layout[otherId];
+                if (!o) return false;
+                const oRow = o.row || 1;
+                const cRow = c.row || 1;
+                const oSpan = o.rowSpan || o.minRows || 4;
+                const cSpan = c.rowSpan || c.minRows || 4;
+                return Math.max(cRow, oRow) < Math.min(cRow + cSpan, oRow + oSpan);
+              });
+              if (!hasRowNeighbor) {
+                c.col = 1;
+                if (c.colSpan === 5 || c.colSpan === 7) {
+                  c.colSpan = 12;
+                }
+              }
+            }
+          });
+
+          // 2. Aplicar ancho síncrono al elemento en el DOM ANTES de medir sus filas naturales
+          cardKeys.forEach(id => {
             const el = document.getElementById(id);
             if (el) {
+              const cfg = layout[id];
+              const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(id) : null;
+              const minCols = (def && def.minColSpan) || cfg.minColSpan || 3;
+              if (!cfg.colSpan || cfg.colSpan < minCols) cfg.colSpan = minCols;
+              if (cfg.col + cfg.colSpan - 1 > 12) cfg.col = Math.max(1, 13 - cfg.colSpan);
+              el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
+              el.setAttribute('data-cols', String(cfg.colSpan));
+              if (id === 'tab2ScheduleSection') {
+                if (typeof renderScheduleGrid === 'function') {
+                  try { renderScheduleGrid(); } catch (_) {}
+                } else if (typeof app !== 'undefined' && typeof app.renderScheduleGrid === 'function') {
+                  try { app.renderScheduleGrid(); } catch (_) {}
+                }
+              }
+
               const minReq = this.measureNaturalRows(el);
               if (minReq > 0) layout[id].minRows = minReq;
             }
@@ -665,6 +705,12 @@ var GridEngine = {
           const toolbar = document.getElementById('boardEditToolbar');
 
           if (state.ui.isBoardEditMode) {
+            this._preEditLayoutSnapshot = JSON.parse(JSON.stringify({
+              workspaces: state.workspaces,
+              globalSidebar: state.globalSidebar,
+              gridLayouts: state.uiPreferences ? state.uiPreferences.gridLayouts : null
+            }));
+
             if (btn) {
               btn.className = 'px-3 py-1.5 rounded-xl bg-theme-main text-white font-bold border border-theme text-xs flex items-center gap-1.5 shadow-md transition whitespace-nowrap cursor-pointer';
             }
@@ -674,19 +720,21 @@ var GridEngine = {
             if (toolbar) toolbar.classList.remove('hidden');
             if (mainGrid) mainGrid.classList.add('board-edit-active');
             if (sidebar) {
-              sidebar.classList.remove('hidden', 'sidebar-collapsed');
-              sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
-              document.body.classList.add('sidebar-view-open');
-              const sContainer = document.getElementById('sidebarWidgetsContainer');
-              const gSidebarWidgets = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
-              if (sContainer && gSidebarWidgets.length === 0) {
-                let emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
-                if (!emptyDrop) {
-                  emptyDrop = document.createElement('div');
-                  emptyDrop.id = 'sidebarEmptyDropPlaceholder';
-                  emptyDrop.className = 'p-4 rounded-xl border-2 border-dashed border-theme/40 text-center text-xs text-stone-400 italic my-2';
-                  emptyDrop.textContent = 'Arrastra cuadros aquí o pulsa "+ Panel" para fijarlos en el Panel Lateral';
-                  sContainer.appendChild(emptyDrop);
+              if (state.globalSidebar && state.globalSidebar.isOpen) {
+                sidebar.classList.remove('hidden', 'sidebar-collapsed');
+                sidebar.classList.add('sidebar-open', 'sidebar-edit-active');
+                document.body.classList.add('sidebar-view-open');
+                const sContainer = document.getElementById('sidebarWidgetsContainer');
+                const gSidebarWidgets = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
+                if (sContainer && gSidebarWidgets.length === 0) {
+                  let emptyDrop = document.getElementById('sidebarEmptyDropPlaceholder');
+                  if (!emptyDrop) {
+                    emptyDrop = document.createElement('div');
+                    emptyDrop.id = 'sidebarEmptyDropPlaceholder';
+                    emptyDrop.className = 'p-4 rounded-xl border-2 border-dashed border-theme/40 text-center text-xs text-stone-400 italic my-2';
+                    emptyDrop.textContent = 'Arrastra cuadros aquí o pulsa "+ Panel" para fijarlos en el Panel Lateral';
+                    sContainer.appendChild(emptyDrop);
+                  }
                 }
               }
             }
@@ -1812,6 +1860,10 @@ var GridEngine = {
               if (isComp) el.classList.add('card-mode-compact');
               else el.classList.remove('card-mode-compact');
             }
+            if (cardId === 'todayFocusContainer') {
+              if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
+              else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
+            }
             const isEdit = (typeof this.isBoardEditMode === 'function') ? this.isBoardEditMode() : false;
             const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
             if (ws && ws.grid && ws.grid[cardId] && el) {
@@ -1826,10 +1878,6 @@ var GridEngine = {
             this.applyGridLayout();
             if (isEdit) {
               this.renderBoardEditHandles();
-            }
-            if (cardId === 'todayFocusContainer') {
-              if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
-              else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
             }
             this.safeToast(isComp ? 'Modo Compacto activado: micro-cuadrícula acoplada.' : 'Modo Normal restaurado.', 'emerald');
             if (typeof saveState === 'function') saveState();
@@ -2545,6 +2593,7 @@ var GridEngine = {
         },
 
         saveBoardDesign() {
+          this._preEditLayoutSnapshot = null;
           const tabKey = 'tab' + (state.activeTab || 1);
           this.autoFlowGrid(tabKey);
           this.applyGridLayout(tabKey);
@@ -2554,9 +2603,21 @@ var GridEngine = {
         },
 
         cancelBoardDesign() {
+          if (this._preEditLayoutSnapshot) {
+            if (this._preEditLayoutSnapshot.workspaces) state.workspaces = JSON.parse(JSON.stringify(this._preEditLayoutSnapshot.workspaces));
+            if (this._preEditLayoutSnapshot.globalSidebar) state.globalSidebar = JSON.parse(JSON.stringify(this._preEditLayoutSnapshot.globalSidebar));
+            if (state.uiPreferences && this._preEditLayoutSnapshot.gridLayouts) {
+              state.uiPreferences.gridLayouts = JSON.parse(JSON.stringify(this._preEditLayoutSnapshot.gridLayouts));
+            }
+            this._preEditLayoutSnapshot = null;
+          }
+          if (window.WorkspacesManager) {
+            try { window.WorkspacesManager.mountActiveWorkspace(); } catch (_) {}
+          }
           const tabKey = 'tab' + (state.activeTab || 1);
           this.applyGridLayout(tabKey);
           this.toggleBoardEdit(tabKey);
+          if (typeof saveState === 'function') saveState();
           this.showToast('Diseño restablecido a la configuración previa.', 'info');
         },
 

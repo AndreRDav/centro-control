@@ -566,6 +566,18 @@
       backdrop-filter: blur(8px) !important;
       -webkit-backdrop-filter: blur(8px) !important;
     }
+    #zenModal {
+      position: fixed !important;
+      inset: 0 !important;
+      width: 100vw !important;
+      height: 100dvh !important;
+      max-height: 100dvh !important;
+      z-index: 10000 !important;
+      background-color: var(--theme-bg, #F3EDE2) !important;
+    }
+    html.dark #zenModal {
+      background-color: var(--theme-bg, #070B14) !important;
+    }
     html:not(.dark) #zenModal {
       background-color: rgba(243, 237, 226, 0.98) !important;
       color: #161514 !important;
@@ -1079,8 +1091,7 @@
     #dockRightSidebarBody {
       display: flex !important;
       flex-direction: column !important;
-      justify-content: center !important;
-      justify-content: safe center !important;
+      justify-content: flex-start !important;
       align-items: stretch !important;
       min-height: 0 !important;
       flex: 1 1 0% !important;
@@ -1089,22 +1100,21 @@
       gap: 0.75rem !important;
     }
     #dockRightSidebarBody > *:not(.hidden) {
-      margin-top: auto !important;
-      margin-bottom: auto !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       width: 100% !important;
       flex-shrink: 0 !important;
     }
     #dockRightSidebarCustomContent {
       display: flex !important;
       flex-direction: column !important;
-      justify-content: center !important;
-      justify-content: safe center !important;
+      justify-content: flex-start !important;
       align-items: stretch !important;
       flex: 0 0 auto !important;
       min-height: 0 !important;
       width: 100% !important;
-      margin-top: auto !important;
-      margin-bottom: auto !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       gap: 0.75rem !important;
     }
     #dockRightSidebarCustomContent.hidden,
@@ -1113,8 +1123,8 @@
       display: none !important;
     }
     #dockRightSidebarCustomContent > *:not(.hidden) {
-      margin-top: auto !important;
-      margin-bottom: auto !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       width: 100% !important;
       max-height: calc(100vh - 110px) !important;
       overflow-y: auto !important;
@@ -1165,14 +1175,13 @@
       flex-direction: column !important;
       flex: 1 1 0% !important;
       min-height: 0 !important;
-      justify-content: center !important;
-      justify-content: safe center !important;
+      justify-content: flex-start !important;
       gap: 0.75rem !important;
       overflow-y: auto !important;
     }
     #sidebarWidgetsContainer > *:not(.hidden) {
-      margin-top: auto !important;
-      margin-bottom: auto !important;
+      margin-top: 0 !important;
+      margin-bottom: 0 !important;
       width: 100% !important;
       flex-shrink: 0 !important;
       max-height: calc(100vh - 110px) !important;
@@ -1966,6 +1975,13 @@
       padding: 0.15rem 0.25rem !important;
       font-size: 0.6875rem !important;
     }
+    .editorial-card.card-mode-compact #dailyTableBody tr > td {
+      padding: 0.1rem 0.1rem !important;
+    }
+    .editorial-card.card-mode-compact #dailyTableBody button {
+      padding-top: 1px !important;
+      padding-bottom: 1px !important;
+    }
     .editorial-card.card-mode-compact #weekTableContainer input[type="checkbox"] {
       width: 13px !important;
       height: 13px !important;
@@ -2002,11 +2018,38 @@
     [data-cols="1"] #scheduleDaysGrid,
     [data-cols="2"] #scheduleDaysGrid,
     [data-cols="3"] #scheduleDaysGrid,
-    [data-cols="4"] #scheduleDaysGrid {
+    [data-cols="4"] #scheduleDaysGrid,
+    [data-cols="5"] #scheduleDaysGrid,
+    [data-cols="6"] #scheduleDaysGrid {
       display: flex !important;
       flex-direction: column !important;
       width: 100% !important;
       min-width: 0 !important;
+    }
+
+    #tab2ModularHabitsSection[data-cols="1"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="2"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="3"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="4"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="5"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="6"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="7"] .md\:grid-cols-12,
+    #tab2ModularHabitsSection[data-cols="8"] .md\:grid-cols-12,
+    #sidebarWidgetsContainer #tab2ModularHabitsSection .md\:grid-cols-12,
+    #dockRightSidebar #tab2ModularHabitsSection .md\:grid-cols-12 {
+      grid-template-columns: 1fr !important;
+    }
+    #tab2ModularHabitsSection[data-cols="1"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="2"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="3"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="4"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="5"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="6"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="7"] [class*="md:col-span-"],
+    #tab2ModularHabitsSection[data-cols="8"] [class*="md:col-span-"],
+    #sidebarWidgetsContainer #tab2ModularHabitsSection [class*="md:col-span-"],
+    #dockRightSidebar #tab2ModularHabitsSection [class*="md:col-span-"] {
+      grid-column: 1 / -1 !important;
     }
 
     /* 8. REGLAS DE ASISTENCIA Y CLASES (tab2AttendanceRulesSection) */
@@ -2197,27 +2240,50 @@
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
       }
       /* Subpanel de Hoy con reorganización inteligente (Reorganizar -> Escalar -> Interespaciado) */
-      #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
-        grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+      #todayFocusContainer .habits-subpanel-today {
+        display: flex !important;
+        flex-direction: column !important;
+        align-self: stretch !important;
+        height: auto !important;
+      }
+      #todayFocusContainer #todayFocusContent {
+        flex: 1 1 auto !important;
+        display: flex !important;
+        flex-direction: column !important;
+      }
+      #todayFocusContainer #todayFocusContent .adaptive-internal-grid {
+        flex: 1 1 auto !important;
+        display: grid !important;
+        grid-auto-rows: 1fr !important;
+        align-content: stretch !important;
         gap: 0.5rem !important;
       }
-      @container hoypanel (max-width: 359px) {
-        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+      @container hoypanel (max-width: 459px) {
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
         }
       }
-      @container hoypanel (min-width: 360px) and (max-width: 539px) {
-        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+      @container hoypanel (min-width: 460px) and (max-width: 739px) {
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         }
-      }
-      @container hoypanel (min-width: 540px) and (max-width: 779px) {
-        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
-          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid > div:last-child:nth-child(odd) {
+          grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 780px) {
-        #todayFocusContainer:not(.habits-matrix-collapsed) .habits-subpanel-today .adaptive-internal-grid {
+      @container hoypanel (min-width: 740px) and (max-width: 999px) {
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
+          grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+        }
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid > div:last-child:nth-child(3n + 1) {
+          grid-column: span 3 !important;
+        }
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid > div:last-child:nth-child(3n + 2) {
+          grid-column: span 2 !important;
+        }
+      }
+      @container hoypanel (min-width: 1000px) {
+        #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
       }

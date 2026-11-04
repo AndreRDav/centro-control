@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=2.7.1" />
+  <link rel="stylesheet" href="styles.css?v=2.7.3" />
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
@@ -97,7 +97,7 @@
        ======================================================== -->
 
   <!-- MODAL MODO ZEN POMODORO -->
-  <div id="zenModal" class="fixed inset-0 z-50 hidden bg-[#FBF7F0]/95 dark:bg-[#070B14]/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center select-none text-stone-900 dark:text-white transition-colors duration-200 overflow-y-auto overscroll-contain">
+  <div id="zenModal" class="fixed inset-0 z-[10000] hidden bg-[#FBF7F0]/95 dark:bg-[#070B14]/95 backdrop-blur-md flex flex-col items-center justify-between sm:justify-center py-4 px-4 text-center select-none text-stone-900 dark:text-white transition-colors duration-200 overflow-y-auto overscroll-contain">
     <div class="absolute top-6 right-6 flex items-center gap-3">
       <button onclick="app.toggleZen(false)" class="px-3 py-1.5 rounded-xl subpanel-bg border border-stone-300 dark:border-slate-700 text-stone-700 dark:text-slate-300 hover:text-stone-950 dark:hover:text-white text-xs font-bold tracking-wide flex items-center gap-1.5 transition">
         <span>✕</span>
@@ -129,15 +129,19 @@
       </div>
 
       <!-- Dial de Cronógrafo Concéntrico -->
-      <div class="relative w-[310px] h-[310px] sm:w-[380px] sm:h-[380px] rounded-full border border-stone-300/60 dark:border-slate-800/80 flex flex-col items-center justify-center shadow-inner my-1">
+      <div class="relative w-[220px] h-[220px] sm:w-[260px] sm:h-[260px] rounded-full border border-stone-300/60 dark:border-slate-800/80 flex flex-col items-center justify-center shadow-inner my-1">
         <!-- Anillo concéntrico interior -->
         <div class="absolute inset-3 sm:inset-5 rounded-full border border-dashed border-stone-300/50 dark:border-slate-800/60 pointer-events-none"></div>
 
         <div id="zenPhaseLabel" class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-theme-main font-mono z-10">BLOQUE DE ENFOQUE</div>
-        <div id="zenTimerDisplay" onclick="app.toggleZenSettingsDrawer()" class="text-6xl sm:text-8xl font-black tracking-tight font-mono text-stone-900 dark:text-white cursor-pointer select-none hover:text-theme-main transition duration-150 my-1 z-10" title="Clic para abrir ajustes y presets de tiempo">25:00</div>
+        <div id="zenTimerDisplay" onclick="app.promptSetPomoTime()" class="text-4xl sm:text-6xl font-black tracking-tight font-mono text-stone-900 dark:text-white cursor-pointer select-none hover:text-theme-main transition duration-150 my-1 z-10" title="Haz clic para escribir los minutos exactos">25:00</div>
         
-        <div class="text-xs sm:text-sm text-stone-600 dark:text-slate-400 font-mono z-10">
-          Efectivo: <strong id="zenEffectiveTime" class="text-theme-main font-bold">0m (0.00h)</strong>
+        <div class="text-xs sm:text-sm text-stone-600 dark:text-slate-400 font-mono z-10 flex items-center justify-center gap-1.5">
+          <span onclick="app.promptSetEffectiveTime()" class="cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">Efectivo: <strong id="zenEffectiveTime" class="text-theme-main font-bold">0m (0.00h)</strong></span>
+          <span class="inline-flex items-center gap-0.5 ml-1">
+            <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-1 py-0.5 rounded text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300" title="Restar 1 minuto efectivo">-1m</button>
+            <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-1 py-0.5 rounded text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main" title="Sumar 1 minuto efectivo">+1m</button>
+          </span>
         </div>
       </div>
 
@@ -3892,7 +3896,7 @@
           </button>
         </div>
 
-        <div id="subjectRulesCardsGrid" class="grid gap-2.5 text-xs" style="grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));"></div>
+        <div id="subjectRulesCardsGrid" class="grid gap-2.5 text-xs" style="grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));"></div>
       </div>
       </div>
     </section>
@@ -4241,7 +4245,7 @@
               <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Horas acumuladas y ajuste manual directo (+ / - / edición directa)</span>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <div class="inline-flex items-center rounded-lg p-0.5 border border-theme subpanel-bg text-[10px] font-mono font-bold shrink-0">
               <button type="button" class="lab-scope-week-btn px-2 py-0.5 rounded transition text-stone-500 hover:text-stone-900 dark:hover:text-white" onclick="app.setLabScope('week')">Esta Semana</button>
               <button type="button" class="lab-scope-hist-btn px-2 py-0.5 rounded transition text-stone-500 hover:text-stone-900 dark:hover:text-white" onclick="app.setLabScope('historic')">Histórico</button>
@@ -4276,7 +4280,7 @@
             <span>Configurar Hábitos</span>
           </button>
         </div>
-        <div id="tab4CustomHabitsGrid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5">
+        <div id="tab4CustomHabitsGrid" class="grid gap-2.5" style="grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));">
           <!-- Renderizado dinámico de estadísticas de hábitos -->
         </div>
       </div>
@@ -4293,7 +4297,7 @@
               <span class="text-[10px] text-stone-500 dark:text-slate-400 compact-hide">Haz clic en cualquier músculo para abrir su ficha con entrenamientos y ajuste</span>
             </div>
           </div>
-          <div class="flex items-center gap-2">
+          <div class="flex flex-wrap items-center gap-1.5 sm:gap-2">
             <div class="inline-flex items-center rounded-lg p-0.5 border border-theme subpanel-bg text-[10px] font-mono font-bold shrink-0">
               <button type="button" class="lab-scope-week-btn px-2 py-0.5 rounded transition text-stone-500 hover:text-stone-900 dark:hover:text-white" onclick="app.setLabScope('week')">Esta Semana</button>
               <button type="button" class="lab-scope-hist-btn px-2 py-0.5 rounded transition text-stone-500 hover:text-stone-900 dark:hover:text-white" onclick="app.setLabScope('historic')">Histórico</button>
@@ -4430,7 +4434,7 @@
       <!-- Contenedor de Contenido Dinámico del Dock -->
       <div id="dockRightSidebarBody" class="flex-1 overflow-y-auto space-y-3">
         <!-- VENTANA 1: POMODORO -->
-        <div id="dockPomoWindow" class="hidden editorial-card panel-bg rounded-2xl p-3.5 space-y-3 border border-theme shadow-sm">
+        <div id="dockPomoWindow" class="hidden space-y-3">
           <div class="flex items-center justify-between pb-1.5 border-b border-theme/40">
             <span id="dockPomoPhaseBadge" class="text-[9px] font-mono uppercase font-extrabold px-1.5 py-0.5 rounded bg-cyan-950 text-cyan-300 border border-cyan-800">ENFOQUE</span>
             <button onclick="app.toggleZen(true)" class="px-2 py-0.5 rounded text-stone-500 hover:text-theme-main text-xs font-semibold" title="Modo Zen Pantalla Completa">Modo Zen</button>
@@ -4495,9 +4499,13 @@
 
           <!-- Reloj Grande + Tiempo Efectivo -->
           <div class="text-center py-2.5 subpanel-bg rounded-xl border">
-            <div id="dockPomoDisplay" onclick="app.toggleDockPomoSettings()" class="text-4xl font-extrabold font-mono tracking-tight cursor-pointer hover:text-theme-main transition" title="Haz clic para abrir ajustes de tiempo y sonido">25:00</div>
-            <div class="text-[11px] text-slate-400 mt-1">
-              Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span>
+            <div id="dockPomoDisplay" onclick="app.promptSetPomoTime()" class="text-4xl font-extrabold font-mono tracking-tight cursor-pointer hover:text-theme-main transition" title="Haz clic para escribir los minutos exactos">25:00</div>
+            <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-center gap-1.5">
+              <span onclick="app.promptSetEffectiveTime()" class="cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span></span>
+              <span class="inline-flex items-center gap-0.5 ml-1">
+                <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-1 py-0.2 rounded text-[9.5px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300" title="Restar 1 minuto efectivo">-1m</button>
+                <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-1 py-0.2 rounded text-[9.5px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main" title="Sumar 1 minuto efectivo">+1m</button>
+              </span>
             </div>
           </div>
 
@@ -4533,7 +4541,7 @@
         </div>
 
         <!-- VENTANA 2: GASTO RÁPIDO -->
-        <div id="dockExpenseWindow" class="hidden editorial-card panel-bg rounded-2xl p-3.5 space-y-3 border border-theme shadow-sm">
+        <div id="dockExpenseWindow" class="hidden space-y-3">
           <div class="space-y-2.5">
             <div class="grid grid-cols-2 gap-2">
               <div>
@@ -4644,12 +4652,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.7.1"></script>
-  <script src="widgets-registry.js?v=2.7.1"></script>
-  <script src="polymorphic-cards.js?v=2.7.1"></script>
-  <script src="workspaces.js?v=2.7.1"></script>
-  <script src="grid-engine.js?v=2.7.1"></script>
-  <script src="app.js?v=2.7.1"></script>
+  <script src="state-sync.js?v=2.7.3"></script>
+  <script src="widgets-registry.js?v=2.7.3"></script>
+  <script src="polymorphic-cards.js?v=2.7.3"></script>
+  <script src="workspaces.js?v=2.7.3"></script>
+  <script src="grid-engine.js?v=2.7.3"></script>
+  <script src="app.js?v=2.7.3"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

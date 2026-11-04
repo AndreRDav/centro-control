@@ -839,7 +839,7 @@
           tab4ShowEvolution: true,
           density: 'cozy',
           kpisCollapsed: true,
-          habitsSplitPercent: 38,
+          habitsSplitPercent: 42,
           welcomeDismissed: false,
           gridLayouts: {
             desktop: {
@@ -981,7 +981,7 @@
         ui: {
           dailyViewMode: 'today', // 'week' | 'today'
           habitsSubView: 'today',
-          habitsSplitPercent: 38,
+          habitsSplitPercent: 42,
           weekTableCollapsed: true,
           listTab: 'entregas',
           listSort: 'manual',
@@ -1124,40 +1124,19 @@
       }
       window.createToneWavDataUri = createToneWavDataUri;
 
-      let pomoKeepAliveAudio = null;
-      let pomoAlarmAudio = null;
-
       function startPomoKeepAlive() {
-        try {
-          if (!pomoKeepAliveAudio) {
-            pomoKeepAliveAudio = new Audio();
-            pomoKeepAliveAudio.loop = true;
-            pomoKeepAliveAudio.src = createToneWavDataUri('silence', 2000);
-          }
-          pomoKeepAliveAudio.play().catch(() => {});
-        } catch (_) {}
+        // No-op para iPadOS/iOS: evitamos crear y reproducir Audio() para no pausar reproductores de música (Spotify, Apple Music).
       }
       window.startPomoKeepAlive = startPomoKeepAlive;
 
       function stopPomoKeepAlive() {
-        try {
-          if (pomoKeepAliveAudio) {
-            pomoKeepAliveAudio.pause();
-            pomoKeepAliveAudio.currentTime = 0;
-          }
-        } catch (_) {}
+        // No-op
       }
       window.stopPomoKeepAlive = stopPomoKeepAlive;
 
       function playPomoAlarmAudio(type) {
-        stopPomoKeepAlive();
-        try {
-          const volFactor = ((state && state.pomo && state.pomo.volume !== undefined) ? state.pomo.volume : 80) / 100;
-          if (volFactor <= 0 || type === 'silent') return;
-          if (!pomoAlarmAudio) pomoAlarmAudio = new Audio();
-          pomoAlarmAudio.src = createToneWavDataUri(type || state?.pomo?.sound || 'bowl', 2500, volFactor);
-          pomoAlarmAudio.play().catch(() => {});
-        } catch (_) {}
+        // En iOS/iPadOS usamos exclusivamente Web Audio API a través de playSoundAlarm
+        playSoundAlarm(type);
       }
       window.playPomoAlarmAudio = playPomoAlarmAudio;
 
@@ -1169,40 +1148,39 @@
       }
       window.syncPomoImmediate = syncPomoImmediate;
 
-      // Polling liviano cada 10 segundos en primer plano para sincronización multi-dispositivo en tiempo real
+      // Polling liviano cada 10 segundos en primer plano para sincronización multi-dispositivo en tiempo real (segundo plano silencioso)
       if (typeof window !== 'undefined') {
         setInterval(() => {
           if (document.visibilityState === 'visible' && typeof isGdriveConnected === 'function' && isGdriveConnected() && !isGdriveSyncing) {
-            syncGdriveCloud(true); // comprobar si la versión remota es más nueva
+            syncGdriveCloud(true, false, false, true); // comprobar en silencio total
           }
         }, 10000);
       }
 
       function playSoundAlarm(type = 'bowl') {
-        playPomoAlarmAudio(type);
         try {
+          const volFactor = ((state && state.pomo && state.pomo.volume !== undefined) ? state.pomo.volume : 80) / 100;
+          if (volFactor <= 0 || type === 'silent') return;
           const ctx = getAudioContext();
-          if (type === 'silent') {
-            return;
-          } else if (type === 'bowl') {
+          if (type === 'bowl') {
             [261.63, 392.00, 523.25].forEach((f, i) => {
-              setTimeout(() => playTone(f, 2.4, 'sine', 0.12), i * 180);
+              setTimeout(() => playTone(f, 2.4, 'sine', 0.12 * volFactor), i * 180);
             });
           } else if (type === 'chord') {
             [440, 554.37, 659.25, 880].forEach((f, i) => {
-              setTimeout(() => playTone(f, 0.65, 'triangle', 0.1), i * 85);
+              setTimeout(() => playTone(f, 0.65, 'triangle', 0.1 * volFactor), i * 85);
             });
           } else if (type === 'bell') {
             // Campana Cristalina: brillo limpio y resonancia cristalina
             [587.33, 880, 1174.66, 1760].forEach((f, i) => {
-              setTimeout(() => playTone(f, 1.8, 'sine', 0.09 / (i + 1)), i * 60);
+              setTimeout(() => playTone(f, 1.8, 'sine', (0.09 / (i + 1)) * volFactor), i * 60);
             });
           } else if (type === 'pulse') {
             // Pulso Digital: doble pulso moderno estilo smartwatch
-            playTone(784, 0.08, 'square', 0.08);
-            setTimeout(() => playTone(987.77, 0.12, 'square', 0.08), 120);
+            playTone(784, 0.08, 'square', 0.08 * volFactor);
+            setTimeout(() => playTone(987.77, 0.12, 'square', 0.08 * volFactor), 120);
           } else {
-            playTone(440, 0.5, 'sine', 0.2);
+            playTone(440, 0.5, 'sine', 0.2 * volFactor);
           }
         } catch (_) {}
       }
@@ -1378,7 +1356,6 @@
             p.lastTick = now;
             if (pomoTimerInterval) clearInterval(pomoTimerInterval);
             requestPomoWakeLock();
-            startPomoKeepAlive();
             pomoTimerInterval = setInterval(() => {
               syncPomoTime();
             }, 1000);
@@ -1391,9 +1368,7 @@
               clearInterval(pomoTimerInterval);
               pomoTimerInterval = null;
             }
-            stopPomoKeepAlive();
             releasePomoWakeLock();
-            playPomoAlarmAudio(p.sound);
             triggerPomoAlert(p.phase, p.sound);
           }
           renderPomodoroUI();
@@ -1847,7 +1822,7 @@ var pendingCloudConflictJson = null;
         return false;
       }
 
-      function applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId) {
+      function applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId, isSilentBackground = false) {
         logDriveDebug('Aplicando descarga de la nube...');
         try {
           localStorage.setItem('centro_control_pre_sync_backup', JSON.stringify(state));
@@ -1898,13 +1873,13 @@ var pendingCloudConflictJson = null;
         }
         updateGdriveUI();
         logDriveDebug('¡Datos de Google Drive descargados y aplicados!');
-        if (window.renderSystemToast) {
+        if (!isSilentBackground && window.renderSystemToast) {
           window.renderSystemToast('Datos de Google Drive descargados y aplicados.', 'success');
         }
         return { success: true, action: 'downloaded', timestamp: cloudTimestamp };
       }
 
-      async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false) {
+      async function syncGdriveCloud(allowPull = false, forceUpload = false, forceDownload = false, isSilentBackground = false) {
         if (isGdriveSyncing || isDriveRequestActive) {
           logDriveDebug('Sincronización rechazada: ya hay una petición en curso.');
           return { success: false, reason: 'already_syncing' };
@@ -1962,7 +1937,7 @@ var pendingCloudConflictJson = null;
             }
             const cloudJson = await dlRes.json();
             const cloudTimestamp = Number(cloudJson?.updatedAt) || Date.now();
-            return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
+            return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId, isSilentBackground);
           }
 
           // ========================
@@ -2071,7 +2046,7 @@ var pendingCloudConflictJson = null;
                   // Caso virgen: si local no tiene datos y la nube sí
                   if (!localHasData && cloudHasData) {
                     logDriveDebug('Dispositivo local sin datos: descargando copia remota...');
-                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
+                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId, isSilentBackground);
                   }
 
                   // Caso conflicto real: ambos modificados después del último sync por dispositivos distintos
@@ -2090,9 +2065,9 @@ var pendingCloudConflictJson = null;
                   }
 
                   // Caso nube más reciente o allowPull
-                  if (cloudTimestamp > (localTimestamp + 1000) || (allowPull && cloudTimestamp >= localTimestamp)) {
+                  if (cloudTimestamp > (localTimestamp + 1500) && cloudTimestamp > (lastSynced + 1500)) {
                     logDriveDebug('Versión en la nube es más reciente: descargando...');
-                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId);
+                    return applyCloudDownload(cloudJson, cloudTimestamp, myDeviceId, isSilentBackground);
                   }
                 }
               }
@@ -2329,7 +2304,7 @@ var pendingCloudConflictJson = null;
         s.uiPreferences.tab4ShowCustomHabits = true;
         s.uiPreferences.tab4ShowBiometrics = true;
         s.uiPreferences.tab4ShowEvolution = true;
-        s.uiPreferences.habitsSplitPercent = Math.max(28, Math.min(52, Number(s.uiPreferences.habitsSplitPercent) || 38));
+        s.uiPreferences.habitsSplitPercent = Math.max(32, Math.min(62, Number(s.uiPreferences.habitsSplitPercent) || 42));
         if (!s.deviceId) s.deviceId = 'dev_' + Math.random().toString(36).substr(2, 9);
         if (s.ui && s.ui.dismissedBanners) delete s.ui.dismissedBanners;
         s.goalsTemplate = Object.assign({}, DEFAULT_STATE.goalsTemplate, s.goalsTemplate);
@@ -2356,7 +2331,7 @@ var pendingCloudConflictJson = null;
         s.ui = Object.assign({}, DEFAULT_STATE.ui, s.ui);
         if (!s.ui.dailyViewMode) s.ui.dailyViewMode = 'today';
         if (!s.ui.habitsSubView) s.ui.habitsSubView = 'today';
-        s.ui.habitsSplitPercent = Math.max(28, Math.min(52, Number(s.ui.habitsSplitPercent) || 38));
+        s.ui.habitsSplitPercent = Math.max(32, Math.min(62, Number(s.ui.habitsSplitPercent) || 42));
         if (s.ui.weekTableCollapsed === undefined || window.innerWidth < 768) {
           // En móviles (<768px) inicia plegada por comodidad y espacio
           s.ui.weekTableCollapsed = true;
@@ -2692,7 +2667,7 @@ var pendingCloudConflictJson = null;
         if (now - lastFocusPullTime < 30000) return;
         lastFocusPullTime = now;
         if (typeof isGdriveConnected === 'function' && isGdriveConnected()) {
-          syncGdriveCloud(true, false, false);
+          syncGdriveCloud(true, false, false, true);
         } else if (gdriveUserEmail) {
           updateGdriveUI();
         }

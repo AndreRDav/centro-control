@@ -76,6 +76,64 @@
         return now.getTime() > range.end.getTime();
       }
 
+      function getHabitDayCompletionRatio(h, val, dIdx) {
+        if (!h || val === null || val === undefined || val === '') return 0;
+        if (h.type === 'binary_check') {
+          const daySlots = (h.dailySlots && Array.isArray(h.dailySlots) && dIdx !== undefined && h.dailySlots[dIdx] !== undefined)
+            ? Number(h.dailySlots[dIdx])
+            : (Number(h.slotsCount) || 1);
+          if (daySlots <= 0) return 0;
+          if (daySlots === 1) {
+            return (val === true || val === 1 || val === 'true' || (Array.isArray(val) && !!val[0])) ? 1 : 0;
+          }
+          if (Array.isArray(val)) {
+            const done = val.slice(0, daySlots).filter(Boolean).length;
+            return done / daySlots;
+          }
+          if (val === true || val === 1 || val === 'true') return 1;
+          return 0;
+        }
+        if (h.type === 'min_daily') {
+          const num = Number(val);
+          if (isNaN(num)) return 0;
+          return num >= (Number(h.targetDaily) || 1) ? 1 : Math.max(0, num / (Number(h.targetDaily) || 1));
+        }
+        if (h.type === 'min_accum') {
+          const num = Number(val);
+          return (!isNaN(num) && num > 0) ? 1 : 0;
+        }
+        if (h.type === 'target_range') {
+          const num = Number(val);
+          if (isNaN(num)) return 0;
+          const c = Number(h.targetCenter) || 0;
+          const mg = Number(h.targetMargin) || 0;
+          return (num >= (c - mg) && num <= (c + mg)) ? 1 : 0;
+        }
+        if (h.type === 'max_limit') {
+          const num = Number(val);
+          if (isNaN(num)) return 0;
+          return num <= (Number(h.targetDaily) || 1) ? 1 : 0;
+        }
+        return Number(val) > 0 ? 1 : 0;
+      }
+
+      function isCustomHabitDoneOnDay(h, val, dIdx) {
+        if (val === null || val === undefined || val === '') return false;
+        if (h.type === 'binary_check') {
+          return getHabitDayCompletionRatio(h, val, dIdx) > 0;
+        }
+        const num = Number(val);
+        if (isNaN(num)) return false;
+        if (h.type === 'min_daily') return num >= (Number(h.targetDaily) || 1);
+        if (h.type === 'min_accum') return num > 0;
+        if (h.type === 'target_range') {
+          const c = Number(h.targetCenter) || 0;
+          const mg = Number(h.targetMargin) || 0;
+          return num >= (c - mg) && num <= (c + mg);
+        }
+        return num > 0;
+      }
+
       // MOTOR DE CÁLCULO DE MÉTRICAS (ADAPTABLE / MODULAR)
       function calculateWeekMetrics(w) {
         if (!w) return { score: 0, gymPct: 0, runPct: 0, studyPct: 0, attPct: 0, nutriPct: 0, finPct: 0, spent: 0, budget: 60, customHabitsPct: {}, totalActiveBlocks: 6, blocksMetCount: 0 };
@@ -171,12 +229,13 @@
             customHabitsPct[h.id] = pct;
             customHabitsStats[h.id] = { sum, target: targetW, isMet: pct >= 100, unit: h.unit || '' };
           } else if (h.type === 'binary_check') {
-            // Tipo C: Check Diario (Sí/No)
-            const count = rawDays.filter(v => v === true || v === 1 || v === 'true').length;
+            // Tipo C: Check Diario (Sí/No) o Multi-bloques
+            const count = rawDays.reduce((acc, v, idx) => acc + getHabitDayCompletionRatio(h, v, idx), 0);
             const targetDays = Math.max(1, Number(h.targetWeeklyDays) || 7);
             const pct = (count / targetDays) * 100;
             customHabitsPct[h.id] = pct;
-            customHabitsStats[h.id] = { count, targetDays, isMet: pct >= 100 };
+            const formattedCount = Number.isInteger(count) ? count : parseFloat(count.toFixed(1));
+            customHabitsStats[h.id] = { count: formattedCount, targetDays, isMet: pct >= 100 };
           } else if (h.type === 'target_range') {
             // Tipo D: Diana Óptima (Rango: target ± margin)
             const center = Number(h.targetCenter) || 0;
@@ -528,21 +587,6 @@
         `;
       }
 
-      function isCustomHabitDoneOnDay(h, val) {
-        if (val === null || val === undefined || val === '') return false;
-        if (h.type === 'binary_check') return !!val;
-        const num = Number(val);
-        if (isNaN(num)) return false;
-        if (h.type === 'min_daily') return num >= (Number(h.targetDaily) || 1);
-        if (h.type === 'min_accum') return num > 0;
-        if (h.type === 'target_range') {
-          const c = Number(h.targetCenter) || 0;
-          const mg = Number(h.targetMargin) || 0;
-          return num >= (c - mg) && num <= (c + mg);
-        }
-        return num > 0;
-      }
-
       // MAPA MUSCULAR ANATÓMICO ULTRA-DETALLADO (Frontal y Posterior) CON INSPECTOR ACTIVO
       function getMuscleStimulusHits() {
         const scope = state.labScope || state.ui?.labScope || 'week';
@@ -601,11 +645,13 @@
             (state.customHabits || []).forEach(h => {
               if (!h || !Array.isArray(h.linkedMuscles) || h.linkedMuscles.length === 0) return;
               const dayVals = w.customHabitsData?.[h.id] || [];
-              if (isCustomHabitDoneOnDay(h, dayVals[dIdx])) {
+              const ratio = getHabitDayCompletionRatio(h, dayVals[dIdx], dIdx);
+              if (ratio > 0) {
                 h.linkedMuscles.forEach(mId => {
                   if (hits[mId] !== undefined) {
-                    hits[mId] += 1;
-                    logs[mId].push(`${DAY_FULL[dIdx]}: Hábito "${h.name}" ➔ +1`);
+                    hits[mId] += ratio;
+                    const rTxt = ratio === 1 ? '+1' : `+${ratio.toFixed(1)}`;
+                    logs[mId].push(`${DAY_FULL[dIdx]}: Hábito "${h.name}" ➔ ${rTxt}`);
                   }
                 });
               }
@@ -650,9 +696,9 @@
         // Silueta Frontal Anatómica
         const frontSvg = `
           <div class="p-3 rounded-xl bg-stone-50/90 dark:bg-slate-900/90 border border-stone-300 dark:border-slate-800 shadow-sm space-y-2 text-center">
-            <div class="flex items-center justify-between border-b border-stone-200/90 dark:border-slate-800/80 pb-1">
-              <span class="text-[10px] uppercase font-bold text-stone-600 dark:text-slate-300 font-mono tracking-wider">Vista Frontal</span>
-              <span class="text-[9px] font-mono text-stone-400 dark:text-slate-500 font-bold">ANT-01</span>
+            <div class="flex items-center justify-between border-b border-stone-200/90 dark:border-slate-800/80 pb-1 gap-1">
+              <span class="text-[10px] uppercase font-bold text-stone-600 dark:text-slate-300 font-mono tracking-wider whitespace-nowrap">Frontal</span>
+              <span class="text-[9px] font-mono text-stone-400 dark:text-slate-500 font-bold whitespace-nowrap">ANT-01</span>
             </div>
             <svg viewBox="0 0 120 250" class="w-full max-h-72 mx-auto">
               ${bodySilhouetteFront}
@@ -694,8 +740,8 @@
         const backSvg = `
           <div class="p-3 rounded-xl bg-stone-50/90 dark:bg-slate-900/90 border border-stone-300 dark:border-slate-800 shadow-sm space-y-2 text-center">
             <div class="flex items-center justify-between border-b border-stone-200/90 dark:border-slate-800/80 pb-1">
-              <span class="text-[10px] uppercase font-bold text-stone-600 dark:text-slate-300 font-mono tracking-wider">Vista Posterior</span>
-              <span class="text-[9px] font-mono text-stone-400 dark:text-slate-500 font-bold">POST-02</span>
+              <span class="text-[10px] uppercase font-bold text-stone-600 dark:text-slate-300 font-mono tracking-wider whitespace-nowrap">Posterior</span>
+              <span class="text-[9px] font-mono text-stone-400 dark:text-slate-500 font-bold whitespace-nowrap">POST-02</span>
             </div>
             <svg viewBox="0 0 120 250" class="w-full max-h-72 mx-auto">
               ${bodySilhouetteBack}
@@ -2202,8 +2248,8 @@
                   `;
                 }).join('')}
               </div>
-              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between whitespace-nowrap gap-1">
-                <span class="whitespace-nowrap">Asistencia requerida: ${w.goals.academic?.attMinPercent || 85}%</span>
+              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex flex-wrap items-center justify-between gap-1">
+                <span class="whitespace-nowrap">Meta: ${w.goals.academic?.attMinPercent || 85}%</span>
                 <span class="font-mono font-bold text-theme-main whitespace-nowrap">${Math.round(m.attPct)}% global</span>
               </div>
             </div>
@@ -2283,7 +2329,7 @@
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
                   <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">${h.unit || 'h'} (máx ${maxDaily})</span>
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">${h.unit || 'h'} (máx ${maxDaily})</span>
                 </div>
                 <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
               </div>
@@ -2294,7 +2340,7 @@
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
                   <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
-                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">${h.unit || ''} hoy</span>
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">${h.unit || ''} hoy</span>
                 </div>
                 <div class="flex gap-1 shrink-0">
                   <button onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${(curVal + 1)})" class="px-2 py-1 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+1</button>
@@ -2332,21 +2378,22 @@
               `;
             } else {
               const isRem = !!h.isReminderOnly;
+              const doneSlots = Array.isArray(dayVal) ? dayVal.slice(0, daySlots).filter(Boolean).length : ((dayVal === true || dayVal === 1) ? 1 : 0);
               bodyHtml = `
                 <div class="pt-1.5 space-y-1.5">
-                  <div class="text-[10px] font-bold ${isRem ? 'text-theme-accent' : 'text-stone-500'} uppercase tracking-wider">Tomas de hoy (${daySlots}):</div>
-                  <div class="flex flex-wrap gap-2">
+                  <div class="text-[10px] font-bold ${isRem ? 'text-theme-accent' : 'text-stone-500'} uppercase tracking-wider">Bloques de hoy (${doneSlots}/${daySlots}):</div>
+                  <div class="grid gap-1.5 w-full pt-0.5" style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
                     ${Array.from({length: daySlots}).map((_, sIdx) => {
                       const isSlotChk = Array.isArray(dayVal) ? !!dayVal[sIdx] : (sIdx === 0 && (dayVal === true || dayVal === 1));
-                      const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
+                      const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || '';
                       const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
                       const slotBtnClass = isRem
                         ? (isSlotChk ? 'bg-theme-accent text-white border-theme-accent shadow-xs' : 'bg-white/90 dark:bg-slate-900 border-2 border-theme-accent/60 text-theme-accent font-bold hover:bg-theme-accent-soft')
                         : (isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/15 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-300 dark:border-slate-600 text-stone-700 dark:text-stone-200 hover:border-theme-main shadow-2xs'));
                       return `
-                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="flex-1 min-w-[75px] py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${slotBtnClass}">
+                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="w-full py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${slotBtnClass}">
                           ${isSlotChk ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<span class="w-3 h-3 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span>'}
-                          <span>${slotHour || ('Toma ' + (sIdx + 1))}</span>
+                          <span class="truncate">${slotHour ? `⏰ ${slotHour}` : `Bloque ${sIdx + 1}`}</span>
                         </button>
                       `;
                     }).join('')}
@@ -2366,7 +2413,7 @@
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
                   <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
-                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap truncate">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
+                  <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
                 </div>
                 <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
               </div>
@@ -2450,7 +2497,7 @@
           ${!progressSlot ? prominentProgressBarHtml : ''}
 
           <!-- CUADRÍCULA UNIFORME DE HÁBITOS Y RECORDATORIOS DE HOY (ADAPTATIVA SEGÚN ANCHO) -->
-          <div class="adaptive-internal-grid">
+          <div class="adaptive-internal-grid" data-card-count="${todayMetricCards.length}">
             ${gridCardsHtml || `<div class="${emptySpanClass} p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>`}
           </div>
         `;
@@ -2799,9 +2846,12 @@
 
                   hRow += `
                     <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
-                      <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-6 h-6 min-w-[24px] min-h-[24px] max-w-[24px] max-h-[24px] mx-auto rounded-md border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
-                        ${isChk ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span>' : '')}
-                      </button>
+                      <div class="flex flex-col items-center justify-center">
+                        <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="w-6 h-6 min-w-[24px] min-h-[24px] max-w-[24px] max-h-[24px] mx-auto rounded-md border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-2 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isLate ? ' (Atrasado)' : '') : (isChk ? 'Completado' : 'Pendiente')}">
+                          ${isChk ? '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span>' : '')}
+                        </button>
+                        ${slotHour ? `<span class="text-[7.5px] font-mono text-stone-400 dark:text-slate-400 leading-none block mt-0.5 whitespace-nowrap">${slotHour}</span>` : ''}
+                      </div>
                     </td>
                   `;
                 } else {
@@ -2811,15 +2861,18 @@
 
                   hRow += `
                     <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
-                      <div class="flex items-center justify-center gap-1.5 flex-nowrap py-0.5">
+                      <div class="flex flex-col xl:flex-row flex-wrap items-center justify-center gap-1 py-0.5">
                         ${Array.from({length: daySlots}).map((_, sIdx) => {
                           const isSlotChk = Array.isArray(val) ? !!val[sIdx] : (sIdx === 0 && (val === true || val === 1));
-                          const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || h.fixedHour || '';
+                          const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || '';
                           const isSlotLate = (isRealToday && slotHour && currentHourStr > slotHour && !isSlotChk);
                           return `
-                            <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="${slotBtnSize} border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isSlotLate ? ' (Atrasado)' : '') : 'Toma ' + (sIdx+1)}">
-                              ${isSlotChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isSlotLate ? '<span class="text-[9px] font-black leading-none">!</span>' : '')}
-                            </button>
+                            <div class="flex flex-col items-center">
+                              <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="${slotBtnSize} border-2 flex items-center justify-center shrink-0 aspect-square transition active:scale-90 cursor-pointer ${isSlotChk ? 'bg-theme-main text-white border-theme-main shadow-xs' : (isSlotLate ? 'border-amber-500 bg-amber-500/20 text-amber-500 ring-1.5 ring-amber-500/50 dark:text-amber-400' : 'bg-white/90 dark:bg-slate-800 border-stone-400 dark:border-slate-500 text-stone-400 hover:border-theme-main hover:bg-stone-50 dark:hover:bg-slate-700 shadow-2xs')}" title="${slotHour ? 'Hora: ' + slotHour + (isSlotLate ? ' (Atrasado)' : '') : 'Bloque ' + (sIdx+1)}">
+                                ${isSlotChk ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : (isSlotLate ? '<span class="text-[9px] font-black leading-none">!</span>' : '')}
+                              </button>
+                              ${slotHour ? `<span class="text-[7.5px] font-mono text-stone-400 dark:text-slate-400 leading-none block mt-0.5 whitespace-nowrap">${slotHour}</span>` : ''}
+                            </div>
                           `;
                         }).join('')}
                       </div>
@@ -2848,8 +2901,9 @@
             const sum = rawDays.reduce((acc, v) => acc + (v !== null && !isNaN(v) ? Number(v) : 0), 0);
             summaryLabel = `${sum.toFixed(1)}/${h.targetWeekly}${h.unit || ''}`;
           } else if (h.type === 'binary_check') {
-            const cnt = rawDays.filter(v => v === true || v === 1 || v === 'true').length;
-            summaryLabel = `${cnt}/${h.targetWeeklyDays}d`;
+            const count = rawDays.reduce((acc, v, idx) => acc + getHabitDayCompletionRatio(h, v, idx), 0);
+            const formattedCount = Number.isInteger(count) ? count : count.toFixed(1);
+            summaryLabel = `${formattedCount}/${h.targetWeeklyDays}d`;
           } else if (h.type === 'target_range') {
             const c = Number(h.targetCenter) || 0, mg = Number(h.targetMargin) || 0;
             const cnt = rawDays.filter(v => v !== null && !isNaN(v) && Number(v) >= (c - mg) && Number(v) <= (c + mg)).length;
@@ -3750,7 +3804,7 @@
         const inSidebar = !!(card && card.closest('#sidebarWidgetsContainer'));
         const inDock = !!(card && card.closest('#dockRightSidebar'));
         const cols = card ? parseInt(card.getAttribute('data-cols') || '12', 10) : 12;
-        const isNarrow = inSidebar || inDock || (cols <= 4) || (window.innerWidth < 1024);
+        const isNarrow = inSidebar || inDock || (cols <= 6) || (window.innerWidth < 1024);
 
         if (isNarrow) {
           container.className = 'flex flex-col gap-2.5 w-full text-xs';
@@ -3985,16 +4039,10 @@
           const subArg = sub.replace(/'/g, "\\'");
           return `
             <div data-subject-id="${subArg}" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="p-3.5 rounded-xl subpanel-bg border space-y-2.5 cursor-pointer">
-              <div class="flex justify-between items-center border-b pb-1.5">
-                <div class="flex items-center gap-1.5">
-                  <span class="font-extrabold text-sm text-white">${sub}</span>
-                  <button onclick="app.renameSubjectPrompt('${subArg}')" class="text-slate-400 hover:text-theme-main p-1 transition" title="Renombrar asignatura en toda la app">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
-                  </button>
-                  <button onclick="app.deleteSubjectPrompt('${subArg}')" class="text-slate-400 hover:text-theme-accent p-1 transition" title="Eliminar asignatura y todas sus clases de la plantilla">
-                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-                  </button>
-                  <button type="button" onclick="app.openSubjectActionsMenu(event, '${subArg}')" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="w-6 h-6 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
+              <div class="flex justify-between items-center border-b pb-1.5 gap-1.5">
+                <div class="flex items-center gap-1.5 min-w-0">
+                  <span class="font-extrabold text-sm text-stone-900 dark:text-white truncate" title="${sub}">${sub}</span>
+                  <button type="button" onclick="app.openSubjectActionsMenu(event, '${subArg}')" oncontextmenu="app.openSubjectActionsMenu(event, '${subArg}'); return false;" class="w-6 h-6 shrink-0 rounded-lg subpanel-bg border border-stone-300/60 dark:border-slate-700/60 hover:border-theme-main text-stone-600 dark:text-slate-300 hover:text-stone-900 dark:hover:text-white flex items-center justify-center font-bold text-xs transition shadow-xs" title="Más opciones">•••</button>
                 </div>
                 ${trafficBadge}
               </div>
@@ -4188,14 +4236,18 @@
             });
             histDesc = `Acumulado total: ${histSum.toFixed(1)} ${h.unit || ''}`;
           } else if (h.type === 'binary_check') {
-            const daysDone = (curW.customHabitsData?.[h.id] || []).filter(Boolean).length;
-            curDesc = `${daysDone} / ${h.targetWeeklyDays || 7} días`;
+            const rawDays = curW.customHabitsData?.[h.id] || [];
+            const daysDone = rawDays.reduce((acc, v, idx) => acc + getHabitDayCompletionRatio(h, v, idx), 0);
+            const formattedDaysDone = Number.isInteger(daysDone) ? daysDone : daysDone.toFixed(1);
+            curDesc = `${formattedDaysDone} / ${h.targetWeeklyDays || 7} días`;
 
             let histChecks = 0;
             allWeeks.forEach(w => {
-              histChecks += (w.customHabitsData?.[h.id] || []).filter(Boolean).length;
+              const wDays = w.customHabitsData?.[h.id] || [];
+              histChecks += wDays.reduce((acc, v, idx) => acc + getHabitDayCompletionRatio(h, v, idx), 0);
             });
-            histDesc = `Días totales cumplidos: ${histChecks}`;
+            const formattedHist = Number.isInteger(histChecks) ? histChecks : histChecks.toFixed(1);
+            histDesc = `Días totales cumplidos: ${formattedHist}`;
           } else if (h.type === 'target_range') {
             const c = Number(h.targetCenter) || 0;
             const mg = Number(h.targetMargin) || 0;
@@ -5517,7 +5569,7 @@
             (state.customHabits || []).forEach(h => {
               if (!h || !h.linkedRunSystem || h.linkedRunSystem === 'none') return;
               const dayVals = w.customHabitsData?.[h.id] || [];
-              if (isCustomHabitDoneOnDay(h, dayVals[dIdx])) {
+              if (isCustomHabitDoneOnDay(h, dayVals[dIdx], dIdx)) {
                 if (h.linkedRunSystem === 'series') seriesCount++;
                 else if (h.linkedRunSystem === 'rodaje') rodajeCount++;
                 else if (h.linkedRunSystem === 'tirada') tiradaCount++;
@@ -6405,7 +6457,7 @@
           const isCollapsed = state.ui.weekTableCollapsed !== false;
           const currentSubView = state.ui.habitsSubView || 'today';
           const rawSplit = (state.ui && state.ui.habitsSplitPercent) || (state.uiPreferences && state.uiPreferences.habitsSplitPercent) || 42;
-          const savedSplit = Math.max(38, Math.min(54, Number(rawSplit) || 42));
+          const savedSplit = Math.max(32, Math.min(62, Number(rawSplit) || 42));
 
           if (isNarrow) {
             if (switcher) switcher.classList.remove('hidden');
@@ -6482,8 +6534,8 @@
             const offsetX = currentX - rect.left;
             let pct = Math.round((offsetX / bodyWidth) * 100);
 
-            // Blindaje estricto entre 38% (mínimo para Hoy) y 54% (máximo para Hoy, dejando al menos 46% para Semana)
-            pct = Math.max(38, Math.min(54, pct));
+            // Rango ampliado entre 32% (mínimo para Hoy) y 62% (máximo para Hoy)
+            pct = Math.max(32, Math.min(62, pct));
 
             todayBox.style.setProperty('--habits-today-pct', pct + '%');
             todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
@@ -6513,7 +6565,7 @@
         resetHabitsSplit() {
           const todayBox = document.getElementById('todayFocusContainer');
           if (!todayBox) return;
-          const pct = 38;
+          const pct = 42;
           todayBox.style.setProperty('--habits-today-pct', pct + '%');
           todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
           if (!state.ui) state.ui = {};
@@ -6521,13 +6573,13 @@
           if (state.uiPreferences) state.uiPreferences.habitsSplitPercent = pct;
           if (typeof app.saveUiOnly === 'function') app.saveUiOnly();
           else saveState();
-          this.showToast('Proporción restablecida: 38% Hoy / 62% Semana', 'info', 1200);
+          this.showToast('Proporción restablecida: 42% Hoy / 58% Semana', 'info', 1200);
         },
 
         setHabitsSplitPreset(pct) {
           const todayBox = document.getElementById('todayFocusContainer');
           if (!todayBox) return;
-          pct = Math.max(28, Math.min(52, Number(pct) || 38));
+          pct = Math.max(38, Math.min(52, Number(pct) || 42));
           todayBox.style.setProperty('--habits-today-pct', pct + '%');
           todayBox.style.setProperty('--habits-week-pct', (100 - pct) + '%');
           if (!state.ui) state.ui = {};
@@ -7504,6 +7556,11 @@
           if (!modal) return;
           const willShow = (show !== undefined) ? show : modal.classList.contains('hidden');
           if (willShow) {
+            if (typeof this.closeDockSidebar === 'function') this.closeDockSidebar();
+            if (typeof this.closeMobileSheets === 'function') this.closeMobileSheets();
+            const dock = document.getElementById('floatingDock');
+            if (dock) dock.classList.add('hidden');
+
             modal.classList.remove('hidden');
             document.body.classList.add('overflow-hidden');
             const vol = state.pomo.volume !== undefined ? state.pomo.volume : 80;
@@ -7525,7 +7582,76 @@
           } else {
             modal.classList.add('hidden');
             document.body.classList.remove('overflow-hidden');
+            const dock = document.getElementById('floatingDock');
+            if (dock && (!state.uiPreferences || state.uiPreferences.showDocks !== false)) {
+              dock.classList.remove('hidden');
+            }
           }
+        },
+
+        async promptSetPomoTime() {
+          const curSec = (state?.pomo?.timeLeft !== undefined) ? state.pomo.timeLeft : 1500;
+          const curMins = Math.ceil(curSec / 60);
+          const val = await this.showPrompt({
+            title: 'Ajustar Tiempo del Cronómetro',
+            message: 'Introduce los minutos (ej. 25) o formato MM:SS (ej. 18:30):',
+            defaultValue: String(curMins),
+            placeholder: '25'
+          });
+          if (val === null || val === undefined || !String(val).trim()) return;
+          const clean = String(val).trim();
+          let totalSecs = 0;
+          if (clean.includes(':')) {
+            const parts = clean.split(':').map(p => parseInt(p.trim(), 10) || 0);
+            totalSecs = (parts[0] * 60) + (parts[1] || 0);
+          } else {
+            const num = parseFloat(clean);
+            if (isNaN(num)) return;
+            totalSecs = Math.round(num * 60);
+          }
+          totalSecs = Math.max(10, Math.min(180 * 60, totalSecs));
+          if (!state.pomo) state.pomo = {};
+          state.pomo.timeLeft = totalSecs;
+          if (state.pomo.phase === 'work' || !state.pomo.phase) {
+            state.pomo.studyMin = Math.round(totalSecs / 60);
+          }
+          if (state.pomo.isRunning) {
+            state.pomo.targetEndTime = Date.now() + (totalSecs * 1000);
+            state.pomo.lastTick = Date.now();
+          }
+          if (typeof renderPomodoroUI === 'function') renderPomodoroUI();
+          saveState();
+          if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
+          this.showToast(`Tiempo del cronómetro ajustado a ${Math.floor(totalSecs / 60)}m ${totalSecs % 60}s`, 'success');
+        },
+
+        async promptSetEffectiveTime() {
+          const curEffSec = (state?.pomo?.effectiveSeconds !== undefined) ? state.pomo.effectiveSeconds : 0;
+          const curEffMin = Math.floor(curEffSec / 60);
+          const val = await this.showPrompt({
+            title: 'Ajustar Tiempo Efectivo Acumulado',
+            message: 'Introduce los minutos efectivos estudiados en esta sesión (ej. 35):',
+            defaultValue: String(curEffMin),
+            placeholder: '35'
+          });
+          if (val === null || val === undefined || !String(val).trim()) return;
+          const num = parseFloat(String(val).replace(',', '.').trim());
+          if (isNaN(num) || num < 0) return;
+          if (!state.pomo) state.pomo = {};
+          state.pomo.effectiveSeconds = Math.round(num * 60);
+          if (typeof renderPomodoroUI === 'function') renderPomodoroUI();
+          saveState();
+          if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
+          this.showToast(`Tiempo efectivo actualizado a ${Math.round(num)}m`, 'success');
+        },
+
+        adjustEffectiveMinutes(deltaMin) {
+          if (!state.pomo) state.pomo = {};
+          const curEffSec = state.pomo.effectiveSeconds || 0;
+          state.pomo.effectiveSeconds = Math.max(0, curEffSec + (deltaMin * 60));
+          if (typeof renderPomodoroUI === 'function') renderPomodoroUI();
+          saveState();
+          if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
         },
         toggleZenSettingsDrawer() {
           const drawer = document.getElementById('zenSettingsDrawer');
@@ -12254,46 +12380,46 @@
           }
         },
 
-        onHabitSlotsCountChange(count, existingLabels = []) {
-          const container = document.getElementById('habitSlotLabelsContainer');
-          const modeLbl = document.getElementById('habitSlotsModeLabel');
-          if (!container) return;
-          const num = parseInt(count, 10);
-          if (isNaN(num) || num <= 1) {
-            if (modeLbl) modeLbl.textContent = 'Check Tradicional (1 toma)';
-            const singleHourBox = document.getElementById('habitSingleHourBox');
-            if (singleHourBox) singleHourBox.classList.remove('hidden');
-            container.innerHTML = '';
-            return;
+        onHabitSlotsCountChange() {
+          const slotsCountInput = document.getElementById('habitSlotsCount');
+          const slotsCount = slotsCountInput ? (parseInt(slotsCountInput.value, 10) || 1) : 1;
+          const useDailySlots = !!document.getElementById('habitUseDailySlots')?.checked;
+
+          const dSlots = [];
+          if (useDailySlots) {
+            for (let d = 0; d < 7; d++) {
+              const el = document.getElementById('habitDailySlot_' + d);
+              if (el) dSlots.push(parseInt(el.value, 10) || 0);
+            }
           }
-          if (modeLbl) modeLbl.textContent = 'Multi-casillas (' + num + ' tomas/día)';
-          const singleHourBox = document.getElementById('habitSingleHourBox');
-          if (singleHourBox) singleHourBox.classList.add('hidden');
+          const maxSlots = Math.max(1, slotsCount, ...(dSlots.length ? dSlots : [1]));
+
+          const modeLbl = document.getElementById('habitSlotsModeLabel');
+          if (modeLbl) {
+            modeLbl.textContent = maxSlots > 1 ? `Multi-bloques (${maxSlots} repeticiones/día)` : 'Check Tradicional (1 bloque)';
+          }
+
+          const container = document.getElementById('habitSlotsLabelsInputs');
+          if (!container) return;
 
           const currentTyped = [];
-          const existingInps = container.querySelectorAll('input[id^="habitSlotLabel_"]');
-          existingInps.forEach((inp, idx) => {
+          container.querySelectorAll('input.habit-slot-time-input').forEach((inp, idx) => {
             currentTyped[idx] = inp.value;
           });
 
-          const defaultHours = ['09:00', '14:00', '21:00', '18:00', '23:00', '08:00', '12:00', '16:00', '20:00', '22:00'];
-          let inputsHtml = '<div class="p-2.5 rounded-xl bg-theme-soft/50 border border-theme space-y-1.5">' +
-            '<div class="flex items-center justify-between text-[10.5px] font-bold text-theme-main">' +
-              '<span>Horas o Avisos Fijos por Casilla (' + num + ' tomas diarias):</span>' +
-              '<span class="text-[9.5px] text-stone-400 font-normal">Sin límite de tomas</span>' +
-            '</div>' +
-            '<div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">';
-          for (let i = 0; i < num; i++) {
-            const val = (currentTyped[i] !== undefined && currentTyped[i] !== '') 
-              ? currentTyped[i] 
-              : ((existingLabels[i] !== undefined && existingLabels[i] !== '') ? existingLabels[i] : (defaultHours[i] || ('Toma ' + (i + 1))));
-            inputsHtml += '<div class="space-y-0.5">' +
-              '<label class="block text-[9px] font-bold text-stone-500">Casilla #' + (i + 1) + ':</label>' +
-              '<input type="text" id="habitSlotLabel_' + i + '" value="' + escapeHtml(val) + '" placeholder="ej: 09:00" class="w-full px-2 py-1 input-bg border rounded-lg font-mono text-center font-bold text-xs focus:border-theme outline-none" />' +
-            '</div>';
+          let html = '';
+          for (let i = 0; i < maxSlots; i++) {
+            const val = currentTyped[i] || '';
+            html += `
+              <div class="space-y-1">
+                <label class="block text-[9.5px] font-mono font-bold text-stone-600 dark:text-slate-300">
+                  ${maxSlots > 1 ? `Bloque ${i + 1}:` : 'Hora del Bloque:'}
+                </label>
+                <input type="time" id="habitSlotLabel_${i}" value="${val}" class="habit-slot-time-input w-full px-2.5 py-1.5 input-bg border rounded-xl font-mono text-center font-bold text-xs focus:border-theme outline-none" />
+              </div>
+            `;
           }
-          inputsHtml += '</div></div>';
-          container.innerHTML = inputsHtml;
+          container.innerHTML = html;
         },
 
         toggleHabitActiveDay(dIdx) {
@@ -12382,7 +12508,7 @@
             w.customHabitsData[habitId][dayIdx] = slotsArr;
           }
 
-          pushUndo('Marcar toma de hábito');
+          pushUndo('Marcar bloque de hábito');
           renderDailyHabits();
           const todayIdx = (new Date().getDay() + 6) % 7;
           const m = calculateWeekMetrics(w);
@@ -12639,16 +12765,9 @@
         toggleDailySlotsCustom(isChecked) {
           const row = document.getElementById('habitDailySlotsInputsRow');
           const actDaysBox = document.getElementById('habitActiveDaysStandardBox');
-          const hourBox = document.getElementById('habitSingleHourBox');
-          const modeLabel = document.getElementById('habitSlotsModeLabel');
 
           if (row) row.classList.toggle('hidden', !isChecked);
           if (actDaysBox) actDaysBox.classList.toggle('hidden', isChecked);
-          if (hourBox) hourBox.classList.toggle('hidden', isChecked);
-
-          if (modeLabel) {
-            modeLabel.textContent = isChecked ? 'Casillas Variables por Día (L – D)' : 'Check Tradicional (1 toma)';
-          }
 
           if (isChecked) {
             const slotsCount = Math.max(1, parseInt(document.getElementById('habitSlotsCount')?.value, 10) || 1);
@@ -12659,6 +12778,7 @@
               }
             }
           }
+          this.onHabitSlotsCountChange();
         },
 
         onHabitTypeChange(type, currentValues = {}) {
@@ -12704,11 +12824,12 @@
             const daysNames = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
             const hasCustomDaily = !!(currentValues.dailySlots && Array.isArray(currentValues.dailySlots));
             const rawDailySlots = hasCustomDaily ? currentValues.dailySlots : [currentSlots, currentSlots, currentSlots, currentSlots, currentSlots, currentSlots, currentSlots];
+            const maxSlots = Math.max(currentSlots, ...(Array.isArray(currentValues.dailySlots) ? currentValues.dailySlots : [1]));
 
             box.innerHTML = `
               <div class="space-y-1">
-                <label class="block text-[10px] font-bold text-slate-400 uppercase">Tomas habituales / día:</label>
-                <input id="habitSlotsCount" type="number" min="1" step="1" value="${currentSlots}" oninput="app.onHabitSlotsCountChange(this.value)" onchange="app.onHabitSlotsCountChange(this.value)" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" placeholder="1 = Sí/No tradicional" />
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Repeticiones / bloques habituales al día:</label>
+                <input id="habitSlotsCount" type="number" min="1" step="1" value="${currentSlots}" oninput="app.onHabitSlotsCountChange()" onchange="app.onHabitSlotsCountChange()" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold font-mono focus:border-theme outline-none" placeholder="1 = Sí/No tradicional" />
               </div>
               <div class="space-y-1">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase">Días Meta por Semana:</label>
@@ -12716,15 +12837,14 @@
               </div>
               <div class="space-y-1">
                 <label class="block text-[10px] font-bold text-slate-400 uppercase">Modalidad:</label>
-                <div id="habitSlotsModeLabel" class="py-2 text-[11px] font-semibold text-theme-main">${currentSlots > 1 ? `Multi-casillas (${currentSlots} tomas)` : 'Check Tradicional (1 toma)'}</div>
+                <div id="habitSlotsModeLabel" class="py-2 text-[11px] font-semibold text-theme-main">${maxSlots > 1 ? `Multi-bloques (${maxSlots} repeticiones/día)` : 'Check Tradicional (1 bloque)'}</div>
               </div>
 
-              <!-- Selector de Casillas Personalizadas por Día (L, M, X, J, V, S, D) -->
+              <!-- Selector de Bloques Variables por Día (L - D) -->
               <div class="col-span-1 sm:col-span-3 p-3 rounded-xl bg-theme-soft/30 border border-theme space-y-2">
                 <div class="flex items-center justify-between">
                   <div class="flex items-center gap-1.5">
-                    <span class="text-xs">💊</span>
-                    <span class="text-[11px] font-bold text-stone-900 dark:text-white">Casillas Variables por Día (L - D):</span>
+                    <span class="text-[11px] font-bold text-stone-900 dark:text-white">Bloques Variables por Día (L - D):</span>
                   </div>
                   <label class="inline-flex items-center gap-1.5 text-[10px] text-stone-600 dark:text-slate-300 font-bold cursor-pointer">
                     <input type="checkbox" id="habitUseDailySlots" onchange="app.toggleDailySlotsCustom(this.checked)" ${hasCustomDaily ? 'checked' : ''} class="w-3.5 h-3.5 accent-theme" />
@@ -12737,18 +12857,18 @@
                     ${daysLetters.map((d, dIdx) => `
                       <div class="p-1 rounded-lg subpanel-bg border space-y-1">
                         <span class="block text-[10px] font-bold text-stone-500 font-mono">${d}</span>
-                        <input type="number" min="0" max="20" id="habitDailySlot_${dIdx}" value="${rawDailySlots[dIdx] !== undefined ? rawDailySlots[dIdx] : currentSlots}" class="w-full py-1 text-center font-mono font-bold text-xs input-bg border rounded-lg focus:border-theme outline-none" title="${daysNames[dIdx]}" />
+                        <input type="number" min="0" max="20" id="habitDailySlot_${dIdx}" value="${rawDailySlots[dIdx] !== undefined ? rawDailySlots[dIdx] : currentSlots}" oninput="app.onHabitSlotsCountChange()" onchange="app.onHabitSlotsCountChange()" class="w-full py-1 text-center font-mono font-bold text-xs input-bg border rounded-lg focus:border-theme outline-none" title="${daysNames[dIdx]}" />
                       </div>
                     `).join('')}
                   </div>
-                  <span class="block text-[9.5px] text-stone-500 dark:text-slate-400 mt-1.5 italic">Define cuántas casillas tendrá cada día (0 = día de descanso sin tomas).</span>
+                  <span class="block text-[9.5px] text-stone-500 dark:text-slate-400 mt-1.5 italic">Define cuántos bloques o repeticiones tendrá cada día (0 = día de descanso sin bloques).</span>
                 </div>
               </div>
 
               <!-- Días de la Semana Activos -->
               <div id="habitActiveDaysStandardBox" class="${hasCustomDaily ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl bg-theme-soft/40 border border-theme space-y-1.5">
                 <div class="flex items-center justify-between text-[10px] font-bold text-stone-700 dark:text-slate-200">
-                  <span>📅 Días de la semana en que aplica:</span>
+                  <span>Días de la semana en que aplica:</span>
                   <span id="habitActiveDaysSummary" class="text-[9.5px] font-mono text-theme-main font-bold">${activeDays.length === 7 ? 'Todos los días (7/7)' : activeDays.length + ' días seleccionados'}</span>
                 </div>
                 <div class="flex items-center gap-1.5">
@@ -12764,28 +12884,21 @@
                 <input type="hidden" id="habitActiveDaysInput" value='${JSON.stringify(activeDays)}' />
               </div>
 
-              <!-- Hora / Aviso Fijo para Check Tradicional (si slotsCount === 1) -->
-              <div id="habitSingleHourBox" class="${currentSlots > 1 || hasCustomDaily ? 'hidden' : ''} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-1">
+              <!-- Horarios opcionales por bloque (tanto para 1 bloque como para multi-bloque) -->
+              <div id="habitSlotHoursWrapper" class="col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-2">
                 <div class="flex items-center justify-between">
-                  <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">⏰ Hora o Aviso Fijo (Opcional):</label>
-                  <span class="text-[9.5px] text-stone-400">Visible fijo en la matriz cada día</span>
-                </div>
-                <input type="text" id="habitFixedHour" value="${currentHour}" placeholder="ej: 08:30 o En ayunas" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold text-xs focus:border-theme outline-none" />
-              </div>
-
-              <!-- Etiquetas / Horas individuales por Casilla (si slotsCount > 1) -->
-              <div id="habitMultiSlotLabelsBox" class="${currentSlots > 1 ? '' : 'hidden'} col-span-1 sm:col-span-3 p-2.5 rounded-xl subpanel-bg border space-y-2">
-                <div class="flex items-center justify-between">
-                  <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">⏰ Horas o Notas fijas por casilla:</label>
-                  <span class="text-[9.5px] text-stone-400">Fijas cada día en cada casilla</span>
+                  <label class="block text-[10px] font-bold text-stone-700 dark:text-slate-200 uppercase">Horarios opcionales por bloque:</label>
+                  <span class="text-[9.5px] text-stone-400">Visibles en la matriz y en Hoy</span>
                 </div>
                 <div id="habitSlotsLabelsInputs" class="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                  ${Array.from({ length: currentSlots }).map((_, sIdx) => {
-                    const labelVal = (currentValues.slotLabels && currentValues.slotLabels[sIdx]) || '';
+                  ${Array.from({ length: maxSlots }).map((_, sIdx) => {
+                    const labelVal = (currentValues.slotLabels && currentValues.slotLabels[sIdx]) || (sIdx === 0 ? currentHour : '');
                     return `
-                      <div class="space-y-0.5">
-                        <label class="block text-[9px] font-mono text-stone-500 dark:text-slate-400 uppercase">Casilla #${sIdx + 1}:</label>
-                        <input type="text" id="habitSlotLabel_${sIdx}" value="${labelVal}" placeholder="ej: ${sIdx === 0 ? '08:00' : (sIdx === 1 ? '14:00' : '21:00')}" class="w-full px-2 py-1 input-bg border rounded-lg font-bold text-xs focus:border-theme outline-none" />
+                      <div class="space-y-1">
+                        <label class="block text-[9.5px] font-mono font-bold text-stone-600 dark:text-slate-300">
+                          ${maxSlots > 1 ? `Bloque ${sIdx + 1}:` : 'Hora del Bloque:'}
+                        </label>
+                        <input type="time" id="habitSlotLabel_${sIdx}" value="${labelVal}" class="habit-slot-time-input w-full px-2.5 py-1.5 input-bg border rounded-xl font-mono text-center font-bold text-xs focus:border-theme outline-none" />
                       </div>
                     `;
                   }).join('')}
@@ -12866,18 +12979,14 @@
             }
             habitData.targetWeeklyDays = Math.max(1, parseInt(document.getElementById('habitTargetWeeklyDays')?.value, 10) || 7);
             
-            if (habitData.slotsCount > 1) {
-              const labels = [];
-              for (let i = 0; i < habitData.slotsCount; i++) {
-                const lEl = document.getElementById('habitSlotLabel_' + i);
-                labels.push(lEl ? lEl.value.trim() : '');
-              }
-              habitData.slotLabels = labels;
-              habitData.fixedHour = labels[0] || '';
-            } else {
-              habitData.fixedHour = document.getElementById('habitFixedHour')?.value.trim() || '';
-              habitData.slotLabels = [habitData.fixedHour];
+            const maxSlots = habitData.slotsCount || 1;
+            const labels = [];
+            for (let i = 0; i < maxSlots; i++) {
+              const lEl = document.getElementById('habitSlotLabel_' + i);
+              labels.push(lEl ? lEl.value.trim() : '');
             }
+            habitData.slotLabels = labels;
+            habitData.fixedHour = labels[0] || '';
           } else if (type === 'target_range') {
             habitData.targetCenter = Number(document.getElementById('habitTargetCenter')?.value) || 8.0;
             habitData.targetMargin = Number(document.getElementById('habitTargetMargin')?.value) || 1.0;
@@ -13381,7 +13490,7 @@
         initAutoSaveDrive();
         updateGdriveUI();
         if (gdriveUserEmail) {
-          syncGdriveCloud(true);
+          syncGdriveCloud(true, false, false, true);
         }
         if (typeof checkAndResumePomo === 'function') {
           checkAndResumePomo();
@@ -13418,7 +13527,7 @@
           checkWeekRollover();
           renderHeaderAndKPIs();
           if (gdriveUserEmail) {
-            syncGdriveCloud(true);
+            syncGdriveCloud(true, false, false, true);
           }
           // Comprobar activamente si hay una nueva versión del Service Worker en el servidor (iPad PWA)
           if ('serviceWorker' in navigator && swRegistration) {
