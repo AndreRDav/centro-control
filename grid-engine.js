@@ -874,14 +874,21 @@ var GridEngine = {
 
           // Renderizar controles en tarjetas del panel lateral
           const isMobileView = (window.innerWidth < 1024);
+          const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
           const sidebarCards = (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) ? state.globalSidebar.widgets : [];
           sidebarCards.forEach(id => {
-            const el = document.getElementById(id);
+            let el = sidebarContainer ? (sidebarContainer.querySelector(`[data-widget-id="${id}"]`) || sidebarContainer.querySelector(`#sidebar-${id}`)) : null;
+            if (!el) el = document.getElementById(`sidebar-${id}`);
+            if (!el && sidebarContainer) {
+              const children = Array.from(sidebarContainer.children);
+              el = children.find(c => c.getAttribute('data-widget-id') === id || c.id === id || c.id === `sidebar-${id}`);
+            }
+            if (!el) el = document.getElementById(id);
             if (!el) return;
             el.classList.add('card-edit-mode');
 
             // Escudo de arrastre exclusivo de escritorio
-            if (!isMobileView) {
+            if (!isMobileView && !el.querySelector('.card-drag-shield')) {
               const sidebarShield = document.createElement('div');
               sidebarShield.className = 'card-drag-shield board-edit-ctrl-overlay';
               sidebarShield.title = 'Arrastra hacia la izquierda para devolver este cuadro al tablero o clic derecho para opciones';
@@ -894,30 +901,32 @@ var GridEngine = {
               el.appendChild(sidebarShield);
             }
 
-            const bar = document.createElement('div');
-            bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
-            bar.oncontextmenu = (e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              this.toggleBoardCardMenu(id, e, true);
-            };
-            const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
-            const cardTitle = def.name || id;
-            bar.innerHTML = `
-              <div class="header-bar-left">
-                <span class="header-bar-coords">PANEL</span>
-                <span class="header-bar-title" title="${cardTitle}">${cardTitle}</span>
-              </div>
-              <div class="header-bar-actions">
-                <button type="button" onclick="event.stopPropagation(); app.toggleBoardCardMenu('${id}', event, true)" title="Más opciones" class="header-bar-btn">
-                  <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
-                </button>
-                <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
-                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                </button>
-              </div>
-            `;
-            el.insertBefore(bar, el.firstChild);
+            if (!el.querySelector('.board-edit-header-bar')) {
+              const bar = document.createElement('div');
+              bar.className = 'board-edit-header-bar board-edit-ctrl-overlay';
+              bar.oncontextmenu = (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                this.toggleBoardCardMenu(id, e, true);
+              };
+              const def = (window.WidgetsRegistry) ? window.WidgetsRegistry.getWidgetDef(id) : { name: id };
+              const cardTitle = def.name || id;
+              bar.innerHTML = `
+                <div class="header-bar-left">
+                  <span class="header-bar-coords">PANEL</span>
+                  <span class="header-bar-title" title="${cardTitle}">${cardTitle}</span>
+                </div>
+                <div class="header-bar-actions">
+                  <button type="button" onclick="event.stopPropagation(); app.toggleBoardCardMenu('${id}', event, true)" title="Más opciones" class="header-bar-btn">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="12" r="1.5"/><circle cx="6" cy="12" r="1.5"/><circle cx="18" cy="12" r="1.5"/></svg>
+                  </button>
+                  <button type="button" onclick="event.stopPropagation(); app.sendWidgetToDrawer('${id}')" title="Inactivar y guardar en cajón" class="header-bar-btn-close">
+                    <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                  </button>
+                </div>
+              `;
+              el.insertBefore(bar, el.firstChild);
+            }
           });
         },
 
@@ -932,9 +941,9 @@ var GridEngine = {
         },
 
         toggleBoardCardMenu(cardId, event, isSidebar = false) {
-          if (event) event.stopPropagation();
+          if (event && event.stopPropagation) event.stopPropagation();
           let popover = document.getElementById('boardCardMenuPopover');
-          if (popover && popover.getAttribute('data-active-card') === cardId && !popover.classList.contains('hidden')) {
+          if (popover && popover.getAttribute('data-active-card') === cardId && !popover.classList.contains('hidden') && event && event.type !== 'contextmenu') {
             popover.classList.add('hidden');
             return;
           }
@@ -942,22 +951,28 @@ var GridEngine = {
           if (!popover) {
             popover = document.createElement('div');
             popover.id = 'boardCardMenuPopover';
-            popover.className = 'board-card-menu-popover fixed z-[9999] hidden panel-bg border border-theme shadow-2xl rounded-xl p-1.5 flex flex-col gap-1 text-xs select-none';
+            popover.className = 'board-card-menu-popover fixed hidden panel-bg border border-theme shadow-2xl rounded-xl p-1.5 flex flex-col gap-1 text-xs select-none';
             document.body.appendChild(popover);
           }
+          popover.style.zIndex = '99999';
 
-          const btnRect = event ? event.currentTarget.getBoundingClientRect() : { right: 200, bottom: 200, left: 10, top: 10 };
           popover.setAttribute('data-active-card', cardId);
           popover.classList.remove('hidden');
 
-          const el = document.getElementById(cardId);
+          const el = document.getElementById(cardId) || document.querySelector(`[data-widget-id="${cardId}"]`);
           const idealRows = (window.PolymorphicCards && el) ? window.PolymorphicCards.computeIdealRows(el) : 6;
+          const isPinned = !!(state.workspaces && window.WorkspacesManager && window.WorkspacesManager.getActiveWorkspace()?.grid?.[cardId]?.isPinned);
+          const isCompact = el?.classList.contains('card-mode-compact');
 
           if (isSidebar) {
             popover.innerHTML = `
               <button type="button" onclick="app.moveCardFromSidebarToGrid('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
                 <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>
-                <span>Al Tablero principal</span>
+                <span>Mover al Tablero</span>
+              </button>
+              <button type="button" onclick="app.toggleWidgetCompact('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>${isCompact ? 'Modo Espacioso' : 'Modo Compacto'}</span>
               </button>
               <button type="button" onclick="app.sendWidgetToDock('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
                 <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
@@ -970,6 +985,14 @@ var GridEngine = {
             `;
           } else {
             popover.innerHTML = `
+              <button type="button" onclick="app.toggleWidgetPin('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 ${isPinned ? 'text-theme-accent' : 'text-theme-main'}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 17v5"/><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z"/></svg>
+                <span>${isPinned ? 'Desfijar de otras ventanas' : 'Fijar en todas las ventanas'}</span>
+              </button>
+              <button type="button" onclick="app.toggleWidgetCompact('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
+                <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
+                <span>${isCompact ? 'Modo Espacioso' : 'Modo Compacto'}</span>
+              </button>
               <button type="button" onclick="app.snapCardToIdeal('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
                 <svg class="w-3.5 h-3.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
                 <span>Ajustar a ideal (${idealRows} filas)</span>
@@ -989,6 +1012,10 @@ var GridEngine = {
               <button type="button" onclick="app.sendWidgetToDock('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');">
                 <svg class="w-3.5 h-3.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="16" width="16" height="4" rx="1"/><circle cx="8" cy="18" r="0.5"/><circle cx="12" cy="18" r="0.5"/><circle cx="16" cy="18" r="0.5"/></svg>
                 <span>Mover al Dock</span>
+              </button>
+              <button type="button" onclick="app.sendWidgetToDrawer('${cardId}'); document.getElementById('boardCardMenuPopover')?.classList.add('hidden');" class="text-rose-500 hover:text-rose-600">
+                <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                <span>Inactivar (al cajón)</span>
               </button>
               ${cardId === 'todayFocusContainer' ? `
                 <div class="border-t border-theme/40 my-1 pt-1 space-y-0.5">
@@ -1012,7 +1039,7 @@ var GridEngine = {
 
           let left, top;
           const popoverW = 210;
-          if (event && event.type === 'contextmenu') {
+          if (event && (event.type === 'contextmenu' || event.clientX !== undefined)) {
             left = event.clientX;
             top = event.clientY;
           } else if (event && event.currentTarget && event.currentTarget.getBoundingClientRect) {
@@ -1024,11 +1051,11 @@ var GridEngine = {
             left = 100;
             top = 100;
           }
-          if (top + 220 > window.innerHeight) {
-            top = window.innerHeight - 230;
+          if (top + 240 > window.innerHeight) {
+            top = Math.max(10, window.innerHeight - 250);
           }
           if (left + popoverW > window.innerWidth - 10) {
-            left = window.innerWidth - popoverW - 10;
+            left = Math.max(10, window.innerWidth - popoverW - 10);
           }
 
           popover.style.left = Math.max(10, left) + 'px';

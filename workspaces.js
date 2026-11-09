@@ -533,6 +533,9 @@ const WorkspacesManager = (function() {
         if (window.WidgetsRegistry && window.WidgetsRegistry.syncAllClones) {
           window.WidgetsRegistry.syncAllClones();
         }
+        if (state.ui && state.ui.isBoardEditMode && window.GridEngine && typeof window.GridEngine.renderBoardEditHandles === 'function') {
+          window.GridEngine.renderBoardEditHandles();
+        }
       }
 
       if (sidebar && !(state.ui && state.ui.isBoardEditMode)) {

@@ -3153,17 +3153,17 @@
         const timeStr = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
 
         const elClock = document.getElementById('pomoClockDisplay');
-        if (elClock) elClock.textContent = timeStr;
+        if (elClock && !elClock.querySelector('input')) elClock.textContent = timeStr;
         const zenTimer = document.getElementById('zenTimerDisplay');
-        if (zenTimer) zenTimer.textContent = timeStr;
+        if (zenTimer && !zenTimer.querySelector('input')) zenTimer.textContent = timeStr;
 
         const effectiveHrs = (p.effectiveSeconds / 3600).toFixed(2);
         const effectiveMins = Math.floor(p.effectiveSeconds / 60);
         const effStr = `${effectiveMins}m (${effectiveHrs}h)`;
         const elEff = document.getElementById('pomoEffectiveDisplay');
-        if (elEff) elEff.textContent = effStr;
+        if (elEff && !elEff.querySelector('input')) elEff.textContent = effStr;
         const zenEff = document.getElementById('zenEffectiveTime');
-        if (zenEff) zenEff.textContent = effStr;
+        if (zenEff && !zenEff.querySelector('input')) zenEff.textContent = effStr;
 
         const phaseText = p.phase === 'work' ? 'ENFOQUE' : 'DESCANSO';
         const elPhase = document.getElementById('pomoPhasePill');
@@ -3228,9 +3228,13 @@
         // Sincronización con Dock Flotante Pomodoro
         const dockDisplay = document.getElementById('dockPomoDisplay');
         if (dockDisplay) {
-          dockDisplay.textContent = timeStr;
+          if (!dockDisplay.querySelector('input')) {
+            dockDisplay.textContent = timeStr;
+          }
           const dockEff = document.getElementById('dockPomoEffective');
-          if (dockEff) dockEff.textContent = effStr;
+          if (dockEff && !dockEff.querySelector('input')) {
+            dockEff.textContent = effStr;
+          }
           const dockPhase = document.getElementById('dockPomoPhaseBadge');
           if (dockPhase) dockPhase.textContent = phaseText;
           const dockPlayBtn = document.getElementById('dockPomoPlayBtn');
@@ -3973,10 +3977,11 @@
             const isAct = item.active;
             const toggleFn = item.isBase ? `app.toggleModule('${item.key}')` : `app.toggleCustomHabit('${item.key}')`;
             const deleteFn = item.isBase ? `app.deleteBaseModule('${item.key}', '${escapeHtml(item.label)}')` : `app.deleteCustomHabit('${item.key}')`;
+            const contextFn = item.isBase ? `app.openBaseModuleContextMenu(event, '${item.key}'); return false;` : `app.openCustomHabitActionsMenu(event, '${item.key}'); return false;`;
 
             return `
-              <div class="inline-flex items-center rounded-xl border transition shadow-xs ${isAct ? 'bg-theme-main text-white border-theme' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}">
-                <button type="button" onclick="${toggleFn}" class="px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition active:scale-95" title="${isAct ? 'Clic para pausar' : 'Clic para activar'}">
+              <div class="inline-flex items-center rounded-xl border transition shadow-xs ${isAct ? 'bg-theme-main text-white border-theme' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}" oncontextmenu="${contextFn}">
+                <button type="button" onclick="${toggleFn}" oncontextmenu="${contextFn}" class="px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition active:scale-95" title="${isAct ? 'Clic para pausar · Clic derecho para opciones' : 'Clic para activar · Clic derecho para opciones'}">
                   <span class="w-3.5 h-3.5 flex items-center justify-center shrink-0">${renderItemIcon(item.iconId, 'w-3.5 h-3.5')}</span>
                   <span class="truncate max-w-[120px]">${escapeHtml(item.label)}</span>
                   <span class="w-1.5 h-1.5 rounded-full ${isAct ? 'bg-white' : 'bg-stone-400 dark:bg-slate-600'}"></span>
@@ -7650,6 +7655,130 @@
           }
         },
 
+        editPomoTimeInline(event) {
+          if (event && event.stopPropagation) event.stopPropagation();
+          const el = event?.currentTarget || document.getElementById('dockPomoDisplay') || document.getElementById('zenTimerDisplay');
+          if (!el) return;
+          if (el.querySelector('input')) return;
+
+          const p = state.pomo || {};
+          const curSec = (p.timeLeft !== undefined) ? p.timeLeft : 1500;
+          const mins = Math.floor(curSec / 60);
+          const secs = curSec % 60;
+          const initialVal = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+
+          const input = document.createElement('input');
+          input.type = 'text';
+          input.className = 'w-36 max-w-full text-center text-3xl sm:text-4xl font-extrabold font-mono input-bg border-2 border-theme-main rounded-xl outline-none py-1 shadow-inner';
+          input.value = initialVal;
+
+          let committed = false;
+          const commitValue = () => {
+            if (committed) return;
+            committed = true;
+            const raw = input.value.trim();
+            if (raw) {
+              let totalSecs = 0;
+              if (raw.includes(':')) {
+                const parts = raw.split(':').map(part => parseInt(part.trim(), 10) || 0);
+                totalSecs = (parts[0] * 60) + (parts[1] || 0);
+              } else {
+                const num = parseFloat(raw);
+                if (!isNaN(num) && num > 0) {
+                  totalSecs = Math.round(num * 60);
+                }
+              }
+              if (totalSecs > 0) {
+                totalSecs = Math.max(10, Math.min(180 * 60, totalSecs));
+                if (!state.pomo) state.pomo = {};
+                state.pomo.timeLeft = totalSecs;
+                if (state.pomo.phase === 'work' || !state.pomo.phase) {
+                  state.pomo.studyMin = Math.round(totalSecs / 60);
+                }
+                if (state.pomo.isRunning) {
+                  state.pomo.targetEndTime = Date.now() + (totalSecs * 1000);
+                  state.pomo.lastTick = Date.now();
+                }
+                saveState();
+                if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
+              }
+            }
+            renderPomodoroUI();
+          };
+
+          input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              input.blur();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              committed = true;
+              renderPomodoroUI();
+            }
+          };
+
+          input.onblur = () => {
+            commitValue();
+          };
+
+          el.innerHTML = '';
+          el.appendChild(input);
+          input.focus();
+          input.select();
+        },
+
+        editEffectiveTimeInline(event) {
+          if (event && event.stopPropagation) event.stopPropagation();
+          const el = event?.currentTarget || document.getElementById('dockPomoEffective') || document.getElementById('zenEffectiveTime');
+          if (!el) return;
+          if (el.querySelector('input')) return;
+
+          const p = state.pomo || {};
+          const curEffSec = p.effectiveSeconds || 0;
+          const curMins = Math.floor(curEffSec / 60);
+
+          const input = document.createElement('input');
+          input.type = 'number';
+          input.min = '0';
+          input.max = '1440';
+          input.className = 'w-16 text-center font-mono font-bold text-xs input-bg border-2 border-theme-main rounded-md outline-none py-0.5 shadow-inner text-theme-main';
+          input.value = curMins;
+
+          let committed = false;
+          const commitValue = () => {
+            if (committed) return;
+            committed = true;
+            const num = parseFloat(input.value);
+            if (!isNaN(num) && num >= 0) {
+              if (!state.pomo) state.pomo = {};
+              state.pomo.effectiveSeconds = Math.round(num * 60);
+              saveState();
+              if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
+            }
+            renderPomodoroUI();
+          };
+
+          input.onkeydown = (e) => {
+            if (e.key === 'Enter') {
+              e.preventDefault();
+              input.blur();
+            } else if (e.key === 'Escape') {
+              e.preventDefault();
+              committed = true;
+              renderPomodoroUI();
+            }
+          };
+
+          input.onblur = () => {
+            commitValue();
+          };
+
+          el.innerHTML = '';
+          el.appendChild(input);
+          input.focus();
+          input.select();
+        },
+
         async promptSetPomoTime() {
           const curSec = (state?.pomo?.timeLeft !== undefined) ? state.pomo.timeLeft : 1500;
           const curMins = Math.ceil(curSec / 60);
@@ -8988,7 +9117,7 @@
         },
 
         closeAllContextMenus() {
-          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover', 'workspaceTabActionMenuPopover', 'boardCardMenuPopover'].forEach(id => {
+          ['listActionMenuPopover', 'expenseActionMenuPopover', 'habitActionMenuPopover', 'classActionMenuPopover', 'subjectActionMenuPopover', 'workspaceTabActionMenuPopover', 'boardCardMenuPopover', 'baseModuleActionMenuPopover'].forEach(id => {
             const el = document.getElementById(id);
             if (el) el.classList.add('hidden');
           });
@@ -8998,6 +9127,7 @@
           activeClassMenuContext = null;
           activeSubjectMenuContext = null;
           activeWorkspaceTabContext = null;
+          activeBaseModuleContext = null;
         },
 
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ELEMENTOS DE LISTAS
@@ -9290,6 +9420,227 @@
               }
             });
           }
+        },
+
+        // MENÚ CONTEXTUAL (CLIC DERECHO) PARA PASTILLAS DE MÓDULOS BASE
+        openBaseModuleContextMenu(event, moduleKey) {
+          if (event) {
+            event.stopPropagation();
+            if (event.preventDefault) event.preventDefault();
+          }
+          const popover = document.getElementById('baseModuleActionMenuPopover');
+          if (!popover) return false;
+
+          this.closeAllContextMenus();
+          activeBaseModuleContext = { moduleKey };
+
+          const enabled = getWeekEnabledModules(getActiveWeek());
+          const isAct = enabled[moduleKey] !== false;
+          const toggleTxt = document.getElementById('baseModuleMenuToggleText');
+          if (toggleTxt) toggleTxt.textContent = isAct ? 'Pausar módulo' : 'Activar módulo';
+
+          this.positionPopoverMenu(popover, event);
+          return false;
+        },
+
+        closeBaseModuleContextMenu() {
+          const popover = document.getElementById('baseModuleActionMenuPopover');
+          if (popover) popover.classList.add('hidden');
+          activeBaseModuleContext = null;
+        },
+
+        triggerBaseModuleMenuAction(action) {
+          if (!activeBaseModuleContext) return;
+          const { moduleKey } = activeBaseModuleContext;
+          this.closeBaseModuleContextMenu();
+
+          if (action === 'edit') {
+            this.openBaseModuleEditModal(moduleKey);
+          } else if (action === 'toggle') {
+            this.toggleModule(moduleKey);
+          } else if (action === 'reset') {
+            this.resetBaseModuleToDefault(moduleKey);
+          }
+        },
+
+        openBaseModuleEditModal(moduleKey) {
+          activeBaseModuleEditKey = moduleKey;
+          const modal = document.getElementById('modalEditBaseModule');
+          const titleEl = document.getElementById('modalEditBaseModuleTitle');
+          const bodyEl = document.getElementById('modalEditBaseModuleBody');
+          if (!modal || !titleEl || !bodyEl) return;
+
+          const g = state.goalsTemplate || {};
+          let title = '';
+          let bodyHtml = '';
+
+          if (moduleKey === 'gym') {
+            title = 'Configuración: Gimnasio';
+            bodyHtml = `
+              <div class="space-y-1.5">
+                <label class="block font-bold text-stone-700 dark:text-slate-300">Sesiones semanales recomendadas:</label>
+                <input id="editBaseGymSessions" type="number" min="1" max="14" value="${g.gymSessions || 4}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                <span class="text-[10px] text-stone-400 dark:text-slate-500">Número de entrenamientos objetivo por semana.</span>
+              </div>
+            `;
+          } else if (moduleKey === 'run') {
+            title = 'Configuración: Running / Cardio';
+            bodyHtml = `
+              <div class="space-y-1.5">
+                <label class="block font-bold text-stone-700 dark:text-slate-300">Kilómetros totales semanales:</label>
+                <input id="editBaseRunKm" type="number" min="1" max="200" step="0.5" value="${g.runKm || 15}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                <span class="text-[10px] text-stone-400 dark:text-slate-500">Distancia objetivo total acumulada por semana.</span>
+              </div>
+            `;
+          } else if (moduleKey === 'study') {
+            const daily = (g.studyHoursDaily && Array.isArray(g.studyHoursDaily)) ? g.studyHoursDaily : [3, 3, 3, 3, 3, 0, 0];
+            const totalStudy = daily.slice(0, 5).reduce((a, b) => a + Number(b || 0), 0);
+            title = 'Configuración: Estudio';
+            bodyHtml = `
+              <div class="space-y-2">
+                <div class="space-y-1.5">
+                  <label class="block font-bold text-stone-700 dark:text-slate-300">Horas de estudio totales (Lunes a Viernes):</label>
+                  <input id="editBaseStudyTotal" type="number" min="1" max="70" step="0.5" value="${totalStudy || 15}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                </div>
+                <span class="text-[10px] text-stone-400 dark:text-slate-500">Se distribuirá equitativamente entre los 5 días laborales (~${(totalStudy / 5).toFixed(1)}h/día).</span>
+              </div>
+            `;
+          } else if (moduleKey === 'academic') {
+            title = 'Configuración: Asistencia a Clases';
+            bodyHtml = `
+              <div class="space-y-1.5">
+                <label class="block font-bold text-stone-700 dark:text-slate-300">Porcentaje mínimo de asistencia objetivo (%):</label>
+                <input id="editBaseAcademicPct" type="number" min="50" max="100" value="${g.minAttendancePercent || 85}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                <span class="text-[10px] text-stone-400 dark:text-slate-500">Porcentaje de asistencia para considerar cumplido el objetivo académico.</span>
+              </div>
+            `;
+          } else if (moduleKey === 'nutri') {
+            const n = g.nutri || {};
+            title = 'Configuración: Nutrición y Calorías';
+            bodyHtml = `
+              <div class="space-y-2.5">
+                <div class="space-y-1">
+                  <label class="block font-bold text-stone-700 dark:text-slate-300">Fase Nutricional:</label>
+                  <select id="editBaseNutriPhase" class="w-full input-bg border rounded-lg px-3 py-2 text-xs font-semibold outline-none">
+                    <option value="volumen" ${n.phase === 'volumen' ? 'selected' : ''}>Volumen (+ Superávit)</option>
+                    <option value="definicion" ${n.phase === 'definicion' ? 'selected' : ''}>Definición (- Déficit)</option>
+                    <option value="mantenimiento" ${n.phase === 'mantenimiento' ? 'selected' : ''}>Mantenimiento</option>
+                  </select>
+                </div>
+                <div class="space-y-1">
+                  <label class="block font-bold text-stone-700 dark:text-slate-300">Calorías Diarias Objetivo (kcal):</label>
+                  <input id="editBaseNutriKcal" type="number" min="1000" max="6000" step="50" value="${n.kcal || 2800}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                </div>
+                <div class="space-y-1">
+                  <label class="block font-bold text-stone-700 dark:text-slate-300">Margen de Tolerancia (± kcal):</label>
+                  <input id="editBaseNutriMargin" type="number" min="50" max="500" step="25" value="${n.margin || 150}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono text-xs outline-none" />
+                </div>
+              </div>
+            `;
+          } else if (moduleKey === 'budget') {
+            title = 'Configuración: Presupuesto Semanal';
+            bodyHtml = `
+              <div class="space-y-1.5">
+                <label class="block font-bold text-stone-700 dark:text-slate-300">Límite de Gasto Semanal (€):</label>
+                <input id="editBaseBudgetLimit" type="number" min="10" max="2000" step="5" value="${g.budgetLimit || 120}" class="w-full input-bg border rounded-lg px-3 py-2 font-mono font-bold text-sm outline-none" />
+                <span class="text-[10px] text-stone-400 dark:text-slate-500">Presupuesto asignado para la semana.</span>
+              </div>
+            `;
+          }
+
+          titleEl.textContent = title;
+          bodyEl.innerHTML = bodyHtml;
+          this.openModal('modalEditBaseModule');
+        },
+
+        saveBaseModuleEditFromModal() {
+          if (!activeBaseModuleEditKey) return;
+          const k = activeBaseModuleEditKey;
+          pushUndo(`Editar parámetros de módulo base: ${k}`);
+
+          if (!state.goalsTemplate) state.goalsTemplate = {};
+          const g = state.goalsTemplate;
+          const w = getActiveWeek();
+
+          if (k === 'gym') {
+            const v = parseInt(document.getElementById('editBaseGymSessions')?.value, 10);
+            if (!isNaN(v) && v > 0) {
+              g.gymSessions = v;
+              if (w && w.goals) w.goals.gymSessions = v;
+            }
+          } else if (k === 'run') {
+            const v = parseFloat(document.getElementById('editBaseRunKm')?.value);
+            if (!isNaN(v) && v > 0) {
+              g.runKm = v;
+              if (w && w.goals) w.goals.runKm = v;
+            }
+          } else if (k === 'study') {
+            const total = parseFloat(document.getElementById('editBaseStudyTotal')?.value);
+            if (!isNaN(total) && total > 0) {
+              const perDay = parseFloat((total / 5).toFixed(1));
+              g.studyHoursDaily = [perDay, perDay, perDay, perDay, perDay, 0, 0];
+              if (w) {
+                w.studyHoursPlan = [...g.studyHoursDaily];
+                if (w.goals) w.goals.studyHours = total;
+              }
+            }
+          } else if (k === 'academic') {
+            const v = parseInt(document.getElementById('editBaseAcademicPct')?.value, 10);
+            if (!isNaN(v) && v >= 0) {
+              g.minAttendancePercent = v;
+              if (w && w.goals) w.goals.minAttendancePercent = v;
+            }
+          } else if (k === 'nutri') {
+            if (!g.nutri) g.nutri = {};
+            const phase = document.getElementById('editBaseNutriPhase')?.value || 'volumen';
+            const kcal = parseInt(document.getElementById('editBaseNutriKcal')?.value, 10) || 2800;
+            const margin = parseInt(document.getElementById('editBaseNutriMargin')?.value, 10) || 150;
+            g.nutri.phase = phase;
+            g.nutri.kcal = kcal;
+            g.nutri.margin = margin;
+            if (w && w.goals) {
+              if (!w.goals.nutri) w.goals.nutri = {};
+              w.goals.nutri.phase = phase;
+              w.goals.nutri.kcal = kcal;
+              w.goals.nutri.margin = margin;
+            }
+          } else if (k === 'budget') {
+            const v = parseFloat(document.getElementById('editBaseBudgetLimit')?.value);
+            if (!isNaN(v) && v >= 0) {
+              g.budgetLimit = v;
+              if (w && w.goals) w.goals.budgetLimit = v;
+            }
+          }
+
+          this.closeModal('modalEditBaseModule');
+          activeBaseModuleEditKey = null;
+          saveState();
+          renderApp();
+          this.showToast('Parámetros actualizados con éxito.', 'success');
+        },
+
+        resetBaseModuleToDefault(moduleKey) {
+          pushUndo(`Restaurar módulo base ${moduleKey}`);
+          const defGoals = DEFAULT_STATE.goalsTemplate;
+          if (!state.goalsTemplate) state.goalsTemplate = {};
+          if (defGoals[moduleKey] !== undefined) {
+            state.goalsTemplate[moduleKey] = JSON.parse(JSON.stringify(defGoals[moduleKey]));
+          } else if (moduleKey === 'gym') {
+            state.goalsTemplate.gymSessions = 4;
+          } else if (moduleKey === 'run') {
+            state.goalsTemplate.runKm = 15;
+          } else if (moduleKey === 'study') {
+            state.goalsTemplate.studyHoursDaily = [3, 3, 3, 3, 3, 0, 0];
+          } else if (moduleKey === 'academic') {
+            state.goalsTemplate.minAttendancePercent = 85;
+          } else if (moduleKey === 'nutri') {
+            state.goalsTemplate.nutri = { phase: 'volumen', kcal: 2800, margin: 150, minDays: 6 };
+          } else if (moduleKey === 'budget') {
+            state.goalsTemplate.budgetLimit = 120;
+          }
+          saveState();
+          renderApp();
+          this.showToast('Valores de fábrica restaurados.', 'info');
         },
 
         selectFocusDay(dIdx) {
@@ -13477,7 +13828,7 @@
       // CERRAR MENÚ CONTEXTUAL AL HACER CLIC FUERA
       document.addEventListener('click', (e) => {
         const isActionBtn = e.target.closest('[title="Más opciones"], [title="Más opciones de diseño"]');
-        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover');
+        const isAnyMenu = e.target.closest('#listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover');
         if (!isActionBtn && !isAnyMenu) {
           app.closeAllContextMenus();
         }
@@ -13492,8 +13843,8 @@
 
       // GESTIÓN DE MENÚS CONTEXTUALES (CLIC DERECHO EN ELEMENTOS Y MÓDULOS)
       document.addEventListener('contextmenu', (e) => {
-        // 1. Elementos internos con menús contextuales específicos (tareas, gastos, hábitos, clases, asignaturas, pestañas)
-        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover');
+        // 1. Elementos internos con menús contextuales específicos (tareas, gastos, hábitos, clases, asignaturas, pestañas, módulos base)
+        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover');
         if (isInnerContextItem) {
           return;
         }
@@ -13504,8 +13855,11 @@
           e.preventDefault();
           e.stopPropagation();
           app.closeAllContextMenus();
-          const cardId = card.getAttribute('data-widget-id') || card.id || (card.closest('[data-widget-id]')?.getAttribute('data-widget-id'));
-          const isSidebar = !!card.closest('#workspaceSidebar, #sidebarWidgetsContainer');
+          const cardId = card.getAttribute('data-widget-id') || 
+            (card.closest('[data-widget-id]') ? card.closest('[data-widget-id]').getAttribute('data-widget-id') : null) || 
+            (window.WidgetsRegistry && window.WidgetsRegistry.getWidgetDef(card.id) ? card.id : null) || 
+            card.id;
+          const isSidebar = Boolean(card.closest('#workspaceSidebar, #sidebarWidgetsContainer'));
           if (cardId && window.GridEngine && typeof window.GridEngine.toggleBoardCardMenu === 'function') {
             window.GridEngine.toggleBoardCardMenu(cardId, e, isSidebar);
           }

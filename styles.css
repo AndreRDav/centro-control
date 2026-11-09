@@ -1118,6 +1118,27 @@
       flex-direction: column !important;
       animation: slideInDockFloat 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
     }
+    @media (min-width: 1024px) {
+      #dockRightSidebar {
+        position: sticky !important;
+        top: 0 !important;
+        right: auto !important;
+        bottom: auto !important;
+        height: 100vh !important;
+        max-height: 100vh !important;
+        width: 23rem !important;
+        max-width: 85vw !important;
+        flex-shrink: 0 !important;
+        border-radius: 0 !important;
+        border-top: none !important;
+        border-bottom: none !important;
+        border-right: none !important;
+        border-left: 2px solid var(--theme-main, #10b981) !important;
+        box-shadow: -6px 0 30px rgba(0, 0, 0, 0.25) !important;
+        z-index: 40 !important;
+        animation: none !important;
+      }
+    }
     #dockRightSidebar.hidden {
       display: none !important;
     }
@@ -1542,6 +1563,8 @@
       margin-right: auto !important;
       flex: 1 1 0% !important;
       min-width: 0 !important;
+      padding-left: clamp(1rem, 2.5vw, 2.75rem) !important;
+      padding-right: clamp(1rem, 2.5vw, 2.75rem) !important;
       padding-bottom: 4.5rem !important;
       transition: none !important;
     }
@@ -1563,16 +1586,30 @@
     }
 
     /* MENÚ POPOVER DE OPCIONES SECUNDARIAS DE TARJETA EN MODO EDICIÓN */
-    .board-card-menu-popover {
+    .board-card-menu-popover,
+    #boardCardMenuPopover,
+    #workspaceTabActionMenuPopover,
+    #baseModuleActionMenuPopover {
+      position: fixed !important;
+      z-index: 99999 !important;
       background: var(--color-panel, #f3ede2) !important;
       border: 1px solid var(--theme-500, #10b981) !important;
       color: var(--color-text, #1c1917) !important;
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.25), 0 8px 10px -6px rgba(0, 0, 0, 0.2) !important;
     }
-    html.dark .board-card-menu-popover {
+    html.dark .board-card-menu-popover,
+    html.dark #boardCardMenuPopover,
+    html.dark #workspaceTabActionMenuPopover,
+    html.dark #baseModuleActionMenuPopover {
       background: #0f172a !important;
       border-color: var(--theme-500, #10b981) !important;
       color: #f8fafc !important;
+    }
+    #modalCustomPrompt,
+    #modalCustomConfirm,
+    #customDatePickerModal {
+      position: fixed !important;
+      z-index: 100000 !important;
     }
     .board-card-menu-popover button {
       display: flex !important;
@@ -2298,10 +2335,10 @@
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid {
         flex: 1 1 auto !important;
         display: grid !important;
-        grid-auto-rows: minmax(min-content, 1fr) !important;
+        grid-auto-rows: 1fr !important;
         align-content: stretch !important;
         min-height: 0 !important;
-        gap: 0.5rem !important;
+        gap: clamp(0.35rem, 0.8vw, 0.55rem) !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div {
         display: flex !important;
@@ -2316,6 +2353,7 @@
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
+        padding: clamp(0.45rem, 1vh, 0.75rem) !important;
       }
       @container hoypanel (max-width: 449px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
@@ -2515,14 +2553,14 @@
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
       flex: 1 1 auto !important;
       display: grid !important;
-      grid-auto-rows: minmax(min-content, 1fr) !important;
+      grid-auto-rows: 1fr !important;
       align-content: stretch !important;
-      row-gap: 0.65rem !important;
-      column-gap: 0.65rem !important;
+      row-gap: clamp(0.35rem, 0.8vw, 0.65rem) !important;
+      column-gap: clamp(0.35rem, 0.8vw, 0.65rem) !important;
       min-height: 0 !important;
     }
     .editorial-card.card-has-extra-height.card-mode-compact #todayFocusContent .adaptive-internal-grid {
-      grid-auto-rows: minmax(min-content, 1fr) !important;
+      grid-auto-rows: 1fr !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
       height: 100% !important;

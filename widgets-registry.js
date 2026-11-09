@@ -376,6 +376,15 @@ const WidgetsRegistry = (function() {
       if (!original || !targetContainer) return null;
       const cloneId = `${prefix}-${widgetId}`;
       let clone = document.getElementById(cloneId);
+
+      // Limpiar temporalmente overlays interactivos para que no se clonen nodos con listeners perdidos
+      const overlays = original.querySelectorAll('.board-edit-ctrl-overlay');
+      const overlaysData = [];
+      overlays.forEach(o => {
+        overlaysData.push({ el: o, parent: o.parentElement, next: o.nextSibling });
+        o.remove();
+      });
+
       if (!clone) {
         clone = original.cloneNode(true);
         clone.id = cloneId;
@@ -385,6 +394,12 @@ const WidgetsRegistry = (function() {
         clone.innerHTML = original.innerHTML;
         clone.className = original.className;
       }
+
+      // Restaurar overlays en el elemento original
+      overlaysData.forEach(d => {
+        d.parent.insertBefore(d.el, d.next);
+      });
+
       clone.classList.remove('widget-parked-inert', 'hidden');
       clone.style.display = '';
       if (clone.parentElement !== targetContainer) {
@@ -398,21 +413,55 @@ const WidgetsRegistry = (function() {
       const original = document.getElementById(widgetId);
       if (!original) return;
       const clones = document.querySelectorAll(`[data-is-clone="true"][data-widget-id="${widgetId}"]`);
+      if (clones.length === 0) return;
+
+      const origOverlays = original.querySelectorAll('.board-edit-ctrl-overlay');
+      const origOverlaysData = [];
+      origOverlays.forEach(o => {
+        origOverlaysData.push({ el: o, parent: o.parentElement, next: o.nextSibling });
+        o.remove();
+      });
+
       clones.forEach(clone => {
         clone.innerHTML = original.innerHTML;
       });
+
+      origOverlaysData.forEach(d => {
+        d.parent.insertBefore(d.el, d.next);
+      });
+
+      if (typeof state !== 'undefined' && state.ui && state.ui.isBoardEditMode && window.GridEngine && typeof window.GridEngine.renderBoardEditHandles === 'function') {
+        window.GridEngine.renderBoardEditHandles();
+      }
     },
 
     // Sincroniza todas las instancias clonadas activas en el documento
     syncAllClones() {
       const clones = document.querySelectorAll('[data-is-clone="true"][data-widget-id]');
+      if (clones.length === 0) return;
+
       clones.forEach(clone => {
         const widgetId = clone.getAttribute('data-widget-id');
         const original = document.getElementById(widgetId);
         if (original) {
+          const origOverlays = original.querySelectorAll('.board-edit-ctrl-overlay');
+          const origOverlaysData = [];
+          origOverlays.forEach(o => {
+            origOverlaysData.push({ el: o, parent: o.parentElement, next: o.nextSibling });
+            o.remove();
+          });
+
           clone.innerHTML = original.innerHTML;
+
+          origOverlaysData.forEach(d => {
+            d.parent.insertBefore(d.el, d.next);
+          });
         }
       });
+
+      if (typeof state !== 'undefined' && state.ui && state.ui.isBoardEditMode && window.GridEngine && typeof window.GridEngine.renderBoardEditHandles === 'function') {
+        window.GridEngine.renderBoardEditHandles();
+      }
     },
 
     // Determina dónde está físicamente montado el widget
