@@ -136,12 +136,14 @@
         <div id="zenPhaseLabel" class="text-xs sm:text-sm font-extrabold uppercase tracking-widest text-theme-main font-mono z-10">BLOQUE DE ENFOQUE</div>
         <div id="zenTimerDisplay" onclick="app.promptSetPomoTime()" class="text-4xl sm:text-6xl font-black tracking-tight font-mono text-stone-900 dark:text-white cursor-pointer select-none hover:text-theme-main transition duration-150 my-1 z-10" title="Haz clic para escribir los minutos exactos">25:00</div>
         
-        <div class="text-xs sm:text-sm text-stone-600 dark:text-slate-400 font-mono z-10 flex items-center justify-center gap-1.5">
-          <span onclick="app.promptSetEffectiveTime()" class="cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">Efectivo: <strong id="zenEffectiveTime" class="text-theme-main font-bold">0m (0.00h)</strong></span>
-          <span class="inline-flex items-center gap-0.5 ml-1">
-            <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-1 py-0.5 rounded text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300" title="Restar 1 minuto efectivo">-1m</button>
-            <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-1 py-0.5 rounded text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main" title="Sumar 1 minuto efectivo">+1m</button>
-          </span>
+        <div class="flex flex-col items-center justify-center gap-1 z-10 my-0.5">
+          <div onclick="app.promptSetEffectiveTime()" class="text-xs sm:text-sm text-stone-600 dark:text-slate-400 font-mono cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">
+            Efectivo: <strong id="zenEffectiveTime" class="text-theme-main font-bold">0m (0.00h)</strong>
+          </div>
+          <div class="inline-flex items-center justify-center gap-1.5 mt-0.5">
+            <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-2 py-0.5 rounded-lg text-[10.5px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300 active:scale-95 transition" title="Restar 1 minuto efectivo">-1m</button>
+            <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-2 py-0.5 rounded-lg text-[10.5px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main active:scale-95 transition" title="Sumar 1 minuto efectivo">+1m</button>
+          </div>
         </div>
       </div>
 
@@ -4500,12 +4502,12 @@
           <!-- Reloj Grande + Tiempo Efectivo -->
           <div class="text-center py-2.5 subpanel-bg rounded-xl border">
             <div id="dockPomoDisplay" onclick="app.promptSetPomoTime()" class="text-4xl font-extrabold font-mono tracking-tight cursor-pointer hover:text-theme-main transition" title="Haz clic para escribir los minutos exactos">25:00</div>
-            <div class="text-[11px] text-slate-400 mt-1 flex items-center justify-center gap-1.5">
-              <span onclick="app.promptSetEffectiveTime()" class="cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span></span>
-              <span class="inline-flex items-center gap-0.5 ml-1">
-                <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-1 py-0.2 rounded text-[9.5px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300" title="Restar 1 minuto efectivo">-1m</button>
-                <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-1 py-0.2 rounded text-[9.5px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main" title="Sumar 1 minuto efectivo">+1m</button>
-              </span>
+            <div onclick="app.promptSetEffectiveTime()" class="text-[11px] text-slate-400 mt-1 cursor-pointer hover:underline" title="Haz clic para escribir el tiempo efectivo acumulado">
+              Efectivo: <span id="dockPomoEffective" class="font-mono font-bold text-theme-main">0m (0.00h)</span>
+            </div>
+            <div class="flex items-center justify-center gap-1 mt-1.5">
+              <button type="button" onclick="app.adjustEffectiveMinutes(-1)" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-stone-600 dark:text-slate-300 active:scale-95 transition" title="Restar 1 minuto efectivo">-1m</button>
+              <button type="button" onclick="app.adjustEffectiveMinutes(1)" class="px-2 py-0.5 rounded-md text-[10px] font-mono font-bold subpanel-bg border hover:border-theme text-theme-main active:scale-95 transition" title="Sumar 1 minuto efectivo">+1m</button>
             </div>
           </div>
 

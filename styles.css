@@ -583,16 +583,24 @@
       color: #161514 !important;
     }
 
+    /* Diálogos modales de Confirmación y Prompt (Por encima de ZenModal y de todo el viewport) */
+    #modalCustomPrompt,
+    #modalCustomConfirm,
+    div#modalCustomPrompt,
+    div#modalCustomConfirm {
+      z-index: 20000 !important;
+    }
+
     /* Bottom Sheet ergonómico para modales en móvil y iPad vertical (< 1024px) */
     @media (max-width: 1023px) {
-      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal),
-      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) {
+      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal):not(#modalCustomPrompt):not(#modalCustomConfirm),
+      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal):not(#modalCustomPrompt):not(#modalCustomConfirm) {
         justify-content: flex-end !important;
         align-items: flex-end !important;
         padding: 0 !important;
       }
-      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) > div[class*="panel-bg"],
-      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) > div[class*="panel-bg"] {
+      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal):not(#modalCustomPrompt):not(#modalCustomConfirm) > div[class*="panel-bg"],
+      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal):not(#modalCustomPrompt):not(#modalCustomConfirm) > div[class*="panel-bg"] {
         width: 100% !important;
         max-width: 100% !important;
         max-height: 88dvh !important;
@@ -2268,23 +2276,39 @@
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
       }
       /* Subpanel de Hoy con reorganización inteligente (Reorganizar -> Escalar -> Interespaciado) */
-      #todayFocusContainer .habits-subpanel-today {
+      #todayFocusContainer .habits-subpanel-today,
+      #todayFocusContainer .habits-subpanel-week {
         display: flex !important;
         flex-direction: column !important;
         align-self: stretch !important;
-        height: auto !important;
+        height: 100% !important;
+        min-height: 100% !important;
       }
       #todayFocusContainer #todayFocusContent {
-        flex: 1 1 auto !important;
+        flex: 1 1 100% !important;
         display: flex !important;
         flex-direction: column !important;
+        min-height: 100% !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid {
-        flex: 1 1 auto !important;
+        flex: 1 1 100% !important;
         display: grid !important;
         grid-auto-rows: 1fr !important;
         align-content: stretch !important;
+        min-height: 100% !important;
         gap: 0.5rem !important;
+      }
+      #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+      }
+      #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div > div {
+        flex: 1 1 auto !important;
+        height: 100% !important;
+        display: flex !important;
+        flex-direction: column !important;
+        justify-content: space-between !important;
       }
       @container hoypanel (max-width: 459px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
@@ -2601,8 +2625,8 @@
       flex-shrink: 0 !important;
     }
     #todayFocusContent {
-      flex: 1 1 0% !important;
-      min-height: 0 !important;
+      flex: 1 1 auto !important;
+      min-height: 100% !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       display: flex !important;

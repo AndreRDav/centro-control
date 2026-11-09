@@ -88,7 +88,14 @@
           }
           if (Array.isArray(val)) {
             const done = val.slice(0, daySlots).filter(Boolean).length;
-            return done / daySlots;
+            const rule = h.completionRule || 'proportional';
+            if (rule === 'all_required') {
+              return done >= daySlots ? 1.0 : 0.0;
+            } else if (rule === 'at_least_one') {
+              return done >= 1 ? 1.0 : 0.0;
+            } else {
+              return done / daySlots;
+            }
           }
           if (val === true || val === 1 || val === 'true') return 1;
           return 0;
@@ -120,7 +127,7 @@
       function isCustomHabitDoneOnDay(h, val, dIdx) {
         if (val === null || val === undefined || val === '') return false;
         if (h.type === 'binary_check') {
-          return getHabitDayCompletionRatio(h, val, dIdx) > 0;
+          return getHabitDayCompletionRatio(h, val, dIdx) >= (h.completionRule === 'all_required' ? 1.0 : 0.001);
         }
         const num = Number(val);
         if (isNaN(num)) return false;
@@ -12845,6 +12852,16 @@
                 <div id="habitSlotsModeLabel" class="py-2 text-[11px] font-semibold text-theme-main">${maxSlots > 1 ? `Multi-bloques (${maxSlots} repeticiones/día)` : 'Check Tradicional (1 bloque)'}</div>
               </div>
 
+              <!-- Regla de Cumplimiento Diario (Multi-bloque) -->
+              <div class="col-span-1 sm:col-span-3 space-y-1">
+                <label class="block text-[10px] font-bold text-slate-400 uppercase">Regla de Cumplimiento Diario (Multi-bloque):</label>
+                <select id="habitCompletionRule" class="w-full px-2.5 py-1.5 input-bg border rounded-xl font-bold text-xs focus:border-theme outline-none cursor-pointer">
+                  <option value="proportional" ${(currentValues.completionRule === 'proportional' || !currentValues.completionRule) ? 'selected' : ''}>Proporcional (cada bloque suma su %, ej. 1 de 2 = 50%)</option>
+                  <option value="all_required" ${currentValues.completionRule === 'all_required' ? 'selected' : ''}>Todos obligatorios (100% solo si se hacen todos los bloques)</option>
+                  <option value="at_least_one" ${currentValues.completionRule === 'at_least_one' ? 'selected' : ''}>Flexible (con hacer al menos 1 bloque ya cuenta el día al 100%)</option>
+                </select>
+              </div>
+
               <!-- Selector de Bloques Variables por Día (L - D) -->
               <div class="col-span-1 sm:col-span-3 p-3 rounded-xl bg-theme-soft/30 border border-theme space-y-2">
                 <div class="flex items-center justify-between">
@@ -12983,6 +13000,7 @@
               }
             }
             habitData.targetWeeklyDays = Math.max(1, parseInt(document.getElementById('habitTargetWeeklyDays')?.value, 10) || 7);
+            habitData.completionRule = document.getElementById('habitCompletionRule')?.value || 'proportional';
             
             const maxSlots = habitData.slotsCount || 1;
             const labels = [];
