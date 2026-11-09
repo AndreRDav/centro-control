@@ -7462,6 +7462,7 @@
         togglePomo() {
           const p = state.pomo;
           p.isRunning = !p.isRunning;
+          if (typeof triggerHaptic === 'function') triggerHaptic(p.isRunning ? 'medium' : 'light');
           if (p.isRunning) {
             p.lastTick = Date.now();
             p.targetEndTime = Date.now() + (p.timeLeft * 1000);
@@ -7494,8 +7495,9 @@
           const sub = p.selectedSubject || 'Estudio General';
           app.addStudyToDay(todayIdx, hrs, sub);
           p.effectiveSeconds = 0;
+          if (typeof triggerHaptic === 'function') triggerHaptic('success');
           renderPomodoroUI();
-          this.showToast(`¡Se han volcado ${hrs}h a "${sub}" y al total de hoy! 📖`, 'success');
+          this.showToast(`¡Se han volcado ${hrs}h a "${sub}" y al total de hoy!`, 'success');
         },
 
         setPomoPreset(val) {
@@ -7723,6 +7725,7 @@
           });
         },
         adjustClock(mins) {
+          if (typeof triggerHaptic === 'function') triggerHaptic('light');
           const p = state.pomo;
           p.timeLeft = Math.max(0, p.timeLeft + mins * 60);
           if (p.isRunning) {
@@ -7732,6 +7735,7 @@
           renderPomodoroUI();
         },
         adjustEffective(mins) {
+          if (typeof triggerHaptic === 'function') triggerHaptic('light');
           const p = state.pomo;
           p.effectiveSeconds = Math.max(0, p.effectiveSeconds + mins * 60);
           renderPomodoroUI();
@@ -7928,6 +7932,7 @@
         },
         setListSort(sort) { state.ui.listSort = sort; renderListsTree(); saveState(); },
         toggleListItemStatus(cat, id) {
+          if (typeof triggerHaptic === 'function') triggerHaptic('light');
           const targetCat = cat || state.ui.listTab || 'entregas';
           let found = findNodeAndParentInTree(state.lists[targetCat] || [], id);
           let actualCat = targetCat;

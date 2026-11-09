@@ -1032,7 +1032,22 @@
         } catch (_) {}
       }
 
-      function playTickSound() { playTone(880, 0.04, 'sine', 0.08); }
+      function triggerHaptic(type = 'light') {
+        if (typeof navigator !== 'undefined' && 'vibrate' in navigator) {
+          try {
+            if (type === 'light') navigator.vibrate(10);
+            else if (type === 'medium') navigator.vibrate(20);
+            else if (type === 'success') navigator.vibrate([15, 40, 20]);
+            else if (type === 'warning') navigator.vibrate([25, 50, 25]);
+          } catch (_) {}
+        }
+      }
+      window.triggerHaptic = triggerHaptic;
+
+      function playTickSound() {
+        playTone(880, 0.04, 'sine', 0.08);
+        triggerHaptic('light');
+      }
 
       // SINTETIZADOR DE AUDIO WAV EN MEMORIA (Inmunidad al reposo y segundo plano en móviles)
       function createToneWavDataUri(type = 'silence', durationMs = 1500, volume = 0.8) {
@@ -2592,6 +2607,78 @@ var pendingCloudConflictJson = null;
         return s;
       }
 
+      // ========================================================
+      // MOTOR DE PERSISTENCIA NATIVO INDEXEDDB (Almacenamiento Ilimitado)
+      // ========================================================
+      const CC_IDB_NAME = 'CentroControlDB';
+      const CC_IDB_VERSION = 1;
+      const CC_IDB_STORE = 'app_state';
+
+      function openCCDatabase() {
+        return new Promise((resolve, reject) => {
+          if (typeof window === 'undefined' || !('indexedDB' in window)) {
+            return reject(new Error('IndexedDB no soportado'));
+          }
+          const req = window.indexedDB.open(CC_IDB_NAME, CC_IDB_VERSION);
+          req.onupgradeneeded = (e) => {
+            const db = e.target.result;
+            if (!db.objectStoreNames.contains(CC_IDB_STORE)) {
+              db.createObjectStore(CC_IDB_STORE);
+            }
+          };
+          req.onsuccess = () => resolve(req.result);
+          req.onerror = () => reject(req.error);
+        });
+      }
+
+      async function idbGet(key) {
+        try {
+          const db = await openCCDatabase();
+          return new Promise((resolve, reject) => {
+            const tx = db.transaction(CC_IDB_STORE, 'readonly');
+            const store = tx.objectStore(CC_IDB_STORE);
+            const req = store.get(key);
+            req.onsuccess = () => resolve(req.result);
+            req.onerror = () => reject(req.error);
+          });
+        } catch (_) {
+          return null;
+        }
+      }
+
+      async function idbSet(key, value) {
+        try {
+          const db = await openCCDatabase();
+          return new Promise((resolve, reject) => {
+            const tx = db.transaction(CC_IDB_STORE, 'readwrite');
+            const store = tx.objectStore(CC_IDB_STORE);
+            const req = store.put(value, key);
+            req.onsuccess = () => resolve(true);
+            req.onerror = () => reject(req.error);
+          });
+        } catch (_) {
+          return false;
+        }
+      }
+      window.idbGet = idbGet;
+      window.idbSet = idbSet;
+
+      function createPrunedLocalStorageSnapshot(fullState) {
+        if (!fullState || !fullState.weeks) return fullState;
+        const weekKeys = Object.keys(fullState.weeks).sort();
+        const keepKeys = new Set();
+        if (fullState.currentWeek) keepKeys.add(fullState.currentWeek);
+        if (fullState.viewingWeek) keepKeys.add(fullState.viewingWeek);
+        weekKeys.slice(-4).forEach(k => keepKeys.add(k));
+
+        const prunedWeeks = {};
+        keepKeys.forEach(k => {
+          if (fullState.weeks[k]) prunedWeeks[k] = fullState.weeks[k];
+        });
+
+        return Object.assign({}, fullState, { weeks: prunedWeeks });
+      }
+
       function loadState() {
         try {
           const raw = localStorage.getItem(STORAGE_KEY);
@@ -2600,11 +2687,38 @@ var pendingCloudConflictJson = null;
           state = sanitizeState({});
         }
         checkAndResumePomo();
+
+        // Reconciliación asíncrona transparente con IndexedDB
+        if (typeof window !== 'undefined' && 'indexedDB' in window) {
+          idbGet('root_state').then(idbState => {
+            if (idbState && typeof idbState === 'object') {
+              let changed = false;
+              if (idbState.updatedAt && idbState.updatedAt > (state.updatedAt || 0)) {
+                state = sanitizeState(idbState);
+                changed = true;
+              } else if (idbState.weeks) {
+                if (!state.weeks) state.weeks = {};
+                Object.keys(idbState.weeks).forEach(k => {
+                  if (!state.weeks[k]) {
+                    state.weeks[k] = idbState.weeks[k];
+                    changed = true;
+                  }
+                });
+              }
+              if (changed && typeof window.renderApp === 'function') {
+                window.renderApp();
+              }
+            } else if (state && state.updatedAt) {
+              idbSet('root_state', state);
+            }
+          }).catch(() => {});
+        }
       }
 
       function saveUiOnly() {
         try {
           localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          idbSet('root_state', state);
         } catch (_) {}
       }
       window.saveUiOnly = saveUiOnly;
@@ -2622,7 +2736,20 @@ var pendingCloudConflictJson = null;
       function saveState(skipDiskSync = false) {
         try {
           state.updatedAt = Date.now();
-          localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          
+          // 1. Guardar en IndexedDB (Almacenamiento Ilimitado de Grado Máximo)
+          idbSet('root_state', state);
+
+          // 2. Guardar en localStorage con salvaguarda de cuota
+          try {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+          } catch (quotaErr) {
+            const pruned = createPrunedLocalStorageSnapshot(state);
+            try {
+              localStorage.setItem(STORAGE_KEY, JSON.stringify(pruned));
+            } catch (_) {}
+          }
+
           try {
             const devLayoutKey = (typeof window !== 'undefined' && window.innerWidth < 1024) ? 'CC_LOCAL_DEVICE_LAYOUT_MOBILE' : 'CC_LOCAL_DEVICE_LAYOUT_DESKTOP';
             localStorage.setItem(devLayoutKey, JSON.stringify({
@@ -2631,6 +2758,12 @@ var pendingCloudConflictJson = null;
               globalSidebar: state.globalSidebar
             }));
           } catch (_) {}
+
+          // 3. Marca de sincronización offline
+          if (typeof navigator !== 'undefined' && 'onLine' in navigator && !navigator.onLine) {
+            try { localStorage.setItem('cc_pending_offline_sync', 'true'); } catch (_) {}
+          }
+
           if (!skipDiskSync) {
             syncDiskFile();
           }
@@ -2678,3 +2811,20 @@ var pendingCloudConflictJson = null;
           handleAppFocusPull();
         }
       });
+
+      // Escucha de reconexión para sincronización offline automática con Google Drive
+      if (typeof window !== 'undefined') {
+        window.addEventListener('online', () => {
+          const hasPending = localStorage.getItem('cc_pending_offline_sync') === 'true';
+          if (hasPending || gdriveUserEmail) {
+            localStorage.removeItem('cc_pending_offline_sync');
+            if (typeof syncGdriveCloud === 'function' && typeof isGdriveConnected === 'function' && isGdriveConnected()) {
+              syncGdriveCloud(true, false, false, true).then(res => {
+                if (res && res.success && typeof window.renderSystemToast === 'function') {
+                  window.renderSystemToast('Conexión recuperada: sincronizado con Google Drive.', 'success', 2500);
+                }
+              }).catch(() => {});
+            }
+          }
+        });
+      }

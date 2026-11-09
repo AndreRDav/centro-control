@@ -583,6 +583,34 @@
       color: #161514 !important;
     }
 
+    /* Bottom Sheet ergonómico para modales en móvil y iPad vertical (< 1024px) */
+    @media (max-width: 1023px) {
+      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal),
+      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) {
+        justify-content: flex-end !important;
+        align-items: flex-end !important;
+        padding: 0 !important;
+      }
+      body > div[id*="modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) > div[class*="panel-bg"],
+      body > div[id*="Modal"][class*="fixed"][class*="inset-0"]:not(#zenModal) > div[class*="panel-bg"] {
+        width: 100% !important;
+        max-width: 100% !important;
+        max-height: 88dvh !important;
+        border-bottom-left-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+        border-top-left-radius: 1.5rem !important;
+        border-top-right-radius: 1.5rem !important;
+        border-bottom: none !important;
+        margin: 0 !important;
+        box-shadow: 0 -10px 30px -5px rgba(0, 0, 0, 0.45) !important;
+        animation: modalSlideUp 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+      }
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(100%); }
+      to { transform: translateY(0); }
+    }
+
     /* Subpanel hover para elementos interactivos en Crema Editorial */
     html:not(.dark) .subpanel-hover:hover {
       background-color: rgba(220, 210, 195, 0.7) !important;
