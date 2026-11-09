@@ -1534,12 +1534,12 @@
       color: #ffffff !important;
     }
 
-    /* VIEWPORT Y LIENZO: ARQUITECTURA DE FLUJO FLEXIBLE NATURAL */
+    /* VIEWPORT Y LIENZO: ARQUITECTURA DE FLUJO FLEXIBLE NATURAL CON MÁRGENES EN PANTALLA AMPLIA */
     #appMainViewport {
       width: 100% !important;
-      max-width: 100% !important;
-      margin-left: 0 !important;
-      margin-right: 0 !important;
+      max-width: 1680px !important;
+      margin-left: auto !important;
+      margin-right: auto !important;
       flex: 1 1 0% !important;
       min-width: 0 !important;
       padding-bottom: 4.5rem !important;
@@ -2282,40 +2282,47 @@
         flex-direction: column !important;
         align-self: stretch !important;
         height: 100% !important;
-        min-height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow: hidden !important;
       }
       #todayFocusContainer #todayFocusContent {
-        flex: 1 1 100% !important;
+        flex: 1 1 0% !important;
         display: flex !important;
         flex-direction: column !important;
-        min-height: 100% !important;
+        min-height: 0 !important;
+        max-height: 100% !important;
+        overflow-y: auto !important;
+        overflow-x: hidden !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid {
-        flex: 1 1 100% !important;
+        flex: 1 1 auto !important;
         display: grid !important;
-        grid-auto-rows: 1fr !important;
+        grid-auto-rows: minmax(min-content, 1fr) !important;
         align-content: stretch !important;
-        min-height: 100% !important;
+        min-height: 0 !important;
         gap: 0.5rem !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div {
         display: flex !important;
         flex-direction: column !important;
+        min-height: 0 !important;
         height: 100% !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div > div {
         flex: 1 1 auto !important;
+        min-height: 0 !important;
         height: 100% !important;
         display: flex !important;
         flex-direction: column !important;
         justify-content: space-between !important;
       }
-      @container hoypanel (max-width: 459px) {
+      @container hoypanel (max-width: 449px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
         }
       }
-      @container hoypanel (min-width: 460px) and (max-width: 739px) {
+      @container hoypanel (min-width: 450px) and (max-width: 579px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         }
@@ -2323,7 +2330,7 @@
           grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 740px) and (max-width: 999px) {
+      @container hoypanel (min-width: 580px) and (max-width: 1199px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         }
@@ -2334,10 +2341,14 @@
           grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 1000px) {
+      @container hoypanel (min-width: 1200px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
+      }
+      /* Cuando hay exactamente 4 tarjetas en un panel casi cuadrado, 2×2 es geométricamente óptimo */
+      #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid[data-card-count="4"] {
+        grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
       }
       /* Si la matriz semanal está plegada, Hoy absorbe el 100% y se expande a 3 o 4 columnas según ancho */
       #todayFocusContainer.habits-matrix-collapsed[data-cols="11"] .adaptive-internal-grid,
@@ -2488,11 +2499,14 @@
 
     /* Topología A: Cuadrícula interna de items y hábitos (Enfoque de Hoy, Metas, etc.) - REORGANIZAR -> ESCALAR (1fr) -> INTERESPACIADO */
     .editorial-card.card-has-extra-height #todayFocusContent {
-      flex: 1 1 auto !important;
+      flex: 1 1 0% !important;
       min-height: 0 !important;
+      max-height: 100% !important;
+      overflow-y: auto !important;
+      overflow-x: hidden !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 0.65rem !important;
+      gap: 0.5rem !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent > div:not(.adaptive-internal-grid) {
       flex-shrink: 0 !important;
@@ -2501,16 +2515,18 @@
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
       flex: 1 1 auto !important;
       display: grid !important;
-      grid-auto-rows: 1fr !important;
+      grid-auto-rows: minmax(min-content, 1fr) !important;
       align-content: stretch !important;
-      row-gap: 0.75rem !important;
-      column-gap: 0.75rem !important;
+      row-gap: 0.65rem !important;
+      column-gap: 0.65rem !important;
+      min-height: 0 !important;
     }
     .editorial-card.card-has-extra-height.card-mode-compact #todayFocusContent .adaptive-internal-grid {
-      grid-auto-rows: 1fr !important;
+      grid-auto-rows: minmax(min-content, 1fr) !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div {
       height: 100% !important;
+      min-height: 0 !important;
       display: flex !important;
       flex-direction: column !important;
       justify-content: space-between !important;
@@ -2613,11 +2629,14 @@
     /* Subpaneles internos */
     .habits-subpanel-today {
       min-width: 0;
+      min-height: 0 !important;
+      max-height: 100% !important;
+      height: 100% !important;
+      overflow: hidden !important;
       transition: all 0.25s ease-in-out;
       display: flex !important;
       flex-direction: column !important;
       justify-content: flex-start !important;
-      height: 100% !important;
       container-type: inline-size;
       container-name: hoypanel;
     }
@@ -2625,13 +2644,14 @@
       flex-shrink: 0 !important;
     }
     #todayFocusContent {
-      flex: 1 1 auto !important;
-      min-height: 100% !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      max-height: 100% !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       display: flex !important;
       flex-direction: column !important;
-      gap: 0.65rem !important;
+      gap: 0.5rem !important;
     }
 
     /* Subpanel Semana con expansión vertical y tabla proporcionada */

@@ -743,6 +743,9 @@ var GridEngine = {
             try { this.applyGridLayout(tabKey); } catch (e) { console.warn('applyGridLayout:', e); }
             try { this.renderBoardEditHandles(tabKey); } catch (e) { console.warn('renderBoardEditHandles:', e); }
             try { this.renderDockWidgets(); } catch (e) { console.warn('renderDockWidgets:', e); }
+            if (window.WorkspacesManager && typeof window.WorkspacesManager.renderNavBar === 'function') {
+              try { window.WorkspacesManager.renderNavBar(); } catch (e) { console.warn('renderNavBar in edit mode:', e); }
+            }
             this.safeToast('Modo Diseño activado: Ajusta y mueve los cuadros en el tablero.', 'emerald');
           } else {
             if (btn) {
@@ -1032,27 +1035,40 @@ var GridEngine = {
           popover.style.top = Math.max(10, top) + 'px';
         },
 
-        moveCardToSidebar(cardId) {
+        moveCardToSidebar(cardId, keepOnGrid = false) {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
           if (!ws) return;
-          this.recordUndo('Mover a panel lateral');
+          this.recordUndo('Añadir a panel lateral');
           if (!state.globalSidebar) state.globalSidebar = { isOpen: true, position: 'right', widgets: [] };
           if (!Array.isArray(state.globalSidebar.widgets)) state.globalSidebar.widgets = [];
-          delete ws.grid[cardId];
+          if (!keepOnGrid) {
+            delete ws.grid[cardId];
+          }
           if (!state.globalSidebar.widgets.includes(cardId)) {
             state.globalSidebar.widgets.push(cardId);
           }
+          state.globalSidebar.isOpen = true;
+          const sidebar = document.getElementById('workspaceSidebar');
+          if (sidebar) {
+            sidebar.classList.remove('hidden', 'sidebar-collapsed');
+            sidebar.classList.add('sidebar-open');
+            document.body.classList.add('sidebar-view-open');
+          }
           const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
           if (sidebarContainer && window.WidgetsRegistry) {
-            window.WidgetsRegistry.mountWidget(cardId, sidebarContainer);
+            if (ws.grid && ws.grid[cardId] && window.WidgetsRegistry.mountWidgetClone) {
+              window.WidgetsRegistry.mountWidgetClone(cardId, sidebarContainer, 'sidebar');
+            } else {
+              window.WidgetsRegistry.mountWidget(cardId, sidebarContainer);
+            }
           }
           this.compactGrid(ws.grid, false);
           this.applyGridLayout();
           this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
           if (typeof saveState === 'function') saveState();
-          this.safeToast('Módulo movido a la Barra Lateral.', 'info');
+          this.safeToast(keepOnGrid ? 'Módulo duplicado en la Barra Lateral.' : 'Módulo movido a la Barra Lateral.', 'info');
         },
 
         moveCardFromSidebarToGrid(cardId) {
@@ -1130,13 +1146,9 @@ var GridEngine = {
           const activeDockIds = new Set((ws && ws.dockWidgets) ? ws.dockWidgets : []);
           const catalog = (window.WidgetsRegistry) ? window.WidgetsRegistry.getCatalog() : {};
 
-          // Solo excluye los que están activos en la ventana actual
-          const isPlacedInWindow = (id) => {
-            return activeGridIds.has(id) || activeSidebarIds.has(id) || activeDockIds.has(id);
-          };
-
-          const inactiveWidgets = Object.keys(catalog).filter(id => !isPlacedInWindow(id));
-          const placedWidgets = Object.keys(catalog).filter(id => isPlacedInWindow(id));
+          // Lista completa disponible para arrastre o clonación multi-zona
+          const availableWidgets = Object.keys(catalog);
+          const placedWidgets = Object.keys(catalog).filter(id => activeGridIds.has(id) || activeSidebarIds.has(id) || activeDockIds.has(id));
 
           // Pre-renderizar vistas dinámicas para que los clones visuales contengan datos reales y no cuadros vacíos
           if (typeof app !== 'undefined') {
@@ -1377,8 +1389,8 @@ var GridEngine = {
           };
 
           const filteredWidgets = (selectedCategory === 'all')
-            ? inactiveWidgets
-            : inactiveWidgets.filter(id => {
+            ? availableWidgets
+            : availableWidgets.filter(id => {
                 const def = catalog[id];
                 return def && (def.category === selectedCategory || (selectedCategory === 'performance' && def.category === 'kpis'));
               });
@@ -1405,9 +1417,9 @@ var GridEngine = {
               <div>
                 <h3 class="font-serif font-bold text-xs text-stone-900 dark:text-stone-100 flex items-center gap-1.5">
                   <span class="w-2.5 h-2.5 rounded-full bg-theme-main animate-pulse"></span>
-                  <span>Módulos Disponibles (${inactiveWidgets.length})</span>
+                  <span>Catálogo de Módulos (${availableWidgets.length})</span>
                 </h3>
-                <p class="text-[10px] text-stone-500 dark:text-slate-400">Arrastra una miniatura al tablero (crece al 100%)</p>
+                <p class="text-[10px] text-stone-500 dark:text-slate-400">Arrastra una miniatura o pulsa para añadir a zonas</p>
               </div>
               <button type="button" onclick="app.closeWidgetsDrawer()" class="w-6 h-6 rounded-lg subpanel-bg border border-theme text-stone-500 hover:text-stone-900 dark:hover:text-white flex items-center justify-center text-xs font-bold cursor-pointer" title="Cerrar estudio">✕</button>
             </div>
@@ -1448,9 +1460,15 @@ var GridEngine = {
                     </div>
 
                     <div class="flex items-center justify-end gap-1 pt-0.5">
-                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer">+ Cuadrícula</button>
-                      <button type="button" onclick="app.moveCardToSidebar('${id}')" class="px-1.5 py-0.5 rounded subpanel-bg text-stone-600 dark:text-slate-300 hover:border-theme-main text-[10px] font-bold border border-theme transition cursor-pointer">+ Panel</button>
-                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded bg-theme-accent-soft text-theme-accent hover:bg-theme-accent hover:text-white text-[10px] font-bold border border-theme transition cursor-pointer" title="Añadir al dock">+ Dock</button>
+                      <button type="button" onclick="app.addInactiveWidgetToGrid('${id}')" class="px-2 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${activeGridIds.has(id) ? 'bg-theme-main text-white border-theme-main shadow-2xs' : 'bg-theme-soft text-theme-main hover:bg-theme-main hover:text-white border-theme'}" title="${activeGridIds.has(id) ? 'Activo en cuadrícula' : 'Añadir a la cuadrícula'}">
+                        ${activeGridIds.has(id) ? '✓ Tablero' : '+ Cuadrícula'}
+                      </button>
+                      <button type="button" onclick="app.moveCardToSidebar('${id}', true)" class="px-1.5 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${activeSidebarIds.has(id) ? 'bg-theme-main text-white border-theme-main shadow-2xs' : 'subpanel-bg text-stone-600 dark:text-slate-300 hover:border-theme-main border-theme'}" title="${activeSidebarIds.has(id) ? 'Activo en panel lateral' : 'Añadir al panel lateral'}">
+                        ${activeSidebarIds.has(id) ? '✓ Panel' : '+ Panel'}
+                      </button>
+                      <button type="button" onclick="app.addWidgetToDock('${id}')" class="px-1.5 py-0.5 rounded text-[10px] font-bold border transition cursor-pointer ${activeDockIds.has(id) ? 'bg-theme-accent text-white border-theme-accent shadow-2xs' : 'bg-theme-accent-soft text-theme-accent hover:bg-theme-accent hover:text-white border-theme'}" title="${activeDockIds.has(id) ? 'Activo en dock' : 'Añadir al dock'}">
+                        ${activeDockIds.has(id) ? '✓ Dock' : '+ Dock'}
+                      </button>
                     </div>
                   </div>
                 `;
@@ -1472,14 +1490,16 @@ var GridEngine = {
                       const boxHeight = Math.max(50, Math.min(140, Math.round(idealRows * 8.5))) + 'px';
                       const widthPercent = Math.min(100, Math.max(45, Math.round((colSpan / 12) * 100))) + '%';
 
-                      let locBadge = '';
+                      const badges = [];
                       if (activeGridIds.has(id)) {
                         const cfg = gridLayout[id] || {};
-                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-theme-soft text-theme-main font-bold border border-theme/30">Cuadrícula (${cfg.colSpan || colSpan}c · ${cfg.rowSpan || idealRows}f)</span>`;
-                      } else if (activeSidebarIds.has(id)) {
-                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-blue-900/30 text-blue-400 font-bold border border-blue-700/40">Panel Lateral</span>`;
-                      } else if (activeDockIds.has(id)) {
-                        locBadge = `<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-amber-900/30 text-amber-400 font-bold border border-amber-700/40">Dock</span>`;
+                        badges.push(`<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-theme-soft text-theme-main font-bold border border-theme/30">Cuadrícula (${cfg.colSpan || colSpan}c · ${cfg.rowSpan || idealRows}f)</span>`);
+                      }
+                      if (activeSidebarIds.has(id)) {
+                        badges.push(`<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-blue-900/30 text-blue-400 font-bold border border-blue-700/40">Panel Lateral</span>`);
+                      }
+                      if (activeDockIds.has(id)) {
+                        badges.push(`<span class="px-1.5 py-0.5 rounded font-mono text-[9px] bg-amber-900/30 text-amber-400 font-bold border border-amber-700/40">Dock</span>`);
                       }
 
                       return `
@@ -1489,7 +1509,7 @@ var GridEngine = {
                               <span class="text-theme-main shrink-0">${def.iconSvg || ''}</span>
                               <span class="truncate">${def.name}</span>
                             </span>
-                            ${locBadge}
+                            <div class="flex items-center gap-1 flex-wrap justify-end">${badges.join('')}</div>
                           </div>
 
                           <div class="mini-card-box panel-bg border border-theme/30 rounded-lg overflow-hidden shadow-xs relative pointer-events-none" data-widget-preview="${id}" style="height: ${boxHeight}; width: ${widthPercent}; margin: 0 auto;">
@@ -1502,7 +1522,7 @@ var GridEngine = {
                               <span>Localizar</span>
                             </button>
                             <button type="button" onclick="app.sendWidgetToDrawer('${id}')" class="px-2 py-0.5 rounded bg-rose-500/15 text-rose-500 hover:bg-rose-500 hover:text-white text-[10px] font-bold border border-rose-500/30 transition cursor-pointer">
-                              Inactivar
+                              Retirar
                             </button>
                           </div>
                         </div>
@@ -1758,29 +1778,28 @@ var GridEngine = {
           if (!ws.dockWidgets.includes(widgetId)) {
             ws.dockWidgets.push(widgetId);
           }
-          if (ws.grid && ws.grid[widgetId]) delete ws.grid[widgetId];
-          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
-            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(x => x !== widgetId);
-          }
-          if (window.WidgetsRegistry) {
-            window.WidgetsRegistry.parkWidget(widgetId);
+          if (!state.globalDock) state.globalDock = { widgets: [] };
+          if (!Array.isArray(state.globalDock.widgets)) state.globalDock.widgets = [];
+          if (!state.globalDock.widgets.includes(widgetId)) {
+            state.globalDock.widgets.push(widgetId);
           }
           
           this.renderDockWidgets();
-          this.compactGrid(ws.grid, false);
-          this.applyGridLayout();
-          this.renderBoardEditHandles();
           this.renderWidgetsDrawer();
           if (typeof saveState === 'function') saveState();
-          this.safeToast('Módulo añadido al Dock como popup.', 'emerald');
+          this.safeToast('Módulo añadido al Dock como acceso rápido.', 'emerald');
         },
 
         removeWidgetFromDock(widgetId) {
           if (!window.WorkspacesManager) return;
           const ws = window.WorkspacesManager.getActiveWorkspace();
-          if (!ws || !ws.dockWidgets) return;
           this.recordUndo('Quitar del Dock');
-          ws.dockWidgets = ws.dockWidgets.filter(x => x !== widgetId);
+          if (ws && ws.dockWidgets) {
+            ws.dockWidgets = ws.dockWidgets.filter(x => x !== widgetId);
+          }
+          if (state.globalDock && Array.isArray(state.globalDock.widgets)) {
+            state.globalDock.widgets = state.globalDock.widgets.filter(x => x !== widgetId);
+          }
           if (window.WidgetsRegistry) {
             window.WidgetsRegistry.parkWidget(widgetId);
           }
@@ -1792,7 +1811,14 @@ var GridEngine = {
 
         renderDockWidgets() {
           const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
-          const dockList = (ws && ws.dockWidgets) ? ws.dockWidgets : [];
+          let dockList = (ws && Array.isArray(ws.dockWidgets)) ? [...ws.dockWidgets] : [];
+          if (state.globalDock && Array.isArray(state.globalDock.widgets)) {
+            state.globalDock.widgets.forEach(id => {
+              if (!id.startsWith('dock') && !dockList.includes(id)) {
+                dockList.push(id);
+              }
+            });
+          }
           let container = document.getElementById('dockCustomPills');
           if (!container) {
             const pillsWrap = document.querySelector('#floatingDock > .flex.items-center.gap-2');
@@ -1813,9 +1839,9 @@ var GridEngine = {
             pill.className = 'dock-glass border px-2.5 py-1.5 rounded-full flex items-center gap-1.5 text-xs font-bold shadow-lg transition-all cursor-pointer relative';
             pill.setAttribute('data-dock-pill-id', id);
             pill.innerHTML = `
-              <span class="text-emerald-400 shrink-0">${def.iconSvg || ''}</span>
+              <span class="text-theme-main shrink-0">${def.iconSvg || ''}</span>
               <span class="text-[11px] truncate max-w-[90px]">${def.name}</span>
-              ${isEditMode ? `<button type="button" onclick="event.stopPropagation(); app.removeWidgetFromDock('${id}')" class="w-4 h-4 rounded-full bg-rose-500/20 text-rose-400 hover:bg-rose-500 hover:text-white flex items-center justify-center text-[10px] ml-1">✕</button>` : ''}
+              ${isEditMode ? `<button type="button" onclick="event.stopPropagation(); app.removeWidgetFromDock('${id}')" class="w-4 h-4 rounded-full bg-theme-negative-soft text-theme-negative hover:bg-theme-negative hover:text-white flex items-center justify-center text-[10px] ml-1">✕</button>` : ''}
             `;
             pill.onclick = () => {
               this.toggleDockCustomWindow(id);
@@ -1891,19 +1917,19 @@ var GridEngine = {
           this.recordUndo('Inactivar módulo');
           const layout = this.getGridLayout();
           let cardName = cardId;
+          const def = window.WidgetsRegistry ? window.WidgetsRegistry.getWidgetDef(cardId) : null;
+          if (def) cardName = def.name;
+
           if (layout && layout[cardId]) {
-            cardName = layout[cardId].name || cardId;
             delete layout[cardId];
           }
-          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(cardId)) {
-            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(x => x !== cardId);
-          }
-          if (ws && ws.dockWidgets && ws.dockWidgets.includes(cardId)) {
-            ws.dockWidgets = ws.dockWidgets.filter(x => x !== cardId);
-          }
-          if (window.WidgetsRegistry) {
-            const def = window.WidgetsRegistry.getWidgetDef(cardId);
-            if (def) cardName = def.name;
+          // Si había un clon en la barra lateral
+          const clone = document.getElementById('sidebar-clone-' + cardId);
+          if (clone) clone.remove();
+
+          // Solo aparcar en pool si ya no está ni en cuadrícula ni en la barra lateral
+          const stillInSidebar = state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(cardId);
+          if (!stillInSidebar && window.WidgetsRegistry) {
             window.WidgetsRegistry.parkWidget(cardId);
           }
           this.compactGrid(ws ? ws.grid : null, false);
@@ -1912,7 +1938,7 @@ var GridEngine = {
           this.renderWidgetsDrawer();
           this.renderDockWidgets();
           if (typeof saveState === 'function') saveState();
-          this.safeToast('Módulo "' + cardName + '" guardado en el Cajón de Inactivos.', 'indigo');
+          this.safeToast('Módulo "' + cardName + '" retirado del tablero.', 'indigo');
         },
         addInactiveWidgetToGrid(widgetId, customCol, customRow, customColSpan, customRowSpan) {
           const tabKey = 'tab' + (state.activeTab || 1);
@@ -1943,16 +1969,16 @@ var GridEngine = {
           };
 
           const ws = (window.WorkspacesManager) ? window.WorkspacesManager.getActiveWorkspace() : null;
-          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
-            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(id => id !== widgetId);
-          }
-          if (ws && ws.dockWidgets) {
-            ws.dockWidgets = ws.dockWidgets.filter(id => id !== widgetId);
-          }
-
-          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab' + (state.activeTab || 1) + 'MainGrid') || document.getElementById('tab1MainGrid');
-          if (gridContainer) {
+          const gridContainer = document.getElementById('workspaceGrid') || document.getElementById('tab1MainGrid');
+          if (gridContainer && window.WidgetsRegistry) {
             window.WidgetsRegistry.mountWidget(widgetId, gridContainer);
+            // Si el cuadro también está configurado en el panel lateral, mantener una instancia clonada viva en el panel
+            if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(widgetId)) {
+              const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
+              if (sidebarContainer && window.WidgetsRegistry.mountWidgetClone) {
+                window.WidgetsRegistry.mountWidgetClone(widgetId, sidebarContainer, 'sidebar');
+              }
+            }
           }
 
           this.resolveGridCollisions(tabKey, widgetId);

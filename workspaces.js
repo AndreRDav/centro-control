@@ -519,11 +519,20 @@ const WorkspacesManager = (function() {
       const sidebar = document.getElementById('workspaceSidebar');
       if (sidebarContainer) {
         sidebarWidgets.forEach(widgetId => {
-          const sEl = window.WidgetsRegistry.mountWidget(widgetId, sidebarContainer);
+          let sEl;
+          if (activeWidgets[widgetId] && window.WidgetsRegistry.mountWidgetClone) {
+            // Instancia duplicada multi-zona: el módulo está vivo simultáneamente en la cuadrícula y en la barra lateral
+            sEl = window.WidgetsRegistry.mountWidgetClone(widgetId, sidebarContainer, 'sidebar');
+          } else {
+            sEl = window.WidgetsRegistry.mountWidget(widgetId, sidebarContainer);
+          }
           if (sEl) {
             sEl.setAttribute('data-cols', '3');
           }
         });
+        if (window.WidgetsRegistry && window.WidgetsRegistry.syncAllClones) {
+          window.WidgetsRegistry.syncAllClones();
+        }
       }
 
       if (sidebar && !(state.ui && state.ui.isBoardEditMode)) {
@@ -565,11 +574,17 @@ const WorkspacesManager = (function() {
         } catch (_) {}
       }
 
+      // Renderizado continuo de widgets en el Dock (incluso fuera de modo edición)
+      if (window.GridEngine && typeof window.GridEngine.renderDockWidgets === 'function') {
+        try {
+          window.GridEngine.renderDockWidgets();
+        } catch (_) {}
+      }
+
       if (state.ui && state.ui.isBoardEditMode && window.GridEngine) {
         try {
           if (window.GridEngine.renderBoardEditHandles) window.GridEngine.renderBoardEditHandles();
           if (window.GridEngine.renderWidgetsDrawer) window.GridEngine.renderWidgetsDrawer();
-          if (window.GridEngine.renderDockWidgets) window.GridEngine.renderDockWidgets();
         } catch (_) {}
       }
     },

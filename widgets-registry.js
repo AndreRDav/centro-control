@@ -370,6 +370,51 @@ const WidgetsRegistry = (function() {
       return el;
     },
 
+    // Monta una instancia clonada e interactiva de un widget para permitir duplicación en múltiples zonas
+    mountWidgetClone(widgetId, targetContainer, prefix = 'clone') {
+      const original = document.getElementById(widgetId);
+      if (!original || !targetContainer) return null;
+      const cloneId = `${prefix}-${widgetId}`;
+      let clone = document.getElementById(cloneId);
+      if (!clone) {
+        clone = original.cloneNode(true);
+        clone.id = cloneId;
+        clone.setAttribute('data-widget-id', widgetId);
+        clone.setAttribute('data-is-clone', 'true');
+      } else {
+        clone.innerHTML = original.innerHTML;
+        clone.className = original.className;
+      }
+      clone.classList.remove('widget-parked-inert', 'hidden');
+      clone.style.display = '';
+      if (clone.parentElement !== targetContainer) {
+        targetContainer.appendChild(clone);
+      }
+      return clone;
+    },
+
+    // Sincroniza todas las instancias clonadas con su elemento canónico original
+    syncWidgetClones(widgetId) {
+      const original = document.getElementById(widgetId);
+      if (!original) return;
+      const clones = document.querySelectorAll(`[data-is-clone="true"][data-widget-id="${widgetId}"]`);
+      clones.forEach(clone => {
+        clone.innerHTML = original.innerHTML;
+      });
+    },
+
+    // Sincroniza todas las instancias clonadas activas en el documento
+    syncAllClones() {
+      const clones = document.querySelectorAll('[data-is-clone="true"][data-widget-id]');
+      clones.forEach(clone => {
+        const widgetId = clone.getAttribute('data-widget-id');
+        const original = document.getElementById(widgetId);
+        if (original) {
+          clone.innerHTML = original.innerHTML;
+        }
+      });
+    },
+
     // Determina dónde está físicamente montado el widget
     getWidgetLocation(widgetId) {
       const el = document.getElementById(widgetId);

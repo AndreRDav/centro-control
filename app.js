@@ -2048,7 +2048,7 @@
               </div>
               <div class="flex items-center gap-1.5 shrink-0">
                 <span class="text-xs font-mono font-black text-theme-main px-2 py-0.5 rounded-lg bg-theme-soft border border-theme">${todayProgressPct}%</span>
-                ${todayProgressPct === 100 && todayTotalTasks > 0 ? '<span class="text-sm animate-bounce" title="¡Día completado al 100%!">🎉</span>' : ''}
+                ${todayProgressPct === 100 && todayTotalTasks > 0 ? '<span class="inline-flex items-center justify-center text-theme-main animate-bounce" title="¡Día completado al 100%!"><svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg></span>' : ''}
               </div>
             </div>
             <div class="w-full h-2.5 sm:h-3 rounded-full bg-stone-200 dark:bg-slate-800 overflow-hidden ring-1 ring-black/5 dark:ring-white/10">
@@ -2079,7 +2079,7 @@
                     <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
                       ${GYM_TYPES.map(t => `<option value="${t}" ${(day.gym.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
                     </select>
-                    ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === '✏️ Otro...') ? `
+                    ${(day.gym.s1?.type === 'Personalizado...' || day.gym.s1?.type === 'Otro...') ? `
                       <button onclick="app.openCustomMuscleModal(${dIdx}, 1, 'gym')" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.gym.s1.custom || 'Configurar'}${day.gym.s1.cardio?.enabled ? ' (+Cardio)' : ''}</button>
                     ` : ''}
                   </div>
@@ -2095,7 +2095,7 @@
                         <select onchange="app.handleGymTypeSelection(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
                           ${GYM_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
                         </select>
-                        ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                        ${(sObj.type === 'Personalizado...' || sObj.type === 'Otro...') ? `
                           <button onclick="app.openCustomMuscleModal(${dIdx}, ${sIdx}, 'gym')" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}${sObj.cardio?.enabled ? ' (+Cardio)' : ''}</button>
                         ` : ''}
                       </div>
@@ -2135,11 +2135,11 @@
               <div class="space-y-1.5 flex-1 flex flex-col justify-center">
                 ${day.run.sessions >= 1 ? `
                   <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
-                    <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
+                    <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" oninput="app.setRunSessionKm(${dIdx}, 1, this.value)" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
                     <select onchange="app.setRunType(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
                       ${RUN_TYPES.map(t => `<option value="${t}" ${(day.run.s1?.type || '') === t ? 'selected' : ''}>${t}</option>`).join('')}
                     </select>
-                    ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === '✏️ Otro...') ? `
+                    ${(day.run.s1?.type === 'Personalizado...' || day.run.s1?.type === 'Otro...') ? `
                       <button onclick="app.openCustomRunModal(${dIdx}, 1)" class="px-2 py-0.5 rounded bg-theme-soft text-theme-main border border-theme text-[10px] font-semibold" title="Configurar">${day.run.s1.custom || 'Configurar'}</button>
                     ` : ''}
                   </div>
@@ -2154,11 +2154,11 @@
                     extraRun += `
                       <div class="flex flex-wrap items-center gap-1.5 pt-1">
                         <span class="text-[10px] font-bold text-theme-accent">${sIdx}ª:</span>
-                        <input type="number" step="0.5" placeholder="Km ${sIdx}" value="${sObj.km !== undefined ? sObj.km : ''}" onchange="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km ${sIdx}ª sesión" autocomplete="off" />
+                        <input type="number" step="0.5" placeholder="Km ${sIdx}" value="${sObj.km !== undefined ? sObj.km : ''}" oninput="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" onchange="app.setRunSessionKm(${dIdx}, ${sIdx}, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-accent text-xs" title="Km ${sIdx}ª sesión" autocomplete="off" />
                         <select onchange="app.setRunType(${dIdx}, ${sIdx}, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs text-theme-accent outline-none">
                           ${RUN_TYPES.map(t => `<option value="${t}" ${(sObj.type || '') === t ? 'selected' : ''}>${sIdx}ª: ${t}</option>`).join('')}
                         </select>
-                        ${(sObj.type === 'Personalizado...' || sObj.type === '✏️ Otro...') ? `
+                        ${(sObj.type === 'Personalizado...' || sObj.type === 'Otro...') ? `
                           <button onclick="app.openCustomRunModal(${dIdx}, ${sIdx})" class="px-2 py-0.5 rounded bg-theme-accent-soft text-theme-accent border border-theme-accent text-[10px] font-semibold" title="Configurar">${sObj.custom || 'Configurar'}</button>
                         ` : ''}
                       </div>
@@ -2198,7 +2198,7 @@
               </div>
               <div class="flex flex-wrap items-center gap-2 flex-1 pt-0.5">
                 <div class="relative flex items-center flex-1 min-w-[100px]">
-                  <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
+                  <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" oninput="app.setDayKcal(${dIdx}, this.value)" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
                   <span class="absolute right-2 text-[10px] text-slate-400 font-bold pointer-events-none">kcal</span>
                 </div>
                 <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass} shrink-0">
@@ -2335,10 +2335,10 @@
             bodyHtml = `
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
-                  <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <input type="number" step="0.1" placeholder="0" value="${curVal !== null ? curVal : ''}" oninput="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
                   <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">${h.unit || 'h'} (máx ${maxDaily})</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
+                <button type="button" onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${curVal === null ? 0 : 'null'})" class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 cursor-pointer active:scale-95 transition ${badgeClass}" title="Clic para alternar registro">${badgeLabel}</button>
               </div>
             `;
           } else if (h.type === 'min_accum') {
@@ -2346,7 +2346,7 @@
             bodyHtml = `
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
-                  <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
+                  <input type="number" step="0.5" placeholder="0" value="${curVal || ''}" oninput="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs text-theme-main" />
                   <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">${h.unit || ''} hoy</span>
                 </div>
                 <div class="flex gap-1 shrink-0">
@@ -2376,7 +2376,7 @@
               bodyHtml = `
                 <div class="pt-1 flex items-center justify-between gap-2">
                   <div class="flex items-center gap-1.5 text-[10px] font-mono ${isLate ? 'text-amber-500 font-bold' : (isRem ? 'text-theme-accent font-semibold' : 'text-stone-400')}">
-                    ${slotHour ? `<span>${isLate ? '⚠️ Atrasado (' + slotHour + ')' : '⏰ ' + slotHour}</span>` : '<span>Estado:</span>'}
+                    ${slotHour ? `<span class="flex items-center gap-1">${isLate ? '<svg class="w-2.5 h-2.5 text-amber-500 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="m21.73 18-8-14a2 2 0 0 0-3.48 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg> Atrasado (' + slotHour + ')' : '<svg class="w-2.5 h-2.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ' + slotHour}</span>` : '<span>Estado:</span>'}
                   </div>
                   <button onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)" class="px-3 py-1.5 rounded-lg border-2 text-xs font-bold transition flex items-center gap-2 cursor-pointer ${chkBtnClass}">
                     ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (isLate ? '<span class="text-[11px] font-black leading-none">!</span> <span>Pendiente</span>' : '<span class="w-3.5 h-3.5 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span> <span>Pendiente</span>')}
@@ -2400,7 +2400,7 @@
                       return `
                         <button type="button" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, ${sIdx})" class="w-full py-1.5 px-2.5 rounded-lg border-2 text-[11px] font-bold transition flex items-center justify-center gap-1.5 cursor-pointer ${slotBtnClass}">
                           ${isSlotChk ? '<svg class="w-3.5 h-3.5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>' : '<span class="w-3 h-3 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block shrink-0"></span>'}
-                          <span class="truncate">${slotHour ? `⏰ ${slotHour}` : `Bloque ${sIdx + 1}`}</span>
+                          <span class="truncate flex items-center gap-1">${slotHour ? '<svg class="w-2.5 h-2.5 shrink-0 inline-block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> ' + slotHour : `Bloque ${sIdx + 1}`}</span>
                         </button>
                       `;
                     }).join('')}
@@ -2413,16 +2413,16 @@
             const c = Number(h.targetCenter) || 0;
             const margin = Number(h.targetMargin) || 0;
             const inRange = curVal !== null && curVal >= (c - margin) && curVal <= (c + margin);
-            const badgeClass = curVal === null ? 'subpanel-bg text-stone-500' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
+            const badgeClass = curVal === null ? 'subpanel-bg text-stone-500 hover:border-theme' : (inRange ? 'bg-theme-soft text-theme-main border-theme' : 'bg-theme-accent-soft text-theme-accent border-theme-accent');
             const badgeLabel = curVal === null ? 'Sin registrar' : (inRange ? 'En Rango (Diana)' : (curVal > (c + margin) ? 'Por encima' : 'Por debajo'));
 
             bodyHtml = `
               <div class="flex flex-wrap items-center justify-between gap-1.5 pt-1">
                 <div class="flex items-center gap-1.5 flex-1 min-w-0">
-                  <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
+                  <input type="number" step="0.5" placeholder="0" value="${curVal !== null ? curVal : ''}" oninput="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" onchange="app.setHabitDayValue(${dIdx}, '${h.id}', this.value)" class="w-16 sm:w-20 shrink-0 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-xs" />
                   <span class="text-[10px] font-semibold text-stone-500 whitespace-nowrap">Diana: ${c} ± ${margin} ${h.unit || ''}</span>
                 </div>
-                <span class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 ${badgeClass}">${badgeLabel}</span>
+                <button type="button" onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${curVal === null ? c : 'null'})" class="px-2 py-0.5 rounded-lg border text-[10px] font-bold whitespace-nowrap shrink-0 cursor-pointer active:scale-95 transition ${badgeClass}" title="Clic para registrar o alternar diana">${badgeLabel}</button>
               </div>
             `;
           }
@@ -2733,19 +2733,29 @@
           const isPast = dIdx < todayDayIndex;
           const colClass = isToday ? 'today-col w-[10%] min-w-[34px]' : (isPast ? 'past-col w-[10%] min-w-[34px]' : 'w-[10%] min-w-[34px]');
           const ev = evalNutritionStatus(day.nutritionKcal, w.goals.nutri?.kcal, w.goals.nutri?.phase, curNutriMargin);
+          let btnClass = ev.badgeClass;
           let badgeIcon = '<span class="w-2 h-2 rounded-xs border border-stone-400 dark:border-slate-500 inline-block"></span>';
-          if (ev.status !== 'pending') {
+          let diffText = ev.status === 'pending' ? '—' : (ev.diff > 0 ? `+${ev.diff}` : `${ev.diff}`);
+
+          if (day.nutrition === 'success') {
+            btnClass = 'bg-theme-main/15 text-theme-main border-theme-main/40 dark:bg-theme-main/25';
+            badgeIcon = '<svg class="w-2.5 h-2.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>';
+            if (diffText === '—') diffText = 'OK';
+          } else if (day.nutrition === 'fail') {
+            btnClass = 'bg-theme-accent/15 text-theme-accent border-theme-accent/40 dark:bg-theme-accent/25';
+            badgeIcon = '<svg class="w-2.5 h-2.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
+            if (diffText === '—') diffText = 'X';
+          } else if (ev.status !== 'pending') {
             badgeIcon = ev.score >= 0.8 
               ? '<svg class="w-2.5 h-2.5 text-theme-main" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' 
               : '<svg class="w-2.5 h-2.5 text-theme-accent" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>';
           }
-          const diffText = ev.status === 'pending' ? '—' : (ev.diff > 0 ? `+${ev.diff}` : `${ev.diff}`);
 
           nutriHtml += `
             <td class="py-1.5 px-0.5 ${colClass} align-middle text-center">
               <div class="space-y-0.5">
-                <input type="number" step="50" min="500" max="8000" placeholder="Kcal" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] outline-none focus:border-theme" title="Escribir Kcal consumidas hoy" />
-                <button type="button" onclick="app.cycleNutrition(${dIdx})" class="w-full py-0.5 rounded border text-[8px] flex items-center justify-center gap-1 ${ev.badgeClass}" title="${ev.label} (Clic para alternar estado)">
+                <input type="number" step="50" min="500" max="8000" placeholder="Kcal" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" oninput="app.setDayKcal(${dIdx}, this.value)" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded px-0.5 py-0.5 text-center font-mono font-bold text-[9px] outline-none focus:border-theme" title="Escribir Kcal consumidas hoy" />
+                <button type="button" onclick="app.cycleNutrition(${dIdx})" class="w-full py-0.5 rounded border text-[8px] flex items-center justify-center gap-1 ${btnClass}" title="${ev.label} (Clic para alternar estado)">
                   <span class="flex items-center justify-center">${badgeIcon}</span>
                   <span class="font-mono text-[7.5px] font-bold">${diffText}</span>
                 </button>
@@ -5786,6 +5796,11 @@
             window.WorkspacesManager.mountActiveWorkspace();
           } catch (e) { console.error('Error in WorkspacesManager:', e); }
         }
+        try {
+          if (window.GridEngine && typeof window.GridEngine.renderDockWidgets === 'function') {
+            window.GridEngine.renderDockWidgets();
+          }
+        } catch (e) { console.warn('renderDockWidgets:', e); }
         try { renderHeaderAndKPIs(); } catch (e) { console.error('Error in renderHeaderAndKPIs:', e); }
         try { renderDockExpenseUI(); } catch (e) { console.error('Error in renderDockExpenseUI:', e); }
         try { renderPomodoroUI(); } catch (e) { console.error('Error in renderPomodoroUI:', e); }
@@ -5820,6 +5835,10 @@
             });
             radarContainer.innerHTML = renderTriSystemRadar(sCount, rCount, tCount, kmTotal);
           } catch (e) {}
+        }
+
+        if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+          try { window.WidgetsRegistry.syncAllClones(); } catch (e) {}
         }
       }
 
@@ -7077,9 +7096,12 @@
         // Asistencia y Nutrición
         cycleAttendance(dayIdx, classIdx) {
           if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          const day = getActiveWeek()?.days?.[dayIdx];
+          if (!day || !day.attendance) return;
+          const item = day.attendance[classIdx];
+          if (!item) return;
           pushUndo('Cambiar asistencia a clase');
           playTickSound();
-          const item = getActiveWeek().days[dayIdx].attendance[classIdx];
           const cycle = ['pending', 'present', 'absent', 'holiday'];
           item.status = cycle[(cycle.indexOf(item.status) + 1) % cycle.length];
           renderDailyHabits();
@@ -7093,6 +7115,13 @@
           const item = getActiveWeek().days[dayIdx];
           const cycle = ['pending', 'success', 'fail'];
           item.nutrition = cycle[(cycle.indexOf(item.nutrition) + 1) % cycle.length];
+          if (item.nutrition === 'success') {
+            item.nutritionScore = 1.0;
+          } else if (item.nutrition === 'fail') {
+            item.nutritionScore = 0;
+          } else {
+            item.nutritionScore = 0;
+          }
           renderDailyHabits();
           renderHeaderAndKPIs();
           saveState();
@@ -7284,14 +7313,22 @@
             btn.classList.remove('dock-pill-active');
           });
 
-          // Ocultar todos los paneles internos por defecto y aparcar widgets de forma segura
+          // Ocultar todos los paneles internos por defecto y aparcar widgets de forma segura sin destruir elementos del tablero
           if (pomoWin) pomoWin.classList.add('hidden');
           if (expWin) expWin.classList.add('hidden');
           if (customBox) {
             customBox.classList.add('hidden');
             Array.from(customBox.children).forEach(child => {
-              if (child && child.id && window.WidgetsRegistry) {
-                window.WidgetsRegistry.parkWidget(child.id);
+              if (child && child.getAttribute('data-is-clone') === 'true') {
+                child.remove();
+              } else if (child && child.id && window.WidgetsRegistry) {
+                const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+                const shouldBeMounted = (ws && ws.grid && ws.grid[child.id]) || (state.globalSidebar && state.globalSidebar.widgets && state.globalSidebar.widgets.includes(child.id));
+                if (shouldBeMounted && window.WorkspacesManager) {
+                  window.WorkspacesManager.mountActiveWorkspace();
+                } else {
+                  window.WidgetsRegistry.parkWidget(child.id);
+                }
               }
             });
             customBox.innerHTML = '';
@@ -7328,7 +7365,14 @@
               if (iconEl) iconEl.innerHTML = def.iconSvg || `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
               
               if (window.WidgetsRegistry) {
-                const mountedEl = window.WidgetsRegistry.mountWidget(mode, customBox);
+                const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+                const isAlreadyOnBoard = (ws && ws.grid && ws.grid[mode]) || (state.globalSidebar && state.globalSidebar.widgets && state.globalSidebar.widgets.includes(mode));
+                let mountedEl;
+                if (isAlreadyOnBoard && window.WidgetsRegistry.mountWidgetClone) {
+                  mountedEl = window.WidgetsRegistry.mountWidgetClone(mode, customBox, 'dock');
+                } else {
+                  mountedEl = window.WidgetsRegistry.mountWidget(mode, customBox);
+                }
                 if (mountedEl) {
                   mountedEl.setAttribute('data-cols', '3');
                   mountedEl.classList.add('card-mode-compact');
@@ -7373,8 +7417,16 @@
           if (customBox) {
             customBox.classList.add('hidden');
             Array.from(customBox.children).forEach(child => {
-              if (child && child.id && window.WidgetsRegistry) {
-                window.WidgetsRegistry.parkWidget(child.id);
+              if (child && child.getAttribute('data-is-clone') === 'true') {
+                child.remove();
+              } else if (child && child.id && window.WidgetsRegistry) {
+                const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
+                const shouldBeMounted = (ws && ws.grid && ws.grid[child.id]) || (state.globalSidebar && state.globalSidebar.widgets && state.globalSidebar.widgets.includes(child.id));
+                if (shouldBeMounted && window.WorkspacesManager) {
+                  window.WorkspacesManager.mountActiveWorkspace();
+                } else {
+                  window.WidgetsRegistry.parkWidget(child.id);
+                }
               }
             });
             customBox.innerHTML = '';
@@ -13438,12 +13490,29 @@
         }
       });
 
-      // CERRAR MENÚS CONTEXTUALES AL HACER CLICK DERECHO FUERA DE ELEMENTOS CONTEXTUALES
+      // GESTIÓN DE MENÚS CONTEXTUALES (CLIC DERECHO EN ELEMENTOS Y MÓDULOS)
       document.addEventListener('contextmenu', (e) => {
-        const isContextCard = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover');
-        if (!isContextCard) {
-          app.closeAllContextMenus();
+        // 1. Elementos internos con menús contextuales específicos (tareas, gastos, hábitos, clases, asignaturas, pestañas)
+        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover');
+        if (isInnerContextItem) {
+          return;
         }
+
+        // 2. Clic derecho sobre un módulo/cuadro en la cuadrícula o barra lateral para opciones de edición rápida
+        const card = e.target.closest('.editorial-card, [data-widget-id], .card-edit-mode, .board-edit-header-bar, #tab1MainGrid > div, #workspaceGrid > div, #sidebarWidgetsContainer > div');
+        if (card) {
+          e.preventDefault();
+          e.stopPropagation();
+          app.closeAllContextMenus();
+          const cardId = card.getAttribute('data-widget-id') || card.id || (card.closest('[data-widget-id]')?.getAttribute('data-widget-id'));
+          const isSidebar = !!card.closest('#workspaceSidebar, #sidebarWidgetsContainer');
+          if (cardId && window.GridEngine && typeof window.GridEngine.toggleBoardCardMenu === 'function') {
+            window.GridEngine.toggleBoardCardMenu(cardId, e, isSidebar);
+          }
+          return;
+        }
+
+        app.closeAllContextMenus();
       });
 
       // SOPORTE DE RUEDA DE RATÓN EN INPUTS NUMÉRICOS (ENFOCADOS O EN MODO COMPACTO)
