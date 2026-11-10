@@ -1138,6 +1138,15 @@
         z-index: 40 !important;
         animation: none !important;
       }
+      #dockRightSidebarBody {
+        justify-content: center !important;
+      }
+      #dockRightSidebarBody > *:not(.hidden):first-child {
+        margin-top: auto !important;
+      }
+      #dockRightSidebarBody > *:not(.hidden):last-child {
+        margin-bottom: auto !important;
+      }
     }
     #dockRightSidebar.hidden {
       display: none !important;
@@ -2313,6 +2322,18 @@
         grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
       }
       /* Subpanel de Hoy con reorganización inteligente (Reorganizar -> Escalar -> Interespaciado) */
+      #todayFocusContainer {
+        display: flex !important;
+        flex-direction: column !important;
+        height: 100% !important;
+        min-height: 0 !important;
+      }
+      #todayFocusContainer .habits-compound-body {
+        flex: 1 1 0% !important;
+        height: 100% !important;
+        min-height: 0 !important;
+        display: flex !important;
+      }
       #todayFocusContainer .habits-subpanel-today,
       #todayFocusContainer .habits-subpanel-week {
         display: flex !important;
@@ -2333,7 +2354,8 @@
         overflow-x: hidden !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
+        height: 100% !important;
         display: grid !important;
         grid-auto-rows: 1fr !important;
         align-content: stretch !important;
@@ -2347,7 +2369,7 @@
         height: 100% !important;
       }
       #todayFocusContainer #todayFocusContent .adaptive-internal-grid > div > div {
-        flex: 1 1 auto !important;
+        flex: 1 1 0% !important;
         min-height: 0 !important;
         height: 100% !important;
         display: flex !important;
@@ -2551,7 +2573,8 @@
       margin-bottom: 0 !important;
     }
     .editorial-card.card-has-extra-height #todayFocusContent .adaptive-internal-grid {
-      flex: 1 1 auto !important;
+      flex: 1 1 0% !important;
+      height: 100% !important;
       display: grid !important;
       grid-auto-rows: 1fr !important;
       align-content: stretch !important;

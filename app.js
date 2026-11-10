@@ -2,6 +2,38 @@
 // UI Renderers, Tab Handlers, Modals & Business Logic
 'use strict';
 
+      // Variables de estado del controlador y contextos de modales / menús (Strict Mode)
+      let customConfirmResolve = null;
+      let customPromptResolve = null;
+      let activeCustomRunContext = null;
+      let activeCustomModalContext = null;
+      let activeSubtaskPromptContext = null;
+      let activeSubtaskSeriesContext = null;
+      let activeSmartDuplicateContext = null;
+      let activeMoveContext = null;
+      let activeActionsMenuContext = null;
+      let activeExpenseMenuContext = null;
+      let activeHabitMenuContext = null;
+      let activeClassMenuContext = null;
+      let activeSubjectMenuContext = null;
+      let activeWorkspaceTabContext = null;
+      let activeBaseModuleContext = null;
+      let activeBaseModuleEditKey = null;
+      let activeScheduleAddContext = null;
+      let activeSubjectPromptContext = null;
+      let draggedItemData = null;
+      let selectionModeActive = false;
+      let moveModalExpandedIds = new Set();
+      let manualSeriesDates = [];
+      let lastDeletedItem = null;
+      let pomoTimerInterval = null;
+      let touchStartPos = null;
+      let isTouchDragging = false;
+      let currentTouchTargetEl = null;
+      let touchDragTimer = null;
+      let lastSelectedId = null;
+      let visibleListItemIds = [];
+
       function getActiveWeek() {
         return state.weeks[state.viewingWeek] || state.weeks[state.currentWeek];
       }
@@ -3980,8 +4012,8 @@
             const contextFn = item.isBase ? `app.openBaseModuleContextMenu(event, '${item.key}'); return false;` : `app.openCustomHabitActionsMenu(event, '${item.key}'); return false;`;
 
             return `
-              <div class="inline-flex items-center rounded-xl border transition shadow-xs ${isAct ? 'bg-theme-main text-white border-theme' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}" oncontextmenu="${contextFn}">
-                <button type="button" onclick="${toggleFn}" oncontextmenu="${contextFn}" class="px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition active:scale-95" title="${isAct ? 'Clic para pausar · Clic derecho para opciones' : 'Clic para activar · Clic derecho para opciones'}">
+              <div class="inline-flex items-center rounded-xl border transition shadow-xs ${isAct ? 'bg-theme-main text-white border-theme' : 'subpanel-bg border-stone-300 dark:border-slate-700 text-stone-400 dark:text-slate-500 opacity-60'}" data-base-module-key="${item.key}" oncontextmenu="${contextFn}">
+                <button type="button" onclick="${toggleFn}" data-base-module-key="${item.key}" oncontextmenu="${contextFn}" class="px-2.5 py-1.5 text-xs font-bold flex items-center gap-1.5 transition active:scale-95" title="${isAct ? 'Clic para pausar · Clic derecho para opciones' : 'Clic para activar · Clic derecho para opciones'}">
                   <span class="w-3.5 h-3.5 flex items-center justify-center shrink-0">${renderItemIcon(item.iconId, 'w-3.5 h-3.5')}</span>
                   <span class="truncate max-w-[120px]">${escapeHtml(item.label)}</span>
                   <span class="w-1.5 h-1.5 rounded-full ${isAct ? 'bg-white' : 'bg-stone-400 dark:bg-slate-600'}"></span>
@@ -5967,6 +5999,7 @@
               cancelBtn.onclick = null;
               modal.onclick = null;
               modal.classList.add('hidden');
+              modal.style.display = '';
               customConfirmResolve = null;
             };
 
@@ -5975,6 +6008,7 @@
             modal.onclick = (e) => { if (e.target === modal) { cleanup(); resolve(false); } };
 
             modal.classList.remove('hidden');
+            modal.style.display = 'flex';
           });
         },
 
@@ -6002,6 +6036,7 @@
               input.onkeydown = null;
               modal.onclick = null;
               modal.classList.add('hidden');
+              modal.style.display = '';
               customPromptResolve = null;
             };
 
@@ -6025,6 +6060,7 @@
             };
 
             modal.classList.remove('hidden');
+            modal.style.display = 'flex';
             setTimeout(() => { input.focus(); input.select(); }, 50);
           });
         },
@@ -7703,16 +7739,20 @@
                 if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
               }
             }
+            input.remove();
+            el.innerHTML = '';
             renderPomodoroUI();
           };
 
           input.onkeydown = (e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              input.blur();
+              commitValue();
             } else if (e.key === 'Escape') {
               e.preventDefault();
               committed = true;
+              input.remove();
+              el.innerHTML = '';
               renderPomodoroUI();
             }
           };
@@ -7723,8 +7763,10 @@
 
           el.innerHTML = '';
           el.appendChild(input);
-          input.focus();
-          input.select();
+          setTimeout(() => {
+            input.focus();
+            input.select();
+          }, 20);
         },
 
         editEffectiveTimeInline(event) {
@@ -7755,16 +7797,20 @@
               saveState();
               if (typeof window.syncPomoImmediate === 'function') window.syncPomoImmediate();
             }
+            input.remove();
+            el.innerHTML = '';
             renderPomodoroUI();
           };
 
           input.onkeydown = (e) => {
             if (e.key === 'Enter') {
               e.preventDefault();
-              input.blur();
+              commitValue();
             } else if (e.key === 'Escape') {
               e.preventDefault();
               committed = true;
+              input.remove();
+              el.innerHTML = '';
               renderPomodoroUI();
             }
           };
@@ -7775,8 +7821,10 @@
 
           el.innerHTML = '';
           el.appendChild(input);
-          input.focus();
-          input.select();
+          setTimeout(() => {
+            input.focus();
+            input.select();
+          }, 20);
         },
 
         async promptSetPomoTime() {
@@ -13844,7 +13892,7 @@
       // GESTIÓN DE MENÚS CONTEXTUALES (CLIC DERECHO EN ELEMENTOS Y MÓDULOS)
       document.addEventListener('contextmenu', (e) => {
         // 1. Elementos internos con menús contextuales específicos (tareas, gastos, hábitos, clases, asignaturas, pestañas, módulos base)
-        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover');
+        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], [data-base-module-key], #modularTogglesRow, #modularTogglesRow *, #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover');
         if (isInnerContextItem) {
           return;
         }
