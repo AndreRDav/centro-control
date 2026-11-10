@@ -1402,27 +1402,30 @@ var activeCustomModalContext = null;
 var activeScheduleAddContext = null; // { dayIdx, classType: 'T' }
 var activeCustomRunContext = null; // { dayIdx, sIdx }
 var activeSubjectPromptContext = null; // { mode: 'add'|'rename', oldName }
-      let activeSubtaskPromptContext = null; // { cat, itemId }
-      let activeSubtaskSeriesContext = null; // { cat, itemId }
-      let manualSeriesDates = {}; // { [idx]: { date, time } }
-      let activeSmartDuplicateContext = null; // { cat, id }
-      let activeMoveContext = null; // { cat, id, sourceNode }
-      let moveModalExpandedIds = new Set();
-      let activeActionsMenuContext = null; // { cat, id, node, isContainer, pinned }
-      let activeExpenseMenuContext = null; // { expenseId }
-      let activeHabitMenuContext = null; // { habitId }
-      let activeClassMenuContext = null; // { dIdx, cIdx }
-      let activeSubjectMenuContext = null; // { subjectName }
-      let activeWorkspaceTabContext = null; // { wsId }
-      let piggyModalCurrentType = 'deposit'; // 'deposit' | 'withdraw'
-      let piggyModalCalculatedValue = 0;
-      let customConfirmResolve = null;
-      let draggedItemData = null; // { cat, id }
-      let touchDragTimer = null;
-      let touchStartPos = { x: 0, y: 0 };
-      let isTouchDragging = false;
-      let currentTouchTargetEl = null;
-      let datePickerState = {
+      var activeSubtaskPromptContext = null; // { cat, itemId }
+      var activeSubtaskSeriesContext = null; // { cat, itemId }
+      var manualSeriesDates = {}; // { [idx]: { date, time } }
+      var activeSmartDuplicateContext = null; // { cat, id }
+      var activeMoveContext = null; // { cat, id, sourceNode }
+      var moveModalExpandedIds = new Set();
+      var activeActionsMenuContext = null; // { cat, id, node, isContainer, pinned }
+      var activeExpenseMenuContext = null; // { expenseId }
+      var activeHabitMenuContext = null; // { habitId }
+      var activeClassMenuContext = null; // { dIdx, cIdx }
+      var activeSubjectMenuContext = null; // { subjectName }
+      var activeWorkspaceTabContext = null; // { wsId }
+      var activeBaseModuleContext = null; // { moduleKey }
+      var activeBaseModuleEditKey = null; // 'gym'|'run'|...
+      var piggyModalCurrentType = 'deposit'; // 'deposit' | 'withdraw'
+      var piggyModalCalculatedValue = 0;
+      var customConfirmResolve = null;
+      var customPromptResolve = null;
+      var draggedItemData = null; // { cat, id }
+      var touchDragTimer = null;
+      var touchStartPos = { x: 0, y: 0 };
+      var isTouchDragging = false;
+      var currentTouchTargetEl = null;
+      var datePickerState = {
         activeInput: null,
         year: new Date().getFullYear(),
         month: new Date().getMonth(),
@@ -1430,10 +1433,10 @@ var activeSubjectPromptContext = null; // { mode: 'add'|'rename', oldName }
       };
 
       // ESTADO DE SELECCIÓN MÚLTIPLE DE NOTAS
-      let selectedListItemIds = new Set();
-      let lastSelectedId = null;
-      let visibleListItemIds = [];
-      let selectionModeActive = false;
+      var selectedListItemIds = new Set();
+      var lastSelectedId = null;
+      var visibleListItemIds = [];
+      var selectionModeActive = false;
       
       // PILA DE DESHACER (HISTORIAL GLOBAL PARA CTRL+Z)
       const undoStack = [];
@@ -2371,11 +2374,52 @@ var pendingCloudConflictJson = null;
                   hCfg.colSpan = 12;
                   hCfg.col = 1;
                 }
+                if (!hCfg.colSpan || hCfg.colSpan < 6) {
+                  hCfg.colSpan = 12;
+                  hCfg.col = 1;
+                }
+                if (!hCfg.minRows || hCfg.minRows < 12) {
+                  hCfg.minRows = 14;
+                }
+                if (!hCfg.rowSpan || hCfg.rowSpan < 12) {
+                  hCfg.rowSpan = 18;
+                }
                 if (ws.grid['topKpisWrapper'] && ws.grid['topKpisWrapper'].row === 1) {
                   const kpiRows = ws.grid['topKpisWrapper'].rowSpan || 2;
                   if (hCfg.row <= kpiRows) {
                     hCfg.row = kpiRows + 1;
                   }
+                }
+              }
+              if (ws.grid['interactiveListsPanel']) {
+                const lCfg = ws.grid['interactiveListsPanel'];
+                if (!lCfg.colSpan || lCfg.colSpan < 3) lCfg.colSpan = 6;
+                if (!lCfg.minRows || lCfg.minRows < 6) lCfg.minRows = 10;
+                if (!lCfg.rowSpan || lCfg.rowSpan < 6) lCfg.rowSpan = 14;
+              }
+              if (ws.grid['notesMiniCalendarPanel']) {
+                const cCfg = ws.grid['notesMiniCalendarPanel'];
+                if (!cCfg.colSpan || cCfg.colSpan < 3) cCfg.colSpan = 6;
+                if (!cCfg.minRows || cCfg.minRows < 4) cCfg.minRows = 6;
+                if (!cCfg.rowSpan || cCfg.rowSpan < 4) cCfg.rowSpan = 8;
+              }
+              if (ws.grid['tab1RecentExpensesBar']) {
+                const rCfg = ws.grid['tab1RecentExpensesBar'];
+                if (!rCfg.colSpan || rCfg.colSpan < 3) rCfg.colSpan = 6;
+                if (!rCfg.minRows || rCfg.minRows < 2) rCfg.minRows = 3;
+                if (!rCfg.rowSpan || rCfg.rowSpan < 2) rCfg.rowSpan = 4;
+              }
+              if (ws.id === 'ws-1' || ws.id === 'tab1') {
+                const tf = ws.grid['todayFocusContainer'];
+                const il = ws.grid['interactiveListsPanel'];
+                const mc = ws.grid['notesMiniCalendarPanel'];
+                const re = ws.grid['tab1RecentExpensesBar'];
+                // Auto-recuperación si los módulos quedaron colisionados en fila única
+                if (tf && il && tf.row === il.row) {
+                  tf.col = 1; tf.colSpan = 12; tf.row = 3; tf.rowSpan = 18;
+                  if (mc) { mc.col = 1; mc.colSpan = 6; mc.row = 21; mc.rowSpan = 8; }
+                  il.col = 7; il.colSpan = 6; il.row = 21; il.rowSpan = 14;
+                  if (re) { re.col = 1; re.colSpan = 6; re.row = 29; re.rowSpan = 4; }
                 }
               }
             }

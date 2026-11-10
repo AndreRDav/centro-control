@@ -19,7 +19,7 @@ const WidgetsRegistry = (function() {
       minRows: 14,
       idealRows: 18,
       defaultColSpan: 12,
-      minColSpan: 4,
+      minColSpan: 6,
       supportsCompact: true,
       polymorphic: true,
       iconSvg: '<svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 14 14"/></svg>'

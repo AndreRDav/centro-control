@@ -65,7 +65,17 @@ var GridEngine = {
           overlays.forEach(el => { el.style.display = ''; });
 
           const requiredRows = Math.ceil((naturalHeightPx + 12) / 52);
-          const minAllowed = (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed) ? 1 : 2;
+          const isCompact = cardEl.classList.contains('card-mode-compact');
+          let minAllowed = 2;
+          if (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed) {
+            minAllowed = 1;
+          } else if (cardEl.id === 'todayFocusContainer') {
+            minAllowed = isCompact ? 10 : 16;
+          } else if (cardEl.id === 'interactiveListsPanel') {
+            minAllowed = isCompact ? 8 : 12;
+          } else if (cardEl.id === 'notesMiniCalendarPanel') {
+            minAllowed = isCompact ? 6 : 8;
+          }
           return Math.max(minAllowed, requiredRows);
         },
 
@@ -626,10 +636,20 @@ var GridEngine = {
                 const finalSpan = (cfg.manualRows && cfg.manualRows > cfg.minRows) ? cfg.manualRows : cfg.minRows;
                 cfg.rowSpan = finalSpan;
 
-                el.style.gridColumn = cfg.col + ' / span ' + cfg.colSpan;
-                el.style.gridRow = cfg.row + ' / span ' + finalSpan;
+                const validCol = Math.max(1, Math.min(12, parseInt(cfg.col, 10) || 1));
+                const validColSpan = Math.max(minCols, Math.min(13 - validCol, parseInt(cfg.colSpan, 10) || minCols));
+                const validRow = Math.max(1, parseInt(cfg.row, 10) || 1);
+                const validRowSpan = Math.max(2, parseInt(finalSpan, 10) || 2);
+
+                cfg.col = validCol;
+                cfg.colSpan = validColSpan;
+                cfg.row = validRow;
+                cfg.rowSpan = validRowSpan;
+
+                el.style.gridColumn = validCol + ' / span ' + validColSpan;
+                el.style.gridRow = validRow + ' / span ' + validRowSpan;
                 el.style.width = '100%';
-                el.setAttribute('data-cols', String(cfg.colSpan || 12));
+                el.setAttribute('data-cols', String(validColSpan));
                 if (el.closest && el.closest('#sidebarWidgetsContainer')) {
                   el.setAttribute('data-cols', '3');
                 }

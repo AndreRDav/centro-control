@@ -2,38 +2,6 @@
 // UI Renderers, Tab Handlers, Modals & Business Logic
 'use strict';
 
-      // Variables de estado del controlador y contextos de modales / menús (Strict Mode)
-      let customConfirmResolve = null;
-      let customPromptResolve = null;
-      let activeCustomRunContext = null;
-      let activeCustomModalContext = null;
-      let activeSubtaskPromptContext = null;
-      let activeSubtaskSeriesContext = null;
-      let activeSmartDuplicateContext = null;
-      let activeMoveContext = null;
-      let activeActionsMenuContext = null;
-      let activeExpenseMenuContext = null;
-      let activeHabitMenuContext = null;
-      let activeClassMenuContext = null;
-      let activeSubjectMenuContext = null;
-      let activeWorkspaceTabContext = null;
-      let activeBaseModuleContext = null;
-      let activeBaseModuleEditKey = null;
-      let activeScheduleAddContext = null;
-      let activeSubjectPromptContext = null;
-      let draggedItemData = null;
-      let selectionModeActive = false;
-      let moveModalExpandedIds = new Set();
-      let manualSeriesDates = [];
-      let lastDeletedItem = null;
-      let pomoTimerInterval = null;
-      let touchStartPos = null;
-      let isTouchDragging = false;
-      let currentTouchTargetEl = null;
-      let touchDragTimer = null;
-      let lastSelectedId = null;
-      let visibleListItemIds = [];
-
       function getActiveWeek() {
         return state.weeks[state.viewingWeek] || state.weeks[state.currentWeek];
       }
@@ -13109,7 +13077,11 @@
           // ---------------------------------------------------------
           // TAB 1: REEQUILIBRIO DINÁMICO DE PANELES Y COLUMNAS
           // ---------------------------------------------------------
-          this.rebalanceTab1Layout();
+          if (typeof this.rebalanceTab1Layout === 'function') {
+            this.rebalanceTab1Layout();
+          } else if (window.GridEngine && typeof window.GridEngine.rebalanceTab1Layout === 'function') {
+            window.GridEngine.rebalanceTab1Layout();
+          }
 
           // ---------------------------------------------------------
           // TAB 1 / GLOBAL: DOCKS FLOTANTES
@@ -13125,8 +13097,16 @@
           // (La visibilidad y posición de los módulos es gobernada
           // exclusivamente por el Gestor de Workspaces y WidgetsRegistry)
           // ---------------------------------------------------------
-          this.applyGridLayout('tab' + (state.activeTab || 1));
-          this.initGridAutoObservers();
+          if (typeof this.applyGridLayout === 'function') {
+            this.applyGridLayout('tab' + (state.activeTab || 1));
+          } else if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
+            window.GridEngine.applyGridLayout('tab' + (state.activeTab || 1));
+          }
+          if (typeof this.initGridAutoObservers === 'function') {
+            this.initGridAutoObservers();
+          } else if (window.GridEngine && typeof window.GridEngine.initGridAutoObservers === 'function') {
+            window.GridEngine.initGridAutoObservers();
+          }
 
           // ---------------------------------------------------------
           // DENSIDAD VISUAL
@@ -13700,6 +13680,67 @@
         },
         restoreFactoryWorkspaces() {
           if (window.WorkspacesManager && window.WorkspacesManager.restoreFactoryWorkspaces) return window.WorkspacesManager.restoreFactoryWorkspaces();
+        },
+        applyGridLayout(tabKey) {
+          if (window.GridEngine && window.GridEngine.applyGridLayout) return window.GridEngine.applyGridLayout(tabKey);
+        },
+        renderBoardEditHandles(tabKey) {
+          if (window.GridEngine && window.GridEngine.renderBoardEditHandles) return window.GridEngine.renderBoardEditHandles(tabKey);
+        },
+        rebalanceTab1Layout() {
+          if (window.GridEngine && window.GridEngine.rebalanceTab1Layout) return window.GridEngine.rebalanceTab1Layout();
+        },
+        initGridAutoObservers() {
+          if (window.GridEngine && window.GridEngine.initGridAutoObservers) return window.GridEngine.initGridAutoObservers();
+        },
+        toggleBoardCardMenu(cardId, event, isSidebar = false) {
+          if (window.GridEngine && window.GridEngine.toggleBoardCardMenu) return window.GridEngine.toggleBoardCardMenu(cardId, event, isSidebar);
+        },
+        toggleCustomHabit(id) {
+          const habit = (state.customHabits || []).find(h => h.id === id);
+          if (!habit) return;
+          pushUndo(habit.active !== false ? 'Pausar hábito personalizado' : 'Activar hábito personalizado');
+          habit.active = (habit.active === false);
+          this.renderCustomHabitsList();
+          renderTab2();
+          renderDailyHabits();
+          renderHeaderAndKPIs();
+          saveState();
+          this.showToast(`Hábito "${habit.name}" ${habit.active ? 'activado' : 'pausado'}.`, 'info');
+        },
+        moveCardFromSidebarToGrid(cardId) {
+          if (window.GridEngine && window.GridEngine.moveCardFromSidebarToGrid) return window.GridEngine.moveCardFromSidebarToGrid(cardId);
+        },
+        moveCardToSidebar(cardId, keepOnGrid = false) {
+          if (window.GridEngine && window.GridEngine.moveCardToSidebar) return window.GridEngine.moveCardToSidebar(cardId, keepOnGrid);
+        },
+        toggleWidgetCompact(cardId) {
+          if (window.GridEngine && window.GridEngine.toggleWidgetCompact) return window.GridEngine.toggleWidgetCompact(cardId);
+          if (window.PolymorphicCards) return window.PolymorphicCards.toggleCompactMode(cardId);
+        },
+        adjustCardSpan(cardId, delta) {
+          if (window.GridEngine && window.GridEngine.adjustCardSpan) return window.GridEngine.adjustCardSpan(cardId, delta);
+        },
+        renderWidgetsDrawer(cat) {
+          if (window.GridEngine && window.GridEngine.renderWidgetsDrawer) return window.GridEngine.renderWidgetsDrawer(cat);
+        },
+        startMiniWidgetDrag(event, id) {
+          if (window.GridEngine && window.GridEngine.startMiniWidgetDrag) return window.GridEngine.startMiniWidgetDrag(event, id);
+        },
+        addInactiveWidgetToGrid(widgetId, col, row, colSpan, rowSpan) {
+          if (window.GridEngine && window.GridEngine.addInactiveWidgetToGrid) return window.GridEngine.addInactiveWidgetToGrid(widgetId, col, row, colSpan, rowSpan);
+        },
+        addWidgetToDock(widgetId) {
+          if (window.GridEngine && window.GridEngine.addWidgetToDock) return window.GridEngine.addWidgetToDock(widgetId);
+        },
+        removeWidgetFromDock(widgetId) {
+          if (window.GridEngine && window.GridEngine.removeWidgetFromDock) return window.GridEngine.removeWidgetFromDock(widgetId);
+        },
+        applyDeviceProfile(profileId) {
+          if (window.GridEngine && window.GridEngine.applyDeviceProfile) return window.GridEngine.applyDeviceProfile(profileId);
+        },
+        deleteDeviceProfile(profileId) {
+          if (window.GridEngine && window.GridEngine.deleteDeviceProfile) return window.GridEngine.deleteDeviceProfile(profileId);
         }
       };
 
@@ -13954,8 +13995,13 @@
           }, 450);
         }
       };
-      Object.assign(app, GridEngine);
-      window.app = app;
+      if (typeof GridEngine !== 'undefined') Object.assign(app, GridEngine);
+      if (typeof window !== 'undefined') {
+        if (window.GridEngine) Object.assign(app, window.GridEngine);
+        if (window.WorkspacesManager) Object.assign(app, window.WorkspacesManager);
+        if (window.PolymorphicCards) Object.assign(app, window.PolymorphicCards);
+        window.app = app;
+      }
 
       function boot() {
         loadState();
