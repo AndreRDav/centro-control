@@ -884,6 +884,13 @@
       position: relative;
       transition: all 0.2s ease-out;
     }
+    .dashboard-grid-12 > .editorial-card {
+      height: 100% !important;
+      box-sizing: border-box !important;
+      align-self: stretch !important;
+      display: flex !important;
+      flex-direction: column !important;
+    }
     @media (max-width: 1023px) {
       .dashboard-grid-12 {
         display: flex !important;
@@ -922,10 +929,39 @@
       outline-color: #10b981 !important;
       box-shadow: 0 6px 24px rgba(0, 0, 0, 0.3), 0 0 18px rgba(16, 185, 129, 0.3) !important;
     }
-    /* BLOQUEO DE INTERACCIÓN INTERNA EN MODO EDICIÓN */
-    .board-edit-active .card-edit-mode > *:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle) {
+    /* BLOQUEO DE INTERACCIÓN INTERNA Y CAJAS CIEGAS EN MODO EDICIÓN */
+    .dashboard-grid-12 > .editorial-card > .board-card-blind-box {
+      display: none !important;
+    }
+    .board-edit-active .dashboard-grid-12 > .editorial-card > *:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle):not(.board-edit-header-bar):not(.board-card-blind-box) {
+      display: none !important;
+    }
+    .board-edit-active .dashboard-grid-12 > .editorial-card > .board-card-blind-box {
+      display: flex !important;
+      flex-direction: column !important;
+      align-items: center !important;
+      justify-content: center !important;
+      flex: 1 1 0% !important;
+      min-height: 0 !important;
+      width: 100% !important;
+      height: calc(100% - 44px) !important;
+      margin-top: 40px !important;
+      background-image: radial-gradient(var(--theme-main) 1.2px, transparent 1.2px) !important;
+      background-size: 16px 16px !important;
+      background-position: center !important;
+      border: 1.5px dashed var(--theme-500, rgba(16, 185, 129, 0.4)) !important;
+      border-radius: 14px !important;
+      box-sizing: border-box !important;
       pointer-events: none !important;
       user-select: none !important;
+    }
+    .badge-height-constrained,
+    .board-card-blind-box .blind-box-badge.badge-height-constrained {
+      background: var(--theme-warning, #f59e0b) !important;
+      color: #1c1917 !important;
+      font-weight: 800 !important;
+      border-color: rgba(245, 158, 11, 0.9) !important;
+      box-shadow: 0 0 10px rgba(245, 158, 11, 0.4) !important;
     }
     .card-drag-shield {
       position: absolute !important;
@@ -2223,6 +2259,48 @@
       padding: 0.15rem 0.3rem !important;
       font-size: 0.6875rem !important;
     }
+    /* Adaptación dimensional fluida de tab3ExpensesTableCard en <= 4 columnas */
+    .editorial-card[data-cols="1"]#tab3ExpensesTableCard .hairline-actions button:not(:last-child),
+    .editorial-card[data-cols="2"]#tab3ExpensesTableCard .hairline-actions button:not(:last-child),
+    .editorial-card[data-cols="3"]#tab3ExpensesTableCard .hairline-actions button:not(:last-child),
+    .editorial-card[data-cols="4"]#tab3ExpensesTableCard .hairline-actions button:not(:last-child) {
+      display: none !important;
+    }
+    .editorial-card[data-cols="1"]#tab3ExpensesTableCard .hairline-row,
+    .editorial-card[data-cols="2"]#tab3ExpensesTableCard .hairline-row,
+    .editorial-card[data-cols="3"]#tab3ExpensesTableCard .hairline-row,
+    .editorial-card[data-cols="4"]#tab3ExpensesTableCard .hairline-row {
+      padding-top: 0.25rem !important;
+      padding-bottom: 0.25rem !important;
+      gap: 0.35rem !important;
+    }
+    .editorial-card[data-cols="1"]#tab3ExpensesTableCard .border-b > div:last-child,
+    .editorial-card[data-cols="2"]#tab3ExpensesTableCard .border-b > div:last-child,
+    .editorial-card[data-cols="3"]#tab3ExpensesTableCard .border-b > div:last-child {
+      flex-wrap: wrap !important;
+      gap: 0.25rem !important;
+    }
+    .editorial-card[data-cols="1"]#tab2AttendanceRulesSection #subjectRulesCardsGrid,
+    .editorial-card[data-cols="2"]#tab2AttendanceRulesSection #subjectRulesCardsGrid,
+    .editorial-card[data-cols="3"]#tab2AttendanceRulesSection #subjectRulesCardsGrid,
+    .editorial-card[data-cols="4"]#tab2AttendanceRulesSection #subjectRulesCardsGrid {
+      grid-template-columns: 1fr !important;
+      gap: 0.4rem !important;
+    }
+    .editorial-card[data-cols="1"]#tab3ExpenseChartsSection .grid,
+    .editorial-card[data-cols="2"]#tab3ExpenseChartsSection .grid,
+    .editorial-card[data-cols="3"]#tab3ExpenseChartsSection .grid,
+    .editorial-card[data-cols="4"]#tab3ExpenseChartsSection .grid,
+    .editorial-card[data-cols="5"]#tab3ExpenseChartsSection .grid {
+      grid-template-columns: 1fr !important;
+    }
+    .editorial-card[data-cols="1"]#tab4EvolutionSection .grid,
+    .editorial-card[data-cols="2"]#tab4EvolutionSection .grid,
+    .editorial-card[data-cols="3"]#tab4EvolutionSection .grid,
+    .editorial-card[data-cols="4"]#tab4EvolutionSection .grid,
+    .editorial-card[data-cols="5"]#tab4EvolutionSection .grid {
+      grid-template-columns: 1fr !important;
+    }
 
     /* 14. PANEL DE 4 KPIS MAESTROS (kpiGridContainer) */
     .editorial-card.card-mode-compact#kpiGridContainer,
@@ -2620,6 +2698,7 @@
     .editorial-card.card-has-extra-height #tab3BudgetConfigCard > div:last-child,
     .editorial-card.card-has-extra-height #tab4StudySubjectsGrid,
     .editorial-card.card-has-extra-height #tab4CustomHabitsGrid,
+    .editorial-card.card-has-extra-height#tab2AttendanceRulesSection > div:last-child,
     .editorial-card.card-has-extra-height #tab2AttendanceRulesSection > div:last-child {
       flex: 1 1 auto !important;
       min-height: 0 !important;
@@ -2684,6 +2763,16 @@
       min-height: 0 !important;
       display: flex !important;
       flex-direction: column !important;
+      overflow-y: auto !important;
+    }
+    #weekTableContainer thead th {
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      background: var(--color-canvas, #F3EDE2);
+    }
+    .dark #weekTableContainer thead th {
+      background: var(--color-canvas, #070B14);
     }
     .editorial-card.card-has-extra-height #weekTableContainer table {
       flex: 1 1 auto !important;
@@ -2697,7 +2786,73 @@
     }
     .editorial-card.card-has-extra-height #dailyTableBody td {
       vertical-align: middle !important;
-      padding: 0.65rem 0.25rem !important;
+      padding: clamp(0.35rem, 1vh, 0.75rem) 0.25rem !important;
+    }
+
+    /* ========================================================
+       DENSIDAD ADAPTATIVA DE CASILLAS DE HOY (TIER 1, TIER 2, TIER 3)
+       ======================================================== */
+    .today-habit-card {
+      transition: padding 0.15s ease, min-height 0.15s ease;
+    }
+
+    /* TIER 1: EXPANDIDO RICO (Altura útil >= 120px) */
+    #todayFocusContainer[data-density="tier-1"] .today-tier-1-details {
+      display: flex !important;
+    }
+    #todayFocusContainer[data-density="tier-1"] .today-tier-2-body {
+      display: flex !important;
+    }
+    #todayFocusContainer[data-density="tier-1"] .today-tier-3-pill {
+      display: none !important;
+    }
+    #todayFocusContainer[data-density="tier-1"] .today-card-header,
+    #todayFocusContainer[data-density="tier-1"] .today-card-footer {
+      display: flex !important;
+    }
+
+    /* TIER 2: ESTÁNDAR ERGONÓMICO (70px - 119px) - PREDETERMINADO */
+    #todayFocusContainer[data-density="tier-2"] .today-tier-1-details,
+    #todayFocusContainer:not([data-density]) .today-tier-1-details {
+      display: none !important;
+    }
+    #todayFocusContainer[data-density="tier-2"] .today-tier-2-body,
+    #todayFocusContainer:not([data-density]) .today-tier-2-body {
+      display: flex !important;
+    }
+    #todayFocusContainer[data-density="tier-2"] .today-tier-3-pill,
+    #todayFocusContainer:not([data-density]) .today-tier-3-pill {
+      display: none !important;
+    }
+    #todayFocusContainer[data-density="tier-2"] .today-card-header,
+    #todayFocusContainer:not([data-density]) .today-card-header,
+    #todayFocusContainer[data-density="tier-2"] .today-card-footer,
+    #todayFocusContainer:not([data-density]) .today-card-footer {
+      display: flex !important;
+    }
+
+    /* TIER 3: MICRO-BOTONES / PASTILLAS (< 70px o Modo Compacto) */
+    #todayFocusContainer[data-density="tier-3"] .today-tier-1-details,
+    #todayFocusContainer[data-density="tier-3"] .today-tier-2-body,
+    #todayFocusContainer[data-density="tier-3"] .today-card-header,
+    #todayFocusContainer[data-density="tier-3"] .today-card-footer {
+      display: none !important;
+    }
+    #todayFocusContainer[data-density="tier-3"] .today-tier-3-pill {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      width: 100% !important;
+      height: 100% !important;
+      min-height: 42px !important;
+    }
+    #todayFocusContainer[data-density="tier-3"] .today-habit-card {
+      padding: 0.35rem 0.65rem !important;
+      min-height: 44px !important;
+      justify-content: center !important;
+    }
+    #todayFocusContainer[data-density="tier-3"] .adaptive-internal-grid {
+      gap: 0.375rem !important;
     }
 
     /* ========================================================

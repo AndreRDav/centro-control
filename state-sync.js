@@ -845,31 +845,31 @@
             desktop: {
               tab1: {
                 topKpisWrapper: { col: 1, colSpan: 12, row: 1, minRows: 2, manualRows: null, rowSpan: 2, name: 'Métricas & 4 KPIs Semanales' },
-                todayFocusContainer: { col: 1, colSpan: 12, row: 3, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
-                notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 21, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
-                interactiveListsPanel: { col: 7, colSpan: 6, row: 21, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
-                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 29, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
+                todayFocusContainer: { col: 1, colSpan: 12, row: 3, minRows: 12, manualRows: null, rowSpan: 16, name: 'Hábitos: Hoy y Matriz Semanal' },
+                notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 19, minRows: 6, manualRows: null, rowSpan: 8, name: 'Calendario' },
+                interactiveListsPanel: { col: 7, colSpan: 6, row: 19, minRows: 8, manualRows: null, rowSpan: 12, name: 'Listas y Tareas' },
+                tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 27, minRows: 3, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
               },
               tab2: {
-                tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
-                tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
-                tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
+                tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
+                tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 8, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
+                tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 6, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
               },
               tab3: {
-                tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
-                tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
-                tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
-                tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
-                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
-                tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 9, manualRows: null, rowSpan: 10, name: 'Evolución y Dinámica de Gastos' },
-                tab3AntExpensesCard: { col: 1, colSpan: 12, row: 35, minRows: 7, manualRows: null, rowSpan: 8, name: 'Analítica de Gastos Hormiga' }
+                tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
+                tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
+                tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 5, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
+                tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 5, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
+                tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 5, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
+                tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 7, manualRows: null, rowSpan: 10, name: 'Evolución y Dinámica de Gastos' },
+                tab3AntExpensesCard: { col: 1, colSpan: 12, row: 35, minRows: 5, manualRows: null, rowSpan: 8, name: 'Analítica de Gastos Hormiga' }
               },
               tab4: {
-                tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
-                tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
-                tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
-                tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
-                tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
+                tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
+                tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 5, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+                tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 6, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
+                tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 6, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
+                tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 7, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
               }
             },
             mobile: {

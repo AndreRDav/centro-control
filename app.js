@@ -597,7 +597,10 @@
       // MAPA MUSCULAR ANATÓMICO ULTRA-DETALLADO (Frontal y Posterior) CON INSPECTOR ACTIVO
       function getMuscleStimulusHits() {
         const scope = state.labScope || state.ui?.labScope || 'week';
-        const weeksToScan = scope === 'week' ? [getActiveWeek()] : Object.values(state.weeks);
+        const allSorted = Object.values(state.weeks || {}).filter(Boolean).sort((a, b) => a.weekNum - b.weekNum);
+        // En alcance histórico, tomar ventana rodante de 4 semanas para calcular la media semanal (mesociclo)
+        const weeksToScan = scope === 'week' ? [getActiveWeek()] : (allSorted.length > 0 ? allSorted.slice(-4) : [getActiveWeek()]);
+        const weeksCount = Math.max(1, weeksToScan.length);
         const hits = {
           chest: 0, delts: 0, biceps: 0, triceps: 0, forearms: 0,
           abs: 0, obliques: 0, lats: 0, traps: 0, lower_back: 0,
@@ -665,6 +668,14 @@
             });
           });
         });
+
+        // En alcance histórico, promediar semanalmente entre las semanas de la ventana rodante para evitar sobreestimulación
+        if (scope !== 'week') {
+          Object.keys(hits).forEach(mId => {
+            hits[mId] = Number((hits[mId] / weeksCount).toFixed(1));
+            logs[mId].unshift(`Frecuencia media: ${hits[mId]} ses/sem (en las últimas ${weeksCount} semanas)`);
+          });
+        }
 
         // Sumar ajustes manuales del usuario
         Object.entries(state.manualMuscleStimulus || {}).forEach(([mId, val]) => {
@@ -789,8 +800,6 @@
         const weeks = Object.values(state.weeks).sort((a, b) => a.weekNum - b.weekNum);
         if (weeks.length === 0) return `<span class="text-xs text-slate-400">Sin datos históricos.</span>`;
 
-        const curW = weeks[weeks.length - 1] || weeks[0];
-        let targetVal = 100;
         let isHabitMetric = false;
         let customHabitObj = null;
 
@@ -798,16 +807,30 @@
           isHabitMetric = true;
           const hId = metric.replace('habit_', '');
           customHabitObj = (state.customHabits || []).find(h => h.id === hId);
-          if (customHabitObj) {
-            if (customHabitObj.type === 'max_limit') targetVal = Number(customHabitObj.targetDaily) || 1;
-            else if (customHabitObj.type === 'min_accum') targetVal = Number(customHabitObj.targetWeekly) || 10;
-            else if (customHabitObj.type === 'binary_check') targetVal = Number(customHabitObj.targetWeeklyDays) || 7;
-            else if (customHabitObj.type === 'target_range') targetVal = Number(customHabitObj.targetCenter) || 8;
+        }
+
+        // Extracción de meta histórica propia e inmutable para cada semana
+        function getWeekTarget(w) {
+          if (!w) return 100;
+          if (isHabitMetric && customHabitObj) {
+            const hSnap = (w.customHabitsGoals && w.customHabitsGoals[customHabitObj.id]) || customHabitObj;
+            if (customHabitObj.type === 'max_limit') return Number(hSnap.targetDaily) || 1;
+            if (customHabitObj.type === 'min_accum') return Number(hSnap.targetWeekly) || 10;
+            if (customHabitObj.type === 'binary_check') return Number(hSnap.targetWeeklyDays) || 7;
+            if (customHabitObj.type === 'target_range') return Number(hSnap.targetCenter) || 8;
+          } else if (metric === 'score') {
+            return (w.goals && w.goals.scoreTarget) || 85;
+          } else if (metric === 'study') {
+            return (w.studyHoursPlan || []).reduce((a, b) => a + Number(b), 0) || (w.goals && w.goals.studyHours) || 15;
+          } else if (metric === 'km') {
+            return (w.goals && w.goals.runKm) || 15;
+          } else if (metric === 'spend') {
+            return Number(w.budgetLimit) || 60;
           }
-        } else if (metric === 'score') targetVal = 85;
-        else if (metric === 'study') targetVal = (curW.studyHoursPlan || []).reduce((a, b) => a + Number(b), 0) || curW.goals?.studyHours || 15;
-        else if (metric === 'km') targetVal = curW.goals?.runKm || 15;
-        else if (metric === 'spend') targetVal = curW.budgetLimit || 60;
+          return 85;
+        }
+
+        const weekTargets = weeks.map(w => getWeekTarget(w));
 
         const dataPoints = weeks.map(w => {
           const m = calculateWeekMetrics(w);
@@ -835,21 +858,20 @@
         });
 
         const width = 600, height = 150, pad = 25;
-        const maxVal = Math.max(...dataPoints, targetVal, metric === 'score' ? 100 : 5);
+        const maxVal = Math.max(...dataPoints, ...weekTargets, metric === 'score' ? 100 : 5);
         const minVal = 0;
-
-        const targetY = height - pad - ((targetVal - minVal) / (maxVal - minVal || 1)) * (height - pad * 2);
 
         const isSingleWeek = dataPoints.length === 1;
         const points = dataPoints.map((val, idx) => {
-          // Evaluar si cumple meta según tipo de métrica
+          const wTarget = weekTargets[idx];
+          // Evaluar si cumple meta según tipo de métrica respecto a la meta inmutable de esa semana
           let isMet = false;
           if (metric === 'spend') {
-            isMet = val <= targetVal; // En gasto, menos o igual es éxito
+            isMet = val <= wTarget; // En gasto, menos o igual es éxito
           } else if (isHabitMetric && customHabitObj && customHabitObj.type === 'max_limit') {
-            isMet = val <= targetVal; // En límites de tiempo/pantalla, menos o igual es éxito
+            isMet = val <= wTarget; // En límites de tiempo/pantalla, menos o igual es éxito
           } else {
-            isMet = val >= targetVal; // En estudio, km, score y metas acumulativas, llegar o superar es éxito
+            isMet = val >= wTarget; // En estudio, km, score y metas acumulativas, llegar o superar es éxito
           }
 
           return {
@@ -857,6 +879,7 @@
             y: height - pad - ((val - minVal) / (maxVal - minVal || 1)) * (height - pad * 2),
             val,
             isMet,
+            wTarget,
             label: `S${weeks[idx].weekNum}`
           };
         });
@@ -871,7 +894,32 @@
         const baseGridColor = isDark ? 'rgba(148, 163, 184, 0.2)' : 'rgba(120, 113, 108, 0.25)';
         const successPointColor = colors.theme700 || 'var(--theme-700, #1D4ED8)';
         const failPointColor = colors.accent || 'var(--theme-accent, #D93829)';
-        const targetLineColor = isDark ? '#F59E0B' : '#D97706'; // Ambar / Dorado nítido para la meta de referencia
+        const targetLineColor = isDark ? '#F59E0B' : '#D97706'; // Ámbar / Dorado nítido para la meta de referencia
+
+        // Trazado escalonado (stepped line) para la meta independiente de cada semana
+        let targetPathD = '';
+        const allTargetsEqual = weekTargets.every(t => t === weekTargets[0]);
+        const getTargetY = (t) => height - pad - ((t - minVal) / (maxVal - minVal || 1)) * (height - pad * 2);
+        if (isSingleWeek || allTargetsEqual) {
+          const tY = getTargetY(weekTargets[0]);
+          targetPathD = `M ${pad} ${tY} L ${width - pad} ${tY}`;
+        } else {
+          const firstTY = getTargetY(weekTargets[0]);
+          targetPathD = `M ${pad} ${firstTY} L ${points[0].x} ${firstTY}`;
+          for (let i = 0; i < points.length - 1; i++) {
+            const curTY = getTargetY(weekTargets[i]);
+            const nextTY = getTargetY(weekTargets[i + 1]);
+            const midX = (points[i].x + points[i + 1].x) / 2;
+            targetPathD += ` L ${midX} ${curTY} L ${midX} ${nextTY} L ${points[i + 1].x} ${nextTY}`;
+          }
+          const lastTY = getTargetY(weekTargets[weekTargets.length - 1]);
+          targetPathD += ` L ${width - pad} ${lastTY}`;
+        }
+        const curTarget = weekTargets[weekTargets.length - 1];
+        const lastTargetY = getTargetY(curTarget);
+        const metaLabelText = allTargetsEqual
+          ? `Meta: ${curTarget.toFixed(metric === 'score' ? 0 : 1)}`
+          : `Meta act.: ${curTarget.toFixed(metric === 'score' ? 0 : 1)}`;
 
         // Trazado de segmentos coloreados: cada tramo hacia un punto refleja el estado de la semana destino
         let segmentsHtml = '';
@@ -894,9 +942,9 @@
             <line x1="${pad}" y1="${height - pad}" x2="${width - pad}" y2="${height - pad}" stroke="${baseGridColor}" stroke-width="1.2" />
             <line x1="${pad}" y1="${pad}" x2="${width - pad}" y2="${pad}" stroke="${baseGridColor}" stroke-width="1" stroke-dasharray="2 4" opacity="0.4" />
             
-            <!-- Línea de Meta (Target) punteada de referencia -->
-            <line x1="${pad}" y1="${targetY}" x2="${width - pad}" y2="${targetY}" stroke="${targetLineColor}" stroke-width="1.5" stroke-dasharray="4 4" opacity="0.85" />
-            <text x="${width - pad}" y="${Math.max(12, targetY - 4)}" text-anchor="end" font-size="9" font-weight="700" fill="${targetLineColor}" font-family="JetBrains Mono, monospace">Meta: ${targetVal.toFixed(metric === 'score' ? 0 : 1)}</text>
+            <!-- Línea de Meta (Target) escalonada punteada de referencia -->
+            <path d="${targetPathD}" stroke="${targetLineColor}" stroke-width="1.5" stroke-dasharray="4 4" fill="none" opacity="0.85" />
+            <text x="${width - pad}" y="${Math.max(12, lastTargetY - 4)}" text-anchor="end" font-size="9" font-weight="700" fill="${targetLineColor}" font-family="JetBrains Mono, monospace">${metaLabelText}</text>
 
             <!-- Trazos de línea continua o de aviso según meta -->
             ${segmentsHtml}
@@ -1881,6 +1929,59 @@
         }
       }
 
+      // CÁLCULO DE RACHA DE DÍAS CONSECUTIVOS DE UN HÁBITO
+      function getCustomHabitConsecutiveStreak(hId) {
+        const w = getActiveWeek();
+        if (!w) return 0;
+        const h = (state.customHabits || []).find(x => x.id === hId);
+        if (!h) return 0;
+        const todayIdx = (new Date().getDay() + 6) % 7;
+        let streak = 0;
+        const hData = w.customHabitsData?.[hId] || [];
+        for (let i = todayIdx; i >= 0; i--) {
+          if (isCustomHabitDoneOnDay(h, hData[i], i)) {
+            streak++;
+          } else {
+            if (i === todayIdx) continue;
+            break;
+          }
+        }
+        return streak;
+      }
+
+      // CALIBRADOR DINÁMICO DE DENSIDAD DE HOY (TIER 1, TIER 2, TIER 3)
+      function updateTodayDensityTier() {
+        const container = document.getElementById('todayFocusContainer');
+        const content = document.getElementById('todayFocusContent');
+        if (!container || !content) return;
+
+        if (container.classList.contains('card-mode-compact')) {
+          container.setAttribute('data-density', 'tier-3');
+          return;
+        }
+
+        const grid = content.querySelector('.adaptive-internal-grid');
+        if (!grid) return;
+
+        const cards = grid.children.length;
+        if (cards === 0) return;
+
+        const computedStyle = window.getComputedStyle(grid);
+        const templateCols = computedStyle.gridTemplateColumns;
+        const colsCount = templateCols ? templateCols.split(' ').filter(Boolean).length : 3;
+        const rowsNeeded = Math.max(1, Math.ceil(cards / (colsCount || 1)));
+        const availableH = content.clientHeight || 280;
+        const rowHeight = availableH / rowsNeeded;
+
+        let tier = 'tier-2';
+        if (rowHeight >= 120) {
+          tier = 'tier-1';
+        } else if (rowHeight < 72) {
+          tier = 'tier-3';
+        }
+        container.setAttribute('data-density', tier);
+      }
+
       function renderTodayFocusCard(dIdx) {
         if (dIdx === undefined || dIdx === null || dIdx < 0 || dIdx > 6) {
           dIdx = (new Date().getDay() + 6) % 7;
@@ -1940,7 +2041,6 @@
 
         const container = document.getElementById('todayFocusContent');
         if (!container) return;
-        const gridColsClass = 'adaptive-internal-grid';
         const emptySpanClass = 'col-span-full';
 
         let urgentHtml = '';
@@ -1970,7 +2070,6 @@
         const enabled = getWeekEnabledModules(w);
         const activeHabits = (state.customHabits || []).filter(h => h.active !== false);
         const habitsData = w.customHabitsData || {};
-
         
         // Barra de progreso destacada de Hoy
         const activeHabitsList = (state.customHabits || []).filter(h => h.active !== false);
@@ -2059,10 +2158,35 @@
 
         let gymCardHtml = '';
         if (enabled.gym) {
+          const gymTypeStr = (day.gym.s1?.type || '').toLowerCase();
+          let gymMusclesStr = 'Cuerpo Completo';
+          if (gymTypeStr.includes('pierna')) gymMusclesStr = 'Cuádriceps • Isquios • Glúteos';
+          else if (gymTypeStr.includes('empuje')) gymMusclesStr = 'Pectoral • Deltoides • Tríceps';
+          else if (gymTypeStr.includes('tirón')) gymMusclesStr = 'Espalda • Dorsal • Bíceps';
+          else if (gymTypeStr.includes('torso')) gymMusclesStr = 'Pecho • Espalda • Hombros';
+          else if (gymTypeStr.includes('fullbody')) gymMusclesStr = 'Cuerpo Completo';
+          else if (gymTypeStr.includes('core')) gymMusclesStr = 'Abdomen • Oblicuos • Lumbar';
+          else if (day.gym.s1?.custom) gymMusclesStr = day.gym.s1.custom;
+
           gymCardHtml = `
             <!-- Gimnasio -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between">
+            <div class="today-habit-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <!-- Tier 3: Micro-Botón (Pastilla Horizontal) -->
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer" onclick="app.cycleGymSessionCount(${dIdx})">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
+                  </div>
+                  <span class="font-bold text-xs truncate">Gimnasio</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${day.gym.sessions > 0 ? (day.gym.s1?.type || 'Sesión') : 'Sin reg.'}</span>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); app.cycleGymSessionCount(${dIdx})" class="px-2.5 py-1 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold' : 'subpanel-bg border text-stone-500'} text-xs shrink-0 transition active:scale-95">
+                  ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : `${day.gym.sessions} Ses.`)}
+                </button>
+              </div>
+
+              <!-- Header Estándar / Rico -->
+              <div class="today-card-header flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 5v14M18 5v14M2 9v6M22 9v6M6 12h12"/></svg>
@@ -2073,7 +2197,19 @@
                   </div>
                 </div>
               </div>
-              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
+
+              <!-- Tier 1: Micro-detalles musculares del día -->
+              <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+                <span class="px-1.5 py-0.5 rounded-md bg-theme-soft border border-theme text-theme-main font-semibold truncate max-w-[170px]" title="${gymMusclesStr}">
+                  ${gymMusclesStr}
+                </span>
+                <span class="font-mono ${day.gym.sessions > 0 ? 'text-theme-positive' : 'text-stone-400'} font-bold">
+                  ${day.gym.sessions > 0 ? '✓ Realizado' : 'Pendiente'}
+                </span>
+              </div>
+
+              <!-- Tier 2: Controles Estándar -->
+              <div class="today-tier-2-body space-y-1.5 flex-1 flex flex-col justify-center">
                 ${day.gym.sessions >= 1 ? `
                   <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
                     <select onchange="app.handleGymTypeSelection(${dIdx}, 1, this.value)" class="input-bg border rounded-lg px-2 py-1 text-xs outline-none">
@@ -2104,7 +2240,9 @@
                   return extraHtml;
                 })()}
               </div>
-              <div class="mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
+
+              <!-- Footer Estándar / Rico -->
+              <div class="today-card-footer mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
                 <button onclick="app.cycleGymSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.gym.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
                   ${day.gym.sessions === 0 ? '+ Registrar' : (day.gym.sessions === 1 ? '1 Sesión' : `${day.gym.sessions} Sesiones`)}
                 </button>
@@ -2118,10 +2256,32 @@
 
         let runCardHtml = '';
         if (enabled.run) {
+          const runTypeStr = (day.run.s1?.type || '').toLowerCase();
+          let runFocusLabel = 'Base Aeróbica';
+          if (runTypeStr.includes('series') || runTypeStr.includes('cross')) runFocusLabel = 'VO2 Max / Series';
+          else if (runTypeStr.includes('tirada')) runFocusLabel = 'Fondo / Tirada';
+          else if (runTypeStr.includes('recuperación')) runFocusLabel = 'Recup. Activa';
+          else if (day.run.s1?.custom) runFocusLabel = day.run.s1.custom;
+
           runCardHtml = `
             <!-- Running -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between">
+            <div class="today-habit-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <!-- Tier 3: Micro-Botón (Pastilla Horizontal) -->
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer" onclick="app.cycleRunSessionCount(${dIdx})">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
+                  </div>
+                  <span class="font-bold text-xs truncate">Running</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${day.run.km ? day.run.km + ' km' : (day.run.sessions > 0 ? 'Activo' : '0 km')}</span>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); app.cycleRunSessionCount(${dIdx})" class="px-2.5 py-1 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold' : 'subpanel-bg border text-stone-500'} text-xs shrink-0 transition active:scale-95">
+                  ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : `${day.run.sessions} Ses.`)}
+                </button>
+              </div>
+
+              <!-- Header Estándar / Rico -->
+              <div class="today-card-header flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path></svg>
@@ -2132,7 +2292,19 @@
                   </div>
                 </div>
               </div>
-              <div class="space-y-1.5 flex-1 flex flex-col justify-center">
+
+              <!-- Tier 1: Micro-detalles de sesión y acumulado semanal -->
+              <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+                <span class="px-1.5 py-0.5 rounded-md bg-theme-soft border border-theme text-theme-main font-semibold truncate max-w-[150px]" title="${runFocusLabel}">
+                  ${runFocusLabel}
+                </span>
+                <span class="font-mono text-stone-500 dark:text-slate-400 font-bold">
+                  Sem: ${m.runKmReal} / ${w.goals.runKm} km
+                </span>
+              </div>
+
+              <!-- Tier 2: Controles Estándar -->
+              <div class="today-tier-2-body space-y-1.5 flex-1 flex flex-col justify-center">
                 ${day.run.sessions >= 1 ? `
                   <div class="flex flex-wrap items-center gap-1.5 pt-1 border-t border-stone-200 dark:border-slate-700/40">
                     <input type="number" step="0.5" placeholder="Km 1" value="${day.run.s1?.km !== undefined ? day.run.s1.km : (day.run.km || '')}" oninput="app.setRunSessionKm(${dIdx}, 1, this.value)" onchange="app.setRunSessionKm(${dIdx}, 1, this.value)" class="w-16 input-bg border rounded-lg px-2 py-1 text-center font-mono font-bold text-theme-main text-xs" title="Km 1ª sesión" autocomplete="off" />
@@ -2168,7 +2340,9 @@
                   return extraRun;
                 })()}
               </div>
-              <div class="mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
+
+              <!-- Footer Estándar / Rico -->
+              <div class="today-card-footer mt-auto pt-2 flex items-center justify-end gap-1.5 border-t border-stone-200/50 dark:border-slate-800/50">
                 <button onclick="app.cycleRunSessionCount(${dIdx})" class="px-3 py-1.5 rounded-lg ${day.run.sessions > 0 ? 'bg-theme-main text-white font-bold border border-theme shadow-sm' : 'subpanel-bg border text-stone-600 dark:text-slate-400 font-semibold'} text-xs active:translate-y-0.5 transition">
                   ${day.run.sessions === 0 ? '+ Registrar' : (day.run.sessions === 1 ? '1 Sesión' : `${day.run.sessions} Sesiones`)}
                 </button>
@@ -2182,10 +2356,29 @@
 
         let nutriCardHtml = '';
         if (enabled.nutri) {
+          const targetKcal = Number(w.goals.nutri?.kcal) || 2800;
+          const dayKcal = Number(day.nutritionKcal) || 0;
+          const kcalDiff = dayKcal > 0 ? Math.round(dayKcal - targetKcal) : 0;
+
           nutriCardHtml = `
             <!-- Nutrición y Calorías -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between">
+            <div class="today-habit-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <!-- Tier 3: Micro-Botón (Pastilla Horizontal) -->
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer" onclick="app.cycleNutrition(${dIdx})">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg>
+                  </div>
+                  <span class="font-bold text-xs truncate">Nutrición</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${day.nutritionKcal ? day.nutritionKcal + ' kcal' : 'Kcal'}</span>
+                </div>
+                <button type="button" onclick="event.stopPropagation(); app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border text-xs font-bold shrink-0 ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500')}">
+                  ${day.nutrition === 'success' ? 'Cumplido' : (day.nutrition === 'fail' ? 'Fallo' : 'Pendiente')}
+                </button>
+              </div>
+
+              <!-- Header Estándar / Rico -->
+              <div class="today-card-header flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.5 17 4.5s-.5 1.5-1.6 7.2A7 7 0 0 1 11 20z"></path></svg>
@@ -2196,17 +2389,31 @@
                   </div>
                 </div>
               </div>
-              <div class="flex flex-wrap items-center gap-2 flex-1 pt-0.5">
+
+              <!-- Tier 1: Micro-detalles calóricos y margen de fase -->
+              <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+                <span class="px-1.5 py-0.5 rounded-md bg-theme-soft border border-theme text-theme-main font-semibold capitalize">
+                  Fase: ${w.goals.nutri?.phase || 'volumen'}
+                </span>
+                <span class="font-mono ${dayKcal === 0 ? 'text-stone-400' : (Math.abs(kcalDiff) <= 150 ? 'text-theme-positive' : 'text-theme-negative')} font-bold">
+                  ${dayKcal > 0 ? (kcalDiff > 0 ? `+${kcalDiff}` : kcalDiff) + ' kcal' : 'Sin registro'}
+                </span>
+              </div>
+
+              <!-- Tier 2: Controles Estándar -->
+              <div class="today-tier-2-body flex flex-wrap items-center gap-2 flex-1 pt-0.5">
                 <div class="relative flex items-center flex-1 min-w-[100px]">
-                  <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${w.goals.nutri?.kcal || 2800}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" oninput="app.setDayKcal(${dIdx}, this.value)" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
+                  <input type="number" step="50" min="500" max="8000" placeholder="Ej. ${targetKcal}" value="${day.nutritionKcal != null ? day.nutritionKcal : ''}" oninput="app.setDayKcal(${dIdx}, this.value)" onchange="app.setDayKcal(${dIdx}, this.value)" class="w-full input-bg border rounded-lg px-2.5 py-1 text-xs font-mono font-bold outline-none focus:border-theme" />
                   <span class="absolute right-2 text-[10px] text-slate-400 font-bold pointer-events-none">kcal</span>
                 </div>
                 <span class="px-2.5 py-1 rounded-lg border text-[11px] font-bold ${nutriEval.badgeClass} shrink-0">
                   ${nutriEval.label}
                 </span>
               </div>
-              <div class="mt-auto pt-2 flex items-center justify-between border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400">
-                <span>Meta: <strong class="font-mono text-theme-main">${w.goals.nutri?.kcal || 2800} kcal</strong></span>
+
+              <!-- Footer Estándar / Rico -->
+              <div class="today-card-footer mt-auto pt-2 flex items-center justify-between border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400">
+                <span>Meta: <strong class="font-mono text-theme-main">${targetKcal} kcal</strong></span>
                 <button onclick="app.cycleNutrition(${dIdx})" class="px-2.5 py-1 rounded-lg border font-bold text-xs ${day.nutrition === 'success' ? 'bg-theme-main text-white border-theme-main' : (day.nutrition === 'fail' ? 'bg-theme-accent text-white border-theme-accent' : 'subpanel-bg text-stone-500 dark:text-slate-400')} active:translate-y-0.5 transition flex items-center justify-center gap-1.5" title="Alternar estado manual">
                   ${day.nutrition === 'success' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg> <span>Cumplido</span>' : (day.nutrition === 'fail' ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg> <span>No cumplido</span>' : '<span class="w-3.5 h-3.5 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> <span>Pendiente</span>')}
                 </button>
@@ -2219,8 +2426,21 @@
         if (enabled.academic) {
           academicCardHtml = `
             <!-- Asistencia Clases Hoy -->
-            <div class="academic-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="academic-header-line flex items-center justify-between">
+            <div class="today-habit-card academic-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <!-- Tier 3: Micro-Botón (Pastilla Horizontal) -->
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer" onclick="app.switchTab(2)">
+                <div class="flex items-center gap-2 min-w-0">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg>
+                  </div>
+                  <span class="font-bold text-xs truncate">Clases</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${(day.attendance || []).filter(c => c.status === 'present').length}/${(day.attendance || []).length} asist.</span>
+                </div>
+                <span class="text-[10px] font-mono font-bold text-theme-main px-2 py-0.5 rounded-md bg-theme-soft border border-theme shrink-0">${Math.round(m.attPct)}%</span>
+              </div>
+
+              <!-- Header Estándar / Rico -->
+              <div class="today-card-header academic-header-line flex items-center justify-between">
                 <div class="flex items-center gap-2">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 21h18M3 10h18M5 6l7-3 7 3M4 10v11M20 10v11"></path></svg>
@@ -2232,7 +2452,19 @@
                   <span class="font-mono font-bold text-theme-main text-[10px] hidden compact-inline whitespace-nowrap">${Math.round(m.attPct)}% global</span>
                 </div>
               </div>
-              <div class="academic-classes-grid space-y-1.5 flex-1 flex flex-col justify-center">
+
+              <!-- Tier 1: Micro-detalles de asistencia semanal -->
+              <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+                <span class="text-stone-500 dark:text-slate-400">
+                  ${(day.attendance || []).filter(c => c.status === 'present').length} asistidas de ${(day.attendance || []).length}
+                </span>
+                <span class="font-mono text-theme-main font-bold">
+                  ${Math.round(m.attPct)}% asistencia semanal
+                </span>
+              </div>
+
+              <!-- Tier 2: Controles Estándar -->
+              <div class="today-tier-2-body academic-classes-grid space-y-1.5 flex-1 flex flex-col justify-center">
                 ${(day.attendance || []).length === 0 ? `<div class="py-2 text-stone-400 dark:text-slate-400 text-xs italic text-center compact-hide">— Sin clases programadas para hoy —</div>` : ''}
                 ${(day.attendance || []).map((c, cIdx) => {
                   let badge = '<span class="flex items-center gap-1 font-mono text-[10px]"><span class="w-3 h-3 rounded border border-stone-400 dark:border-slate-500 inline-block"></span> Pendiente</span>';
@@ -2255,7 +2487,9 @@
                   `;
                 }).join('')}
               </div>
-              <div class="academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex flex-wrap items-center justify-between gap-1">
+
+              <!-- Footer Estándar / Rico -->
+              <div class="today-card-footer academic-footer-line mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex flex-wrap items-center justify-between gap-1">
                 <span class="whitespace-nowrap">Meta: ${w.goals.academic?.attMinPercent || 85}%</span>
                 <span class="font-mono font-bold text-theme-main whitespace-nowrap">${Math.round(m.attPct)}% global</span>
               </div>
@@ -2269,8 +2503,24 @@
           const totalWeeklyStudy = w.studyRealHours.reduce((acc, h) => acc + (Number(h) || 0), 0);
           studyCardHtml = `
             <!-- Horas de Estudio de Hoy -->
-            <div class="p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
-              <div class="flex items-center justify-between gap-1.5">
+            <div class="today-habit-card p-3 rounded-xl subpanel-bg border space-y-2 flex flex-col justify-between h-full shadow-2xs">
+              <!-- Tier 3: Micro-Botón (Pastilla Horizontal) -->
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer">
+                <div class="flex items-center gap-2 min-w-0" onclick="app.addStudyToDay(${dIdx}, 0.5)">
+                  <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0 flex items-center justify-center">
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
+                  </div>
+                  <span class="font-bold text-xs truncate">Estudio</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${formatHoursToHMin(studyDone)}</span>
+                </div>
+                <div class="flex items-center gap-1 shrink-0">
+                  <button type="button" onclick="app.addStudyToDay(${dIdx}, 0.5)" class="px-2 py-0.5 rounded subpanel-bg border text-[10px] font-bold hover:border-theme">+30m</button>
+                  <button type="button" onclick="app.toggleZen(true)" class="px-2 py-0.5 rounded bg-theme-accent text-white text-[10px] font-bold">▶</button>
+                </div>
+              </div>
+
+              <!-- Header Estándar / Rico -->
+              <div class="today-card-header flex items-center justify-between gap-1.5">
                 <div class="flex items-center gap-2 min-w-0">
                   <div class="vector-seal bg-theme-main text-white w-6 h-6 shadow-xs shrink-0">
                     <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 10v6M2 10l10-5 10 5-10 5z"></path><path d="M6 12v5c3 3 9 3 12 0v-5"></path></svg>
@@ -2285,21 +2535,37 @@
                   <span class="text-[9.5px] font-mono font-bold text-stone-400 whitespace-nowrap">(${studyPct}%)</span>
                 </div>
               </div>
-              <div class="h-1.5 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
-                <div class="h-full bg-theme-main transition-all duration-300" style="width: ${studyPct}%"></div>
+
+              <!-- Tier 1: Micro-detalles de asignaturas y acumulado -->
+              <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+                <span class="text-stone-500 dark:text-slate-400 truncate max-w-[160px]">
+                  Semana: ${formatHoursToHMin(totalWeeklyStudy)}
+                </span>
+                <span class="font-mono text-theme-main font-bold">
+                  Plan hoy: ${formatHoursToHMin(studyPlan)}
+                </span>
               </div>
-              ${subs.length > 0 ? `
-                <div class="flex flex-wrap gap-1 py-0.5">
-                  ${subs.slice(0, 3).map(([subName, hrs]) => `
-                    <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
-                      <span class="truncate max-w-[75px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
-                      <span class="font-mono font-bold text-theme-main">${formatHoursToHMin(hrs)}</span>
-                    </span>
-                  `).join('')}
-                  ${subs.length > 3 ? `<span class="text-[9px] text-stone-400 self-center">+${subs.length - 3}</span>` : ''}
+
+              <!-- Tier 2: Controles Estándar -->
+              <div class="today-tier-2-body space-y-1.5 flex-1 flex flex-col justify-center">
+                <div class="h-1.5 w-full rounded-full bg-stone-300 dark:bg-slate-950 overflow-hidden border">
+                  <div class="h-full bg-theme-main transition-all duration-300" style="width: ${studyPct}%"></div>
                 </div>
-              ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5 compact-hide">Sin asignaturas registradas hoy</div>'}
-              <div class="mt-auto pt-2 flex items-center justify-between gap-1.5 text-xs border-t border-stone-200/50 dark:border-slate-800/50">
+                ${subs.length > 0 ? `
+                  <div class="flex flex-wrap gap-1 py-0.5">
+                    ${subs.slice(0, 3).map(([subName, hrs]) => `
+                      <span class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[9px] font-medium bg-stone-100 dark:bg-slate-900 border border-stone-200 dark:border-slate-800">
+                        <span class="truncate max-w-[75px] font-semibold text-stone-700 dark:text-slate-300">${escapeHtml(subName)}</span>
+                        <span class="font-mono font-bold text-theme-main">${formatHoursToHMin(hrs)}</span>
+                      </span>
+                    `).join('')}
+                    ${subs.length > 3 ? `<span class="text-[9px] text-stone-400 self-center">+${subs.length - 3}</span>` : ''}
+                  </div>
+                ` : '<div class="text-[10.5px] text-stone-400 italic py-0.5 compact-hide">Sin asignaturas registradas hoy</div>'}
+              </div>
+
+              <!-- Footer Estándar / Rico -->
+              <div class="today-card-footer mt-auto pt-2 flex items-center justify-between gap-1.5 text-xs border-t border-stone-200/50 dark:border-slate-800/50">
                 <button onclick="app.addStudyToDay(${dIdx}, 0.5)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+30m</button>
                 <button onclick="app.addStudyToDay(${dIdx}, 1.0)" class="flex-1 py-1 rounded-lg subpanel-bg border hover:border-theme font-semibold text-[11px] active:translate-y-0.5 transition">+1h</button>
                 <button onclick="app.toggleZen(true)" class="flex-1 py-1 rounded-lg bg-theme-accent hover:bg-theme-accent text-white font-bold text-[11px] flex items-center justify-center gap-1 border border-theme-accent shadow-xs active:translate-y-0.5 transition"><span>▶</span> Pomo</button>
@@ -2323,6 +2589,7 @@
           }
 
           const dayVal = (habitsData[h.id] || [])[dIdx];
+          const habitStreak = getCustomHabitConsecutiveStreak(h.id);
           let bodyHtml = '';
 
           if (h.type === 'max_limit') {
@@ -2428,9 +2695,12 @@
           }
 
           const isReminder = !!h.isReminderOnly;
+          const isChecked = (dayVal === true || dayVal === 1 || dayVal === 'true' || (Array.isArray(dayVal) && dayVal[0]));
+          const curVal = dayVal !== null && dayVal !== undefined ? Number(dayVal) : null;
+
           const cardClass = isReminder
-            ? 'p-3 rounded-xl bg-theme-accent-soft border-2 border-theme-accent/60 space-y-2 flex flex-col justify-between h-full shadow-xs'
-            : 'p-3 rounded-xl subpanel-bg border border-theme space-y-2 flex flex-col justify-between h-full shadow-2xs';
+            ? 'today-habit-card p-3 rounded-xl bg-theme-accent-soft border-2 border-theme-accent/60 space-y-2 flex flex-col justify-between h-full shadow-xs'
+            : 'today-habit-card p-3 rounded-xl subpanel-bg border border-theme space-y-2 flex flex-col justify-between h-full shadow-2xs';
 
           const iconSealClass = isReminder
             ? 'w-6 h-6 rounded-lg bg-theme-accent text-white flex items-center justify-center shrink-0 shadow-xs'
@@ -2446,9 +2716,56 @@
             ? '<span class="font-mono font-bold text-theme-accent">Rutina</span>'
             : `<span class="font-mono font-bold text-theme-main">${Math.round(m.customHabitsPct?.[h.id] || 0)}%</span>`;
 
+          // Tier 3: Micro-Botón (Pastilla Horizontal)
+          let tier3PillHtml = '';
+          if (h.type === 'binary_check') {
+            tier3PillHtml = `
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer" onclick="app.toggleCustomHabitCheck('${h.id}', ${dIdx}, 0)">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="${iconSealClass}">
+                    ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3.5 h-3.5 ${iconColor}`)}
+                  </span>
+                  <span class="font-bold text-xs truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
+                </div>
+                <button type="button" class="px-2.5 py-1 rounded-lg border-2 text-xs font-bold transition flex items-center gap-1 shrink-0 ${isChecked ? (isReminder ? 'bg-theme-accent text-white border-theme-accent' : 'bg-theme-main text-white border-theme-main') : 'subpanel-bg border-stone-300 dark:border-slate-600 text-stone-600 dark:text-slate-300'}">
+                  ${isChecked ? '<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><polyline points="20 6 9 17 4 12"/></svg>' : '<span class="w-3 h-3 rounded-xs border-2 border-stone-400 dark:border-slate-500 inline-block"></span>'}
+                  <span>${isChecked ? 'OK' : 'Pend.'}</span>
+                </button>
+              </div>
+            `;
+          } else {
+            tier3PillHtml = `
+              <div class="today-tier-3-pill hidden items-center justify-between w-full h-full gap-2 cursor-pointer">
+                <div class="flex items-center gap-2 min-w-0">
+                  <span class="${iconSealClass}">
+                    ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3.5 h-3.5 ${iconColor}`)}
+                  </span>
+                  <span class="font-bold text-xs truncate text-stone-900 dark:text-white">${escapeHtml(h.name)}</span>
+                  <span class="text-[10px] font-mono font-bold text-theme-main truncate">${curVal !== null ? curVal + (h.unit || '') : '0' + (h.unit || '')}</span>
+                </div>
+                <button type="button" onclick="app.setHabitDayValue(${dIdx}, '${h.id}', ${curVal === null ? (h.type === 'max_limit' ? 0 : 1) : 'null'})" class="px-2 py-0.5 rounded border text-[10px] font-bold ${curVal !== null ? 'bg-theme-soft text-theme-main border-theme' : 'subpanel-bg text-stone-500'} shrink-0">
+                  ${curVal !== null ? 'OK' : '+ Reg.'}
+                </button>
+              </div>
+            `;
+          }
+
+          // Tier 1: Micro-detalles enriquecidos de racha y consistencia
+          const tier1DetailsHtml = `
+            <div class="today-tier-1-details hidden flex-wrap items-center justify-between gap-1 py-1 border-t border-theme/20 text-[9.5px]">
+              <span class="px-1.5 py-0.5 rounded-md ${habitStreak > 0 ? 'bg-amber-500/10 border border-amber-500/30 text-amber-600 dark:text-amber-400' : 'bg-theme-soft border border-theme text-stone-500'} font-bold font-mono">
+                ${habitStreak > 0 ? `🔥 ${habitStreak}d racha` : 'Racha: 0d'}
+              </span>
+              <span class="font-mono text-stone-500 dark:text-slate-400">
+                Semana: ${Math.round(m.customHabitsPct?.[h.id] || 0)}%
+              </span>
+            </div>
+          `;
+
           const cardHtml = `
             <div class="${cardClass}" oncontextmenu="app.openCustomHabitActionsMenu(event, '${h.id}'); return false;">
-              <div class="flex items-center justify-between gap-2">
+              ${tier3PillHtml}
+              <div class="today-card-header flex items-center justify-between gap-2">
                 <div class="flex items-center gap-2 min-w-0">
                   <span class="${iconSealClass}">
                     ${renderItemIcon(h.iconId || h.icon || h.emoji || 'star', `w-3.5 h-3.5 ${iconColor}`)}
@@ -2457,10 +2774,11 @@
                 </div>
                 ${badgeHtml}
               </div>
-              <div class="flex-1 flex flex-col justify-center py-0.5">
+              ${tier1DetailsHtml}
+              <div class="today-tier-2-body flex-1 flex flex-col justify-center py-0.5">
                 ${bodyHtml}
               </div>
-              <div class="mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
+              <div class="today-card-footer mt-auto pt-2 border-t border-stone-200/50 dark:border-slate-800/50 text-[10px] text-stone-400 flex items-center justify-between">
                 <span>Meta: ${h.type === 'max_limit' ? `≤${h.targetDaily}${h.unit || 'h'}` : (h.type === 'min_accum' ? `≥${h.targetWeekly}${h.unit || ''}` : (h.type === 'binary_check' ? `${h.targetWeeklyDays}d` : `~${h.targetCenter}`))}</span>
                 ${footerStatus}
               </div>
@@ -2475,7 +2793,6 @@
         });
 
         const todayContainerEl = document.getElementById('todayFocusContainer');
-        const isCompact = (todayContainerEl && todayContainerEl.classList.contains('card-mode-compact')) || (container && container.closest('.card-mode-compact') !== null);
 
         // Agrupar tarjetas en cuadrícula Bento Box adaptativa
         const todayMetricCards = [];
@@ -2508,6 +2825,11 @@
             ${gridCardsHtml || `<div class="${emptySpanClass} p-4 rounded-xl subpanel-bg border text-center text-xs text-stone-400 italic">Sin módulos ni hábitos activos para hoy</div>`}
           </div>
         `;
+
+        // Calibrar densidad útil inmediatamente tras renderizar
+        requestAnimationFrame(() => {
+          updateTodayDensityTier();
+        });
       }
 
       function renderFullWeekTable(todayDayIndex, m, streaks, headerId = 'dailyTableHeader', tbodyId = 'dailyTableBody') {
@@ -5546,8 +5868,10 @@
         // Rendimiento y Analítica de Hábitos Personalizados
         renderTab4CustomHabits(isWeek);
 
-        // Conteo Sistemas Running
-        const weeksToScan = isWeek ? [getActiveWeek()] : Object.values(state.weeks);
+        // Conteo Sistemas Running (En histórico: ventana rodante de 4 semanas con promedio semanal)
+        const allSortedWeeks = Object.values(state.weeks || {}).filter(Boolean).sort((a, b) => a.weekNum - b.weekNum);
+        const weeksToScan = isWeek ? [getActiveWeek()] : (allSortedWeeks.length > 0 ? allSortedWeeks.slice(-4) : [getActiveWeek()]);
+        const weeksCount = Math.max(1, weeksToScan.length);
         let seriesCount = 0, rodajeCount = 0, tiradaCount = 0, totalKm = 0;
         weeksToScan.forEach(w => {
           if (!w) return;
@@ -5599,6 +5923,14 @@
             });
           });
         });
+
+        // En histórico, promediar semanalmente para reflejar el perfil fisiológico real del mesociclo
+        if (!isWeek) {
+          seriesCount = Number((seriesCount / weeksCount).toFixed(1));
+          rodajeCount = Number((rodajeCount / weeksCount).toFixed(1));
+          tiradaCount = Number((tiradaCount / weeksCount).toFixed(1));
+          totalKm = Number((totalKm / weeksCount).toFixed(1));
+        }
 
         // Radar Chart Tri-Sistema
         const radarBox = document.getElementById('runningRadarSvgContainer');
@@ -5825,7 +6157,9 @@
         if (radarContainer && (!radarContainer.innerHTML || radarContainer.children.length === 0)) {
           try {
             const isWk = state.ui?.labScope === 'week';
-            const weeksScan = isWk ? [getActiveWeek()] : Object.values(state.weeks);
+            const allSorted = Object.values(state.weeks || {}).filter(Boolean).sort((a, b) => a.weekNum - b.weekNum);
+            const weeksScan = isWk ? [getActiveWeek()] : (allSorted.length > 0 ? allSorted.slice(-4) : [getActiveWeek()]);
+            const weeksCount = Math.max(1, weeksScan.length);
             let sCount = 0, rCount = 0, tCount = 0, kmTotal = 0;
             weeksScan.forEach(wk => {
               if (!wk) return;
@@ -5838,6 +6172,12 @@
                 }
               });
             });
+            if (!isWk) {
+              sCount = Number((sCount / weeksCount).toFixed(1));
+              rCount = Number((rCount / weeksCount).toFixed(1));
+              tCount = Number((tCount / weeksCount).toFixed(1));
+              kmTotal = Number((kmTotal / weeksCount).toFixed(1));
+            }
             radarContainer.innerHTML = renderTriSystemRadar(sCount, rCount, tCount, kmTotal);
           } catch (e) {}
         }
@@ -5904,6 +6244,10 @@
 
       // APP ACCIONES Y MÉTODOS PÚBLICOS
       const app = {
+        updateTodayDensityTier() {
+          if (typeof updateTodayDensityTier === 'function') updateTodayDensityTier();
+        },
+
         enterWidgetMode() {
           // Deprecated
         },
@@ -13564,6 +13908,7 @@
           if (previewEl) previewEl.innerHTML = typeof renderItemIcon === 'function' ? renderItemIcon(h.icon || 'star', 'w-5 h-5 text-theme-main') : (h.emoji || '⭐');
 
           this.onHabitTypeChange(h.type, h);
+          this.openModal('modalManageHabits');
           const form = document.getElementById('customHabitForm');
           if (form) form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         },

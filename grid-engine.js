@@ -12,26 +12,27 @@ var GridEngine = {
           }
           if (cardEl.offsetParent === null) {
             const fallbackMins = {
-              todayFocusContainer: 18,
-              notesMiniCalendarPanel: 8,
-              interactiveListsPanel: 14,
-              tab1RecentExpensesBar: 4,
-              weekTableContainer: 8,
-              tab2ModularHabitsSection: 8,
-              tab2ScheduleSection: 14,
-              tab2AttendanceRulesSection: 14,
-              tab3BudgetConfigCard: 8,
-              tab3SavingsGoalsCard: 8,
-              tab3PiggyCard: 8,
-              tab3FixedExpensesCard: 8,
-              tab3ExpensesTableCard: 8,
-              tab3ExpenseChartsSection: 10,
-              tab3AntExpensesCard: 8,
-              tab4StudyAuditSection: 8,
-              tab4CustomHabitsSection: 8,
-              tab4AnatomyCard: 8,
-              tab4RunningRadarCard: 8,
-              tab4EvolutionSection: 12
+              todayFocusContainer: 12,
+              notesMiniCalendarPanel: 6,
+              interactiveListsPanel: 8,
+              tab1RecentExpensesBar: 3,
+              weekTableContainer: 6,
+              tab2ModularHabitsSection: 5,
+              tab2ScheduleSection: 8,
+              tab2AttendanceRulesSection: 6,
+              tab3BudgetConfigCard: 5,
+              tab3SavingsGoalsCard: 5,
+              tab3PiggyCard: 5,
+              tab3FixedExpensesCard: 5,
+              tab3ExpensesTableCard: 5,
+              tab3ExpenseChartsSection: 7,
+              tab3AntExpensesCard: 5,
+              tab4StudyAuditSection: 5,
+              tab4CustomHabitsSection: 5,
+              tab4AnatomyCard: 6,
+              tab4RunningRadarCard: 6,
+              tab4EvolutionSection: 7,
+              topKpisWrapper: 2
             };
             const normalFallback = fallbackMins[cardEl.id] || 4;
             return cardEl.classList.contains('card-mode-compact')
@@ -112,16 +113,6 @@ var GridEngine = {
           let minAllowed = 2;
           if (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed) {
             minAllowed = 1;
-          } else if (cardEl.id === 'todayFocusContainer') {
-            minAllowed = isCompact ? 10 : 16;
-          } else if (cardEl.id === 'interactiveListsPanel') {
-            minAllowed = isCompact ? 8 : 12;
-          } else if (cardEl.id === 'notesMiniCalendarPanel') {
-            minAllowed = isCompact ? 6 : 8;
-          } else if (cardEl.id === 'tab3ExpenseChartsSection') {
-            minAllowed = isCompact ? 5 : 9;
-          } else if (cardEl.id === 'tab3AntExpensesCard') {
-            minAllowed = isCompact ? 4 : 7;
           }
           return Math.max(minAllowed, requiredRows);
         },
@@ -328,31 +319,31 @@ var GridEngine = {
         getDefaultGridLayout(tabKey) {
           const DEFAULTS = {
             tab1: {
-              todayFocusContainer: { col: 1, colSpan: 12, row: 1, minRows: 16, manualRows: null, rowSpan: 18, name: 'Hábitos: Hoy y Matriz Semanal' },
-              notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 19, minRows: 8, manualRows: null, rowSpan: 8, name: 'Calendario' },
-              interactiveListsPanel: { col: 7, colSpan: 6, row: 19, minRows: 14, manualRows: null, rowSpan: 14, name: 'Listas y Tareas' },
-              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 27, minRows: 4, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
+              todayFocusContainer: { col: 1, colSpan: 12, row: 1, minRows: 12, manualRows: null, rowSpan: 16, name: 'Hábitos: Hoy y Matriz Semanal' },
+              notesMiniCalendarPanel: { col: 1, colSpan: 6, row: 17, minRows: 6, manualRows: null, rowSpan: 8, name: 'Calendario' },
+              interactiveListsPanel: { col: 7, colSpan: 6, row: 17, minRows: 8, manualRows: null, rowSpan: 12, name: 'Listas y Tareas' },
+              tab1RecentExpensesBar: { col: 1, colSpan: 6, row: 25, minRows: 3, manualRows: null, rowSpan: 4, name: 'Movimientos Recientes' }
             },
             tab2: {
-              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
-              tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
-              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 14, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
+              tab2ModularHabitsSection: { col: 1, colSpan: 12, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Plantilla de Metas' },
+              tab2ScheduleSection: { col: 1, colSpan: 8, row: 9, minRows: 8, manualRows: null, rowSpan: 14, name: 'Horario Semanal' },
+              tab2AttendanceRulesSection: { col: 9, colSpan: 4, row: 9, minRows: 6, manualRows: null, rowSpan: 14, name: 'Reglas de Asistencia' }
             },
             tab3: {
-              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
-              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
-              tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
-              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
-              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
-              tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 3, manualRows: null, rowSpan: 4, name: 'Evolución y Dinámica de Gastos' },
-              tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, minRows: 3, manualRows: null, rowSpan: 4, name: 'Analítica de Gastos Hormiga' }
+              tab3BudgetConfigCard: { col: 1, colSpan: 6, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Presupuesto Semanal' },
+              tab3SavingsGoalsCard: { col: 7, colSpan: 6, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Metas de Ahorro' },
+              tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 5, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
+              tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 5, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
+              tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 5, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
+              tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 7, manualRows: null, rowSpan: 10, name: 'Evolución y Dinámica de Gastos' },
+              tab3AntExpensesCard: { col: 1, colSpan: 12, row: 35, minRows: 5, manualRows: null, rowSpan: 8, name: 'Analítica de Gastos Hormiga' }
             },
             tab4: {
-              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
-              tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
-              tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
-              tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
-              tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 12, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
+              tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 5, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
+              tab4CustomHabitsSection: { col: 1, colSpan: 12, row: 9, minRows: 5, manualRows: null, rowSpan: 8, name: 'Hábitos Personalizados' },
+              tab4AnatomyCard: { col: 1, colSpan: 7, row: 17, minRows: 6, manualRows: null, rowSpan: 8, name: 'Mapa Muscular Anatómico' },
+              tab4RunningRadarCard: { col: 8, colSpan: 5, row: 17, minRows: 6, manualRows: null, rowSpan: 8, name: 'Tri-Sistema Running y Pista' },
+              tab4EvolutionSection: { col: 1, colSpan: 12, row: 25, minRows: 7, manualRows: null, rowSpan: 12, name: 'Histórico y Gráficos' }
             }
           };
           return JSON.parse(JSON.stringify(DEFAULTS[tabKey] || DEFAULTS.tab1));
@@ -696,6 +687,8 @@ var GridEngine = {
                 el.style.gridColumn = validCol + ' / span ' + validColSpan;
                 el.style.gridRow = validRow + ' / span ' + validRowSpan;
                 el.style.width = '100%';
+                el.style.height = '100%';
+                el.style.boxSizing = 'border-box';
                 el.setAttribute('data-cols', String(validColSpan));
                 if (el.closest && el.closest('#sidebarWidgetsContainer')) {
                   el.setAttribute('data-cols', '3');
@@ -920,6 +913,29 @@ var GridEngine = {
             `;
             el.insertBefore(bar, el.firstChild);
 
+            // Caja Ciega (Blueprint Blind Box) técnica para vista pura de geometría en modo edición
+            let blindBox = el.querySelector('.board-card-blind-box');
+            if (!blindBox) {
+              blindBox = document.createElement('div');
+              blindBox.className = 'board-card-blind-box board-edit-ctrl-overlay';
+              el.appendChild(blindBox);
+            }
+            blindBox.innerHTML = `
+              <div class="blind-box-inner flex flex-col items-center justify-center p-6 text-center select-none space-y-3 w-full h-full">
+                <div class="blind-box-icon w-12 h-12 rounded-2xl bg-theme-main/15 border border-theme/30 text-theme-main flex items-center justify-center shadow-inner">
+                  ${def.iconSvg || '<svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>'}
+                </div>
+                <div>
+                  <div class="blind-box-title font-serif font-bold text-base text-stone-900 dark:text-white tracking-tight">${typeof escapeHtml === 'function' ? escapeHtml(cardTitle) : cardTitle}</div>
+                  <div class="blind-box-sub text-xs text-stone-500 dark:text-slate-400 font-medium">${typeof escapeHtml === 'function' ? escapeHtml(def.category || 'Módulo') : (def.category || 'Módulo')}</div>
+                </div>
+                <div class="blind-box-badge inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full font-mono font-bold text-[11px] bg-theme-soft text-theme-main border border-theme/40 shadow-xs">
+                  <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+                  <span>${cfg.colSpan}/12 col · ${cfg.rowSpan || 4} filas</span>
+                </div>
+              </div>
+            `;
+
             // Tiradores de redimensión exclusivos para escritorio (en móvil el ancho es siempre 100%)
             if (!isMobile) {
               const dirMap = { s: 'resize-b', e: 'resize-r', w: 'resize-l', n: 'resize-t', se: 'resize-br' };
@@ -1000,6 +1016,7 @@ var GridEngine = {
         removeBoardEditHandles() {
           document.querySelectorAll('.board-edit-ctrl-overlay').forEach(el => el.remove());
           document.querySelectorAll('.card-blueprint-wireframe').forEach(el => el.remove());
+          document.querySelectorAll('.board-card-blind-box').forEach(el => el.remove());
           document.querySelectorAll('.card-edit-mode').forEach(el => el.classList.remove('card-edit-mode'));
           const placeholder = document.getElementById('gridDropPlaceholder');
           if (placeholder) placeholder.style.display = 'none';
@@ -1989,6 +2006,7 @@ var GridEngine = {
             if (cardId === 'todayFocusContainer') {
               if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
               else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
+              if (typeof app !== 'undefined' && typeof app.updateTodayDensityTier === 'function') app.updateTodayDensityTier();
             }
             const isEdit = (typeof this.isBoardEditMode === 'function') ? this.isBoardEditMode() : false;
             const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
@@ -2567,11 +2585,29 @@ var GridEngine = {
               cSpan = Math.max(minColSpan, Math.min(maxSpan, origColSpan + deltaCols));
             }
 
-            // Reflow en vivo de tarjetas internas al arrastrar bordes horizontales
+            // Reflow en vivo de tarjetas internas al arrastrar bordes horizontales y tope elástico de altura
+            let isConstrainedByHeight = false;
             if (isLeft || isRight) {
               el.style.gridColumn = c + ' / span ' + cSpan;
               el.setAttribute('data-cols', String(cSpan));
               liveMinRows = this.measureNaturalRows(el);
+
+              // TOPE ELÁSTICO HORIZONTAL: si el contenido a este ancho necesita más filas de las asignadas actualmente
+              if (liveMinRows > origRowSpan) {
+                while (cSpan < 12 && liveMinRows > origRowSpan) {
+                  if (isLeft) {
+                    const origRight = origCol + origColSpan;
+                    c = Math.max(1, c - 1);
+                    cSpan = origRight - c;
+                  } else {
+                    cSpan = Math.min(13 - origCol, cSpan + 1);
+                  }
+                  el.style.gridColumn = c + ' / span ' + cSpan;
+                  el.setAttribute('data-cols', String(cSpan));
+                  liveMinRows = this.measureNaturalRows(el);
+                }
+                isConstrainedByHeight = true;
+              }
               cfg.minRows = liveMinRows;
             }
 
@@ -2639,7 +2675,25 @@ var GridEngine = {
             const isOptimal = (finalRowSpan === liveIdealRows);
             if (badge) {
               const optimalBadge = isOptimal ? '[Óptimo] ' : '';
-              badge.textContent = (cfg.name || cardId) + ' → ' + optimalBadge + pct + '% (' + finalColSpan + '/12 cols) · ' + finalRowSpan + ' filas';
+              const limitNotice = isConstrainedByHeight ? ' [Mínimo para ' + origRowSpan + 'f]' : '';
+              badge.textContent = (cfg.name || cardId) + ' → ' + optimalBadge + pct + '% (' + finalColSpan + '/12 cols) · ' + finalRowSpan + ' filas' + limitNotice;
+              if (isConstrainedByHeight) {
+                badge.classList.add('badge-height-constrained');
+              } else {
+                badge.classList.remove('badge-height-constrained');
+              }
+            }
+
+            const blindBadge = el.querySelector('.board-card-blind-box .blind-box-badge');
+            if (blindBadge) {
+              const blindSpan = blindBadge.querySelector('span');
+              const limitNotice = isConstrainedByHeight ? ' (Mínimo para ' + origRowSpan + 'f)' : '';
+              if (blindSpan) blindSpan.textContent = finalColSpan + '/12 col · ' + finalRowSpan + ' filas' + limitNotice;
+              if (isConstrainedByHeight) {
+                blindBadge.classList.add('badge-height-constrained');
+              } else {
+                blindBadge.classList.remove('badge-height-constrained');
+              }
             }
           };
 
@@ -2723,6 +2777,9 @@ var GridEngine = {
 
               if (changed) {
                 this.compactGrid(tabKey);
+              }
+              if (typeof app !== 'undefined' && typeof app.updateTodayDensityTier === 'function') {
+                app.updateTodayDensityTier();
               }
             }, 80);
           });
