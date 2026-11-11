@@ -2400,12 +2400,12 @@
       #todayFocusContainer.card-has-extra-height #todayFocusContent .adaptive-internal-grid > div > div {
         height: 100%;
       }
-      @container hoypanel (max-width: 449px) {
+      @container hoypanel (max-width: 349px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
         }
       }
-      @container hoypanel (min-width: 450px) and (max-width: 579px) {
+      @container hoypanel (min-width: 350px) and (max-width: 469px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         }
@@ -2413,7 +2413,7 @@
           grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 580px) and (max-width: 1199px) {
+      @container hoypanel (min-width: 470px) and (max-width: 1099px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         }
@@ -2424,7 +2424,7 @@
           grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 1200px) {
+      @container hoypanel (min-width: 1100px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
@@ -2677,7 +2677,9 @@
       display: flex !important;
       flex-direction: column !important;
     }
-    .editorial-card.card-has-extra-height #weekTableContainer > .overflow-x-auto {
+    .editorial-card.card-has-extra-height #weekTableContainer > .overflow-x-auto,
+    .editorial-card.card-has-extra-height #weekTableContainer > .week-table-scroll-wrap,
+    .editorial-card.card-has-extra-height #weekTableContainer > div:last-child {
       flex: 1 1 0% !important;
       min-height: 0 !important;
       display: flex !important;
@@ -2691,7 +2693,7 @@
       height: 100% !important;
     }
     .editorial-card.card-has-extra-height #dailyTableBody tr {
-      height: 1fr !important;
+      height: auto !important;
     }
     .editorial-card.card-has-extra-height #dailyTableBody td {
       vertical-align: middle !important;
@@ -2714,28 +2716,38 @@
     .habits-subpanel-today {
       min-width: 0;
       min-height: 0 !important;
-      max-height: 100% !important;
-      height: 100% !important;
-      overflow: hidden !important;
+      max-height: none !important;
+      height: auto !important;
+      overflow: visible !important;
       transition: all 0.25s ease-in-out;
       display: flex !important;
       flex-direction: column !important;
       justify-content: flex-start !important;
+      flex: 1 1 auto !important;
       container-type: inline-size;
       container-name: hoypanel;
+    }
+    .editorial-card.card-has-extra-height .habits-subpanel-today {
+      height: 100% !important;
+      flex: 1 1 0% !important;
+      overflow: hidden !important;
     }
     .habits-subpanel-today > .today-top-bars-wrap {
       flex-shrink: 0 !important;
     }
     #todayFocusContent {
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
-      max-height: 100% !important;
+      max-height: none !important;
       overflow-y: auto !important;
       overflow-x: hidden !important;
       display: flex !important;
       flex-direction: column !important;
       gap: 0.5rem !important;
+    }
+    .editorial-card.card-has-extra-height #todayFocusContent {
+      flex: 1 1 0% !important;
+      max-height: 100% !important;
     }
 
     /* Subpanel Semana con expansión vertical y tabla proporcionada */
@@ -2744,25 +2756,40 @@
       transition: all 0.25s ease-in-out;
       display: flex !important;
       flex-direction: column !important;
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+    }
+    .editorial-card.card-has-extra-height .habits-subpanel-week {
+      flex: 1 1 0% !important;
       height: 100% !important;
     }
     #weekTableContainer {
       display: flex !important;
       flex-direction: column !important;
-      flex: 1 1 0% !important;
+      flex: 1 1 auto !important;
       min-height: 0 !important;
+      height: auto !important;
+      max-height: none !important;
+    }
+    .editorial-card.card-has-extra-height #weekTableContainer {
+      flex: 1 1 0% !important;
       height: 100% !important;
     }
     #weekTableContainer > .overflow-x-auto,
-    #weekTableContainer > div {
+    #weekTableContainer > .week-table-scroll-wrap,
+    #weekTableContainer > div:last-child {
       display: flex !important;
       flex-direction: column !important;
       flex: 1 1 0% !important;
       min-height: 0 !important;
       overflow-x: hidden !important;
       overflow-y: auto !important;
+    }
+    #weekTableContainer > div:nth-child(2) {
+      flex: 0 0 auto !important;
+      flex-direction: row !important;
     }
     #weekTableContainer table {
       width: 100% !important;

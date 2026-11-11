@@ -36,7 +36,7 @@
       }
     }
   </script>
-  <link rel="stylesheet" href="styles.css?v=2.8.3" />
+  <link rel="stylesheet" href="styles.css?v=2.8.6" />
 </head>
 <body class="min-h-screen text-slate-100 antialiased selection:bg-theme-main selection:text-white transition-colors duration-200">
   <!-- BARRA FLOTANTE MODO EDICIÓN DE TABLERO 12xH -->
@@ -3120,7 +3120,7 @@
       </div>
 
       <!-- Pestañas Principales (Panel Diario, Metas, Finanzas, Estadísticas) -->
-      <nav id="workspacesNavBar" class="hidden sm:flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold">
+      <nav id="workspacesNavBar" class="hidden sm:flex items-center gap-1 subpanel-bg p-1 rounded-xl border text-xs font-bold overflow-x-auto max-w-full no-scrollbar">
         <button onclick="app.switchTab(1)" id="tabNav1" class="px-3 py-1.5 rounded-lg transition whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">01</span>Panel Diario</button>
         <button onclick="app.switchTab(2)" id="tabNav2" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">02</span>Metas y Horario</button>
         <button onclick="app.switchTab(3)" id="tabNav3" class="px-3 py-1.5 rounded-lg transition text-slate-400 hover:text-slate-200 whitespace-nowrap cursor-pointer"><span class="font-mono text-[10px] opacity-70 mr-1.5">03</span>Finanzas Pro</button>
@@ -3533,7 +3533,7 @@
                   <span>▲</span> Plegar matriz
                 </button>
               </div>
-              <div class="w-full flex-1 min-h-0 flex flex-col overflow-hidden -mx-0.5 px-0.5">
+              <div class="week-table-scroll-wrap w-full flex-1 min-h-0 flex flex-col overflow-hidden -mx-0.5 px-0.5">
                 <table class="w-full text-center relative z-10 text-[9.5px]">
                   <thead>
                     <tr id="dailyTableHeader" class="text-xs font-extrabold uppercase border-b border-stone-300 dark:border-slate-800"></tr>
@@ -4693,12 +4693,12 @@
 
 
   <!-- SCRIPTS MODULARES -->
-  <script src="state-sync.js?v=2.8.3"></script>
-  <script src="widgets-registry.js?v=2.8.3"></script>
-  <script src="polymorphic-cards.js?v=2.8.3"></script>
-  <script src="workspaces.js?v=2.8.3"></script>
-  <script src="grid-engine.js?v=2.8.3"></script>
-  <script src="app.js?v=2.8.3"></script>
+  <script src="state-sync.js?v=2.8.6"></script>
+  <script src="widgets-registry.js?v=2.8.6"></script>
+  <script src="polymorphic-cards.js?v=2.8.6"></script>
+  <script src="workspaces.js?v=2.8.6"></script>
+  <script src="grid-engine.js?v=2.8.6"></script>
+  <script src="app.js?v=2.8.6"></script>
 
 
   <!-- RECUADRO FANTASMA FLOTANTE PARA ARRASTRE Y REDIMENSIÓN FLUIDA 12xH -->

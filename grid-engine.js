@@ -25,6 +25,8 @@ var GridEngine = {
               tab3PiggyCard: 8,
               tab3FixedExpensesCard: 8,
               tab3ExpensesTableCard: 8,
+              tab3ExpenseChartsSection: 10,
+              tab3AntExpensesCard: 8,
               tab4StudyAuditSection: 8,
               tab4CustomHabitsSection: 8,
               tab4AnatomyCard: 8,
@@ -49,13 +51,54 @@ var GridEngine = {
           const overlays = cardEl.querySelectorAll('.card-resize-handle, .card-drag-shield, .board-edit-ctrl-overlay');
           overlays.forEach(el => { el.style.display = 'none'; });
 
+          // Para todayFocusContainer, evitar colapso de subpaneles internos con flex-basis: 0 durante la medición
+          const todayRestoreNodes = [];
+          if (cardEl.id === 'todayFocusContainer') {
+            const compoundBody = cardEl.querySelector('.habits-compound-body');
+            const subToday = cardEl.querySelector('.habits-subpanel-today');
+            const focusContent = cardEl.querySelector('#todayFocusContent');
+            const subWeek = cardEl.querySelector('#weekTableContainer');
+            [compoundBody, subToday, focusContent, subWeek].forEach(node => {
+              if (node) {
+                todayRestoreNodes.push({
+                  el: node,
+                  h: node.style.height,
+                  maxH: node.style.maxHeight,
+                  flx: node.style.flex,
+                  ovf: node.style.overflow
+                });
+                node.style.setProperty('height', 'auto', 'important');
+                node.style.setProperty('max-height', 'none', 'important');
+                node.style.setProperty('flex', '1 1 auto', 'important');
+                node.style.setProperty('overflow', 'visible', 'important');
+              }
+            });
+          }
+
           // Aplicar síncronamente sin alterar gridColumn para respetar el ancho exacto
           cardEl.style.alignSelf = 'start';
           cardEl.style.height = 'auto';
           cardEl.style.minHeight = '0px';
 
           // Leer altura natural del contenido vivo
-          const naturalHeightPx = cardEl.getBoundingClientRect().height;
+          let naturalHeightPx = cardEl.getBoundingClientRect().height;
+          if (cardEl.id === 'todayFocusContainer') {
+            const subToday = cardEl.querySelector('.habits-subpanel-today');
+            const subWeek = cardEl.querySelector('#weekTableContainer');
+            const todayH = subToday ? (subToday.getBoundingClientRect().height + 72) : 0;
+            const weekH = (subWeek && !subWeek.classList.contains('hidden') && subWeek.style.display !== 'none') 
+              ? (subWeek.getBoundingClientRect().height + 72) 
+              : 0;
+            naturalHeightPx = Math.max(naturalHeightPx, todayH, weekH);
+          }
+
+          // Restaurar subpaneles de todayFocusContainer
+          todayRestoreNodes.forEach(item => {
+            item.el.style.height = item.h;
+            item.el.style.maxHeight = item.maxH;
+            item.el.style.flex = item.flx;
+            item.el.style.overflow = item.ovf;
+          });
 
           // Restaurar inmediatamente en la línea siguiente (mismo tick síncrono de JS, cero parpadeo)
           if (hadExtraClass) cardEl.classList.add('card-has-extra-height');
@@ -75,6 +118,10 @@ var GridEngine = {
             minAllowed = isCompact ? 8 : 12;
           } else if (cardEl.id === 'notesMiniCalendarPanel') {
             minAllowed = isCompact ? 6 : 8;
+          } else if (cardEl.id === 'tab3ExpenseChartsSection') {
+            minAllowed = isCompact ? 5 : 9;
+          } else if (cardEl.id === 'tab3AntExpensesCard') {
+            minAllowed = isCompact ? 4 : 7;
           }
           return Math.max(minAllowed, requiredRows);
         },
@@ -1933,6 +1980,12 @@ var GridEngine = {
               if (isComp) el.classList.add('card-mode-compact');
               else el.classList.remove('card-mode-compact');
             }
+            // Sincronizar instancias clonadas en la barra lateral o dock
+            const clones = document.querySelectorAll(`[data-is-clone="true"][data-widget-id="${cardId}"], #sidebar-${cardId}, #dock-${cardId}`);
+            clones.forEach(c => {
+              if (isComp) c.classList.add('card-mode-compact');
+              else c.classList.remove('card-mode-compact');
+            });
             if (cardId === 'todayFocusContainer') {
               if (typeof window.renderDailyHabits === 'function') window.renderDailyHabits();
               else if (typeof app !== 'undefined' && typeof app.renderDailyHabits === 'function') app.renderDailyHabits();
@@ -1970,15 +2023,33 @@ var GridEngine = {
           if (layout && layout[cardId]) {
             delete layout[cardId];
           }
-          // Si había un clon en la barra lateral
-          const clone = document.getElementById('sidebar-clone-' + cardId);
-          if (clone) clone.remove();
+          if (ws && ws.grid && ws.grid[cardId]) {
+            delete ws.grid[cardId];
+          }
+          if (state.globalSidebar && Array.isArray(state.globalSidebar.widgets)) {
+            state.globalSidebar.widgets = state.globalSidebar.widgets.filter(id => id !== cardId);
+          }
+          if (ws && Array.isArray(ws.dockWidgets)) {
+            ws.dockWidgets = ws.dockWidgets.filter(id => id !== cardId);
+          }
+          if (state.globalDock && Array.isArray(state.globalDock.widgets)) {
+            state.globalDock.widgets = state.globalDock.widgets.filter(id => id !== cardId);
+          }
 
-          // Solo aparcar en pool si ya no está ni en cuadrícula ni en la barra lateral
-          const stillInSidebar = state.globalSidebar && Array.isArray(state.globalSidebar.widgets) && state.globalSidebar.widgets.includes(cardId);
-          if (!stillInSidebar && window.WidgetsRegistry) {
+          // Eliminar posibles clones en barra lateral o dock
+          const sidebarClone = document.getElementById('sidebar-' + cardId) || document.getElementById('sidebar-clone-' + cardId);
+          if (sidebarClone) sidebarClone.remove();
+          const dockClone = document.getElementById('dock-' + cardId) || document.getElementById('dock-clone-' + cardId);
+          if (dockClone) dockClone.remove();
+
+          if (window.WidgetsRegistry) {
             window.WidgetsRegistry.parkWidget(cardId);
           }
+
+          if (window.WorkspacesManager) {
+            window.WorkspacesManager.mountActiveWorkspace();
+          }
+
           this.compactGrid(ws ? ws.grid : null, false);
           this.applyGridLayout();
           this.renderBoardEditHandles();
@@ -2659,6 +2730,7 @@ var GridEngine = {
           ['todayFocusContainer', 'notesMiniCalendarPanel', 'interactiveListsPanel', 'tab1RecentExpensesBar',
            'tab2ModularHabitsSection', 'tab2ScheduleSection', 'tab2AttendanceRulesSection',
            'tab3BudgetConfigCard', 'tab3SavingsGoalsCard', 'tab3PiggyCard', 'tab3FixedExpensesCard', 'tab3ExpensesTableCard',
+           'tab3ExpenseChartsSection', 'tab3AntExpensesCard',
            'tab4StudyAuditSection', 'tab4CustomHabitsSection', 'tab4AnatomyCard', 'tab4RunningRadarCard', 'tab4EvolutionSection'].forEach(id => {
             const el = document.getElementById(id);
             if (el) this._gridAutoObserver.observe(el);

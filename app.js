@@ -6663,9 +6663,18 @@
           }
         },
 
+        ensureEditableWeek() {
+          if (state.isReadOnlyLocked) {
+            state.isReadOnlyLocked = false;
+            if (typeof this.showToast === 'function') {
+              this.showToast('Semana desbloqueada automáticamente para edición.', 'info');
+            }
+          }
+        },
+
         // Gimnasio: botón variable (0 -> 1 -> 2 -> 0) y soporte +2 sesiones
         cycleGymSessionCount(dayIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Cambiar sesiones de gimnasio');
           playTickSound();
           const day = getActiveWeek().days[dayIdx];
@@ -6684,7 +6693,7 @@
         },
 
         addExtraGymSession(dayIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Añadir sesión extra de gimnasio');
           playTickSound();
           const day = getActiveWeek().days[dayIdx];
@@ -6699,7 +6708,7 @@
         },
 
         handleGymTypeSelection(dayIdx, sIdx, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Cambiar rutina de gimnasio');
           const gymObj = getActiveWeek().days[dayIdx].gym;
           if (!gymObj[`s${sIdx}`]) gymObj[`s${sIdx}`] = { type: val, custom: '' };
@@ -6722,7 +6731,7 @@
 
         // Running: botón variable (0 -> 1 -> 2 -> 0) + soporte +2 sesiones
         cycleRunSessionCount(dayIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Cambiar sesiones de running');
           playTickSound();
           const runObj = getActiveWeek().days[dayIdx].run;
@@ -6744,7 +6753,7 @@
         },
 
         addExtraRunSession(dayIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Añadir sesión extra de running');
           playTickSound();
           const runObj = getActiveWeek().days[dayIdx].run;
@@ -6759,7 +6768,7 @@
         },
 
         setRunSessionKm(dayIdx, sessionNum, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Modificar Km de running');
           const day = getActiveWeek().days[dayIdx];
           const kmVal = parseFloat(val) || 0;
@@ -6777,7 +6786,7 @@
         },
 
         setRunType(dayIdx, sessionNum, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Modificar tipo de running');
           const day = getActiveWeek().days[dayIdx];
           if (!day.run[`s${sessionNum}`]) day.run[`s${sessionNum}`] = { type: val, km: 0, custom: '' };
@@ -6793,7 +6802,7 @@
         },
 
         setRunKm(dayIdx, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Modificar Km de running');
           const kmVal = parseFloat(val) || 0;
           const day = getActiveWeek().days[dayIdx];
@@ -6806,7 +6815,7 @@
         },
 
         setRunType(dayIdx, sIdx, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Cambiar tipo de running');
           const session = getActiveWeek().days[dayIdx].run[`s${sIdx}`];
           session.type = val;
@@ -6974,12 +6983,15 @@
           state.manualMuscleStimulus[mId] = (state.manualMuscleStimulus[mId] || 0) + delta;
           app.inspectMuscle(mId);
           renderApp();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
         // Estudio
         setDailyStudyReal(dayIdx, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Modificar horas de estudio');
           const w = getActiveWeek();
           if (!w) return;
@@ -7001,10 +7013,13 @@
           renderDailyHabits();
           renderPomodoroUI();
           renderTab4();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
         addStudyToDay(dayIdx, hrs, optionalSubject) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Añadir horas de estudio');
           playTickSound();
           const w = getActiveWeek();
@@ -7023,14 +7038,14 @@
           renderDailyHabits();
           renderPomodoroUI();
           renderTab4();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
         setSubjectStudyHours(sub, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) {
-            this.showToast('Semana bloqueada en modo solo lectura.', 'amber');
-            return;
-          }
+          this.ensureEditableWeek();
           const w = getActiveWeek();
           if (!w) return;
           if (!w.studyBySubject) w.studyBySubject = {};
@@ -7051,7 +7066,11 @@
           renderDailyHabits();
           renderPomodoroUI();
           renderTab4();
+          if (typeof renderTab2 === 'function') renderTab2();
           if (typeof renderSubjectStudyStatsModal === 'function') renderSubjectStudyStatsModal();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
           this.showToast(`Horas de "${sub}": ${num.toFixed(1)}h`, 'blue');
         },
@@ -7104,7 +7123,7 @@
 
         // Asistencia y Nutrición
         cycleAttendance(dayIdx, classIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           const day = getActiveWeek()?.days?.[dayIdx];
           if (!day || !day.attendance) return;
           const item = day.attendance[classIdx];
@@ -7115,10 +7134,13 @@
           item.status = cycle[(cycle.indexOf(item.status) + 1) % cycle.length];
           renderDailyHabits();
           renderHeaderAndKPIs();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
         cycleNutrition(dayIdx) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Cambiar estado de nutrición');
           playTickSound();
           const item = getActiveWeek().days[dayIdx];
@@ -7133,10 +7155,13 @@
           }
           renderDailyHabits();
           renderHeaderAndKPIs();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
         setDayKcal(dayIdx, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           pushUndo('Modificar calorías');
           const w = getActiveWeek();
           const day = w.days[dayIdx];
@@ -7154,6 +7179,9 @@
 
           renderDailyHabits();
           renderHeaderAndKPIs();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
@@ -7374,10 +7402,8 @@
               if (iconEl) iconEl.innerHTML = def.iconSvg || `<svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>`;
               
               if (window.WidgetsRegistry) {
-                const ws = window.WorkspacesManager ? window.WorkspacesManager.getActiveWorkspace() : null;
-                const isAlreadyOnBoard = (ws && ws.grid && ws.grid[mode]) || (state.globalSidebar && state.globalSidebar.widgets && state.globalSidebar.widgets.includes(mode));
                 let mountedEl;
-                if (isAlreadyOnBoard && window.WidgetsRegistry.mountWidgetClone) {
+                if (window.WidgetsRegistry.mountWidgetClone) {
                   mountedEl = window.WidgetsRegistry.mountWidgetClone(mode, customBox, 'dock');
                 } else {
                   mountedEl = window.WidgetsRegistry.mountWidget(mode, customBox);
@@ -7439,6 +7465,12 @@
               }
             });
             customBox.innerHTML = '';
+          }
+          if (window.WorkspacesManager) {
+            window.WorkspacesManager.mountActiveWorkspace();
+          }
+          if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
+            window.GridEngine.applyGridLayout();
           }
           if (window.GridEngine && typeof window.GridEngine.applyGridLayout === 'function') {
             setTimeout(() => {
@@ -9149,9 +9181,11 @@
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ELEMENTOS DE LISTAS
         openItemActionsMenu(event, cat, id) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
 
           const popover = document.getElementById('listActionMenuPopover');
           if (!popover) return false;
@@ -9227,9 +9261,11 @@
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA GASTOS
         openExpenseActionsMenu(event, expenseId) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('expenseActionMenuPopover');
           if (!popover) return false;
 
@@ -9264,9 +9300,11 @@
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA HÁBITOS PERSONALIZADOS
         openCustomHabitActionsMenu(event, habitId) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('habitActionMenuPopover');
           if (!popover) return false;
 
@@ -9308,9 +9346,11 @@
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA CLASES DEL HORARIO
         openClassActionsMenu(event, dIdx, cIdx) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('classActionMenuPopover');
           if (!popover) return false;
 
@@ -9344,9 +9384,11 @@
         // MENÚ CONTEXTUAL (••• Y CLIC DERECHO) PARA ASIGNATURAS
         openSubjectActionsMenu(event, subjectName) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('subjectActionMenuPopover');
           if (!popover) return false;
 
@@ -9382,9 +9424,11 @@
         // MENÚ CONTEXTUAL (CLIC DERECHO) PARA PESTAÑAS DE VENTANAS
         openWorkspaceTabContextMenu(event, wsId) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('workspaceTabActionMenuPopover');
           if (!popover) return false;
 
@@ -9420,9 +9464,27 @@
           } else if (action === 'duplicate') {
             window.WorkspacesManager.duplicateWorkspace(wsId);
           } else if (action === 'reset') {
-            if (window.GridEngine && window.GridEngine.resetToDefaultLayout) {
-              window.GridEngine.resetToDefaultLayout();
+            if (window.WorkspacesManager) {
+              window.WorkspacesManager.switchWorkspace(wsId);
+              const factoryList = (typeof FACTORY_WORKSPACES !== 'undefined') ? FACTORY_WORKSPACES : null;
+              if (factoryList) {
+                const factoryWs = factoryList.find(f => f.id === wsId);
+                if (factoryWs && ws) {
+                  ws.grid = JSON.parse(JSON.stringify(factoryWs.grid || {}));
+                  ws.sidebarWidgets = JSON.parse(JSON.stringify(factoryWs.sidebarWidgets || []));
+                  ws.dockWidgets = JSON.parse(JSON.stringify(factoryWs.dockWidgets || []));
+                }
+              }
+              window.WorkspacesManager.mountActiveWorkspace();
+              window.WorkspacesManager.renderNavBar();
             }
+            if (typeof renderApp === 'function') renderApp();
+            if (window.GridEngine) {
+              window.GridEngine.compactGrid();
+              window.GridEngine.applyGridLayout();
+            }
+            if (typeof saveState === 'function') saveState();
+            this.showToast('Ventana restablecida a la disposición predeterminada.', 'blue');
           } else if (action === 'delete') {
             this.showConfirm({
               title: 'Eliminar Ventana',
@@ -9441,9 +9503,11 @@
         // MENÚ CONTEXTUAL (CLIC DERECHO) PARA PASTILLAS DE MÓDULOS BASE
         openBaseModuleContextMenu(event, moduleKey) {
           if (event) {
+            event.preventDefault();
             event.stopPropagation();
-            if (event.preventDefault) event.preventDefault();
+            if (event.stopImmediatePropagation) event.stopImmediatePropagation();
           }
+          document.getElementById('boardCardMenuPopover')?.classList.add('hidden');
           const popover = document.getElementById('baseModuleActionMenuPopover');
           if (!popover) return false;
 
@@ -12909,7 +12973,7 @@
           }
           slotIdx = Number(slotIdx) || 0;
 
-          if (state.isReadOnlyLocked) return this.showToast('Semana bloqueada en modo solo lectura.', 'warning');
+          this.ensureEditableWeek();
           playTickSound();
           const w = getActiveWeek();
           if (!w.customHabitsData) w.customHabitsData = {};
@@ -12948,6 +13012,9 @@
           renderFullWeekTable(isOverdue ? -1 : todayIdx, m, streaks);
           renderHeaderAndKPIs();
           updateHeaderDailyProgress();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
@@ -13616,8 +13683,9 @@
 
         // --- REGISTRO DE DATOS DE HÁBITOS PERSONALIZADOS EN EL DÍA ---
         setHabitDayValue(dayIdx, habitId, val) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           const w = getActiveWeek();
+          if (!w) return;
           if (!w.customHabitsData) w.customHabitsData = {};
           if (!Array.isArray(w.customHabitsData[habitId])) {
             w.customHabitsData[habitId] = [null, null, null, null, null, null, null];
@@ -13625,13 +13693,17 @@
           w.customHabitsData[habitId][dayIdx] = val === '' ? null : (isNaN(val) ? val : parseFloat(val));
           renderDailyHabits();
           renderHeaderAndKPIs();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
         toggleHabitDayCheck(dayIdx, habitId) {
-          if (state.viewingWeek !== state.currentWeek && state.isReadOnlyLocked) return;
+          this.ensureEditableWeek();
           playTickSound();
           const w = getActiveWeek();
+          if (!w) return;
           if (!w.customHabitsData) w.customHabitsData = {};
           if (!Array.isArray(w.customHabitsData[habitId])) {
             w.customHabitsData[habitId] = [null, null, null, null, null, null, null];
@@ -13640,6 +13712,9 @@
           w.customHabitsData[habitId][dayIdx] = cur ? null : true;
           renderDailyHabits();
           renderHeaderAndKPIs();
+          if (window.WidgetsRegistry && typeof window.WidgetsRegistry.syncAllClones === 'function') {
+            window.WidgetsRegistry.syncAllClones();
+          }
           saveState();
         },
 
@@ -13933,8 +14008,8 @@
       // GESTIÓN DE MENÚS CONTEXTUALES (CLIC DERECHO EN ELEMENTOS Y MÓDULOS)
       document.addEventListener('contextmenu', (e) => {
         // 1. Elementos internos con menús contextuales específicos (tareas, gastos, hábitos, clases, asignaturas, pestañas, módulos base)
-        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], [data-base-module-key], #modularTogglesRow, #modularTogglesRow *, #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover');
-        if (isInnerContextItem) {
+        const isInnerContextItem = e.target.closest('[data-item-id], [data-expense-id], [data-habit-id], [data-class-id], [data-subject-id], [data-base-module-key], #modularTogglesRow, #modularTogglesRow *, #workspacesNavBar button, #listActionMenuPopover, #expenseActionMenuPopover, #habitActionMenuPopover, #classActionMenuPopover, #subjectActionMenuPopover, #workspaceTabActionMenuPopover, #boardCardMenuPopover, #baseModuleActionMenuPopover, button, input, select, textarea');
+        if (isInnerContextItem && !isInnerContextItem.matches('.editorial-card, [data-widget-id]')) {
           return;
         }
 

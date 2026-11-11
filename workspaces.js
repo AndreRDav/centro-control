@@ -48,8 +48,8 @@ const WorkspacesManager = (function() {
         tab3PiggyCard: { col: 1, colSpan: 12, row: 9, rowSpan: 8, isPinned: false, compact: false },
         tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, rowSpan: 8, isPinned: false, compact: false },
         tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, rowSpan: 8, isPinned: false, compact: false },
-        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, rowSpan: 4, isPinned: false, compact: false },
-        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, rowSpan: 4, isPinned: false, compact: false }
+        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, rowSpan: 10, minRows: 9, idealRows: 10, isPinned: false, compact: false },
+        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 35, rowSpan: 8, minRows: 7, idealRows: 8, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []
@@ -111,8 +111,8 @@ const WorkspacesManager = (function() {
         tab3PiggyCard: { col: 1, colSpan: 12, row: 17, rowSpan: 8, isPinned: false, compact: false },
         tab3FixedExpensesCard: { col: 1, colSpan: 12, row: 25, rowSpan: 8, isPinned: false, compact: false },
         tab3ExpensesTableCard: { col: 1, colSpan: 12, row: 33, rowSpan: 8, isPinned: false, compact: false },
-        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 41, rowSpan: 4, isPinned: false, compact: false },
-        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 45, rowSpan: 4, isPinned: false, compact: false }
+        tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 41, rowSpan: 10, minRows: 9, idealRows: 10, isPinned: false, compact: false },
+        tab3AntExpensesCard: { col: 1, colSpan: 12, row: 51, rowSpan: 8, minRows: 7, idealRows: 8, isPinned: false, compact: false }
       },
       sidebarWidgets: [],
       dockWidgets: []
@@ -270,6 +270,15 @@ const WorkspacesManager = (function() {
 
         this.renderNavBar();
         this.mountActiveWorkspace();
+        if (typeof window.renderApp === 'function') window.renderApp();
+        else if (typeof renderApp === 'function') renderApp();
+        if (window.GridEngine) {
+          window.GridEngine.compactGrid();
+          window.GridEngine.applyGridLayout();
+          if (state.ui && state.ui.isBoardEditMode && typeof window.GridEngine.renderBoardEditHandles === 'function') {
+            window.GridEngine.renderBoardEditHandles();
+          }
+        }
         if (typeof saveUiOnly === 'function') saveUiOnly();
         else if (typeof saveState === 'function') saveState();
         return true;
@@ -398,12 +407,11 @@ const WorkspacesManager = (function() {
       }
     },
 
-    // Transición suave entre ventanas con View Transitions API o FLIP
+    // Transición suave entre ventanas de forma síncrona y limpia
     switchWorkspace(targetId) {
       this.ensureWorkspaces();
       if (state.activeWorkspaceId === targetId) return;
 
-      const fromWs = this.getActiveWorkspace();
       const toWs = this.getWorkspaceById(targetId);
       if (!toWs) return;
 
@@ -415,48 +423,22 @@ const WorkspacesManager = (function() {
         state.activeTab = targetIndex + 1;
       }
 
-      const applyDomChanges = () => {
-        this.mountActiveWorkspace();
-        this.renderNavBar();
-        if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
-          try { window.renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
-        } else if (typeof renderApp === 'function') {
-          try { renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
-        }
-        if (typeof app !== 'undefined' && app.applyGridLayout) {
-          app.applyGridLayout();
-        }
-        if (typeof app !== 'undefined' && state.ui && state.ui.isBoardEditMode) {
-          if (typeof app.renderBoardEditHandles === 'function') app.renderBoardEditHandles();
-          if (typeof app.renderWidgetsDrawer === 'function') app.renderWidgetsDrawer();
-        }
-        if (typeof saveUiOnly === 'function') saveUiOnly();
-        else if (typeof saveState === 'function') saveState();
-      };
-
-      // Si el navegador soporta View Transitions API de forma nativa
-      if (typeof document !== 'undefined' && document.startViewTransition) {
-        // Asignar view-transition-name a los widgets presentes en ambas ventanas para que hagan morphing
-        const sharedWidgets = Object.keys(fromWs.grid || {}).filter(id => toWs.grid && toWs.grid[id]);
-        sharedWidgets.forEach(id => {
-          const el = document.getElementById(id);
-          if (el) el.style.viewTransitionName = 'widget-' + id;
-        });
-
-        const transition = document.startViewTransition(() => {
-          applyDomChanges();
-        });
-
-        transition.finished.finally(() => {
-          sharedWidgets.forEach(id => {
-            const el = document.getElementById(id);
-            if (el) el.style.viewTransitionName = '';
-          });
-        });
-      } else {
-        // Fallback directo sin parpadeos
-        applyDomChanges();
+      this.mountActiveWorkspace();
+      this.renderNavBar();
+      if (typeof window !== 'undefined' && typeof window.renderApp === 'function') {
+        try { window.renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
+      } else if (typeof renderApp === 'function') {
+        try { renderApp(); } catch (e) { console.error('Error in renderApp from switchWorkspace:', e); }
       }
+      if (typeof app !== 'undefined' && app.applyGridLayout) {
+        app.applyGridLayout();
+      }
+      if (typeof app !== 'undefined' && state.ui && state.ui.isBoardEditMode) {
+        if (typeof app.renderBoardEditHandles === 'function') app.renderBoardEditHandles();
+        if (typeof app.renderWidgetsDrawer === 'function') app.renderWidgetsDrawer();
+      }
+      if (typeof saveUiOnly === 'function') saveUiOnly();
+      else if (typeof saveState === 'function') saveState();
     },
 
     switchWorkspaceByIndex(index) {
@@ -490,7 +472,15 @@ const WorkspacesManager = (function() {
       const dockWidgets = ws.dockWidgets || [];
       const mountedInWorkspace = new Set([...activeIds, ...sidebarWidgets]);
 
-      // Parquea en el pool los widgets que no están montados activamente en el grid ni en el sidebar
+      // 1. Limpieza de módulos fantasma: asegurar que en el grid principal NO quede ningún widget residual de pestañas anteriores
+      Array.from(gridContainer.children).forEach(child => {
+        if (child.id && !activeIds.includes(child.id) && window.WidgetsRegistry && window.WidgetsRegistry.getWidgetDef(child.id)) {
+          window.WidgetsRegistry.parkWidget(child.id);
+          child.style.opacity = '1';
+        }
+      });
+
+      // 2. Parquea en el pool los widgets que no están montados activamente en el grid ni en el sidebar
       window.WidgetsRegistry.parkInactiveWidgets(Array.from(mountedInWorkspace));
 
       // Asegurar que los widgets del dock permanezcan aparcados en el pool hasta que el usuario abra su panel
@@ -500,7 +490,7 @@ const WorkspacesManager = (function() {
         }
       });
 
-      // Monta cada widget en el grid
+      // 3. Monta cada widget en el grid
       activeIds.forEach(widgetId => {
         const el = window.WidgetsRegistry.mountWidget(widgetId, gridContainer);
         if (el) {
@@ -514,10 +504,19 @@ const WorkspacesManager = (function() {
         }
       });
 
-      // Monta widgets en la barra lateral global (invariante entre ventanas)
+      // 4. Monta widgets en la barra lateral global (invariante entre ventanas)
       const sidebarContainer = document.getElementById('sidebarWidgetsContainer');
       const sidebar = document.getElementById('workspaceSidebar');
       if (sidebarContainer) {
+        // Limpiar clones previos y aparcar widgets canónicos que ya no deban estar en la barra lateral
+        Array.from(sidebarContainer.children).forEach(child => {
+          if (child.getAttribute('data-is-clone') === 'true') {
+            child.remove();
+          } else if (child.id && (!sidebarWidgets.includes(child.id) || activeWidgets[child.id])) {
+            window.WidgetsRegistry.parkWidget(child.id);
+          }
+        });
+
         sidebarWidgets.forEach(widgetId => {
           let sEl;
           if (activeWidgets[widgetId] && window.WidgetsRegistry.mountWidgetClone) {

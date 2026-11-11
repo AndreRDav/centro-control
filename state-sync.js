@@ -861,8 +861,8 @@
                 tab3PiggyCard: { col: 1, colSpan: 12, row: 9, minRows: 8, manualRows: null, rowSpan: 8, name: 'Hucha Global' },
                 tab3FixedExpensesCard: { col: 1, colSpan: 5, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Gastos Fijos' },
                 tab3ExpensesTableCard: { col: 6, colSpan: 7, row: 17, minRows: 8, manualRows: null, rowSpan: 8, name: 'Tabla de Gastos' },
-                tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 3, manualRows: null, rowSpan: 4, name: 'Evolución y Dinámica de Gastos' },
-                tab3AntExpensesCard: { col: 1, colSpan: 12, row: 29, minRows: 3, manualRows: null, rowSpan: 4, name: 'Analítica de Gastos Hormiga' }
+                tab3ExpenseChartsSection: { col: 1, colSpan: 12, row: 25, minRows: 9, manualRows: null, rowSpan: 10, name: 'Evolución y Dinámica de Gastos' },
+                tab3AntExpensesCard: { col: 1, colSpan: 12, row: 35, minRows: 7, manualRows: null, rowSpan: 8, name: 'Analítica de Gastos Hormiga' }
               },
               tab4: {
                 tab4StudyAuditSection: { col: 1, colSpan: 12, row: 1, minRows: 8, manualRows: null, rowSpan: 8, name: 'Auditoría de Estudio' },
@@ -2425,10 +2425,19 @@ var pendingCloudConflictJson = null;
             }
             if (ws && (ws.id === 'ws-3' || ws.id === 'tab3') && ws.grid) {
               if (!ws.grid['tab3ExpenseChartsSection']) {
-                ws.grid['tab3ExpenseChartsSection'] = { col: 1, colSpan: 12, row: 25, rowSpan: 4, minRows: 3, isPinned: false, compact: false, name: 'Evolución y Dinámica de Gastos' };
+                ws.grid['tab3ExpenseChartsSection'] = { col: 1, colSpan: 12, row: 25, rowSpan: 10, minRows: 9, isPinned: false, compact: false, name: 'Evolución y Dinámica de Gastos' };
+              } else if (ws.grid['tab3ExpenseChartsSection'].rowSpan < 8) {
+                ws.grid['tab3ExpenseChartsSection'].rowSpan = 10;
+                ws.grid['tab3ExpenseChartsSection'].minRows = 9;
               }
               if (!ws.grid['tab3AntExpensesCard']) {
-                ws.grid['tab3AntExpensesCard'] = { col: 1, colSpan: 12, row: 29, rowSpan: 4, minRows: 3, isPinned: false, compact: false, name: 'Analítica de Gastos Hormiga' };
+                ws.grid['tab3AntExpensesCard'] = { col: 1, colSpan: 12, row: 35, rowSpan: 8, minRows: 7, isPinned: false, compact: false, name: 'Analítica de Gastos Hormiga' };
+              } else if (ws.grid['tab3AntExpensesCard'].rowSpan < 6) {
+                ws.grid['tab3AntExpensesCard'].rowSpan = 8;
+                ws.grid['tab3AntExpensesCard'].minRows = 7;
+                if (ws.grid['tab3AntExpensesCard'].row <= 29) {
+                  ws.grid['tab3AntExpensesCard'].row = 35;
+                }
               }
             }
             if (ws && Array.isArray(ws.sidebarWidgets)) {
@@ -2489,7 +2498,8 @@ var pendingCloudConflictJson = null;
         if (!s.weeks[s.currentWeek]) {
           s.weeks[s.currentWeek] = createEmptyWeek(s.currentWeek, s.goalsTemplate, s.scheduleTemplate);
         }
-        if (!s.viewingWeek) s.viewingWeek = s.currentWeek;
+        s.viewingWeek = s.currentWeek || 1;
+        s.isReadOnlyLocked = false;
 
         if (!s.goalsTemplate.nutri) s.goalsTemplate.nutri = { phase: 'volumen', kcal: 2800, margin: 150, minDays: 6 };
         if (s.goalsTemplate.nutri.kcal === undefined) s.goalsTemplate.nutri.kcal = 2800;
