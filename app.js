@@ -2656,7 +2656,7 @@
               bodyHtml = `
                 <div class="pt-1.5 space-y-1.5">
                   <div class="text-[10px] font-bold ${isRem ? 'text-theme-accent' : 'text-stone-500'} uppercase tracking-wider">Bloques de hoy (${doneSlots}/${daySlots}):</div>
-                  <div class="grid gap-1.5 w-full pt-0.5" style="grid-template-columns: repeat(auto-fit, minmax(115px, 1fr));">
+                  <div class="grid gap-1.5 w-full pt-0.5" style="grid-template-columns: repeat(auto-fit, minmax(85px, 1fr));">
                     ${Array.from({length: daySlots}).map((_, sIdx) => {
                       const isSlotChk = Array.isArray(dayVal) ? !!dayVal[sIdx] : (sIdx === 0 && (dayVal === true || dayVal === 1));
                       const slotHour = (h.slotLabels && h.slotLabels[sIdx]) || '';

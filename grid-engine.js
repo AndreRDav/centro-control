@@ -10,34 +10,37 @@ var GridEngine = {
           if (!cardEl || cardEl.classList.contains('hidden') || cardEl.style.display === 'none') {
             return 0;
           }
+          const isCompact = cardEl.classList.contains('card-mode-compact');
+          const fallbackMins = {
+            todayFocusContainer: 12,
+            notesMiniCalendarPanel: 6,
+            interactiveListsPanel: 7,
+            tab1RecentExpensesBar: 3,
+            weekTableContainer: 6,
+            tab2ModularHabitsSection: 5,
+            tab2ScheduleSection: 8,
+            tab2AttendanceRulesSection: 6,
+            tab3BudgetConfigCard: 5,
+            tab3SavingsGoalsCard: 5,
+            tab3PiggyCard: 5,
+            tab3FixedExpensesCard: 5,
+            tab3ExpensesTableCard: 5,
+            tab3ExpenseChartsSection: 9,
+            tab3AntExpensesCard: 6,
+            tab4StudyAuditSection: 5,
+            tab4CustomHabitsSection: 5,
+            tab4AnatomyCard: 7,
+            tab4RunningRadarCard: 7,
+            tab4EvolutionSection: 7,
+            topKpisWrapper: 2
+          };
+          const normalFallback = fallbackMins[cardEl.id] || 4;
+          const minAllowed = isCompact
+            ? Math.max(2, Math.round(normalFallback * 0.5))
+            : (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed ? 1 : normalFallback);
+
           if (cardEl.offsetParent === null) {
-            const fallbackMins = {
-              todayFocusContainer: 12,
-              notesMiniCalendarPanel: 6,
-              interactiveListsPanel: 8,
-              tab1RecentExpensesBar: 3,
-              weekTableContainer: 6,
-              tab2ModularHabitsSection: 5,
-              tab2ScheduleSection: 8,
-              tab2AttendanceRulesSection: 6,
-              tab3BudgetConfigCard: 5,
-              tab3SavingsGoalsCard: 5,
-              tab3PiggyCard: 5,
-              tab3FixedExpensesCard: 5,
-              tab3ExpensesTableCard: 5,
-              tab3ExpenseChartsSection: 7,
-              tab3AntExpensesCard: 5,
-              tab4StudyAuditSection: 5,
-              tab4CustomHabitsSection: 5,
-              tab4AnatomyCard: 6,
-              tab4RunningRadarCard: 6,
-              tab4EvolutionSection: 7,
-              topKpisWrapper: 2
-            };
-            const normalFallback = fallbackMins[cardEl.id] || 4;
-            return cardEl.classList.contains('card-mode-compact')
-              ? Math.max(2, Math.round(normalFallback * 0.45))
-              : normalFallback;
+            return minAllowed;
           }
 
           // Guardar temporalmente estilos inline y clase de estiramiento
@@ -59,7 +62,8 @@ var GridEngine = {
             const subToday = cardEl.querySelector('.habits-subpanel-today');
             const focusContent = cardEl.querySelector('#todayFocusContent');
             const subWeek = cardEl.querySelector('#weekTableContainer');
-            [compoundBody, subToday, focusContent, subWeek].forEach(node => {
+            const weekTableWrap = subWeek ? subWeek.querySelector('.week-table-scroll-wrap') : null;
+            [compoundBody, subToday, focusContent, subWeek, weekTableWrap].forEach(node => {
               if (node) {
                 todayRestoreNodes.push({
                   el: node,
@@ -86,10 +90,14 @@ var GridEngine = {
           if (cardEl.id === 'todayFocusContainer') {
             const subToday = cardEl.querySelector('.habits-subpanel-today');
             const subWeek = cardEl.querySelector('#weekTableContainer');
+            const weekTableEl = subWeek ? subWeek.querySelector('table') : null;
             const todayH = subToday ? (subToday.getBoundingClientRect().height + 72) : 0;
-            const weekH = (subWeek && !subWeek.classList.contains('hidden') && subWeek.style.display !== 'none') 
-              ? (subWeek.getBoundingClientRect().height + 72) 
-              : 0;
+            let weekH = 0;
+            if (subWeek && !subWeek.classList.contains('hidden') && subWeek.style.display !== 'none') {
+              const tableH = weekTableEl ? Math.max(weekTableEl.scrollHeight || 0, weekTableEl.offsetHeight || 0) : 0;
+              const headerH = 48;
+              weekH = tableH + headerH + 72;
+            }
             naturalHeightPx = Math.max(naturalHeightPx, todayH, weekH);
           }
 
@@ -109,11 +117,6 @@ var GridEngine = {
           overlays.forEach(el => { el.style.display = ''; });
 
           const requiredRows = Math.ceil((naturalHeightPx + 12) / 52);
-          const isCompact = cardEl.classList.contains('card-mode-compact');
-          let minAllowed = 2;
-          if (cardEl.id === 'topKpisWrapper' && state.uiPreferences && state.uiPreferences.kpisCollapsed) {
-            minAllowed = 1;
-          }
           return Math.max(minAllowed, requiredRows);
         },
 
@@ -854,11 +857,12 @@ var GridEngine = {
 
             const isMobile = (window.innerWidth < 1024);
 
-            // Escudo protector de arrastre exclusivo para escritorio (en móvil el scroll nativo tiene prioridad absoluta)
+              // Escudo protector de arrastre exclusivo para escritorio (en móvil el scroll nativo tiene prioridad absoluta)
             if (!isMobile) {
               const shield = document.createElement('div');
               shield.className = 'card-drag-shield board-edit-ctrl-overlay';
-              shield.title = 'Arrastra para mover este cuadro de posición o clic derecho para más opciones';
+              // Cero títulos nativos de navegador para evitar tooltips OS molestos sobre el tablero
+              shield.title = '';
               shield.onpointerdown = (e) => this.startCardDrag(e, id);
               shield.oncontextmenu = (e) => {
                 e.preventDefault();

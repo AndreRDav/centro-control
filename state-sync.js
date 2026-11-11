@@ -2650,12 +2650,45 @@ var pendingCloudConflictJson = null;
           });
         }
         if (s.globalSidebar && Array.isArray(s.globalSidebar.widgets)) {
-          const idx = s.globalSidebar.widgets.indexOf('tab4BiometricsSection');
-          if (idx !== -1) s.globalSidebar.widgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+          // Filtrar diagramas anatómicos del panel lateral estrecho y asegurar singularidad
+          s.globalSidebar.widgets = s.globalSidebar.widgets.filter(id => id !== 'tab4BiometricsSection' && id !== 'tab4AnatomyCard' && id !== 'tab4RunningRadarCard');
+          s.globalSidebar.widgets = Array.from(new Set(s.globalSidebar.widgets));
         }
         if (s.globalDock && Array.isArray(s.globalDock.widgets)) {
           const idx = s.globalDock.widgets.indexOf('tab4BiometricsSection');
           if (idx !== -1) s.globalDock.widgets.splice(idx, 1, 'tab4AnatomyCard', 'tab4RunningRadarCard');
+        }
+
+        // Blindaje contra colapso de filas en módulos complejos o diagramas SVG guardados previamente
+        if (s.workspaces && Array.isArray(s.workspaces)) {
+          s.workspaces.forEach(ws => {
+            if (ws && ws.grid) {
+              if (ws.grid.tab4AnatomyCard && ws.grid.tab4AnatomyCard.rowSpan < 7) {
+                ws.grid.tab4AnatomyCard.rowSpan = 8;
+                ws.grid.tab4AnatomyCard.minRows = 6;
+              }
+              if (ws.grid.tab4RunningRadarCard && ws.grid.tab4RunningRadarCard.rowSpan < 7) {
+                ws.grid.tab4RunningRadarCard.rowSpan = 8;
+                ws.grid.tab4RunningRadarCard.minRows = 6;
+              }
+              if (ws.grid.tab4EvolutionSection && ws.grid.tab4EvolutionSection.rowSpan < 7) {
+                ws.grid.tab4EvolutionSection.rowSpan = 8;
+                ws.grid.tab4EvolutionSection.minRows = 7;
+              }
+              if (ws.grid.tab2ModularHabitsSection && ws.grid.tab2ModularHabitsSection.rowSpan < 5) {
+                ws.grid.tab2ModularHabitsSection.rowSpan = 5;
+                ws.grid.tab2ModularHabitsSection.minRows = 5;
+              }
+              if (ws.grid.tab3ExpenseChartsSection && ws.grid.tab3ExpenseChartsSection.rowSpan < 8) {
+                ws.grid.tab3ExpenseChartsSection.rowSpan = 10;
+                ws.grid.tab3ExpenseChartsSection.minRows = 8;
+              }
+              if (ws.grid.tab3AntExpensesCard && ws.grid.tab3AntExpensesCard.rowSpan < 6) {
+                ws.grid.tab3AntExpensesCard.rowSpan = 8;
+                ws.grid.tab3AntExpensesCard.minRows = 6;
+              }
+            }
+          });
         }
 
         return s;

@@ -933,7 +933,17 @@
     .dashboard-grid-12 > .editorial-card > .board-card-blind-box {
       display: none !important;
     }
-    .board-edit-active .dashboard-grid-12 > .editorial-card > *:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle):not(.board-edit-header-bar):not(.board-card-blind-box) {
+    .board-edit-active .dashboard-grid-12 > .editorial-card > *:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle):not(.board-edit-header-bar):not(.board-card-blind-box),
+    .board-edit-active .dashboard-grid-12 > .editorial-card > div:not(.board-edit-ctrl-overlay):not(.card-drag-shield):not(.card-resize-handle):not(.board-edit-header-bar):not(.board-card-blind-box),
+    .board-edit-active #kpisSlimHeaderBar,
+    .board-edit-active #kpisCollapsibleBody,
+    .board-edit-active #scheduleDaysGrid,
+    .board-edit-active #subjectRulesCardsGrid,
+    .board-edit-active #tab2ModularHabitsSection > div,
+    .board-edit-active #todayFocusContainer > div:not(.board-edit-header-bar):not(.board-card-blind-box),
+    .board-edit-active #tab3ExpensesTableContainer,
+    .board-edit-active #tab4StudySubjectsGrid,
+    .board-edit-active #tab4CustomHabitsGrid {
       display: none !important;
     }
     .board-edit-active .dashboard-grid-12 > .editorial-card > .board-card-blind-box {
@@ -2483,7 +2493,7 @@
           grid-template-columns: repeat(1, minmax(0, 1fr)) !important;
         }
       }
-      @container hoypanel (min-width: 350px) and (max-width: 469px) {
+      @container hoypanel (min-width: 350px) and (max-width: 539px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
         }
@@ -2491,7 +2501,7 @@
           grid-column: span 2 !important;
         }
       }
-      @container hoypanel (min-width: 470px) and (max-width: 1099px) {
+      @container hoypanel (min-width: 540px) and (max-width: 1099px) {
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
         }
@@ -2506,6 +2516,22 @@
         #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid {
           grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
         }
+      }
+      .today-habit-card {
+        min-width: 0 !important;
+        box-sizing: border-box !important;
+        overflow: hidden !important;
+      }
+      .today-habit-card .today-card-footer {
+        flex-wrap: nowrap !important;
+        gap: 0.25rem !important;
+      }
+      .today-habit-card .today-card-footer button {
+        min-width: 0 !important;
+        padding-left: 0.25rem !important;
+        padding-right: 0.25rem !important;
+        font-size: 10px !important;
+        white-space: nowrap !important;
       }
       /* Cuando hay exactamente 4 tarjetas en un panel casi cuadrado, 2×2 es geométricamente óptimo */
       #todayFocusContainer .habits-subpanel-today .adaptive-internal-grid[data-card-count="4"] {
@@ -2951,7 +2977,7 @@
       min-width: 0 !important;
       table-layout: fixed !important;
       flex: 1 1 auto !important;
-      height: 100% !important;
+      height: auto !important;
       border-collapse: separate !important;
       border-spacing: 0 4px !important;
     }
